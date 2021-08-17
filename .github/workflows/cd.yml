@@ -1,0 +1,27 @@
+name: CD
+on:
+    push:
+        # Add master after bootstrapping src/
+        branches:
+            - "!**"
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: 🛎️ Check out
+              uses: actions/checkout@v2
+            - name: 🧮 Use Node.js
+              uses: actions/setup-node@v1
+              with:
+                  node-version: 14.x
+            - name: 📦 Install dependencies
+              run: npm ci
+            - name: 🧽 Lint
+              run: npm run lint
+            - name: 🛠️ Build
+              run: make -C play
+            - name: 🚀 Deploy
+              uses: JamesIves/github-pages-deploy-action@4.1.1
+              with:
+                  branch: gh-pages
+                  folder: play

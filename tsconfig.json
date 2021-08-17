@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "es2019",
+        "lib": [
+            "ES2019",
+            "DOM",
+        ],
+        "module": "es2020",
+        "moduleResolution": "node",
+        "strict": true,
+        "inlineSourceMap": true,
+        "noImplicitOverride": true,
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}
