@@ -6,6 +6,8 @@ import {mat_forward_colored_phong} from "../materials/mat_forward_colored_phong.
 import {mat_forward_colored_phong_skinned} from "../materials/mat_forward_colored_phong_skinned.js";
 import {mat_forward_colored_shadows} from "../materials/mat_forward_colored_shadows.js";
 import {mat_forward_depth} from "../materials/mat_forward_depth.js";
+import {mat_forward_particles_colored} from "../materials/mat_forward_particles_colored.js";
+import {mat_forward_particles_textured} from "../materials/mat_forward_particles_textured.js";
 import {mesh_cube} from "../meshes/cube.js";
 import {mesh_ludek} from "../meshes/ludek.js";
 import {sys_animate} from "./systems/sys_animate.js";
@@ -23,6 +25,7 @@ import {sys_lifespan} from "./systems/sys_lifespan.js";
 import {sys_light} from "./systems/sys_light.js";
 import {sys_mimic} from "./systems/sys_mimic.js";
 import {sys_move} from "./systems/sys_move.js";
+import {sys_particles} from "./systems/sys_particles.js";
 import {sys_physics_integrate} from "./systems/sys_physics_integrate.js";
 import {sys_physics_kinematic} from "./systems/sys_physics_kinematic.js";
 import {sys_physics_resolve} from "./systems/sys_physics_resolve.js";
@@ -45,6 +48,8 @@ export class Game extends Game3D {
     MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
     MaterialColoredGouraudSkinned = mat_forward_colored_gouraud_skinned(this.Gl);
     MaterialColoredPhongSkinned = mat_forward_colored_phong_skinned(this.Gl);
+    MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
+    MaterialParticlesTextured = mat_forward_particles_textured(this.Gl);
     MaterialDepth = mat_forward_depth(this.Gl);
 
     MeshCube = mesh_cube(this.Gl);
@@ -94,6 +99,7 @@ export class Game extends Game3D {
         sys_shake(this, delta);
         sys_toggle(this, delta);
         sys_spawn(this, delta);
+        sys_particles(this, delta);
         sys_transform(this, delta);
 
         // Rendering.

@@ -51,6 +51,8 @@ function render_depth(game: Game, camera: CameraDepth) {
 
             switch (render.Kind) {
                 case RenderKind.Vertices:
+                case RenderKind.ParticlesColored:
+                case RenderKind.ParticlesTextured:
                     // Skip rendering, RenderVertices doesn't cast shadow for now.
                     break;
                 default:

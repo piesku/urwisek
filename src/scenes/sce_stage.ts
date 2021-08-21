@@ -2,6 +2,7 @@ import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_character_rigged} from "../blueprints/blu_character_rigged.js";
+import {blueprint_flame_colored} from "../blueprints/blu_flame_colored.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {render_colored_shadows} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
@@ -35,4 +36,7 @@ export function scene_stage(game: Game) {
 
     // Ludek.
     instantiate(game, [...blueprint_character_rigged(game), transform([1, 0.5, 0])]);
+
+    // Fire.
+    instantiate(game, [...blueprint_flame_colored(game), transform([0, 0.5, -3])]);
 }
