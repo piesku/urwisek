@@ -18,6 +18,7 @@ import {Entity} from "../../common/world.js";
 import {
     ColoredShadedLayout,
     ColoredUnlitLayout,
+    ForwardInstancedLayout,
     ForwardShadingLayout,
     MappedShadedLayout,
     ParticlesColoredLayout,
@@ -41,7 +42,8 @@ export type Render =
     | RenderMappedShaded
     | RenderVertices
     | RenderParticlesColored
-    | RenderParticlesTextured;
+    | RenderParticlesTextured
+    | RenderInstanced;
 
 export const enum RenderKind {
     ColoredUnlit,
@@ -55,6 +57,7 @@ export const enum RenderKind {
     Vertices,
     ParticlesColored,
     ParticlesTextured,
+    Instanced,
 }
 
 const colored_unlit_vaos: WeakMap<Mesh, WebGLVertexArrayObject> = new WeakMap();
@@ -740,6 +743,61 @@ export function render_particles_textured(
             ColorEnd: end_color,
             Size: [start_size, end_size],
             FrontFace: GL_CW,
+        };
+    };
+}
+
+export interface RenderInstanced {
+    readonly Kind: RenderKind.Instanced;
+    readonly Material: Material<ForwardInstancedLayout>;
+    readonly Mesh: Mesh;
+    readonly FrontFace: GLenum;
+    readonly Vao: WebGLVertexArrayObject;
+    readonly InstanceCount: number;
+    readonly Palette: Array<number>;
+}
+
+export type InstancedData = Float32Array;
+
+export function render_instanced(mesh: Mesh, offsets: InstancedData, palette: Array<number>) {
+    return (game: Game, entity: Entity) => {
+        let material = game.MaterialInstanced;
+
+        // We can't cache the VAO per mesh, like we do in com_render in other
+        // examples, because the offsets vary between the instances of the
+        // component. Hint: If offset models are guaranteed to only ever be
+        // rendered using the same mesh as atoms (e.g. a model of a horse is
+        // always rendered using cube voxels), it might be beneficial to cache
+        // VAOs per model.
+        let vao = game.Gl.createVertexArray()!;
+        game.Gl.bindVertexArray(vao);
+
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+        game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+        game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
+        game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
+        game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
+
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, game.Gl.createBuffer());
+        game.Gl.bufferData(GL_ARRAY_BUFFER, offsets, GL_STATIC_DRAW);
+        game.Gl.enableVertexAttribArray(material.Locations.VertexOffset);
+        game.Gl.vertexAttribPointer(material.Locations.VertexOffset, 4, GL_FLOAT, false, 0, 0);
+        game.Gl.vertexAttribDivisor(material.Locations.VertexOffset, 1);
+
+        game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+
+        game.Gl.bindVertexArray(null);
+        game.World.Signature[entity] |= Has.Render;
+        game.World.Render[entity] = {
+            Kind: RenderKind.Instanced,
+            Material: material,
+            Mesh: mesh,
+            FrontFace: GL_CW,
+            Vao: vao,
+            InstanceCount: offsets.length / 4,
+            Palette: palette,
         };
     };
 }

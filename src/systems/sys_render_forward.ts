@@ -21,6 +21,7 @@ import {Entity, first_entity} from "../../common/world.js";
 import {
     ColoredShadedLayout,
     ColoredUnlitLayout,
+    ForwardInstancedLayout,
     ForwardShadingLayout,
     MappedShadedLayout,
     ParticlesColoredLayout,
@@ -38,6 +39,7 @@ import {
     RenderColoredShadows,
     RenderColoredSkinned,
     RenderColoredUnlit,
+    RenderInstanced,
     RenderKind,
     RenderMappedShaded,
     RenderParticlesColored,
@@ -125,6 +127,9 @@ function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
                     case RenderKind.ParticlesTextured:
                         use_particles_textured(game, render.Material, eye);
                         break;
+                    case RenderKind.Instanced:
+                        use_instanced(game, render.Material, eye);
+                        break;
                 }
             }
 
@@ -180,6 +185,9 @@ function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
                     }
                     break;
                 }
+                case RenderKind.Instanced:
+                    draw_instanced(game, transform, render);
+                    break;
             }
         }
     }
@@ -490,4 +498,26 @@ function draw_particles_textured(
         4 * 4
     );
     game.Gl.drawArrays(render.Material.Mode, 0, emitter.Instances.length / DATA_PER_PARTICLE);
+}
+
+function use_instanced(game: Game, material: Material<ForwardInstancedLayout>, eye: CameraEye) {
+    game.Gl.useProgram(material.Program);
+    game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+    game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
+    game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+}
+
+function draw_instanced(game: Game, transform: Transform, render: RenderInstanced) {
+    game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
+    game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
+    game.Gl.uniform3fv(render.Material.Locations.Palette, render.Palette);
+    game.Gl.bindVertexArray(render.Vao);
+    game.Gl.drawElementsInstanced(
+        render.Material.Mode,
+        render.Mesh.IndexCount,
+        GL_UNSIGNED_SHORT,
+        0,
+        render.InstanceCount
+    );
+    game.Gl.bindVertexArray(null);
 }

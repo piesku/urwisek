@@ -4,7 +4,7 @@ import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_character_rigged} from "../blueprints/blu_character_rigged.js";
 import {blueprint_flame_colored} from "../blueprints/blu_flame_colored.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
-import {render_colored_shadows} from "../components/com_render.js";
+import {render_colored_shadows, render_instanced} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {World} from "../world.js";
@@ -31,7 +31,11 @@ export function scene_stage(game: Game) {
     // Cube.
     instantiate(game, [
         transform([-1, 1, 0]),
-        render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1]),
+        render_instanced(
+            game.MeshCube,
+            Float32Array.from([0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1]),
+            [1, 1, 0.3, 0.3, 1, 0.3]
+        ),
     ]);
 
     // Ludek.
