@@ -1,5 +1,6 @@
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
+import {float} from "../../common/random.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_character_rigged} from "../blueprints/blu_character_rigged.js";
 import {blueprint_flame_colored} from "../blueprints/blu_flame_colored.js";
@@ -29,13 +30,17 @@ export function scene_stage(game: Game) {
     ]);
 
     // Cube.
+    let radius = 0.5;
+    let leaf_count = 50;
+    let offsets = [];
+    for (let i = 0; i < leaf_count; i++) {
+        offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), 0);
+    }
+
+    console.log(offsets);
     instantiate(game, [
-        transform([-1, 1, 0]),
-        render_instanced(
-            game.MeshCube,
-            Float32Array.from([0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1]),
-            [1, 1, 0.3, 0.3, 1, 0.3]
-        ),
+        transform([-1, 2, 0], from_euler([0, 0, 0, 0], 90, 0, 0)),
+        render_instanced(game.MeshTriangle, Float32Array.from(offsets), [0, 1, 0]),
     ]);
 
     // Ludek.

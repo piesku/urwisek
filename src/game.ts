@@ -11,6 +11,7 @@ import {mat_forward_particles_colored} from "../materials/mat_forward_particles_
 import {mat_forward_particles_textured} from "../materials/mat_forward_particles_textured.js";
 import {mesh_cube} from "../meshes/cube.js";
 import {mesh_ludek} from "../meshes/ludek.js";
+import {mesh_triangle} from "../meshes/triangle.js";
 import {sys_animate} from "./systems/sys_animate.js";
 import {sys_audio_listener} from "./systems/sys_audio_listener.js";
 import {sys_audio_source} from "./systems/sys_audio_source.js";
@@ -54,6 +55,7 @@ export class Game extends Game3D {
     MaterialDepth = mat_forward_depth(this.Gl);
     MaterialInstanced = mat_forward_instanced(this.Gl);
 
+    MeshTriangle = mesh_triangle(this.Gl);
     MeshCube = mesh_cube(this.Gl);
     MeshLudek = mesh_ludek(this.Gl);
 
