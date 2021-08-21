@@ -423,11 +423,29 @@ for (let blueprint of blueprints) {
 let child = instantiate(game, blueprint);
 child_entities.push(child);
 }
-game.World.Signature[entity] |= 16 /* Children */;
+game.World.Signature[entity] |= 32 /* Children */;
 game.World.Children[entity] = {
 Children: child_entities,
 };
 };
+}
+/**
+* Yield entities matching a component mask. The query is tested against the
+* parent and all its descendants.
+*
+* @param world World object which stores the component data.
+* @param parent Parent entity to traverse.
+* @param mask Component mask to look for.
+*/
+function* query_all(world, parent, mask) {
+if ((world.Signature[parent] & mask) === mask) {
+yield parent;
+}
+if (world.Signature[parent] & 32 /* Children */) {
+for (let child of world.Children[parent].Children) {
+yield* query_all(world, child, mask);
+}
+}
 }
 /**
 * Delete the entity with all its descendants.
@@ -435,7 +453,7 @@ Children: child_entities,
 * @param entity The root entity to start removing at.
 */
 function destroy_all(world, entity) {
-if (world.Signature[entity] & 16 /* Children */) {
+if (world.Signature[entity] & 32 /* Children */) {
 for (let child of world.Children[entity].Children) {
 destroy_all(world, child);
 }
@@ -523,7 +541,119 @@ throw new Error(gl.getShaderInfoLog(shader));
 return shader;
 }
 
-let vertex$2 = `#version 300 es\n
+let vertex$4 = `#version 300 es\n
+
+
+const int MAX_LIGHTS = 8;
+
+uniform mat4 pv;
+uniform mat4 world;
+uniform mat4 self;
+uniform vec3 eye;
+uniform vec4 diffuse_color;
+uniform vec4 specular_color;
+uniform float shininess;
+uniform vec4 light_positions[MAX_LIGHTS];
+uniform vec4 light_details[MAX_LIGHTS];
+uniform mat4 bones[6];
+
+in vec3 attr_position;
+in vec3 attr_normal;
+in vec4 attr_weights;
+
+out vec4 vert_color;
+
+mat4 world_weighted(vec4 weights) {
+return weights[1] * bones[int(weights[0])] + weights[3] * bones[int(weights[2])];
+}
+
+void main() {
+mat4 bone_world = world_weighted(attr_weights);
+vec4 world_position = bone_world * vec4(attr_position, 1.0);
+vec3 world_normal = normalize(mat3(bone_world) * attr_normal);
+gl_Position = pv * world_position;
+
+vec3 view_dir = eye - world_position.xyz;
+vec3 view_normal = normalize(view_dir);
+
+
+vec3 light_acc = diffuse_color.rgb * 0.1;
+
+for (int i = 0; i < MAX_LIGHTS; i++) {
+if (light_positions[i].w == 0.0) {
+break;
+}
+
+vec3 light_color = light_details[i].rgb;
+float light_intensity = light_details[i].a;
+
+vec3 light_normal;
+if (light_positions[i].w == 1.0) {
+
+light_normal = light_positions[i].xyz;
+} else {
+vec3 light_dir = light_positions[i].xyz - world_position.xyz;
+float light_dist = length(light_dir);
+light_normal = light_dir / light_dist;
+
+light_intensity /= (light_dist * light_dist);
+}
+
+float diffuse_factor = dot(world_normal, light_normal);
+if (diffuse_factor > 0.0) {
+
+light_acc += diffuse_color.rgb * diffuse_factor * light_color * light_intensity;
+
+if (shininess > 0.0) {
+
+vec3 h = normalize(light_normal + view_normal);
+float specular_angle = max(dot(h, world_normal), 0.0);
+float specular_factor = pow(specular_angle, shininess);
+
+
+light_acc += specular_color.rgb * specular_factor * light_color * light_intensity;
+}
+}
+}
+
+vert_color = vec4(light_acc, 1.0);
+}
+`;
+let fragment$4 = `#version 300 es\n
+precision mediump float;
+
+in vec4 vert_color;
+
+out vec4 frag_color;
+
+void main() {
+frag_color = vert_color;
+}
+`;
+function mat_forward_colored_gouraud_skinned(gl) {
+let program = link(gl, vertex$4, fragment$4);
+return {
+Mode: GL_TRIANGLES,
+Program: program,
+Locations: {
+Pv: gl.getUniformLocation(program, "pv"),
+World: gl.getUniformLocation(program, "world"),
+Self: gl.getUniformLocation(program, "self"),
+DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
+SpecularColor: gl.getUniformLocation(program, "specular_color"),
+Shininess: gl.getUniformLocation(program, "shininess"),
+Eye: gl.getUniformLocation(program, "eye"),
+LightPositions: gl.getUniformLocation(program, "light_positions"),
+LightDetails: gl.getUniformLocation(program, "light_details"),
+VertexPosition: gl.getAttribLocation(program, "attr_position"),
+VertexNormal: gl.getAttribLocation(program, "attr_normal"),
+Bones: gl.getUniformLocation(program, "bones"),
+VertexWeights: gl.getAttribLocation(program, "attr_weights"),
+},
+};
+}
+
+let vertex$3 = `#version 300 es\n
 
 uniform mat4 pv;
 uniform mat4 world;
@@ -538,6 +668,123 @@ out vec3 vert_normal;
 void main() {
 vert_position = world * vec4(attr_position, 1.0);
 vert_normal = (vec4(attr_normal, 1.0) * self).xyz;
+gl_Position = pv * vert_position;
+}
+`;
+let fragment$3 = `#version 300 es\n
+precision mediump float;
+
+
+const int MAX_LIGHTS = 8;
+
+uniform vec3 eye;
+uniform vec4 diffuse_color;
+uniform vec4 specular_color;
+uniform float shininess;
+uniform vec4 light_positions[MAX_LIGHTS];
+uniform vec4 light_details[MAX_LIGHTS];
+
+in vec4 vert_position;
+in vec3 vert_normal;
+
+out vec4 frag_color;
+
+void main() {
+vec3 world_normal = normalize(vert_normal);
+
+vec3 view_dir = eye - vert_position.xyz;
+vec3 view_normal = normalize(view_dir);
+
+
+vec3 light_acc = diffuse_color.rgb * 0.1;
+
+for (int i = 0; i < MAX_LIGHTS; i++) {
+if (light_positions[i].w == 0.0) {
+break;
+}
+
+vec3 light_color = light_details[i].rgb;
+float light_intensity = light_details[i].a;
+
+vec3 light_normal;
+if (light_positions[i].w == 1.0) {
+
+light_normal = light_positions[i].xyz;
+} else {
+vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
+float light_dist = length(light_dir);
+light_normal = light_dir / light_dist;
+
+light_intensity /= (light_dist * light_dist);
+}
+
+float diffuse_factor = dot(world_normal, light_normal);
+if (diffuse_factor > 0.0) {
+
+light_acc += diffuse_color.rgb * diffuse_factor * light_color * light_intensity;
+
+if (shininess > 0.0) {
+
+
+
+
+
+
+vec3 h = normalize(light_normal + view_normal);
+float specular_angle = max(dot(h, world_normal), 0.0);
+float specular_factor = pow(specular_angle, shininess);
+
+
+light_acc += specular_color.rgb * specular_factor * light_color * light_intensity;
+}
+}
+}
+
+frag_color = vec4(light_acc, 1.0);
+}
+`;
+function mat_forward_colored_phong(gl) {
+let program = link(gl, vertex$3, fragment$3);
+return {
+Mode: GL_TRIANGLES,
+Program: program,
+Locations: {
+Pv: gl.getUniformLocation(program, "pv"),
+World: gl.getUniformLocation(program, "world"),
+Self: gl.getUniformLocation(program, "self"),
+DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
+SpecularColor: gl.getUniformLocation(program, "specular_color"),
+Shininess: gl.getUniformLocation(program, "shininess"),
+Eye: gl.getUniformLocation(program, "eye"),
+LightPositions: gl.getUniformLocation(program, "light_positions"),
+LightDetails: gl.getUniformLocation(program, "light_details"),
+VertexPosition: gl.getAttribLocation(program, "attr_position"),
+VertexNormal: gl.getAttribLocation(program, "attr_normal"),
+},
+};
+}
+
+let vertex$2 = `#version 300 es\n
+uniform mat4 pv;
+uniform mat4 world;
+uniform mat4 self;
+uniform mat4 bones[6];
+
+in vec3 attr_position;
+in vec3 attr_normal;
+in vec4 attr_weights;
+
+out vec4 vert_position;
+out vec3 vert_normal;
+
+mat4 world_weighted(vec4 weights) {
+return weights[1] * bones[int(weights[0])] + weights[3] * bones[int(weights[2])];
+}
+
+void main() {
+mat4 bone_world = world_weighted(attr_weights);
+vert_position = bone_world * vec4(attr_position, 1.0);
+vert_normal = normalize(mat3(bone_world) * attr_normal);
 gl_Position = pv * vert_position;
 }
 `;
@@ -613,7 +860,7 @@ light_acc += specular_color.rgb * specular_factor * light_color * light_intensit
 frag_color = vec4(light_acc, 1.0);
 }
 `;
-function mat_forward_colored_phong(gl) {
+function mat_forward_colored_phong_skinned(gl) {
 let program = link(gl, vertex$2, fragment$2);
 return {
 Mode: GL_TRIANGLES,
@@ -630,6 +877,8 @@ LightPositions: gl.getUniformLocation(program, "light_positions"),
 LightDetails: gl.getUniformLocation(program, "light_details"),
 VertexPosition: gl.getAttribLocation(program, "attr_position"),
 VertexNormal: gl.getAttribLocation(program, "attr_normal"),
+Bones: gl.getUniformLocation(program, "bones"),
+VertexWeights: gl.getAttribLocation(program, "attr_weights"),
 },
 };
 }
@@ -803,6 +1052,138 @@ VertexPosition: gl.getAttribLocation(program, "attr_position"),
 function mesh_cube(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$1, GL_STATIC_DRAW);
+let normal_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$1, GL_STATIC_DRAW);
+let texcoord_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$1, GL_STATIC_DRAW);
+let weights_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+gl.bufferData(GL_ARRAY_BUFFER, weights_arr$1, GL_STATIC_DRAW);
+let index_buf = gl.createBuffer();
+gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$1, GL_STATIC_DRAW);
+return {
+VertexBuffer: vertex_buf,
+VertexArray: vertex_arr$1,
+NormalBuffer: normal_buf,
+NormalArray: normal_arr$1,
+TexCoordBuffer: texcoord_buf,
+TexCoordArray: texcoord_arr$1,
+WeightsBuffer: weights_buf,
+WeightsArray: weights_arr$1,
+IndexBuffer: index_buf,
+IndexArray: index_arr$1,
+IndexCount: index_arr$1.length,
+};
+}
+
+let vertex_arr$1 = Float32Array.from([
+-0.5, -0.5, 0.5,
+-0.5, 0.5, 0.5,
+-0.5, 0.5, -0.5,
+-0.5, -0.5, -0.5,
+-0.5, -0.5, -0.5,
+-0.5, 0.5, -0.5,
+0.5, 0.5, -0.5,
+0.5, -0.5, -0.5,
+0.5, -0.5, -0.5,
+0.5, 0.5, -0.5,
+0.5, 0.5, 0.5,
+0.5, -0.5, 0.5,
+0.5, -0.5, 0.5,
+0.5, 0.5, 0.5,
+-0.5, 0.5, 0.5,
+-0.5, -0.5, 0.5,
+-0.5, -0.5, -0.5,
+0.5, -0.5, -0.5,
+0.5, -0.5, 0.5,
+-0.5, -0.5, 0.5,
+0.5, 0.5, -0.5,
+-0.5, 0.5, -0.5,
+-0.5, 0.5, 0.5,
+0.5, 0.5, 0.5
+]);
+
+let normal_arr$1 = Float32Array.from([
+-1, 0, 0,
+-1, 0, 0,
+-1, 0, 0,
+-1, 0, 0,
+0, 0, -1,
+0, 0, -1,
+0, 0, -1,
+0, 0, -1,
+1, 0, 0,
+1, 0, 0,
+1, 0, 0,
+1, 0, 0,
+0, 0, 1,
+0, 0, 1,
+0, 0, 1,
+0, 0, 1,
+0, -1, 0,
+0, -1, 0,
+0, -1, 0,
+0, -1, 0,
+0, 1, 0,
+0, 1, 0,
+0, 1, 0,
+0, 1, 0
+]);
+
+let texcoord_arr$1 = Float32Array.from([
+0.666667, 0.333333,
+0.333333, 0.333333,
+0.333333, 0,
+0.666667, 0,
+0.333333, 0.666667,
+0, 0.666667,
+0, 0.333333,
+0.333333, 0.333333,
+0.333333, 0.333333,
+0, 0.333333,
+0, 0,
+0.333333, 0,
+0.333333, 0.666667,
+0.333333, 0.333333,
+0.666667, 0.333333,
+0.666667, 0.666667,
+1, 0.333333,
+0.666667, 0.333333,
+0.666667, 0,
+1, 0,
+0.333333, 0.666667,
+0.333333, 1,
+0, 1,
+0, 0.666667
+]);
+
+let weights_arr$1 = Float32Array.from([
+
+
+]);
+
+let index_arr$1 = Uint16Array.from([
+23, 22, 20,
+22, 21, 20,
+19, 18, 16,
+18, 17, 16,
+15, 14, 12,
+14, 13, 12,
+11, 10, 8,
+10, 9, 8,
+7, 6, 4,
+6, 5, 4,
+3, 2, 0,
+2, 1, 0
+]);
+
+function mesh_ludek(gl) {
+let vertex_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 gl.bufferData(GL_ARRAY_BUFFER, vertex_arr, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
@@ -832,103 +1213,92 @@ IndexCount: index_arr.length,
 }
 
 let vertex_arr = Float32Array.from([
--0.5, -0.5, 0.5,
--0.5, 0.5, 0.5,
--0.5, 0.5, -0.5,
--0.5, -0.5, -0.5,
--0.5, -0.5, -0.5,
--0.5, 0.5, -0.5,
-0.5, 0.5, -0.5,
-0.5, -0.5, -0.5,
-0.5, -0.5, -0.5,
-0.5, 0.5, -0.5,
-0.5, 0.5, 0.5,
-0.5, -0.5, 0.5,
-0.5, -0.5, 0.5,
-0.5, 0.5, 0.5,
--0.5, 0.5, 0.5,
--0.5, -0.5, 0.5,
--0.5, -0.5, -0.5,
-0.5, -0.5, -0.5,
-0.5, -0.5, 0.5,
--0.5, -0.5, 0.5,
-0.5, 0.5, -0.5,
--0.5, 0.5, -0.5,
--0.5, 0.5, 0.5,
-0.5, 0.5, 0.5
+-0.3, 1.2, -0.15,
+0.45, 1.47, 0,
+0.3, 1.2, -0.15,
+0.27, 0.63, 0,
+0, 0.63, 0.15,
+0.15, 0, 0,
+0.3, 1.2, 0.15,
+1.05, 1.35, 0,
+-1.05, 1.35, 0,
+-0.45, 1.47, 0,
+-0.3, 1.2, 0.15,
+0, 0.63, -0.15,
+-0.15, 0, 0,
+-0.27, 0.63, 0,
+0, 2.25, -0.15,
+0, 2.25, 0.45
 ]);
 
 let normal_arr = Float32Array.from([
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0
+-0.424, -0.0402, -0.9048,
+0.3556, 0.9341, -0.0314,
+0.424, -0.0402, -0.9048,
+0.9544, -0.2985, 0,
+0, -0.2684, 0.9633,
+0.0912, -0.9958, 0,
+0.424, -0.0402, 0.9048,
+0.9979, 0.0645, 0,
+-0.9979, 0.0645, 0,
+-0.3556, 0.9341, -0.0314,
+-0.424, -0.0402, 0.9048,
+0, -0.2684, -0.9633,
+-0.0912, -0.9958, 0,
+-0.9544, -0.2985, 0,
+0, 0.767, -0.6416,
+0, 0.6255, 0.7802
 ]);
 
-let texcoord_arr = Float32Array.from([
-0.666667, 0.333333,
-0.333333, 0.333333,
-0.333333, 0,
-0.666667, 0,
-0.333333, 0.666667,
-0, 0.666667,
-0, 0.333333,
-0.333333, 0.333333,
-0.333333, 0.333333,
-0, 0.333333,
-0, 0,
-0.333333, 0,
-0.333333, 0.666667,
-0.333333, 0.333333,
-0.666667, 0.333333,
-0.666667, 0.666667,
-1, 0.333333,
-0.666667, 0.333333,
-0.666667, 0,
-1, 0,
-0.333333, 0.666667,
-0.333333, 1,
-0, 1,
-0, 0.666667
-]);
+let texcoord_arr = Float32Array.from([]);
 
 let weights_arr = Float32Array.from([
-
-
+3, 1, 0, 0,
+1, 0.75, 2, 0.25,
+2, 1, 0, 0,
+4, 1, 0, 0,
+4, 0.5, 5, 0.5,
+4, 1, 0, 0,
+2, 1, 0, 0,
+2, 1, 0, 0,
+3, 1, 0, 0,
+1, 0.75, 3, 0.25,
+3, 1, 0, 0,
+4, 0.5, 5, 0.5,
+5, 1, 0, 0,
+5, 1, 0, 0,
+1, 1, 0, 0,
+1, 1, 0, 0,
 ]);
 
 let index_arr = Uint16Array.from([
-23, 22, 20,
-22, 21, 20,
-19, 18, 16,
-18, 17, 16,
-15, 14, 12,
-14, 13, 12,
-11, 10, 8,
-10, 9, 8,
-7, 6, 4,
-6, 5, 4,
-3, 2, 0,
+15, 9, 14,
+1, 15, 14,
+9, 15, 1,
+1, 14, 9,
+2, 7, 1,
+9, 1, 6,
+6, 7, 2,
+7, 6, 1,
+6, 2, 3,
+6, 3, 4,
+5, 4, 3,
+11, 3, 2,
+4, 5, 11,
+4, 11, 12,
+11, 5, 3,
+12, 13, 4,
+13, 12, 11,
+10, 6, 4,
+10, 4, 13,
+6, 10, 9,
+8, 9, 10,
+0, 11, 2,
+0, 13, 11,
+1, 9, 0,
+10, 0, 8,
+0, 10, 13,
+9, 8, 0,
 2, 1, 0
 ]);
 
@@ -1390,7 +1760,7 @@ return out;
 /**
 * @module systems/sys_animate
 */
-const QUERY$p = 1048576 /* Transform */ | 1 /* Animate */;
+const QUERY$p = 2097152 /* Transform */ | 1 /* Animate */;
 function sys_animate(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$p) === QUERY$p) {
@@ -1478,7 +1848,7 @@ animate.Current = animate.States["idle"];
 /**
 * @module systems/sys_audio_listener
 */
-const QUERY$o = 2 /* AudioListener */ | 1048576 /* Transform */;
+const QUERY$o = 2 /* AudioListener */ | 2097152 /* Transform */;
 function sys_audio_listener(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$o) === QUERY$o) {
@@ -1654,7 +2024,7 @@ source.start();
 /**
 * @module systems/sys_audio_source
 */
-const QUERY$n = 4 /* AudioSource */ | 1048576 /* Transform */;
+const QUERY$n = 4 /* AudioSource */ | 2097152 /* Transform */;
 function sys_audio_source(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$n) === QUERY$n) {
@@ -1739,7 +2109,7 @@ invert(projection.Inverse, projection.Projection);
 /**
 * @module systems/sys_camera
 */
-const QUERY$m = 1048576 /* Transform */ | 8 /* Camera */;
+const QUERY$m = 2097152 /* Transform */ | 16 /* Camera */;
 function sys_camera(game, delta) {
 game.Cameras = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -1852,7 +2222,7 @@ a.Max[2] > b.Min[2]);
 /**
 * @module systems/sys_collide
 */
-const QUERY$l = 1048576 /* Transform */ | 32 /* Collide */;
+const QUERY$l = 2097152 /* Transform */ | 64 /* Collide */;
 function sys_collide(game, delta) {
 
 let static_colliders = [];
@@ -1922,7 +2292,7 @@ Hit: negate([0, 0, 0], hit),
 /**
 * @module systems/sys_control_always
 */
-const QUERY$k = 64 /* ControlAlways */ | 1048576 /* Transform */ | 4096 /* Move */;
+const QUERY$k = 128 /* ControlAlways */ | 2097152 /* Transform */ | 8192 /* Move */;
 function sys_control_always(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$k) === QUERY$k) {
@@ -1941,7 +2311,7 @@ move.LocalRotations.push(control.Rotation.slice());
 }
 }
 
-const QUERY$j = 4096 /* Move */ | 128 /* ControlPlayer */;
+const QUERY$j = 8192 /* Move */ | 256 /* ControlPlayer */;
 function sys_control_keyboard(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
@@ -2000,7 +2370,7 @@ move.SelfRotations.push([1, 0, 0, 0]);
 }
 }
 
-const QUERY$i = 1048576 /* Transform */ | 4096 /* Move */ | 128 /* ControlPlayer */;
+const QUERY$i = 2097152 /* Transform */ | 8192 /* Move */ | 256 /* ControlPlayer */;
 const AXIS_X$2 = [1, 0, 0];
 const AXIS_Y$2 = [0, 1, 0];
 function sys_control_mouse_move(game, delta) {
@@ -2041,7 +2411,7 @@ transform.Dirty = true;
 }
 }
 
-const QUERY$h = 4096 /* Move */ | 128 /* ControlPlayer */;
+const QUERY$h = 8192 /* Move */ | 256 /* ControlPlayer */;
 const AXIS_Y$1 = [0, 1, 0];
 const AXIS_X$1 = [1, 0, 0];
 const DEAD_ZONE$1 = 0.01;
@@ -2099,7 +2469,7 @@ transform.Dirty = true;
 }
 }
 
-const QUERY$g = 4096 /* Move */ | 128 /* ControlPlayer */;
+const QUERY$g = 8192 /* Move */ | 256 /* ControlPlayer */;
 const AXIS_Y = [0, 1, 0];
 const AXIS_X = [1, 0, 0];
 const DEAD_ZONE = 0.1;
@@ -2155,7 +2525,7 @@ move.SelfRotations.push(from_axis([0, 0, 0, 0], AXIS_X, amount));
 /**
 * @module systems/sys_draw
 */
-const QUERY$f = 1048576 /* Transform */ | 256 /* Draw */;
+const QUERY$f = 2097152 /* Transform */ | 512 /* Draw */;
 function sys_draw(game, delta) {
 game.Context2D.resetTransform();
 game.Context2D.clearRect(0, 0, game.ViewportWidth, game.ViewportHeight);
@@ -2206,7 +2576,7 @@ game.Context2D.strokeRect(-draw.Size / 2, -draw.Size / 2, draw.Size, draw.Size);
 /**
 * @module systems/sys_lifespan
 */
-const QUERY$e = 512 /* Lifespan */;
+const QUERY$e = 1024 /* Lifespan */;
 function sys_lifespan(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$e) == QUERY$e) {
@@ -2228,7 +2598,7 @@ destroy_all(game.World, entity);
 /**
 * @module systems/sys_light
 */
-const QUERY$d = 1048576 /* Transform */ | 1024 /* Light */;
+const QUERY$d = 2097152 /* Transform */ | 2048 /* Light */;
 function sys_light(game, delta) {
 game.LightPositions.fill(0);
 game.LightDetails.fill(0);
@@ -2262,7 +2632,7 @@ game.LightDetails[4 * idx + 3] = light.Intensity;
 /**
 * @module systems/sys_mimic
 */
-const QUERY$c = 1048576 /* Transform */ | 2048 /* Mimic */;
+const QUERY$c = 2097152 /* Transform */ | 4096 /* Mimic */;
 function sys_mimic(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$c) === QUERY$c) {
@@ -2282,7 +2652,7 @@ follower_transform.Dirty = true;
 /**
 * @module systems/sys_move
 */
-const QUERY$b = 1048576 /* Transform */ | 4096 /* Move */;
+const QUERY$b = 2097152 /* Transform */ | 8192 /* Move */;
 const NO_ROTATION = [0, 0, 0, 1];
 function sys_move(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -2347,7 +2717,7 @@ return multiply(acc, acc, cur);
 /**
 * @module systems/sys_physics_integrate
 */
-const QUERY$a = 1048576 /* Transform */ | 32768 /* RigidBody */;
+const QUERY$a = 2097152 /* Transform */ | 65536 /* RigidBody */;
 const GRAVITY = -9.81;
 function sys_physics_integrate(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -2378,7 +2748,7 @@ set(rigid_body.Acceleration, 0, 0, 0);
 /**
 * @module systems/sys_physics_kinematic
 */
-const QUERY$9 = 1048576 /* Transform */ | 32768 /* RigidBody */;
+const QUERY$9 = 2097152 /* Transform */ | 65536 /* RigidBody */;
 function sys_physics_kinematic(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$9) === QUERY$9) {
@@ -2403,7 +2773,7 @@ copy(rigid_body.LastPosition, current_position);
 /**
 * @module systems/sys_physics_resolve
 */
-const QUERY$8 = 1048576 /* Transform */ | 32 /* Collide */ | 32768 /* RigidBody */;
+const QUERY$8 = 2097152 /* Transform */ | 64 /* Collide */ | 65536 /* RigidBody */;
 function sys_physics_resolve(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$8) === QUERY$8) {
@@ -2421,7 +2791,7 @@ if (rigid_body.Kind === 1 /* Dynamic */) {
 let has_collision = false;
 for (let i = 0; i < collide.Collisions.length; i++) {
 let collision = collide.Collisions[i];
-if (game.World.Signature[collision.Other] & 32768 /* RigidBody */) {
+if (game.World.Signature[collision.Other] & 65536 /* RigidBody */) {
 has_collision = true;
 
 
@@ -2467,7 +2837,7 @@ copy(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated);
 /**
 * @module systems/sys_poll
 */
-const QUERY$7 = 262144 /* Task */;
+const QUERY$7 = 524288 /* Task */;
 function sys_poll(game, delta) {
 
 
@@ -2497,7 +2867,7 @@ break;
 }
 }
 for (let entity of tasks_to_complete) {
-game.World.Signature[entity] &= ~262144 /* Task */;
+game.World.Signature[entity] &= ~524288 /* Task */;
 if (game.World.Signature[entity] === 0 /* None */) {
 game.World.DestroyEntity(entity);
 }
@@ -2511,10 +2881,10 @@ delete game.World.Task[entity];
 }
 }
 function has_blocking_dependencies(world, entity) {
-if (world.Signature[entity] & 16 /* Children */) {
+if (world.Signature[entity] & 32 /* Children */) {
 let children = world.Children[entity];
 for (let child of children.Children) {
-if (world.Signature[child] & 262144 /* Task */) {
+if (world.Signature[child] & 524288 /* Task */) {
 
 return true;
 }
@@ -2526,7 +2896,7 @@ return false;
 /**
 * @module systems/sys_render_depth
 */
-const QUERY$6 = 1048576 /* Transform */ | 16384 /* Render */;
+const QUERY$6 = 2097152 /* Transform */ | 32768 /* Render */;
 function sys_render_depth(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -2555,7 +2925,7 @@ game.Gl.frontFace(render.FrontFace);
 }
 game.Gl.uniformMatrix4fv(game.MaterialDepth.Locations.World, false, transform.World);
 switch (render.Kind) {
-case 7 /* Vertices */:
+case 8 /* Vertices */:
 
 break;
 default:
@@ -2602,7 +2972,7 @@ return i;
 /**
 * @module systems/sys_render_forward
 */
-const QUERY$5 = 1048576 /* Transform */ | 16384 /* Render */;
+const QUERY$5 = 2097152 /* Transform */ | 32768 /* Render */;
 function sys_render_forward(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -2647,20 +3017,23 @@ break;
 case 1 /* ColoredShaded */:
 use_colored_shaded(game, render.Material, eye);
 break;
-case 4 /* TexturedUnlit */:
+case 5 /* TexturedUnlit */:
 use_textured_unlit(game, render.Material, eye);
 break;
-case 5 /* TexturedShaded */:
+case 6 /* TexturedShaded */:
 use_textured_shaded(game, render.Material, eye);
 break;
-case 7 /* Vertices */:
+case 8 /* Vertices */:
 use_vertices(game, render.Material, eye);
 break;
-case 6 /* MappedShaded */:
+case 7 /* MappedShaded */:
 use_mapped(game, render.Material, eye);
 break;
 case 2 /* ColoredShadows */:
 use_colored_shadows(game, render.Material, eye);
+break;
+case 3 /* ColoredSkinned */:
+use_colored_skinned(game, render.Material, eye);
 break;
 }
 }
@@ -2675,28 +3048,31 @@ break;
 case 1 /* ColoredShaded */:
 draw_colored_shaded(game, transform, render);
 break;
-case 4 /* TexturedUnlit */:
+case 5 /* TexturedUnlit */:
 
 
 if (render.Texture !== current_target) {
 draw_textured_unlit(game, transform, render);
 }
 break;
-case 5 /* TexturedShaded */:
+case 6 /* TexturedShaded */:
 
 
 if (render.Texture !== current_target) {
 draw_textured_shaded(game, transform, render);
 }
 break;
-case 7 /* Vertices */:
+case 8 /* Vertices */:
 draw_vertices(game, transform, render);
 break;
-case 6 /* MappedShaded */:
+case 7 /* MappedShaded */:
 draw_mapped(game, transform, render);
 break;
 case 2 /* ColoredShadows */:
 draw_colored_shadows(game, transform, render);
+break;
+case 3 /* ColoredSkinned */:
+draw_colored_skinned(game, i, transform, render);
 break;
 }
 }
@@ -2810,7 +3186,7 @@ game.Gl.activeTexture(GL_TEXTURE0);
 game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Sun.DepthTexture);
 game.Gl.uniform1i(material.Locations.ShadowMap, 0);
 
-let light_entity = first_entity(game.World, 8 /* Camera */ | 1024 /* Light */);
+let light_entity = first_entity(game.World, 16 /* Camera */ | 2048 /* Light */);
 if (light_entity) {
 let light_camera = game.World.Camera[light_entity];
 game.Gl.uniformMatrix4fv(material.Locations.ShadowSpace, false, light_camera.Pv);
@@ -2822,6 +3198,31 @@ game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
 game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
 game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
 game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
+game.Gl.bindVertexArray(render.Vao);
+game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
+game.Gl.bindVertexArray(null);
+}
+function use_colored_skinned(game, material, eye) {
+game.Gl.useProgram(material.Program);
+game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
+game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
+game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+}
+const bones = new Float32Array(16 * 6);
+function draw_colored_skinned(game, entity, transform, render) {
+game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
+game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
+game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
+game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
+game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
+for (let bone_entity of query_all(game.World, entity, 8 /* Bone */ | 2097152 /* Transform */)) {
+let bone_transform = game.World.Transform[bone_entity];
+let bone = game.World.Bone[bone_entity];
+let bone_view = bones.subarray(bone.Index * 16);
+multiply$1(bone_view, bone_transform.World, bone.InverseBindPose);
+}
+game.Gl.uniformMatrix4fv(render.Material.Locations.Bones, false, bones);
 game.Gl.bindVertexArray(render.Vao);
 game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
 game.Gl.bindVertexArray(null);
@@ -2843,7 +3244,7 @@ game.ViewportHeight = game.Canvas3D.height = game.Canvas2D.height = window.inner
 /**
 * @module systems/sys_shake
 */
-const QUERY$4 = 1048576 /* Transform */ | 65536 /* Shake */;
+const QUERY$4 = 2097152 /* Transform */ | 131072 /* Shake */;
 function sys_shake(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$4) == QUERY$4) {
@@ -2864,7 +3265,7 @@ transform.Dirty = true;
 */
 function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
 return (game, entity) => {
-game.World.Signature[entity] |= 1048576 /* Transform */;
+game.World.Signature[entity] |= 2097152 /* Transform */;
 game.World.Transform[entity] = {
 World: create(),
 Self: create(),
@@ -2879,7 +3280,7 @@ Dirty: true,
 /**
 * @module systems/sys_spawn
 */
-const QUERY$3 = 1048576 /* Transform */ | 131072 /* Spawn */;
+const QUERY$3 = 2097152 /* Transform */ | 262144 /* Spawn */;
 function sys_spawn(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$3) == QUERY$3) {
@@ -2904,7 +3305,7 @@ instantiate(game, [...spawn.Creator(game), transform(world_position, world_rotat
 /**
 * @module systems/sys_toggle
 */
-const QUERY$2 = 524288 /* Toggle */;
+const QUERY$2 = 1048576 /* Toggle */;
 function sys_toggle(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$2) == QUERY$2) {
@@ -2931,7 +3332,7 @@ game.World.Signature[entity] |= toggle.Mask;
 /**
 * @module systems/sys_transform
 */
-const QUERY$1 = 1048576 /* Transform */;
+const QUERY$1 = 2097152 /* Transform */;
 function sys_transform(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$1) === QUERY$1) {
@@ -2950,10 +3351,10 @@ let parent_transform = world.Transform[transform.Parent];
 multiply$1(transform.World, parent_transform.World, transform.World);
 }
 invert(transform.Self, transform.World);
-if (world.Signature[entity] & 16 /* Children */) {
+if (world.Signature[entity] & 32 /* Children */) {
 let children = world.Children[entity];
 for (let child of children.Children) {
-if (world.Signature[child] & 1048576 /* Transform */) {
+if (world.Signature[child] & 2097152 /* Transform */) {
 let child_transform = world.Transform[child];
 child_transform.Parent = entity;
 update_transform(world, child, child_transform);
@@ -2965,7 +3366,7 @@ update_transform(world, child, child_transform);
 /**
 * @module systems/sys_trigger
 */
-const QUERY = 1048576 /* Transform */ | 32 /* Collide */ | 2097152 /* Trigger */;
+const QUERY = 2097152 /* Transform */ | 64 /* Collide */ | 4194304 /* Trigger */;
 function sys_trigger(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY) {
@@ -3073,6 +3474,7 @@ constructor() {
 super(...arguments);
 this.Animate = [];
 this.AudioSource = [];
+this.Bone = [];
 this.Camera = [];
 this.Children = [];
 this.Collide = [];
@@ -3101,8 +3503,11 @@ super(...arguments);
 this.World = new World();
 this.MaterialColoredShaded = mat_forward_colored_phong(this.Gl);
 this.MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
+this.MaterialColoredGouraudSkinned = mat_forward_colored_gouraud_skinned(this.Gl);
+this.MaterialColoredPhongSkinned = mat_forward_colored_phong_skinned(this.Gl);
 this.MaterialDepth = mat_forward_depth(this.Gl);
 this.MeshCube = mesh_cube(this.Gl);
+this.MeshLudek = mesh_ludek(this.Gl);
 
 this.LightPositions = new Float32Array(4 * 8);
 this.LightDetails = new Float32Array(4 * 8);
@@ -3160,7 +3565,7 @@ sys_ui(this);
 */
 function camera_forward_perspective(fovy, near, far, clear_color = [0.9, 0.9, 0.9, 1]) {
 return (game, entity) => {
-game.World.Signature[entity] |= 8 /* Camera */;
+game.World.Signature[entity] |= 16 /* Camera */;
 game.World.Camera[entity] = {
 Kind: 0 /* Forward */,
 Projection: {
@@ -3180,7 +3585,7 @@ ClearColor: clear_color,
 }
 function camera_depth_ortho(target, radius, near, far, clear_color = [0, 0, 0, 1]) {
 return (game, entity) => {
-game.World.Signature[entity] |= 8 /* Camera */;
+game.World.Signature[entity] |= 16 /* Camera */;
 game.World.Camera[entity] = {
 Kind: 3 /* Depth */,
 Target: target,
@@ -3206,12 +3611,406 @@ children([transform(undefined, [0, 1, 0, 0]), camera_forward_perspective(1, 0.1,
 ];
 }
 
+function ease_out_quart(t) {
+return 1 - (1 - t) ** 4;
+}
+function ease_in_out_quart(t) {
+return t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
+}
+
+/**
+* @module components/com_animate
+*/
+function animate(clips) {
+return (game, entity) => {
+let States = {};
+for (let name in clips) {
+let { Keyframes, Flags = 7 /* Default */ } = clips[name];
+let duration = Keyframes[Keyframes.length - 1].Timestamp;
+States[name] = {
+
+
+
+
+
+Keyframes: Keyframes.map((keyframe) => ({ ...keyframe })),
+Flags,
+Duration: duration,
+Time: 0,
+};
+}
+game.World.Signature[entity] |= 1 /* Animate */;
+game.World.Animate[entity] = {
+States,
+Current: States["idle"],
+};
+};
+}
+
+function bone(index, inverse_bind_pose) {
+return (game, entity) => {
+game.World.Signature[entity] |= 8 /* Bone */;
+game.World.Bone[entity] = {
+Index: index,
+Dirty: inverse_bind_pose === undefined,
+InverseBindPose: inverse_bind_pose || create(),
+};
+};
+}
+
+/**
+* @module components/com_render
+*/
+const colored_shadows_vaos = new WeakMap();
+const colored_skinned_vaos = new WeakMap();
+function render_colored_shadows(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
+return (game, entity) => {
+if (!colored_shadows_vaos.has(mesh)) {
+
+let vao = game.Gl.createVertexArray();
+game.Gl.bindVertexArray(vao);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
+game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+game.Gl.bindVertexArray(null);
+colored_shadows_vaos.set(mesh, vao);
+}
+game.World.Signature[entity] |= 32768 /* Render */;
+game.World.Render[entity] = {
+Kind: 2 /* ColoredShadows */,
+Material: material,
+Mesh: mesh,
+FrontFace: front_face,
+Vao: colored_shadows_vaos.get(mesh),
+DiffuseColor: diffuse_color,
+SpecularColor: specular_color,
+Shininess: shininess,
+};
+};
+}
+function render_colored_skinned(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
+return (game, entity) => {
+if (!colored_skinned_vaos.has(mesh)) {
+
+let vao = game.Gl.createVertexArray();
+game.Gl.bindVertexArray(vao);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
+game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.WeightsBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexWeights);
+game.Gl.vertexAttribPointer(material.Locations.VertexWeights, 4, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+game.Gl.bindVertexArray(null);
+colored_skinned_vaos.set(mesh, vao);
+}
+game.World.Signature[entity] |= 32768 /* Render */;
+game.World.Render[entity] = {
+Kind: 3 /* ColoredSkinned */,
+Material: material,
+Mesh: mesh,
+FrontFace: front_face,
+Vao: colored_skinned_vaos.get(mesh),
+DiffuseColor: diffuse_color,
+SpecularColor: specular_color,
+Shininess: shininess,
+};
+};
+}
+
+function blueprint_character_rigged(game) {
+return [
+render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshLudek, [1, 0.3, 0, 1], 128),
+children([
+transform([0, 0.63, 0]),
+bone(0 /* Root */, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, -0.63, 0, 1]),
+animate({
+idle: {
+Keyframes: [
+{
+Timestamp: Infinity,
+Translation: [0, 0.63, 0],
+},
+],
+},
+jump: {
+Keyframes: [
+{
+Timestamp: 0.0,
+Translation: [0, 0.63, 0],
+},
+{
+Timestamp: 0.2,
+Translation: [0, 1.13, 0],
+Ease: ease_in_out_quart,
+},
+{
+Timestamp: 0.4,
+Translation: [0, 0.63, 0],
+Ease: ease_out_quart,
+},
+],
+Flags: 0 /* None */,
+},
+}),
+children([
+transform([0, 0.72, 0]),
+bone(1 /* Spine */, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, -1.35, 0, 1]),
+animate({
+idle: {
+Keyframes: [
+{
+Timestamp: 0.0,
+Rotation: from_euler([0, 0, 0, 1], 0, 5, 0),
+},
+{
+Timestamp: 0.5,
+Rotation: from_euler([0, 0, 0, 1], 0, -5, 0),
+},
+],
+},
+walk: {
+Keyframes: [
+{
+Timestamp: 0.0,
+Rotation: from_euler([0, 0, 0, 1], 0, 5, 0),
+},
+{
+Timestamp: 0.2,
+Rotation: from_euler([0, 0, 0, 1], 0, -5, 0),
+},
+],
+},
+jump: {
+Keyframes: [
+{
+Timestamp: 0.0,
+Rotation: [0, 0, 0, 1],
+},
+{
+Timestamp: 0.2,
+Rotation: from_euler([0, 0, 0, 1], -15, 0, 0),
+Ease: ease_in_out_quart,
+},
+{
+Timestamp: 0.4,
+Rotation: from_euler([0, 0, 0, 1], 0, 0, 0),
+Ease: ease_out_quart,
+},
+],
+Flags: 0 /* None */,
+},
+}),
+], [
+transform([0.3, 0.57, 0], from_euler([0, 0, 0, 1], 0, 0, 90)),
+bone(2 /* ArmL */, [0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, -1.2, 0.3, 0, 1]),
+animate({
+idle: {
+Keyframes: [
+{
+Timestamp: 0,
+Rotation: from_euler([0, 0, 0, 1], 5, 0, 0),
+},
+{
+Timestamp: 0.5,
+Rotation: from_euler([0, 0, 0, 1], -5, 0, 0),
+},
+],
+},
+walk: {
+Keyframes: [
+{
+Timestamp: 0,
+Rotation: from_euler([0, 0, 0, 1], 30, 0, 0),
+},
+{
+Timestamp: 0.2,
+Rotation: from_euler([0, 0, 0, 1], -60, 0, 0),
+},
+],
+},
+jump: {
+Keyframes: [
+{
+Timestamp: 0.0,
+Rotation: [0, 0, 0, 1],
+},
+{
+Timestamp: 0.2,
+Rotation: from_euler([0, 0, 0, 1], 0, 0, 135),
+Ease: ease_in_out_quart,
+},
+{
+Timestamp: 0.4,
+Rotation: [0, 0, 0, 1],
+Ease: ease_out_quart,
+},
+],
+Flags: 0 /* None */,
+},
+}),
+], [
+transform([-0.3, 0.57, 0], from_euler([0, 0, 0, 1], 0, 0, -90)),
+bone(3 /* ArmR */, [0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 1.2, 0.3, 0, 1]),
+animate({
+idle: {
+Keyframes: [
+{
+Timestamp: 0,
+Rotation: from_euler([0, 0, 0, 1], -5, 0, 0),
+},
+{
+Timestamp: 0.5,
+Rotation: from_euler([0, 0, 0, 1], 5, 0, 0),
+},
+],
+},
+walk: {
+Keyframes: [
+{
+Timestamp: 0,
+Rotation: from_euler([0, 0, 0, 1], -60, 0, 0),
+},
+{
+Timestamp: 0.2,
+Rotation: from_euler([0, 0, 0, 1], 30, 0, 0),
+},
+],
+},
+jump: {
+Keyframes: [
+{
+Timestamp: 0.0,
+Rotation: [0, 0, 0, 1],
+},
+{
+Timestamp: 0.2,
+Rotation: from_euler([0, 0, 0, 1], 0, 0, -135),
+Ease: ease_in_out_quart,
+},
+{
+Timestamp: 0.4,
+Rotation: [0, 0, 0, 1],
+Ease: ease_out_quart,
+},
+],
+Flags: 0 /* None */,
+},
+}),
+], [
+transform([0.15, 0, 0]),
+bone(4 /* HipL */, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -0.15, -0.63, 0, 1]),
+animate({
+idle: {
+Keyframes: [
+{
+Timestamp: 0,
+Rotation: from_euler([0, 0, 0, 1], 5, 0, 0),
+},
+{
+Timestamp: 1,
+Rotation: from_euler([0, 0, 0, 1], 5, 0, 0),
+},
+],
+},
+walk: {
+Keyframes: [
+{
+Timestamp: 0,
+Rotation: from_euler([0, 0, 0, 1], -45, 0, 0),
+},
+{
+Timestamp: 0.2,
+Rotation: from_euler([0, 0, 0, 1], 45, 0, 0),
+},
+],
+},
+jump: {
+Keyframes: [
+{
+Timestamp: 0.0,
+Rotation: [0, 0, 0, 1],
+},
+{
+Timestamp: 0.2,
+Rotation: from_euler([0, 0, 0, 1], 0, 0, 45),
+Ease: ease_in_out_quart,
+},
+{
+Timestamp: 0.4,
+Rotation: [0, 0, 0, 1],
+Ease: ease_out_quart,
+},
+],
+Flags: 0 /* None */,
+},
+}),
+], [
+transform([-0.15, 0, 0]),
+bone(5 /* HipR */, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.15, -0.63, 0, 1]),
+animate({
+idle: {
+Keyframes: [
+{
+Timestamp: 0,
+Rotation: from_euler([0, 0, 0, 1], -5, 0, 0),
+},
+{
+Timestamp: 1,
+Rotation: from_euler([0, 0, 0, 1], -5, 0, 0),
+},
+],
+},
+walk: {
+Keyframes: [
+{
+Timestamp: 0,
+Rotation: from_euler([0, 0, 0, 1], 45, 0, 0),
+},
+{
+Timestamp: 0.2,
+Rotation: from_euler([0, 0, 0, 1], -45, 0, 0),
+},
+],
+},
+jump: {
+Keyframes: [
+{
+Timestamp: 0.0,
+Rotation: [0, 0, 0, 1],
+},
+{
+Timestamp: 0.2,
+Rotation: from_euler([0, 0, 0, 1], 0, 0, -45),
+Ease: ease_in_out_quart,
+},
+{
+Timestamp: 0.4,
+Rotation: [0, 0, 0, 1],
+Ease: ease_out_quart,
+},
+],
+Flags: 0 /* None */,
+},
+}),
+]),
+]),
+];
+}
+
 /**
 * @module components/com_control_always
 */
 function control_always(direction, rotation) {
 return (game, entity) => {
-game.World.Signature[entity] |= 64 /* ControlAlways */;
+game.World.Signature[entity] |= 128 /* ControlAlways */;
 game.World.ControlAlways[entity] = {
 Direction: direction,
 Rotation: rotation,
@@ -3224,7 +4023,7 @@ Rotation: rotation,
 */
 function light_directional(color = [1, 1, 1], range = 1) {
 return (game, entity) => {
-game.World.Signature[entity] |= 1024 /* Light */;
+game.World.Signature[entity] |= 2048 /* Light */;
 game.World.Light[entity] = {
 Kind: 1 /* Directional */,
 Color: color,
@@ -3244,7 +4043,7 @@ Intensity: range ** 2,
 */
 function move(move_speed, rotation_speed) {
 return (game, entity) => {
-game.World.Signature[entity] |= 4096 /* Move */;
+game.World.Signature[entity] |= 8192 /* Move */;
 game.World.Move[entity] = {
 MoveSpeed: move_speed,
 RotationSpeed: rotation_speed,
@@ -3267,45 +4066,11 @@ camera_depth_ortho(game.Targets.Sun, 10, 1, 100),
 ];
 }
 
-/**
-* @module components/com_render
-*/
-const colored_shadows_vaos = new WeakMap();
-function render_colored_shadows(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
-return (game, entity) => {
-if (!colored_shadows_vaos.has(mesh)) {
-
-let vao = game.Gl.createVertexArray();
-game.Gl.bindVertexArray(vao);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
-game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
-game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-game.Gl.bindVertexArray(null);
-colored_shadows_vaos.set(mesh, vao);
-}
-game.World.Signature[entity] |= 16384 /* Render */;
-game.World.Render[entity] = {
-Kind: 2 /* ColoredShadows */,
-Material: material,
-Mesh: mesh,
-FrontFace: front_face,
-Vao: colored_shadows_vaos.get(mesh),
-DiffuseColor: diffuse_color,
-SpecularColor: specular_color,
-Shininess: shininess,
-};
-};
-}
-
 function scene_stage(game) {
 game.World = new World();
 game.ViewportResized = true;
 
-instantiate(game, [...blueprint_camera(), transform([1, 2, 5], [0, 1, 0, 0])]);
+instantiate(game, [...blueprint_camera(), transform([0, 2, 5], [0, 1, 0, 0])]);
 
 instantiate(game, [
 transform(undefined, from_euler([0, 0, 0, 0], -45, 45, 0)),
@@ -3318,9 +4083,11 @@ render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1])
 ]);
 
 instantiate(game, [
-transform([0, 1, 0]),
+transform([-1, 1, 0]),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1]),
 ]);
+
+instantiate(game, [...blueprint_character_rigged(game), transform([1, 0.5, 0])]);
 }
 
 let game = new Game();
