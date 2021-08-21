@@ -16,17 +16,20 @@ import {
     GL_TEXTURE_2D,
     GL_UNSIGNED_SHORT,
 } from "../../common/webgl.js";
+import {first_entity} from "../../common/world.js";
 import {
     ColoredShadedLayout,
     ColoredUnlitLayout,
     ForwardShadingLayout,
     MappedShadedLayout,
+    ShadowMappingLayout,
     TexturedShadedLayout,
     TexturedUnlitLayout,
 } from "../../materials/layout.js";
 import {CameraEye, CameraForward, CameraFramebuffer, CameraKind} from "../components/com_camera.js";
 import {
     RenderColoredShaded,
+    RenderColoredShadows,
     RenderColoredUnlit,
     RenderKind,
     RenderMappedShaded,
@@ -101,6 +104,9 @@ function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
                     case RenderKind.MappedShaded:
                         use_mapped(game, render.Material, eye);
                         break;
+                    case RenderKind.ColoredShadows:
+                        use_colored_shadows(game, render.Material, eye);
+                        break;
                 }
             }
 
@@ -135,6 +141,9 @@ function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
                     break;
                 case RenderKind.MappedShaded:
                     draw_mapped(game, transform, render);
+                    break;
+                case RenderKind.ColoredShadows:
+                    draw_colored_shadows(game, transform, render);
                     break;
             }
         }
@@ -268,6 +277,40 @@ function draw_mapped(game: Game, transform: Transform, render: RenderMappedShade
     game.Gl.bindTexture(GL_TEXTURE_2D, render.RoughnessMap);
     game.Gl.uniform1i(render.Material.Locations.RoughnessMap, 3);
 
+    game.Gl.bindVertexArray(render.Vao);
+    game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
+    game.Gl.bindVertexArray(null);
+}
+
+function use_colored_shadows(
+    game: Game,
+    material: Material<ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout>,
+    eye: CameraEye
+) {
+    game.Gl.useProgram(material.Program);
+    game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+    game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
+    game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
+    game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+
+    game.Gl.activeTexture(GL_TEXTURE0);
+    game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Sun.DepthTexture);
+    game.Gl.uniform1i(material.Locations.ShadowMap, 0);
+
+    // Only one shadow source is supported.
+    let light_entity = first_entity(game.World, Has.Camera | Has.Light);
+    if (light_entity) {
+        let light_camera = game.World.Camera[light_entity];
+        game.Gl.uniformMatrix4fv(material.Locations.ShadowSpace, false, light_camera.Pv);
+    }
+}
+
+function draw_colored_shadows(game: Game, transform: Transform, render: RenderColoredShadows) {
+    game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
+    game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
+    game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
+    game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
+    game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
     game.Gl.bindVertexArray(render.Vao);
     game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
     game.Gl.bindVertexArray(null);
