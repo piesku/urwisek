@@ -1,10 +1,13 @@
 import {create_depth_target} from "../common/framebuffer.js";
 import {Game3D} from "../common/game.js";
 import {Entity} from "../common/world.js";
+import {mat_forward_colored_gouraud_skinned} from "../materials/mat_forward_colored_gouraud_skinned.js";
 import {mat_forward_colored_phong} from "../materials/mat_forward_colored_phong.js";
+import {mat_forward_colored_phong_skinned} from "../materials/mat_forward_colored_phong_skinned.js";
 import {mat_forward_colored_shadows} from "../materials/mat_forward_colored_shadows.js";
 import {mat_forward_depth} from "../materials/mat_forward_depth.js";
 import {mesh_cube} from "../meshes/cube.js";
+import {mesh_ludek} from "../meshes/ludek.js";
 import {sys_animate} from "./systems/sys_animate.js";
 import {sys_audio_listener} from "./systems/sys_audio_listener.js";
 import {sys_audio_source} from "./systems/sys_audio_source.js";
@@ -40,9 +43,12 @@ export class Game extends Game3D {
 
     MaterialColoredShaded = mat_forward_colored_phong(this.Gl);
     MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
+    MaterialColoredGouraudSkinned = mat_forward_colored_gouraud_skinned(this.Gl);
+    MaterialColoredPhongSkinned = mat_forward_colored_phong_skinned(this.Gl);
     MaterialDepth = mat_forward_depth(this.Gl);
 
     MeshCube = mesh_cube(this.Gl);
+    MeshLudek = mesh_ludek(this.Gl);
 
     // The rendering pipeline supports 8 lights.
     LightPositions = new Float32Array(4 * 8);

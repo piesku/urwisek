@@ -2,6 +2,7 @@
  * @module systems/sys_render_forward
  */
 
+import {multiply} from "../../common/mat4.js";
 import {Material} from "../../common/material.js";
 import {
     GL_ARRAY_BUFFER,
@@ -16,7 +17,7 @@ import {
     GL_TEXTURE_2D,
     GL_UNSIGNED_SHORT,
 } from "../../common/webgl.js";
-import {first_entity} from "../../common/world.js";
+import {Entity, first_entity} from "../../common/world.js";
 import {
     ColoredShadedLayout,
     ColoredUnlitLayout,
@@ -27,9 +28,11 @@ import {
     TexturedUnlitLayout,
 } from "../../materials/layout.js";
 import {CameraEye, CameraForward, CameraFramebuffer, CameraKind} from "../components/com_camera.js";
+import {query_all} from "../components/com_children.js";
 import {
     RenderColoredShaded,
     RenderColoredShadows,
+    RenderColoredSkinned,
     RenderColoredUnlit,
     RenderKind,
     RenderMappedShaded,
@@ -107,6 +110,9 @@ function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
                     case RenderKind.ColoredShadows:
                         use_colored_shadows(game, render.Material, eye);
                         break;
+                    case RenderKind.ColoredSkinned:
+                        use_colored_skinned(game, render.Material, eye);
+                        break;
                 }
             }
 
@@ -144,6 +150,9 @@ function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
                     break;
                 case RenderKind.ColoredShadows:
                     draw_colored_shadows(game, transform, render);
+                    break;
+                case RenderKind.ColoredSkinned:
+                    draw_colored_skinned(game, i, transform, render);
                     break;
             }
         }
@@ -311,6 +320,44 @@ function draw_colored_shadows(game: Game, transform: Transform, render: RenderCo
     game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
     game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
     game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
+    game.Gl.bindVertexArray(render.Vao);
+    game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
+    game.Gl.bindVertexArray(null);
+}
+
+function use_colored_skinned(
+    game: Game,
+    material: Material<ColoredShadedLayout & ForwardShadingLayout>,
+    eye: CameraEye
+) {
+    game.Gl.useProgram(material.Program);
+    game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+    game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
+    game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
+    game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+}
+
+const bones = new Float32Array(16 * 6);
+function draw_colored_skinned(
+    game: Game,
+    entity: Entity,
+    transform: Transform,
+    render: RenderColoredSkinned
+) {
+    game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
+    game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
+    game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
+    game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
+    game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
+
+    for (let bone_entity of query_all(game.World, entity, Has.Bone | Has.Transform)) {
+        let bone_transform = game.World.Transform[bone_entity];
+        let bone = game.World.Bone[bone_entity];
+        let bone_view = bones.subarray(bone.Index * 16);
+        multiply(bone_view, bone_transform.World, bone.InverseBindPose);
+    }
+    game.Gl.uniformMatrix4fv(render.Material.Locations.Bones, false, bones);
+
     game.Gl.bindVertexArray(render.Vao);
     game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
     game.Gl.bindVertexArray(null);

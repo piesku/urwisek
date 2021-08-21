@@ -1,6 +1,7 @@
 import {WorldImpl} from "../common/world.js";
 import {Animate} from "./components/com_animate.js";
 import {AudioSource} from "./components/com_audio_source.js";
+import {Bone} from "./components/com_bone.js";
 import {Camera} from "./components/com_camera.js";
 import {Children} from "./components/com_children.js";
 import {Collide} from "./components/com_collide.js";
@@ -25,6 +26,7 @@ const enum Component {
     Animate,
     AudioListener,
     AudioSource,
+    Bone,
     Camera,
     Children,
     Collide,
@@ -51,6 +53,7 @@ export const enum Has {
     Animate = 1 << Component.Animate,
     AudioListener = 1 << Component.AudioListener,
     AudioSource = 1 << Component.AudioSource,
+    Bone = 1 << Component.Bone,
     Camera = 1 << Component.Camera,
     Children = 1 << Component.Children,
     Collide = 1 << Component.Collide,
@@ -75,6 +78,7 @@ export const enum Has {
 export class World extends WorldImpl {
     Animate: Array<Animate> = [];
     AudioSource: Array<AudioSource> = [];
+    Bone: Array<Bone> = [];
     Camera: Array<Camera> = [];
     Children: Array<Children> = [];
     Collide: Array<Collide> = [];

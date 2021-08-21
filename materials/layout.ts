@@ -107,3 +107,11 @@ export interface DeferredPostprocessLayout {
     VertexPosition: GLint;
     VertexTexcoord: GLint;
 }
+
+export interface SkinningLayout {
+    // Uniforms
+    Bones: WebGLUniformLocation;
+
+    // Attributes
+    VertexWeights: GLint;
+}
