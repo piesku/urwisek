@@ -48,11 +48,6 @@ const GL_TRIANGLES = 0x0004;
 */
 const GL_STATIC_DRAW = 0x88e4;
 /**
-* Passed to bufferData as a hint about whether the contents of the buffer are likely to be used often and change often.
-* @constant {number}
-*/
-const GL_DYNAMIC_DRAW = 0x88e8;
-/**
 * Passed to bindBuffer or bufferData to specify the type of buffer being used.
 * @constant {number}
 */
@@ -3104,8 +3099,37 @@ return multiply(acc, acc, cur);
 /**
 * @module components/com_render
 */
+const colored_shaded_vaos = new WeakMap();
 const colored_shadows_vaos = new WeakMap();
-const colored_skinned_vaos = new WeakMap();
+function render_colored_shaded(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
+return (game, entity) => {
+if (!colored_shaded_vaos.has(mesh)) {
+
+let vao = game.Gl.createVertexArray();
+game.Gl.bindVertexArray(vao);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
+game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+game.Gl.bindVertexArray(null);
+colored_shaded_vaos.set(mesh, vao);
+}
+game.World.Signature[entity] |= 65536 /* Render */;
+game.World.Render[entity] = {
+Kind: 1 /* ColoredShaded */,
+Material: material,
+Mesh: mesh,
+FrontFace: front_face,
+Vao: colored_shaded_vaos.get(mesh),
+DiffuseColor: diffuse_color,
+SpecularColor: specular_color,
+Shininess: shininess,
+};
+};
+}
 function render_colored_shadows(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
 return (game, entity) => {
 if (!colored_shadows_vaos.has(mesh)) {
@@ -3135,57 +3159,7 @@ Shininess: shininess,
 };
 };
 }
-function render_colored_skinned(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
-return (game, entity) => {
-if (!colored_skinned_vaos.has(mesh)) {
-
-let vao = game.Gl.createVertexArray();
-game.Gl.bindVertexArray(vao);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
-game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
-game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.WeightsBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexWeights);
-game.Gl.vertexAttribPointer(material.Locations.VertexWeights, 4, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-game.Gl.bindVertexArray(null);
-colored_skinned_vaos.set(mesh, vao);
-}
-game.World.Signature[entity] |= 65536 /* Render */;
-game.World.Render[entity] = {
-Kind: 3 /* ColoredSkinned */,
-Material: material,
-Mesh: mesh,
-FrontFace: front_face,
-Vao: colored_skinned_vaos.get(mesh),
-DiffuseColor: diffuse_color,
-SpecularColor: specular_color,
-Shininess: shininess,
-};
-};
-}
 const DATA_PER_PARTICLE = 8;
-const MAX_PARTICLES = 200;
-function render_particles_colored(start_color, start_size, end_color, end_size) {
-return (game, entity) => {
-let buffer = game.Gl.createBuffer();
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
-game.Gl.bufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * DATA_PER_PARTICLE * 4, GL_DYNAMIC_DRAW);
-game.World.Signature[entity] |= 65536 /* Render */;
-game.World.Render[entity] = {
-Kind: 9 /* ParticlesColored */,
-Material: game.MaterialParticlesColored,
-Buffer: buffer,
-ColorStart: start_color,
-ColorEnd: end_color,
-Size: [start_size, end_size],
-FrontFace: GL_CW,
-};
-};
-}
 function render_instanced(mesh, offsets, rotation_offsets, palette) {
 return (game, entity) => {
 let material = game.MaterialInstanced;
@@ -4201,6 +4175,9 @@ function rand() {
 seed = (seed * 16807) % 2147483647;
 return (seed - 1) / 2147483646;
 }
+function integer(min = 0, max = 1) {
+return ~~(rand() * (max - min + 1) + min);
+}
 function float(min = 0, max = 1) {
 return rand() * (max - min) + min;
 }
@@ -4253,379 +4230,6 @@ ClearColor: clear_color,
 function blueprint_camera(game) {
 return [
 children([transform(undefined, [0, 1, 0, 0]), camera_forward_perspective(1, 0.1, 1000)]),
-];
-}
-
-function ease_out_quart(t) {
-return 1 - (1 - t) ** 4;
-}
-function ease_in_out_quart(t) {
-return t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
-}
-
-/**
-* @module components/com_animate
-*/
-function animate(clips) {
-return (game, entity) => {
-let States = {};
-for (let name in clips) {
-let { Keyframes, Flags = 7 /* Default */ } = clips[name];
-let duration = Keyframes[Keyframes.length - 1].Timestamp;
-States[name] = {
-
-
-
-
-
-Keyframes: Keyframes.map((keyframe) => ({ ...keyframe })),
-Flags,
-Duration: duration,
-Time: 0,
-};
-}
-game.World.Signature[entity] |= 1 /* Animate */;
-game.World.Animate[entity] = {
-States,
-Current: States["idle"],
-};
-};
-}
-
-function bone(index, inverse_bind_pose) {
-return (game, entity) => {
-game.World.Signature[entity] |= 8 /* Bone */;
-game.World.Bone[entity] = {
-Index: index,
-Dirty: inverse_bind_pose === undefined,
-InverseBindPose: inverse_bind_pose || create(),
-};
-};
-}
-
-function blueprint_character_rigged(game) {
-return [
-render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshLudek, [1, 0.3, 0, 1], 128),
-children([
-transform([0, 0.63, 0]),
-bone(0 /* Root */, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, -0.63, 0, 1]),
-animate({
-idle: {
-Keyframes: [
-{
-Timestamp: Infinity,
-Translation: [0, 0.63, 0],
-},
-],
-},
-jump: {
-Keyframes: [
-{
-Timestamp: 0.0,
-Translation: [0, 0.63, 0],
-},
-{
-Timestamp: 0.2,
-Translation: [0, 1.13, 0],
-Ease: ease_in_out_quart,
-},
-{
-Timestamp: 0.4,
-Translation: [0, 0.63, 0],
-Ease: ease_out_quart,
-},
-],
-Flags: 0 /* None */,
-},
-}),
-children([
-transform([0, 0.72, 0]),
-bone(1 /* Spine */, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, -1.35, 0, 1]),
-animate({
-idle: {
-Keyframes: [
-{
-Timestamp: 0.0,
-Rotation: from_euler([0, 0, 0, 1], 0, 5, 0),
-},
-{
-Timestamp: 0.5,
-Rotation: from_euler([0, 0, 0, 1], 0, -5, 0),
-},
-],
-},
-walk: {
-Keyframes: [
-{
-Timestamp: 0.0,
-Rotation: from_euler([0, 0, 0, 1], 0, 5, 0),
-},
-{
-Timestamp: 0.2,
-Rotation: from_euler([0, 0, 0, 1], 0, -5, 0),
-},
-],
-},
-jump: {
-Keyframes: [
-{
-Timestamp: 0.0,
-Rotation: [0, 0, 0, 1],
-},
-{
-Timestamp: 0.2,
-Rotation: from_euler([0, 0, 0, 1], -15, 0, 0),
-Ease: ease_in_out_quart,
-},
-{
-Timestamp: 0.4,
-Rotation: from_euler([0, 0, 0, 1], 0, 0, 0),
-Ease: ease_out_quart,
-},
-],
-Flags: 0 /* None */,
-},
-}),
-], [
-transform([0.3, 0.57, 0], from_euler([0, 0, 0, 1], 0, 0, 90)),
-bone(2 /* ArmL */, [0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, -1.2, 0.3, 0, 1]),
-animate({
-idle: {
-Keyframes: [
-{
-Timestamp: 0,
-Rotation: from_euler([0, 0, 0, 1], 5, 0, 0),
-},
-{
-Timestamp: 0.5,
-Rotation: from_euler([0, 0, 0, 1], -5, 0, 0),
-},
-],
-},
-walk: {
-Keyframes: [
-{
-Timestamp: 0,
-Rotation: from_euler([0, 0, 0, 1], 30, 0, 0),
-},
-{
-Timestamp: 0.2,
-Rotation: from_euler([0, 0, 0, 1], -60, 0, 0),
-},
-],
-},
-jump: {
-Keyframes: [
-{
-Timestamp: 0.0,
-Rotation: [0, 0, 0, 1],
-},
-{
-Timestamp: 0.2,
-Rotation: from_euler([0, 0, 0, 1], 0, 0, 135),
-Ease: ease_in_out_quart,
-},
-{
-Timestamp: 0.4,
-Rotation: [0, 0, 0, 1],
-Ease: ease_out_quart,
-},
-],
-Flags: 0 /* None */,
-},
-}),
-], [
-transform([-0.3, 0.57, 0], from_euler([0, 0, 0, 1], 0, 0, -90)),
-bone(3 /* ArmR */, [0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 1.2, 0.3, 0, 1]),
-animate({
-idle: {
-Keyframes: [
-{
-Timestamp: 0,
-Rotation: from_euler([0, 0, 0, 1], -5, 0, 0),
-},
-{
-Timestamp: 0.5,
-Rotation: from_euler([0, 0, 0, 1], 5, 0, 0),
-},
-],
-},
-walk: {
-Keyframes: [
-{
-Timestamp: 0,
-Rotation: from_euler([0, 0, 0, 1], -60, 0, 0),
-},
-{
-Timestamp: 0.2,
-Rotation: from_euler([0, 0, 0, 1], 30, 0, 0),
-},
-],
-},
-jump: {
-Keyframes: [
-{
-Timestamp: 0.0,
-Rotation: [0, 0, 0, 1],
-},
-{
-Timestamp: 0.2,
-Rotation: from_euler([0, 0, 0, 1], 0, 0, -135),
-Ease: ease_in_out_quart,
-},
-{
-Timestamp: 0.4,
-Rotation: [0, 0, 0, 1],
-Ease: ease_out_quart,
-},
-],
-Flags: 0 /* None */,
-},
-}),
-], [
-transform([0.15, 0, 0]),
-bone(4 /* HipL */, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -0.15, -0.63, 0, 1]),
-animate({
-idle: {
-Keyframes: [
-{
-Timestamp: 0,
-Rotation: from_euler([0, 0, 0, 1], 5, 0, 0),
-},
-{
-Timestamp: 1,
-Rotation: from_euler([0, 0, 0, 1], 5, 0, 0),
-},
-],
-},
-walk: {
-Keyframes: [
-{
-Timestamp: 0,
-Rotation: from_euler([0, 0, 0, 1], -45, 0, 0),
-},
-{
-Timestamp: 0.2,
-Rotation: from_euler([0, 0, 0, 1], 45, 0, 0),
-},
-],
-},
-jump: {
-Keyframes: [
-{
-Timestamp: 0.0,
-Rotation: [0, 0, 0, 1],
-},
-{
-Timestamp: 0.2,
-Rotation: from_euler([0, 0, 0, 1], 0, 0, 45),
-Ease: ease_in_out_quart,
-},
-{
-Timestamp: 0.4,
-Rotation: [0, 0, 0, 1],
-Ease: ease_out_quart,
-},
-],
-Flags: 0 /* None */,
-},
-}),
-], [
-transform([-0.15, 0, 0]),
-bone(5 /* HipR */, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.15, -0.63, 0, 1]),
-animate({
-idle: {
-Keyframes: [
-{
-Timestamp: 0,
-Rotation: from_euler([0, 0, 0, 1], -5, 0, 0),
-},
-{
-Timestamp: 1,
-Rotation: from_euler([0, 0, 0, 1], -5, 0, 0),
-},
-],
-},
-walk: {
-Keyframes: [
-{
-Timestamp: 0,
-Rotation: from_euler([0, 0, 0, 1], 45, 0, 0),
-},
-{
-Timestamp: 0.2,
-Rotation: from_euler([0, 0, 0, 1], -45, 0, 0),
-},
-],
-},
-jump: {
-Keyframes: [
-{
-Timestamp: 0.0,
-Rotation: [0, 0, 0, 1],
-},
-{
-Timestamp: 0.2,
-Rotation: from_euler([0, 0, 0, 1], 0, 0, -45),
-Ease: ease_in_out_quart,
-},
-{
-Timestamp: 0.4,
-Rotation: [0, 0, 0, 1],
-Ease: ease_out_quart,
-},
-],
-Flags: 0 /* None */,
-},
-}),
-]),
-]),
-];
-}
-
-/**
-* Add EmitParticles.
-*
-* @param lifespan How long particles live for.
-* @param frequency How often particles spawn.
-* @param speed How fast particles move.
-*/
-function emit_particles(lifespan, frequency, speed) {
-return (game, entity) => {
-game.World.Signature[entity] |= 1024 /* EmitParticles */;
-game.World.EmitParticles[entity] = {
-Lifespan: lifespan,
-Frequency: frequency,
-Speed: speed,
-Instances: [],
-SinceLast: 0,
-};
-};
-}
-
-/**
-* @module components/com_shake
-*/
-/**
-* sys_shake modifies the transform of the entity. Add it to children only.
-*/
-function shake(magnitude) {
-return (game, entity) => {
-game.World.Signature[entity] |= 262144 /* Shake */;
-game.World.Shake[entity] = {
-Magnitude: magnitude,
-};
-};
-}
-
-function blueprint_flame_colored(game) {
-return [
-children([
-transform(undefined, from_euler([0, 0, 0, 0], -90, 0, 0)),
-emit_particles(1, 0.05, 5),
-render_particles_colored([1, 1, 0, 1], 20, [1, 0, 0, 1], 5),
-shake(1),
-]),
 ];
 }
 
@@ -4690,6 +4294,27 @@ camera_depth_ortho(game.Targets.Sun, 10, 1, 100),
 ];
 }
 
+function blueprint_tree(game) {
+let radius = float(0.5, 0.9);
+let leaf_count = integer(400, 600);
+let height = float(0.2, 1.5);
+let offsets = [];
+let rotations = [];
+for (let i = 0; i < leaf_count; i++) {
+offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), 0);
+rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
+}
+return [
+children([
+transform([0, height / 2, 0], undefined, [0.1, height, 0.1]),
+render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.64, 0.16, 0.16, 1]),
+], [
+transform([0, height, 0]),
+render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), [0, 1, 0]),
+]),
+];
+}
+
 function scene_stage(game) {
 game.World = new World();
 game.ViewportResized = true;
@@ -4705,28 +4330,10 @@ instantiate(game, [
 transform(undefined, undefined, [10, 1, 10]),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1]),
 ]);
-
-let radius = 0.8;
-let leaf_count = 200;
-let offsets = [];
-let rotations = [];
-for (let i = 0; i < leaf_count; i++) {
-offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), 0);
-rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
+let trees = 10;
+for (let i = 0; i < trees; i++) {
+instantiate(game, [transform([float(-5, 5), 0.5, float(-5, 0)]), ...blueprint_tree(game)]);
 }
-console.log(offsets);
-instantiate(game, [
-transform([-1, 2, -2], from_euler([0, 0, 0, 0], 67, 0, 0)),
-render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), [0, 1, 0]),
-]);
-
-
-
-
-
-instantiate(game, [...blueprint_character_rigged(game), transform([1, 0.5, 0])]);
-
-instantiate(game, [...blueprint_flame_colored(), transform([0, 0.5, -3])]);
 }
 
 let game = new Game();
