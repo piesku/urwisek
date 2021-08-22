@@ -548,7 +548,7 @@
         return shader;
     }
 
-    let vertex$7 = `#version 300 es\n
+    let vertex$8 = `#version 300 es\n
 
     // See Game.LightPositions and Game.LightDetails.
     const int MAX_LIGHTS = 8;
@@ -626,7 +626,7 @@
         vert_color = vec4(light_acc, 1.0);
     }
 `;
-    let fragment$7 = `#version 300 es\n
+    let fragment$8 = `#version 300 es\n
     precision mediump float;
 
     in vec4 vert_color;
@@ -638,7 +638,7 @@
     }
 `;
     function mat_forward_colored_gouraud_skinned(gl) {
-        let program = link(gl, vertex$7, fragment$7);
+        let program = link(gl, vertex$8, fragment$8);
         return {
             Mode: GL_TRIANGLES,
             Program: program,
@@ -660,7 +660,7 @@
         };
     }
 
-    let vertex$6 = `#version 300 es\n
+    let vertex$7 = `#version 300 es\n
 
     uniform mat4 pv;
     uniform mat4 world;
@@ -675,6 +675,123 @@
     void main() {
         vert_position = world * vec4(attr_position, 1.0);
         vert_normal = (vec4(attr_normal, 1.0) * self).xyz;
+        gl_Position = pv * vert_position;
+    }
+`;
+    let fragment$7 = `#version 300 es\n
+    precision mediump float;
+
+    // See Game.LightPositions and Game.LightDetails.
+    const int MAX_LIGHTS = 8;
+
+    uniform vec3 eye;
+    uniform vec4 diffuse_color;
+    uniform vec4 specular_color;
+    uniform float shininess;
+    uniform vec4 light_positions[MAX_LIGHTS];
+    uniform vec4 light_details[MAX_LIGHTS];
+
+    in vec4 vert_position;
+    in vec3 vert_normal;
+
+    out vec4 frag_color;
+
+    void main() {
+        vec3 world_normal = normalize(vert_normal);
+
+        vec3 view_dir = eye - vert_position.xyz;
+        vec3 view_normal = normalize(view_dir);
+
+        // Ambient light.
+        vec3 light_acc = diffuse_color.rgb * 0.1;
+
+        for (int i = 0; i < MAX_LIGHTS; i++) {
+            if (light_positions[i].w == 0.0) {
+                break;
+            }
+
+            vec3 light_color = light_details[i].rgb;
+            float light_intensity = light_details[i].a;
+
+            vec3 light_normal;
+            if (light_positions[i].w == 1.0) {
+                // Directional light.
+                light_normal = light_positions[i].xyz;
+            } else {
+                vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
+                float light_dist = length(light_dir);
+                light_normal = light_dir / light_dist;
+                // Distance attenuation.
+                light_intensity /= (light_dist * light_dist);
+            }
+
+            float diffuse_factor = dot(world_normal, light_normal);
+            if (diffuse_factor > 0.0) {
+                // Diffuse color.
+                light_acc += diffuse_color.rgb * diffuse_factor * light_color * light_intensity;
+
+                if (shininess > 0.0) {
+                    // Phong reflection model.
+                    // vec3 r = reflect(-light_normal, world_normal);
+                    // float specular_angle = max(dot(r, view_normal), 0.0);
+                    // float specular_factor = pow(specular_angle, shininess);
+
+                    // Blinn-Phong reflection model.
+                    vec3 h = normalize(light_normal + view_normal);
+                    float specular_angle = max(dot(h, world_normal), 0.0);
+                    float specular_factor = pow(specular_angle, shininess);
+
+                    // Specular color.
+                    light_acc += specular_color.rgb * specular_factor * light_color * light_intensity;
+                }
+            }
+        }
+
+        frag_color = vec4(light_acc, 1.0);
+    }
+`;
+    function mat_forward_colored_phong(gl) {
+        let program = link(gl, vertex$7, fragment$7);
+        return {
+            Mode: GL_TRIANGLES,
+            Program: program,
+            Locations: {
+                Pv: gl.getUniformLocation(program, "pv"),
+                World: gl.getUniformLocation(program, "world"),
+                Self: gl.getUniformLocation(program, "self"),
+                DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
+                SpecularColor: gl.getUniformLocation(program, "specular_color"),
+                Shininess: gl.getUniformLocation(program, "shininess"),
+                Eye: gl.getUniformLocation(program, "eye"),
+                LightPositions: gl.getUniformLocation(program, "light_positions"),
+                LightDetails: gl.getUniformLocation(program, "light_details"),
+                VertexPosition: gl.getAttribLocation(program, "attr_position"),
+                VertexNormal: gl.getAttribLocation(program, "attr_normal"),
+            },
+        };
+    }
+
+    let vertex$6 = `#version 300 es\n
+    uniform mat4 pv;
+    uniform mat4 world;
+    uniform mat4 self;
+    uniform mat4 bones[6];
+
+    in vec3 attr_position;
+    in vec3 attr_normal;
+    in vec4 attr_weights;
+
+    out vec4 vert_position;
+    out vec3 vert_normal;
+
+    mat4 world_weighted(vec4 weights) {
+        return weights[1] * bones[int(weights[0])] + weights[3] * bones[int(weights[2])];
+    }
+
+    void main() {
+        mat4 bone_world = world_weighted(attr_weights);
+        vert_position = bone_world * vec4(attr_position, 1.0);
+        vert_normal = normalize(mat3(bone_world) * attr_normal);
         gl_Position = pv * vert_position;
     }
 `;
@@ -750,125 +867,8 @@
         frag_color = vec4(light_acc, 1.0);
     }
 `;
-    function mat_forward_colored_phong(gl) {
-        let program = link(gl, vertex$6, fragment$6);
-        return {
-            Mode: GL_TRIANGLES,
-            Program: program,
-            Locations: {
-                Pv: gl.getUniformLocation(program, "pv"),
-                World: gl.getUniformLocation(program, "world"),
-                Self: gl.getUniformLocation(program, "self"),
-                DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
-                SpecularColor: gl.getUniformLocation(program, "specular_color"),
-                Shininess: gl.getUniformLocation(program, "shininess"),
-                Eye: gl.getUniformLocation(program, "eye"),
-                LightPositions: gl.getUniformLocation(program, "light_positions"),
-                LightDetails: gl.getUniformLocation(program, "light_details"),
-                VertexPosition: gl.getAttribLocation(program, "attr_position"),
-                VertexNormal: gl.getAttribLocation(program, "attr_normal"),
-            },
-        };
-    }
-
-    let vertex$5 = `#version 300 es\n
-    uniform mat4 pv;
-    uniform mat4 world;
-    uniform mat4 self;
-    uniform mat4 bones[6];
-
-    in vec3 attr_position;
-    in vec3 attr_normal;
-    in vec4 attr_weights;
-
-    out vec4 vert_position;
-    out vec3 vert_normal;
-
-    mat4 world_weighted(vec4 weights) {
-        return weights[1] * bones[int(weights[0])] + weights[3] * bones[int(weights[2])];
-    }
-
-    void main() {
-        mat4 bone_world = world_weighted(attr_weights);
-        vert_position = bone_world * vec4(attr_position, 1.0);
-        vert_normal = normalize(mat3(bone_world) * attr_normal);
-        gl_Position = pv * vert_position;
-    }
-`;
-    let fragment$5 = `#version 300 es\n
-    precision mediump float;
-
-    // See Game.LightPositions and Game.LightDetails.
-    const int MAX_LIGHTS = 8;
-
-    uniform vec3 eye;
-    uniform vec4 diffuse_color;
-    uniform vec4 specular_color;
-    uniform float shininess;
-    uniform vec4 light_positions[MAX_LIGHTS];
-    uniform vec4 light_details[MAX_LIGHTS];
-
-    in vec4 vert_position;
-    in vec3 vert_normal;
-
-    out vec4 frag_color;
-
-    void main() {
-        vec3 world_normal = normalize(vert_normal);
-
-        vec3 view_dir = eye - vert_position.xyz;
-        vec3 view_normal = normalize(view_dir);
-
-        // Ambient light.
-        vec3 light_acc = diffuse_color.rgb * 0.1;
-
-        for (int i = 0; i < MAX_LIGHTS; i++) {
-            if (light_positions[i].w == 0.0) {
-                break;
-            }
-
-            vec3 light_color = light_details[i].rgb;
-            float light_intensity = light_details[i].a;
-
-            vec3 light_normal;
-            if (light_positions[i].w == 1.0) {
-                // Directional light.
-                light_normal = light_positions[i].xyz;
-            } else {
-                vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
-                float light_dist = length(light_dir);
-                light_normal = light_dir / light_dist;
-                // Distance attenuation.
-                light_intensity /= (light_dist * light_dist);
-            }
-
-            float diffuse_factor = dot(world_normal, light_normal);
-            if (diffuse_factor > 0.0) {
-                // Diffuse color.
-                light_acc += diffuse_color.rgb * diffuse_factor * light_color * light_intensity;
-
-                if (shininess > 0.0) {
-                    // Phong reflection model.
-                    // vec3 r = reflect(-light_normal, world_normal);
-                    // float specular_angle = max(dot(r, view_normal), 0.0);
-                    // float specular_factor = pow(specular_angle, shininess);
-
-                    // Blinn-Phong reflection model.
-                    vec3 h = normalize(light_normal + view_normal);
-                    float specular_angle = max(dot(h, world_normal), 0.0);
-                    float specular_factor = pow(specular_angle, shininess);
-
-                    // Specular color.
-                    light_acc += specular_color.rgb * specular_factor * light_color * light_intensity;
-                }
-            }
-        }
-
-        frag_color = vec4(light_acc, 1.0);
-    }
-`;
     function mat_forward_colored_phong_skinned(gl) {
-        let program = link(gl, vertex$5, fragment$5);
+        let program = link(gl, vertex$6, fragment$6);
         return {
             Mode: GL_TRIANGLES,
             Program: program,
@@ -890,7 +890,7 @@
         };
     }
 
-    let vertex$4 = `#version 300 es\n
+    let vertex$5 = `#version 300 es\n
 
     uniform mat4 pv;
     uniform mat4 world;
@@ -908,7 +908,7 @@
         gl_Position = pv * vert_position;
     }
 `;
-    let fragment$4 = `#version 300 es\n
+    let fragment$5 = `#version 300 es\n
     precision mediump float;
     precision lowp sampler2DShadow;
 
@@ -999,7 +999,7 @@
     }
 `;
     function mat_forward_colored_shadows(gl) {
-        let program = link(gl, vertex$4, fragment$4);
+        let program = link(gl, vertex$5, fragment$5);
         return {
             Mode: GL_TRIANGLES,
             Program: program,
@@ -1021,7 +1021,7 @@
         };
     }
 
-    let vertex$3 = `#version 300 es\n
+    let vertex$4 = `#version 300 es\n
 
     uniform mat4 pv;
     uniform mat4 world;
@@ -1030,6 +1030,87 @@
 
     void main() {
         gl_Position = pv * world * vec4(attr_position, 1.0);
+    }
+`;
+    let fragment$4 = `#version 300 es\n
+    precision mediump float;
+
+    out vec4 frag_color;
+
+    void main() {
+        // Visualization only. Actual z is saved in the depth buffer.
+        float z = gl_FragCoord.z * 10.0;
+        frag_color = vec4(z, z, z, 1.0);
+    }
+`;
+    function mat_forward_depth(gl) {
+        let program = link(gl, vertex$4, fragment$4);
+        return {
+            Mode: GL_TRIANGLES,
+            Program: program,
+            Locations: {
+                Pv: gl.getUniformLocation(program, "pv"),
+                World: gl.getUniformLocation(program, "world"),
+                VertexPosition: gl.getAttribLocation(program, "attr_position"),
+            },
+        };
+    }
+
+    let vertex$3 = `#version 300 es\n
+
+    uniform mat4 pv;
+    uniform mat4 world;
+    uniform mat4 self;
+
+    in vec3 attr_position;
+    in vec4 attr_offset;
+    in vec4 attr_offset_rotation;
+
+    void main() {
+        float x = attr_offset_rotation.x;
+        float y = attr_offset_rotation.y;
+        float z = attr_offset_rotation.z;
+        float w = attr_offset_rotation.w;
+
+        float x2 = x + x;
+        float y2 = y + y;
+        float z2 = z + z;
+        float xx = x * x2;
+        float yx = y * x2;
+        float yy = y * y2;
+        float zx = z * x2;
+        float zy = z * y2;
+        float zz = z * z2;
+        float wx = w * x2;
+        float wy = w * y2;
+        float wz = w * z2;
+
+        float m0 = 1.0 - yy - zz;
+        float m1 = yx + wz;
+        float m2 = zx - wy;
+        float m3 = 0.0;
+        float m4 = yx - wz;
+        float m5 = 1.0 - xx - zz;
+        float m6 = zy + wx;
+        float m7 = 0.0;
+        float m8 = zx + wy;
+        float m9 = zy - wx;
+        float m10 = 1.0 - xx - yy;
+        float m11 = 0.0;
+        float m12 = 0.0;
+        float m13 = 0.0;
+        float m14 = 0.0;
+        float m15 = 1.0;
+
+        mat4 rotation = mat4(
+            m0, m1, m2, m3,
+            m4, m5, m6, m7,
+            m8, m9, m10, m11,
+            m12, m13, m14, m15
+        );
+
+        vec4 world_position = world * rotation * vec4(attr_position + attr_offset.xyz, 1.0);
+        gl_Position = pv * world_position;
     }
 `;
     let fragment$3 = `#version 300 es\n
@@ -1043,7 +1124,7 @@
         frag_color = vec4(z, z, z, 1.0);
     }
 `;
-    function mat_forward_depth(gl) {
+    function mat_forward_depth_instanced(gl) {
         let program = link(gl, vertex$3, fragment$3);
         return {
             Mode: GL_TRIANGLES,
@@ -1051,7 +1132,10 @@
             Locations: {
                 Pv: gl.getUniformLocation(program, "pv"),
                 World: gl.getUniformLocation(program, "world"),
+                Self: gl.getUniformLocation(program, "self"),
                 VertexPosition: gl.getAttribLocation(program, "attr_position"),
+                VertexOffset: gl.getAttribLocation(program, "attr_offset"),
+                VertexOffsetRotation: gl.getAttribLocation(program, "attr_offset_rotation"),
             },
         };
     }
@@ -3432,35 +3516,69 @@
         }
     }
     function render_depth(game, camera) {
+        let current_material = null;
+        let current_front_face = null;
         game.Gl.bindFramebuffer(GL_FRAMEBUFFER, camera.Target.Framebuffer);
         game.Gl.viewport(0, 0, camera.Target.Width, camera.Target.Height);
         game.Gl.clearColor(...camera.ClearColor);
         game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        game.Gl.useProgram(game.MaterialDepth.Program);
-        game.Gl.uniformMatrix4fv(game.MaterialDepth.Locations.Pv, false, camera.Pv);
-        let current_front_face = null;
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$6) === QUERY$6) {
                 let transform = game.World.Transform[i];
                 let render = game.World.Render[i];
+                if (render.Material !== current_material) {
+                    current_material = render.Material;
+                    switch (render.Kind) {
+                        case 8 /* Vertices */:
+                        case 9 /* ParticlesColored */:
+                        case 10 /* ParticlesTextured */:
+                            break;
+                        case 11 /* Instanced */:
+                            use_instanced_shading(game, camera);
+                            break;
+                        default:
+                            use_default_shading(game, camera);
+                    }
+                }
                 if (render.FrontFace !== current_front_face) {
                     current_front_face = render.FrontFace;
                     game.Gl.frontFace(render.FrontFace);
                 }
-                game.Gl.uniformMatrix4fv(game.MaterialDepth.Locations.World, false, transform.World);
                 switch (render.Kind) {
                     case 8 /* Vertices */:
                     case 9 /* ParticlesColored */:
                     case 10 /* ParticlesTextured */:
                         // Skip rendering, RenderVertices doesn't cast shadow for now.
                         break;
+                    case 11 /* Instanced */:
+                        draw_instanced_shading(game, transform, render);
+                        break;
                     default:
-                        game.Gl.bindVertexArray(render.Vao);
-                        game.Gl.drawElements(game.MaterialDepth.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-                        game.Gl.bindVertexArray(null);
+                        draw_default_shading(game, transform, render);
                 }
             }
         }
+    }
+    function use_default_shading(game, camera) {
+        game.Gl.useProgram(game.MaterialDepth.Program);
+        game.Gl.uniformMatrix4fv(game.MaterialDepth.Locations.Pv, false, camera.Pv);
+    }
+    function draw_default_shading(game, transform, render) {
+        game.Gl.uniformMatrix4fv(game.MaterialDepth.Locations.World, false, transform.World);
+        game.Gl.bindVertexArray(render.Vao);
+        game.Gl.drawElements(game.MaterialDepth.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
+        game.Gl.bindVertexArray(null);
+    }
+    function use_instanced_shading(game, camera) {
+        game.Gl.useProgram(game.MaterialDepthInstanced.Program);
+        game.Gl.uniformMatrix4fv(game.MaterialDepthInstanced.Locations.Pv, false, camera.Pv);
+    }
+    function draw_instanced_shading(game, transform, render) {
+        game.Gl.uniformMatrix4fv(game.MaterialDepthInstanced.Locations.World, false, transform.World);
+        game.Gl.uniformMatrix4fv(game.MaterialDepthInstanced.Locations.Self, false, transform.Self);
+        game.Gl.bindVertexArray(render.Vao);
+        game.Gl.drawElementsInstanced(game.MaterialDepthInstanced.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0, render.InstanceCount);
+        game.Gl.bindVertexArray(null);
     }
 
     class WorldImpl {
@@ -4112,6 +4230,7 @@
             this.MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
             this.MaterialParticlesTextured = mat_forward_particles_textured(this.Gl);
             this.MaterialDepth = mat_forward_depth(this.Gl);
+            this.MaterialDepthInstanced = mat_forward_depth_instanced(this.Gl);
             this.MaterialInstanced = mat_forward_instanced(this.Gl);
             this.MeshLeaf = mesh_leaf(this.Gl);
             this.MeshPlane = mesh_plane(this.Gl);
@@ -4297,7 +4416,7 @@
     function blueprint_tree(game) {
         let radius = float(0.5, 0.9);
         let leaf_count = integer(400, 600);
-        let height = float(0.2, 1.5);
+        let height = float(0.7, 2.5);
         let offsets = [];
         let rotations = [];
         for (let i = 0; i < leaf_count; i++) {
@@ -4330,9 +4449,9 @@
             transform(undefined, undefined, [10, 1, 10]),
             render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1]),
         ]);
-        let trees = 10;
+        let trees = 70;
         for (let i = 0; i < trees; i++) {
-            instantiate(game, [transform([float(-5, 5), 0.5, float(-5, 0)]), ...blueprint_tree(game)]);
+            instantiate(game, [transform([float(-5, 5), 0.5, float(-5, -2)]), ...blueprint_tree(game)]);
         }
     }
 
