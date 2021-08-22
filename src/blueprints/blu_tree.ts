@@ -8,7 +8,7 @@ import {Game} from "../game.js";
 export function blueprint_tree(game: Game) {
     let radius = float(0.5, 0.9);
     let leaf_count = integer(400, 600);
-    let height = float(0.2, 1.5);
+    let height = float(0.7, 2.5);
     let offsets = [];
     let rotations = [];
     for (let i = 0; i < leaf_count; i++) {

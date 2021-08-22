@@ -28,8 +28,8 @@ export function scene_stage(game: Game) {
         render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1]),
     ]);
 
-    let trees = 10;
+    let trees = 70;
     for (let i = 0; i < trees; i++) {
-        instantiate(game, [transform([float(-5, 5), 0.5, float(-5, 0)]), ...blueprint_tree(game)]);
+        instantiate(game, [transform([float(-5, 5), 0.5, float(-5, -2)]), ...blueprint_tree(game)]);
     }
 }

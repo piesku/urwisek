@@ -95,6 +95,18 @@ export interface DepthMappingLayout {
     VertexPosition: GLint;
 }
 
+export interface DepthMappingInstancedLayout {
+    // Uniforms
+    Pv: WebGLUniformLocation;
+    World: WebGLUniformLocation;
+    Self: WebGLUniformLocation;
+
+    // Attributes
+    VertexPosition: GLint;
+    VertexOffset: GLint;
+    VertexOffsetRotation: GLint;
+}
+
 export interface DeferredPostprocessLayout {
     // Uniforms
     DiffuseMap: WebGLUniformLocation;
