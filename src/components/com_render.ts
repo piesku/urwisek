@@ -759,7 +759,12 @@ export interface RenderInstanced {
 
 export type InstancedData = Float32Array;
 
-export function render_instanced(mesh: Mesh, offsets: InstancedData, palette: Array<number>) {
+export function render_instanced(
+    mesh: Mesh,
+    offsets: InstancedData,
+    rotation_offsets: InstancedData,
+    palette: Array<number>
+) {
     return (game: Game, entity: Entity) => {
         let material = game.MaterialInstanced;
 
@@ -785,6 +790,19 @@ export function render_instanced(mesh: Mesh, offsets: InstancedData, palette: Ar
         game.Gl.enableVertexAttribArray(material.Locations.VertexOffset);
         game.Gl.vertexAttribPointer(material.Locations.VertexOffset, 4, GL_FLOAT, false, 0, 0);
         game.Gl.vertexAttribDivisor(material.Locations.VertexOffset, 1);
+
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, game.Gl.createBuffer());
+        game.Gl.bufferData(GL_ARRAY_BUFFER, rotation_offsets, GL_STATIC_DRAW);
+        game.Gl.enableVertexAttribArray(material.Locations.VertexOffsetRotation);
+        game.Gl.vertexAttribPointer(
+            material.Locations.VertexOffsetRotation,
+            4,
+            GL_FLOAT,
+            false,
+            0,
+            0
+        );
+        game.Gl.vertexAttribDivisor(material.Locations.VertexOffsetRotation, 1);
 
         game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 

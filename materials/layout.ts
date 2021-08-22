@@ -158,4 +158,5 @@ export interface ForwardInstancedLayout {
     VertexPosition: GLint;
     VertexNormal: GLint;
     VertexOffset: GLint;
+    VertexOffsetRotation: GLint;
 }

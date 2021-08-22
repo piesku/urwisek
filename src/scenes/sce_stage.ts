@@ -30,18 +30,31 @@ export function scene_stage(game: Game) {
     ]);
 
     // Cube.
-    let radius = 0.5;
-    let leaf_count = 50;
+    let radius = 0.8;
+    let leaf_count = 200;
     let offsets = [];
+    let rotations = [];
+    let scales = [];
     for (let i = 0; i < leaf_count; i++) {
         offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), 0);
+        rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
     }
 
     console.log(offsets);
     instantiate(game, [
-        transform([-1, 2, 0], from_euler([0, 0, 0, 0], 90, 0, 0)),
-        render_instanced(game.MeshTriangle, Float32Array.from(offsets), [0, 1, 0]),
+        transform([-1, 2, -2], from_euler([0, 0, 0, 0], 67, 0, 0)),
+        render_instanced(
+            game.MeshLeaf,
+            Float32Array.from(offsets),
+            Float32Array.from(rotations),
+            [0, 1, 0]
+        ),
     ]);
+
+    // instantiate(game, [
+    //     transform([-1, 1.5, -0.5], undefined, [2, 3, 2]),
+    //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.9, 0.9, 0.9, 1]),
+    // ]);
 
     // Ludek.
     instantiate(game, [...blueprint_character_rigged(game), transform([1, 0.5, 0])]);
