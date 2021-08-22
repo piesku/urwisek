@@ -14,7 +14,7 @@ export function scene_stage(game: Game) {
     game.ViewportResized = true;
 
     // Camera.
-    instantiate(game, [...blueprint_camera(game), transform([0, 0.5, 3], [0, 1, 0, 0])]);
+    instantiate(game, [...blueprint_camera(game), transform([0, 0.5, 1.5], [0, 1, 0, 0])]);
 
     // Sun.
     instantiate(game, [
@@ -23,23 +23,26 @@ export function scene_stage(game: Game) {
     ]);
 
     // Ground.
+    let ground_size = 16;
     instantiate(game, [
-        transform(undefined, undefined, [16, 0, 16]),
+        transform(undefined, undefined, [ground_size, 0, ground_size]),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1]),
     ]);
 
-    let trees = 100;
+    let trees = 1;
     for (let i = 0; i < trees; i++) {
         let z = float(-8, -2);
         instantiate(game, [
-            transform([float(-8, 8), 0, z]),
-            ...blueprint_tree(game, (12 + z) / 11, (12 + z) / 5),
+            transform([float(-ground_size / 2, ground_size / 2), 0, z]),
+            ...blueprint_tree(game),
         ]);
     }
 
     // Lisek.
     instantiate(game, [
-        transform([0, 0, 0], from_euler([0, 0, 0, 0], 0, 30, 0)),
+        transform([0, 0, 0], from_euler([0, 0, 0, 0], 0, 30, 0), [0.4, 0.4, 0.4]),
         render_colored_shaded(game.MaterialColoredShaded, game.MeshLisek, [1, 0.54, 0, 1]),
     ]);
+
+    // instantiate(game, [transform([0, -1, 0]), light_directional([1, 1, 1], 0.6)]);
 }
