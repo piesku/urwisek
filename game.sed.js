@@ -4413,14 +4413,24 @@ camera_depth_ortho(game.Targets.Sun, 10, 1, 100),
 ];
 }
 
-function blueprint_tree(game) {
+
+const leaft_colors = [
+0, 1, 0,
+0, 0.36, 0,
+0, 0.5, 0,
+0.48, 0.98, 0,
+1, 0.84, 0,
+1, 0.54, 0,
+0.84, 0.21, 0.21,
+];
+function blueprint_tree(game, min = 0.7, max = 2.5) {
 let radius = float(0.5, 0.9);
 let leaf_count = integer(400, 600);
-let height = float(0.7, 2.5);
+let height = float(min, max);
 let offsets = [];
 let rotations = [];
 for (let i = 0; i < leaf_count; i++) {
-offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), 0);
+offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), integer(0, 7));
 rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
 }
 return [
@@ -4429,7 +4439,7 @@ transform([0, height / 2, 0], undefined, [0.1, height, 0.1]),
 render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.64, 0.16, 0.16, 1]),
 ], [
 transform([0, height, 0]),
-render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), [0, 1, 0]),
+render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), leaft_colors),
 ]),
 ];
 }
@@ -4438,7 +4448,7 @@ function scene_stage(game) {
 game.World = new World();
 game.ViewportResized = true;
 
-instantiate(game, [...blueprint_camera(), transform([0, 2, 5], [0, 1, 0, 0])]);
+instantiate(game, [...blueprint_camera(), transform([0, 0.5, 1.5], [0, 1, 0, 0])]);
 
 instantiate(game, [
 transform(undefined, from_euler([0, 0, 0, 0], -45, 45, 0)),
@@ -4446,12 +4456,16 @@ transform(undefined, from_euler([0, 0, 0, 0], -45, 45, 0)),
 ]);
 
 instantiate(game, [
-transform(undefined, undefined, [10, 1, 10]),
+transform(undefined, undefined, [16, 0, 16]),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1]),
 ]);
-let trees = 70;
+let trees = 100;
 for (let i = 0; i < trees; i++) {
-instantiate(game, [transform([float(-5, 5), 0.5, float(-5, -2)]), ...blueprint_tree(game)]);
+let z = float(-8, -2);
+instantiate(game, [
+transform([float(-8, 8), 0, z]),
+...blueprint_tree(game, (12 + z) / 11, (12 + z) / 5),
+]);
 }
 }
 
