@@ -1077,12 +1077,55 @@ uniform vec4 light_details[MAX_LIGHTS];
 in vec3 attr_position;
 in vec3 attr_normal;
 in vec4 attr_offset;
+in vec4 attr_offset_rotation;
 
 out vec4 vert_color;
 
 void main() {
-vec4 world_position = world * vec4(attr_position + attr_offset.xyz, 1.0);
-vec3 world_normal = normalize((vec4(attr_normal, 0.0) * self).xyz);
+float x = attr_offset_rotation.x;
+float y = attr_offset_rotation.y;
+float z = attr_offset_rotation.z;
+float w = attr_offset_rotation.w;
+
+float x2 = x + x;
+float y2 = y + y;
+float z2 = z + z;
+float xx = x * x2;
+float yx = y * x2;
+float yy = y * y2;
+float zx = z * x2;
+float zy = z * y2;
+float zz = z * z2;
+float wx = w * x2;
+float wy = w * y2;
+float wz = w * z2;
+
+float m0 = 1.0 - yy - zz;
+float m1 = yx + wz;
+float m2 = zx - wy;
+float m3 = 0.0;
+float m4 = yx - wz;
+float m5 = 1.0 - xx - zz;
+float m6 = zy + wx;
+float m7 = 0.0;
+float m8 = zx + wy;
+float m9 = zy - wx;
+float m10 = 1.0 - xx - yy;
+float m11 = 0.0;
+float m12 = 0.0;
+float m13 = 0.0;
+float m14 = 0.0;
+float m15 = 1.0;
+
+mat4 rotation = mat4(
+m0, m1, m2, m3,
+m4, m5, m6, m7,
+m8, m9, m10, m11,
+m12, m13, m14, m15
+);
+
+vec4 world_position = world * rotation * vec4(attr_position + attr_offset.xyz, 1.0);
+vec3 world_normal = normalize((rotation * vec4(attr_normal, 0.0) * self).xyz);
 gl_Position = pv * world_position;
 
 
@@ -1145,6 +1188,7 @@ LightDetails: gl.getUniformLocation(program, "light_details"),
 VertexPosition: gl.getAttribLocation(program, "attr_position"),
 VertexNormal: gl.getAttribLocation(program, "attr_normal"),
 VertexOffset: gl.getAttribLocation(program, "attr_offset"),
+VertexOffsetRotation: gl.getAttribLocation(program, "attr_offset_rotation"),
 },
 };
 }
@@ -1265,6 +1309,206 @@ DirectionSeed: gl.getAttribLocation(program, "attr_direction_seed"),
 function mesh_cube(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$3, GL_STATIC_DRAW);
+let normal_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$3, GL_STATIC_DRAW);
+let texcoord_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$3, GL_STATIC_DRAW);
+let weights_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+gl.bufferData(GL_ARRAY_BUFFER, weights_arr$3, GL_STATIC_DRAW);
+let index_buf = gl.createBuffer();
+gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$3, GL_STATIC_DRAW);
+return {
+VertexBuffer: vertex_buf,
+VertexArray: vertex_arr$3,
+NormalBuffer: normal_buf,
+NormalArray: normal_arr$3,
+TexCoordBuffer: texcoord_buf,
+TexCoordArray: texcoord_arr$3,
+WeightsBuffer: weights_buf,
+WeightsArray: weights_arr$3,
+IndexBuffer: index_buf,
+IndexArray: index_arr$3,
+IndexCount: index_arr$3.length,
+};
+}
+
+let vertex_arr$3 = Float32Array.from([
+-0.5, -0.5, 0.5,
+-0.5, 0.5, 0.5,
+-0.5, 0.5, -0.5,
+-0.5, -0.5, -0.5,
+-0.5, -0.5, -0.5,
+-0.5, 0.5, -0.5,
+0.5, 0.5, -0.5,
+0.5, -0.5, -0.5,
+0.5, -0.5, -0.5,
+0.5, 0.5, -0.5,
+0.5, 0.5, 0.5,
+0.5, -0.5, 0.5,
+0.5, -0.5, 0.5,
+0.5, 0.5, 0.5,
+-0.5, 0.5, 0.5,
+-0.5, -0.5, 0.5,
+-0.5, -0.5, -0.5,
+0.5, -0.5, -0.5,
+0.5, -0.5, 0.5,
+-0.5, -0.5, 0.5,
+0.5, 0.5, -0.5,
+-0.5, 0.5, -0.5,
+-0.5, 0.5, 0.5,
+0.5, 0.5, 0.5
+]);
+
+let normal_arr$3 = Float32Array.from([
+-1, 0, 0,
+-1, 0, 0,
+-1, 0, 0,
+-1, 0, 0,
+0, 0, -1,
+0, 0, -1,
+0, 0, -1,
+0, 0, -1,
+1, 0, 0,
+1, 0, 0,
+1, 0, 0,
+1, 0, 0,
+0, 0, 1,
+0, 0, 1,
+0, 0, 1,
+0, 0, 1,
+0, -1, 0,
+0, -1, 0,
+0, -1, 0,
+0, -1, 0,
+0, 1, 0,
+0, 1, 0,
+0, 1, 0,
+0, 1, 0
+]);
+
+let texcoord_arr$3 = Float32Array.from([
+0.666667, 0.333333,
+0.333333, 0.333333,
+0.333333, 0,
+0.666667, 0,
+0.333333, 0.666667,
+0, 0.666667,
+0, 0.333333,
+0.333333, 0.333333,
+0.333333, 0.333333,
+0, 0.333333,
+0, 0,
+0.333333, 0,
+0.333333, 0.666667,
+0.333333, 0.333333,
+0.666667, 0.333333,
+0.666667, 0.666667,
+1, 0.333333,
+0.666667, 0.333333,
+0.666667, 0,
+1, 0,
+0.333333, 0.666667,
+0.333333, 1,
+0, 1,
+0, 0.666667
+]);
+
+let weights_arr$3 = Float32Array.from([
+
+
+]);
+
+let index_arr$3 = Uint16Array.from([
+23, 22, 20,
+22, 21, 20,
+19, 18, 16,
+18, 17, 16,
+15, 14, 12,
+14, 13, 12,
+11, 10, 8,
+10, 9, 8,
+7, 6, 4,
+6, 5, 4,
+3, 2, 0,
+2, 1, 0
+]);
+
+function mesh_leaf(gl) {
+let vertex_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$2, GL_STATIC_DRAW);
+let normal_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$2, GL_STATIC_DRAW);
+let texcoord_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$2, GL_STATIC_DRAW);
+let weights_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+gl.bufferData(GL_ARRAY_BUFFER, weights_arr$2, GL_STATIC_DRAW);
+let index_buf = gl.createBuffer();
+gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$2, GL_STATIC_DRAW);
+return {
+VertexBuffer: vertex_buf,
+VertexArray: vertex_arr$2,
+NormalBuffer: normal_buf,
+NormalArray: normal_arr$2,
+TexCoordBuffer: texcoord_buf,
+TexCoordArray: texcoord_arr$2,
+WeightsBuffer: weights_buf,
+WeightsArray: weights_arr$2,
+IndexBuffer: index_buf,
+IndexArray: index_arr$2,
+IndexCount: index_arr$2.length,
+};
+}
+
+let vertex_arr$2 = Float32Array.from([
+0.040103, 0, 0.044704,
+-0.054562, 0, -0.050619,
+-0.124883, 0.01643, 0.126198,
+0.040103, 0, 0.044704,
+0.12554, 0.021688, -0.126198,
+-0.054562, 0, -0.050619
+]);
+
+let normal_arr$2 = Float32Array.from([
+0.0665, 0.9956, -0.0661,
+0.0665, 0.9956, -0.0661,
+0.0665, 0.9956, -0.0661,
+-0.0844, 0.9929, 0.0838,
+-0.0844, 0.9929, 0.0838,
+-0.0844, 0.9929, 0.0838
+]);
+
+let texcoord_arr$2 = Float32Array.from([
+1, 0,
+0, 1,
+0, 0,
+1, 0,
+1, 1,
+0, 1
+]);
+
+let weights_arr$2 = Float32Array.from([
+
+
+]);
+
+let index_arr$2 = Uint16Array.from([
+5, 4, 3,
+2, 1, 0
+]);
+
+function mesh_ludek(gl) {
+let vertex_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$1, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
@@ -1294,107 +1538,96 @@ IndexCount: index_arr$1.length,
 }
 
 let vertex_arr$1 = Float32Array.from([
--0.5, -0.5, 0.5,
--0.5, 0.5, 0.5,
--0.5, 0.5, -0.5,
--0.5, -0.5, -0.5,
--0.5, -0.5, -0.5,
--0.5, 0.5, -0.5,
-0.5, 0.5, -0.5,
-0.5, -0.5, -0.5,
-0.5, -0.5, -0.5,
-0.5, 0.5, -0.5,
-0.5, 0.5, 0.5,
-0.5, -0.5, 0.5,
-0.5, -0.5, 0.5,
-0.5, 0.5, 0.5,
--0.5, 0.5, 0.5,
--0.5, -0.5, 0.5,
--0.5, -0.5, -0.5,
-0.5, -0.5, -0.5,
-0.5, -0.5, 0.5,
--0.5, -0.5, 0.5,
-0.5, 0.5, -0.5,
--0.5, 0.5, -0.5,
--0.5, 0.5, 0.5,
-0.5, 0.5, 0.5
+-0.3, 1.2, -0.15,
+0.45, 1.47, 0,
+0.3, 1.2, -0.15,
+0.27, 0.63, 0,
+0, 0.63, 0.15,
+0.15, 0, 0,
+0.3, 1.2, 0.15,
+1.05, 1.35, 0,
+-1.05, 1.35, 0,
+-0.45, 1.47, 0,
+-0.3, 1.2, 0.15,
+0, 0.63, -0.15,
+-0.15, 0, 0,
+-0.27, 0.63, 0,
+0, 2.25, -0.15,
+0, 2.25, 0.45
 ]);
 
 let normal_arr$1 = Float32Array.from([
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0
+-0.424, -0.0402, -0.9048,
+0.3556, 0.9341, -0.0314,
+0.424, -0.0402, -0.9048,
+0.9544, -0.2985, 0,
+0, -0.2684, 0.9633,
+0.0912, -0.9958, 0,
+0.424, -0.0402, 0.9048,
+0.9979, 0.0645, 0,
+-0.9979, 0.0645, 0,
+-0.3556, 0.9341, -0.0314,
+-0.424, -0.0402, 0.9048,
+0, -0.2684, -0.9633,
+-0.0912, -0.9958, 0,
+-0.9544, -0.2985, 0,
+0, 0.767, -0.6416,
+0, 0.6255, 0.7802
 ]);
 
-let texcoord_arr$1 = Float32Array.from([
-0.666667, 0.333333,
-0.333333, 0.333333,
-0.333333, 0,
-0.666667, 0,
-0.333333, 0.666667,
-0, 0.666667,
-0, 0.333333,
-0.333333, 0.333333,
-0.333333, 0.333333,
-0, 0.333333,
-0, 0,
-0.333333, 0,
-0.333333, 0.666667,
-0.333333, 0.333333,
-0.666667, 0.333333,
-0.666667, 0.666667,
-1, 0.333333,
-0.666667, 0.333333,
-0.666667, 0,
-1, 0,
-0.333333, 0.666667,
-0.333333, 1,
-0, 1,
-0, 0.666667
-]);
+let texcoord_arr$1 = Float32Array.from([]);
 
 let weights_arr$1 = Float32Array.from([
-
-
+3, 1, 0, 0,
+1, 0.75, 2, 0.25,
+2, 1, 0, 0,
+4, 1, 0, 0,
+4, 0.5, 5, 0.5,
+4, 1, 0, 0,
+2, 1, 0, 0,
+2, 1, 0, 0,
+3, 1, 0, 0,
+1, 0.75, 3, 0.25,
+3, 1, 0, 0,
+4, 0.5, 5, 0.5,
+5, 1, 0, 0,
+5, 1, 0, 0,
+1, 1, 0, 0,
+1, 1, 0, 0,
 ]);
 
 let index_arr$1 = Uint16Array.from([
-23, 22, 20,
-22, 21, 20,
-19, 18, 16,
-18, 17, 16,
-15, 14, 12,
-14, 13, 12,
-11, 10, 8,
-10, 9, 8,
-7, 6, 4,
-6, 5, 4,
-3, 2, 0,
+15, 9, 14,
+1, 15, 14,
+9, 15, 1,
+1, 14, 9,
+2, 7, 1,
+9, 1, 6,
+6, 7, 2,
+7, 6, 1,
+6, 2, 3,
+6, 3, 4,
+5, 4, 3,
+11, 3, 2,
+4, 5, 11,
+4, 11, 12,
+11, 5, 3,
+12, 13, 4,
+13, 12, 11,
+10, 6, 4,
+10, 4, 13,
+6, 10, 9,
+8, 9, 10,
+0, 11, 2,
+0, 13, 11,
+1, 9, 0,
+10, 0, 8,
+0, 10, 13,
+9, 8, 0,
 2, 1, 0
 ]);
 
-function mesh_ludek(gl) {
+function mesh_plane(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 gl.bufferData(GL_ARRAY_BUFFER, vertex_arr, GL_STATIC_DRAW);
@@ -1426,92 +1659,33 @@ IndexCount: index_arr.length,
 }
 
 let vertex_arr = Float32Array.from([
--0.3, 1.2, -0.15,
-0.45, 1.47, 0,
-0.3, 1.2, -0.15,
-0.27, 0.63, 0,
-0, 0.63, 0.15,
-0.15, 0, 0,
-0.3, 1.2, 0.15,
-1.05, 1.35, 0,
--1.05, 1.35, 0,
--0.45, 1.47, 0,
--0.3, 1.2, 0.15,
-0, 0.63, -0.15,
--0.15, 0, 0,
--0.27, 0.63, 0,
-0, 2.25, -0.15,
-0, 2.25, 0.45
+0.5, 0, 0.5,
+-0.5, 0, -0.5,
+-0.5, 0, 0.5,
+0.5, 0, -0.5
 ]);
 
 let normal_arr = Float32Array.from([
--0.424, -0.0402, -0.9048,
-0.3556, 0.9341, -0.0314,
-0.424, -0.0402, -0.9048,
-0.9544, -0.2985, 0,
-0, -0.2684, 0.9633,
-0.0912, -0.9958, 0,
-0.424, -0.0402, 0.9048,
-0.9979, 0.0645, 0,
--0.9979, 0.0645, 0,
--0.3556, 0.9341, -0.0314,
--0.424, -0.0402, 0.9048,
-0, -0.2684, -0.9633,
--0.0912, -0.9958, 0,
--0.9544, -0.2985, 0,
-0, 0.767, -0.6416,
-0, 0.6255, 0.7802
+0, 1, 0,
+0, 1, 0,
+0, 1, 0,
+0, 1, 0
 ]);
 
-let texcoord_arr = Float32Array.from([]);
+let texcoord_arr = Float32Array.from([
+1, 0,
+0, 1,
+0, 0,
+1, 1
+]);
 
 let weights_arr = Float32Array.from([
-3, 1, 0, 0,
-1, 0.75, 2, 0.25,
-2, 1, 0, 0,
-4, 1, 0, 0,
-4, 0.5, 5, 0.5,
-4, 1, 0, 0,
-2, 1, 0, 0,
-2, 1, 0, 0,
-3, 1, 0, 0,
-1, 0.75, 3, 0.25,
-3, 1, 0, 0,
-4, 0.5, 5, 0.5,
-5, 1, 0, 0,
-5, 1, 0, 0,
-1, 1, 0, 0,
-1, 1, 0, 0,
+
+
 ]);
 
 let index_arr = Uint16Array.from([
-15, 9, 14,
-1, 15, 14,
-9, 15, 1,
-1, 14, 9,
-2, 7, 1,
-9, 1, 6,
-6, 7, 2,
-7, 6, 1,
-6, 2, 3,
-6, 3, 4,
-5, 4, 3,
-11, 3, 2,
-4, 5, 11,
-4, 11, 12,
-11, 5, 3,
-12, 13, 4,
-13, 12, 11,
-10, 6, 4,
-10, 4, 13,
-6, 10, 9,
-8, 9, 10,
-0, 11, 2,
-0, 13, 11,
-1, 9, 0,
-10, 0, 8,
-0, 10, 13,
-9, 8, 0,
+1, 3, 0,
 2, 1, 0
 ]);
 
@@ -3012,7 +3186,7 @@ FrontFace: GL_CW,
 };
 };
 }
-function render_instanced(mesh, offsets, palette) {
+function render_instanced(mesh, offsets, rotation_offsets, palette) {
 return (game, entity) => {
 let material = game.MaterialInstanced;
 
@@ -3034,6 +3208,11 @@ game.Gl.bufferData(GL_ARRAY_BUFFER, offsets, GL_STATIC_DRAW);
 game.Gl.enableVertexAttribArray(material.Locations.VertexOffset);
 game.Gl.vertexAttribPointer(material.Locations.VertexOffset, 4, GL_FLOAT, false, 0, 0);
 game.Gl.vertexAttribDivisor(material.Locations.VertexOffset, 1);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, game.Gl.createBuffer());
+game.Gl.bufferData(GL_ARRAY_BUFFER, rotation_offsets, GL_STATIC_DRAW);
+game.Gl.enableVertexAttribArray(material.Locations.VertexOffsetRotation);
+game.Gl.vertexAttribPointer(material.Locations.VertexOffsetRotation, 4, GL_FLOAT, false, 0, 0);
+game.Gl.vertexAttribDivisor(material.Locations.VertexOffsetRotation, 1);
 game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.Gl.bindVertexArray(null);
 game.World.Signature[entity] |= 65536 /* Render */;
@@ -3960,6 +4139,8 @@ this.MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
 this.MaterialParticlesTextured = mat_forward_particles_textured(this.Gl);
 this.MaterialDepth = mat_forward_depth(this.Gl);
 this.MaterialInstanced = mat_forward_instanced(this.Gl);
+this.MeshLeaf = mesh_leaf(this.Gl);
+this.MeshPlane = mesh_plane(this.Gl);
 this.MeshCube = mesh_cube(this.Gl);
 this.MeshLudek = mesh_ludek(this.Gl);
 
@@ -4013,6 +4194,15 @@ sys_render_forward(this);
 sys_draw(this);
 sys_ui(this);
 }
+}
+
+let seed = 1;
+function rand() {
+seed = (seed * 16807) % 2147483647;
+return (seed - 1) / 2147483646;
+}
+function float(min = 0, max = 1) {
+return rand() * (max - min) + min;
 }
 
 /**
@@ -4491,7 +4681,7 @@ SelfRotations: [],
 function blueprint_sun(game) {
 return [
 control_always(null, [0, 1, 0, 0]),
-move(0, 0.5),
+move(0, 1.5),
 children([
 transform([0, 0, 10]),
 light_directional([1, 1, 1], 0.9),
@@ -4516,10 +4706,23 @@ transform(undefined, undefined, [10, 1, 10]),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1]),
 ]);
 
+let radius = 0.8;
+let leaf_count = 200;
+let offsets = [];
+let rotations = [];
+for (let i = 0; i < leaf_count; i++) {
+offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), 0);
+rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
+}
+console.log(offsets);
 instantiate(game, [
-transform([-1, 1, 0]),
-render_instanced(game.MeshCube, Float32Array.from([0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1]), [1, 1, 0.3, 0.3, 1, 0.3]),
+transform([-1, 2, -2], from_euler([0, 0, 0, 0], 67, 0, 0)),
+render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), [0, 1, 0]),
 ]);
+
+
+
+
 
 instantiate(game, [...blueprint_character_rigged(game), transform([1, 0.5, 0])]);
 
