@@ -6,7 +6,7 @@ import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
 // prettier-ignore
-const leaft_colors = [
+export const leaft_colors = [
     0, 1, 0,
     0, 0.36, 0,
     0, 0.5, 0,

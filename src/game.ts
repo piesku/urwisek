@@ -11,6 +11,7 @@ import {mat_forward_instanced} from "../materials/mat_forward_instanced.js";
 import {mat_forward_particles_colored} from "../materials/mat_forward_particles_colored.js";
 import {mat_forward_particles_textured} from "../materials/mat_forward_particles_textured.js";
 import {mesh_cube} from "../meshes/cube.js";
+import {mesh_grass} from "../meshes/grass.js";
 import {mesh_leaf} from "../meshes/leaf.js";
 import {mesh_lisek} from "../meshes/lisek.js";
 import {mesh_ludek} from "../meshes/ludek.js";
@@ -60,6 +61,7 @@ export class Game extends Game3D {
     MaterialInstanced = mat_forward_instanced(this.Gl);
 
     MeshLeaf = mesh_leaf(this.Gl);
+    MeshGrass = mesh_grass(this.Gl);
     MeshPlane = mesh_plane(this.Gl);
     MeshCube = mesh_cube(this.Gl);
     MeshLudek = mesh_ludek(this.Gl);
