@@ -1,233 +1,228 @@
 {
-    "asset": {
-        "generator": "Khronos glTF Blender I/O v1.6.16",
-        "version": "2.0"
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.6.16",
+        "version" : "2.0"
     },
-    "scene": 0,
-    "scenes": [
+    "scene" : 0,
+    "scenes" : [
         {
-            "name": "Scene",
-            "nodes": [
+            "name" : "Scene",
+            "nodes" : [
                 7,
                 13
             ]
         }
     ],
-    "nodes": [
+    "nodes" : [
         {
-            "name": "Neck",
-            "rotation": [
-                -0.40009844303131104,
-                -1.0555567087067175e-08,
-                -1.759862726657957e-07,
-                0.9164721965789795
+            "name" : "Neck",
+            "rotation" : [
+                -0.40009284019470215,
+                -1.0559382701558206e-08,
+                1.479286648731204e-08,
+                0.9164746403694153
             ],
-            "scale": [
-                1,
-                1,
-                1.0000001192092896
-            ],
-            "translation": [
-                -1.2442718330554856e-14,
-                0.6851861476898193,
-                -1.5133991837501526e-08
-            ]
-        },
-        {
-            "name": "Arm.L",
-            "rotation": [
-                0.7366228103637695,
-                -0.06763075292110443,
-                -0.07449119538068771,
-                0.6687780618667603
-            ],
-            "scale": [
-                1,
-                1,
-                1.0000001192092896
-            ],
-            "translation": [
-                0.10999999195337296,
-                0.6851862668991089,
-                -6.957288434250586e-08
-            ]
-        },
-        {
-            "name": "Arm.R",
-            "rotation": [
-                0.7366227507591248,
-                0.06763046234846115,
-                0.07449169456958771,
-                0.6687780618667603
-            ],
-            "translation": [
-                -0.10999999195337296,
-                0.6851861476898193,
-                -6.750775582986535e-08
-            ]
-        },
-        {
-            "name": "Leg.L",
-            "rotation": [
-                0.7527167797088623,
-                -7.861348905180421e-08,
-                2.66375764113036e-07,
-                0.6583444476127625
-            ],
-            "scale": [
+            "scale" : [
                 1,
                 1.0000001192092896,
                 1
             ],
-            "translation": [
-                0.10999999195337296,
-                5.605055086732591e-09,
-                2.4096610928836526e-08
+            "translation" : [
+                0,
+                0.4561888575553894,
+                1.3934394971215625e-08
             ]
         },
         {
-            "name": "Leg.R",
-            "rotation": [
-                0.7527168393135071,
-                -2.3490333944664599e-07,
-                8.775271709282606e-08,
-                0.6583445072174072
+            "name" : "Arm.L",
+            "rotation" : [
+                0.7403796911239624,
+                5.896089660950565e-08,
+                1.4796911784742406e-07,
+                0.672188937664032
             ],
-            "scale": [
+            "translation" : [
+                0.07323668897151947,
+                0.45618900656700134,
+                2.355363726280757e-08
+            ]
+        },
+        {
+            "name" : "Arm.R",
+            "rotation" : [
+                0.7403797507286072,
+                -5.380410073030362e-08,
+                -9.01471608472093e-09,
+                0.6721888780593872
+            ],
+            "translation" : [
+                -0.07323671132326126,
+                0.4561888873577118,
+                1.234002411365509e-08
+            ]
+        },
+        {
+            "name" : "Leg.L",
+            "rotation" : [
+                0.7527179718017578,
+                7.527987122557533e-09,
+                -7.235894994295222e-09,
+                0.6583431959152222
+            ],
+            "scale" : [
                 1,
                 1.0000001192092896,
                 1
             ],
-            "translation": [
-                -0.10999999940395355,
-                5.605113262419081e-09,
-                -8.08064370971806e-08
+            "translation" : [
+                0.07323671132326126,
+                -3.3527612686157227e-08,
+                1.4901161193847656e-08
             ]
         },
         {
-            "children": [
+            "name" : "Leg.R",
+            "rotation" : [
+                0.7527178525924683,
+                -8.038623100503628e-09,
+                6.599935264972601e-09,
+                0.6583432555198669
+            ],
+            "scale" : [
+                1,
+                1.0000001192092896,
+                1.0000001192092896
+            ],
+            "translation" : [
+                -0.07323671132326126,
+                -3.3527612686157227e-08,
+                1.4901161193847656e-08
+            ]
+        },
+        {
+            "children" : [
                 0,
                 1,
                 2,
                 3,
                 4
             ],
-            "name": "Root",
-            "rotation": [
-                0.6721887588500977,
-                1.7651736072821222e-07,
-                1.6025968818667025e-07,
-                0.740379810333252
+            "name" : "Root",
+            "rotation" : [
+                0.6721892952919006,
+                0,
+                0,
+                0.7403793334960938
             ],
-            "scale": [
+            "scale" : [
                 1,
-                1,
-                0.9999943971633911
+                1.0000001192092896,
+                1.0000219345092773
             ],
-            "translation": [
-                2.8421086014154828e-14,
-                0.5279999375343323,
-                -0.7039999961853027
+            "translation" : [
+                0,
+                0.35153621435165405,
+                -0.46871498227119446
             ]
         },
         {
-            "mesh": 0,
-            "name": "Lisek",
-            "skin": 0
+            "mesh" : 0,
+            "name" : "Lisek",
+            "skin" : 0
         },
         {
-            "children": [
+            "children" : [
                 6,
                 5
             ],
-            "name": "Lisek Rigged"
+            "name" : "Lisek Rigged"
         },
         {
-            "name": "Bone.005",
-            "rotation": [
-                0.17039519548416138,
-                -4.506800409752841e-14,
+            "name" : "Bone.005",
+            "rotation" : [
+                0.17039522528648376,
+                -4.2363922564186626e-14,
                 1.0697972641082742e-07,
                 0.9853758215904236
             ],
-            "scale": [
+            "scale" : [
                 1,
-                0.9999999403953552,
+                0.9999998807907104,
                 1
             ],
-            "translation": [
-                -5.494157663137088e-15,
-                0.6440402865409851,
-                5.614345965909706e-08
+            "translation" : [
+                -3.7414069967021046e-16,
+                0.4289308190345764,
+                -2.2351741790771484e-08
             ]
         },
         {
-            "children": [
+            "children" : [
                 8
             ],
-            "name": "Bone.004",
-            "rotation": [
+            "name" : "Bone.004",
+            "rotation" : [
                 2.149682565288913e-08,
                 -0.997652530670166,
                 -0.06847943365573883,
                 3.131795267563575e-07
             ],
-            "scale": [
+            "scale" : [
                 1,
                 0.9999997615814209,
                 1
             ],
-            "translation": [
-                1.4210854715202004e-14,
-                0.7039998769760132,
-                -5.960458793197176e-10
+            "translation" : [
+                1.6460867296509175e-14,
+                0.46886396408081055,
+                1.5511837148096674e-08
             ]
         },
         {
-            "children": [
+            "children" : [
                 9
             ],
-            "name": "Bone.002",
-            "rotation": [
+            "name" : "Bone.002",
+            "rotation" : [
                 -0.0662272647023201,
-                1.5750848969434632e-17,
+                1.5750842351989732e-17,
                 3.0456234288830843e-17,
                 0.997804582118988
             ],
-            "scale": [
+            "scale" : [
                 1,
                 0.9999998807907104,
                 0.9999999403953552
             ],
-            "translation": [
-                -4.963083675318166e-24,
-                0.6658408045768738,
-                0
+            "translation" : [
+                -1.1580528575742387e-23,
+                0.44345009326934814,
+                -3.725290298461914e-09
             ]
         },
         {
-            "children": [
+            "children" : [
                 10
             ],
-            "name": "Bone.001",
-            "rotation": [
-                0.0662272498011589,
-                -1.575083573454483e-17,
+            "name" : "Bone.001",
+            "rotation" : [
+                0.06622724235057831,
+                -1.5750842351989732e-17,
                 -3.045622436266349e-17,
                 0.997804582118988
             ],
-            "translation": [
-                1.799777477791781e-23,
-                0.527999997138977,
-                2.7196120335923185e-40
+            "translation" : [
+                -6.879591267838216e-24,
+                0.3516480028629303,
+                3.6926117719104923e-09
             ]
         },
         {
-            "children": [
+            "children" : [
                 11
             ],
-            "name": "Bone",
-            "rotation": [
+            "name" : "Bone",
+            "rotation" : [
                 -1.1010111045095528e-08,
                 -1.1102230246251565e-16,
                 -1.1102230246251565e-16,
@@ -235,43 +230,43 @@
             ]
         },
         {
-            "children": [
+            "children" : [
                 12
             ],
-            "name": "Ogon Rigged",
-            "rotation": [
+            "name" : "Ogon Rigged",
+            "rotation" : [
                 -0.7071067690849304,
                 0,
                 0,
                 0.7071068286895752
             ],
-            "translation": [
+            "translation" : [
                 0,
-                0.6499999761581421,
-                -1.0199999809265137
+                0.4282439351081848,
+                -0.7008057832717896
             ]
         }
     ],
-    "meshes": [
+    "meshes" : [
         {
-            "name": "Lisek",
-            "primitives": [
+            "name" : "Lisek",
+            "primitives" : [
                 {
-                    "attributes": {
-                        "POSITION": 0,
-                        "NORMAL": 1,
-                        "JOINTS_0": 2,
-                        "WEIGHTS_0": 3
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "JOINTS_0" : 2,
+                        "WEIGHTS_0" : 3
                     },
-                    "indices": 4
+                    "indices" : 4
                 }
             ]
         }
     ],
-    "skins": [
+    "skins" : [
         {
-            "inverseBindMatrices": 5,
-            "joints": [
+            "inverseBindMatrices" : 5,
+            "joints" : [
                 5,
                 0,
                 1,
@@ -279,93 +274,93 @@
                 3,
                 4
             ],
-            "name": "Lisek Rigged"
+            "name" : "Lisek Rigged"
         }
     ],
-    "accessors": [
+    "accessors" : [
         {
-            "bufferView": 0,
-            "componentType": 5126,
-            "count": 20,
-            "max": [
-                0.2639999985694885,
-                1.3409439325332642,
-                0.5597515106201172
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 20,
+            "max" : [
+                0.17576810717582703,
+                0.8927847743034363,
+                0.3726760149002075
             ],
-            "min": [
-                -0.2639999985694885,
-                -0.0010560703231021762,
-                -0.8785319924354553
+            "min" : [
+                -0.17576810717582703,
+                -0.0007031192653812468,
+                -0.584916353225708
             ],
-            "type": "VEC3"
+            "type" : "VEC3"
         },
         {
-            "bufferView": 1,
-            "componentType": 5126,
-            "count": 20,
-            "type": "VEC3"
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 20,
+            "type" : "VEC3"
         },
         {
-            "bufferView": 2,
-            "componentType": 5121,
-            "count": 20,
-            "type": "VEC4"
+            "bufferView" : 2,
+            "componentType" : 5121,
+            "count" : 20,
+            "type" : "VEC4"
         },
         {
-            "bufferView": 3,
-            "componentType": 5126,
-            "count": 20,
-            "type": "VEC4"
+            "bufferView" : 3,
+            "componentType" : 5126,
+            "count" : 20,
+            "type" : "VEC4"
         },
         {
-            "bufferView": 4,
-            "componentType": 5123,
-            "count": 108,
-            "type": "SCALAR"
+            "bufferView" : 4,
+            "componentType" : 5123,
+            "count" : 108,
+            "type" : "SCALAR"
         },
         {
-            "bufferView": 5,
-            "componentType": 5126,
-            "count": 6,
-            "type": "MAT4"
+            "bufferView" : 5,
+            "componentType" : 5126,
+            "count" : 6,
+            "type" : "MAT4"
         }
     ],
-    "bufferViews": [
+    "bufferViews" : [
         {
-            "buffer": 0,
-            "byteLength": 240,
-            "byteOffset": 0
+            "buffer" : 0,
+            "byteLength" : 240,
+            "byteOffset" : 0
         },
         {
-            "buffer": 0,
-            "byteLength": 240,
-            "byteOffset": 240
+            "buffer" : 0,
+            "byteLength" : 240,
+            "byteOffset" : 240
         },
         {
-            "buffer": 0,
-            "byteLength": 80,
-            "byteOffset": 480
+            "buffer" : 0,
+            "byteLength" : 80,
+            "byteOffset" : 480
         },
         {
-            "buffer": 0,
-            "byteLength": 320,
-            "byteOffset": 560
+            "buffer" : 0,
+            "byteLength" : 320,
+            "byteOffset" : 560
         },
         {
-            "buffer": 0,
-            "byteLength": 216,
-            "byteOffset": 880
+            "buffer" : 0,
+            "byteLength" : 216,
+            "byteOffset" : 880
         },
         {
-            "buffer": 0,
-            "byteLength": 384,
-            "byteOffset": 1096
+            "buffer" : 0,
+            "byteLength" : 384,
+            "byteOffset" : 1096
         }
     ],
-    "buffers": [
+    "buffers" : [
         {
-            "byteLength": 1480,
-            "uri": "data:application/octet-stream;base64,U9phPlcyKT/dDQI9rkfhPY+qArrorUi8J1NLPpmvsz7xgNe+AisHPvdsHT8GhVO/rkfhPddrirpwQUi/LbIdPoI3hD+T5YA+AiuHPg2kqz9GQPU9U9phvlcyKT/dDQI9AAAAABB6OT+WeWS9AAAAALE6qD75RI68rkfhvY+qArrorUi8J1NLvpmvsz7xgNe+AAAAADBYqD4ioUu/AisHvvdsHT8GhVO/AAAAAJIpJj9552C/rkfhvddrirpwQUi/LbIdvoI3hD+T5YA+AAAAAK5gWz/gSw8/AiuHvg2kqz9GQPU9AAAAABd7jz+T5YA+qBx/P3yBDjzEgak9bQLXu8Yodr+VjYw+KydMP2FKGb9aspe90yQwP4Mr2z5nABa/gAERPZKoeL99wnC+8sg5PxczQz6uOik/PX/VPoIpZz85Y9S9qBx/v3yBDjzEgak9AAAAAC/VSD+EwB6/AAAAAN8ZF7+Opk4/bQLXO8Yodr+VjYw+KydMv2FKGb9aspe9AAAAAF+n8b4lsWG/0yQwv4Mr2z5nABa/AAAAACcUEj8ZO1K/gAERvZKoeL99wnC+8sg5vxczQz6uOik/AAAAAOZBHr0Sz38/PX/VvoIpZz85Y9S9AAAAAJaRbj/Ksrk+AgEAAAIAAAAEAgAABAAAAAQAAAABAgAAAQAAAAMBAAABAAAAAgMAAAMAAAAFAwAAAAAAAAUAAAAAAAAABQAAAAEDAAABAAAAAQAAAAEAAAApCms/t66nPQAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAD8AAAA/AAAAAAAAAADIQGg/vfm9PQAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAEONZD/rlds9AAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAKQprP7eupz0AAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAA/AAAAPwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAD8AAAA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAyEBoP735vT0AAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAQ41kP+uV2z0AAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAIAAAABAAkAAgABAAAACQABAAgAAwAOAAAAAgADAAwAAwAEAAMADAAOAAIADAAEAAMAAgAEAAkADAACAAUAAAAGAAkAAAARAAAACAAGAAgAEwAGAAAABQARAAgAAAADAAUAEwARAAUABgATAAsACgAHAAkACgALAAcACgAJAAgADgANAAcADQALAAwADwANAA0ADgAMAAsADwAMAA0ADwALAAkACwAMABAAEgAHAAkAEQAHAAcAEgAIAAgAEgATAAcAEQAQAAgADQAHABAAEQATABAAEwASAAAAgD81AJCqTP//NAAAAIAyzv4040XFPaDPfr8AAAAAyERFs0LPfj/jRcU9AAAAgJ3ll7SuXSY/d+YXPwAAgD8AAIA/NACQrBIAADUAAACAiiWbNM6hSz+8JRu/AAAAAEehy7R9JRs/iKFLPwAAAIAfRkG0pBbrvl1GwT4AAIA/K9F6P9dBSbJMAk2+AAAAgG9/sbEvAIC/CChzsgAAAABLAk2+I3QLNSrRer8AAACASb3lvZgQGD/WUfU5AACAPyvRej+o8soxTgJNPgAAAIDy6z2wLwCAvz8SBbIAAAAAUAJNPv8XCTUq0Xq/AAAAgEq95T2ZEBg/V1H1OQAAgD8AAIA/rzdbMVn6fDQAAACADuHfskkGfr/1Bf49AAAAABFzezRnBf697gV+vwAAAICWR+G9zYrfPgyZQ78AAIA/AACAP8c2WzHXgoG0AAAAgH0VDjNJBn6/9QX+PQAAAABrTIC0ZwX+ve4Ffr8AAAAAlUfhPc2K3z4MmUO/AACAPw=="
+            "byteLength" : 1480,
+            "uri" : "data:application/octet-stream;base64,w14WPlxM4T5VLa08If2VPfv9rbklnAW8DF8HPvxDbz7Weo++jvyzPdKf0T7J0wy/If2VPYlROLruUwW/+/vRPY0OMD/Mois+jvwzPouNZD8JSaM9w14WvlxM4T5VLa08AAAAAAH69j6uHRi9AAAAAJkCYD5QcT28If2Vvfv9rbklnAW8DF8HvvxDbz7Weo++AAAAAOApYD73kge/jvyzvdKf0T7J0wy/AAAAAAhC3T4UvRW/If2VvYlROLruUwW/+/vRvY0OMD/Mois+AAAAAB8PEj9kz74+jvwzvouNZD8JSaM9AAAAAEIOPz/Mois+pxx/P3uBDjzDgak9bQLXu8Yodr+WjYw+KidMP2FKGb9aspe90yQwP4Qr2z5oABa/gAERPZKoeL9/wnC+8sg5PxczQz6tOik/Pn/VPoIpZz85Y9S9pxx/v3uBDjzDgak9AAAAAC/VSD+EwB6/AAAAAN4ZF7+Opk4/bQLXO8Yodr+WjYw+KidMv2FKGb9aspe9AAAAAF+n8b4lsWG/0yQwv4Qr2z5oABa/AAAAACcUEj8YO1K/gAERvZKoeL9/wnC+8sg5vxczQz6tOik/AAAAAORBHr0Qz38/Pn/VvoIpZz85Y9S9AAAAAJaRbj/Ksrk+AgEAAAIAAAAEAgAABAAAAAQAAAABAgAAAQAAAAMBAAABAAAAAgMAAAMAAAAFAwAAAAAAAAUAAAAAAAAABQAAAAEDAAABAAAAAQAAAAEAAAApCms/t66nPQAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAD8AAAA/AAAAAAAAAADIQGg/vfm9PQAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAEONZD/rlds9AAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAKQprP7eupz0AAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAA/AAAAPwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAD8AAAA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAyEBoP735vT0AAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAQ41kP+uV2z0AAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAIAAAABAAkAAgABAAAACQABAAgAAwAOAAAAAgADAAwAAwAEAAMADAAOAAIADAAEAAMAAgAEAAkADAACAAUAAAAGAAkAAAARAAAACAAGAAgAEwAGAAAABQARAAgAAAADAAUAEwARAAUABgATAAsACgAHAAkACgALAAcACgAJAAgADgANAAcADQALAAwADwANAA0ADgAMAAsADwAMAA0ADwALAAkACwAMABAAEgAHAAkAEQAHAAcAEgAIAAgAEgATAAcAEQAQAAgADQAHABAAEQATABAAEwASAAAAgD8AAACAAAAAAAAAAIAAAACAh0TFPdfNfr8AAAAAAAAAAEbPfj+HRMU9AAAAgAAAAICNh90+5ELKPgAAgD8AAIA/AAAAgAAAAAAAAACAAAAAgOOfSz9KJRu/AAAAAAAAAABCJhs/8KBLPwAAAIAAAACAXYOcvr6tgD4AAIA/AACAPwAAAIAAAAAAAAAAgAAAAICS/n+/AAAAgAAAAAAAAAAANv8MtgAAgL8AAACAIf2Vvf56yj5A+2+8AACAPwAAgD8AAACAAAAAAAAAAIAAAAAAkv5/vwAAAIAAAAAAAAAAADb/DLYAAIC/AAAAgCH9lT3+eso+QPtvvAAAgD8AAIA/AAAAgAAAAAAAAACAAAAAgHwEfr/7Bf49AAAAAAAAAABtCP694gV+vwAAAIAh/ZW9UdOUPgc6Ar8AAIA/AACAPwAAAIAAAAAAAAAAgAAAAIB8BH6/+wX+PQAAAAAAAAAAbQj+veIFfr8AAACAIf2VPVHTlD4HOgK/AACAPw=="
         }
     ]
 }
