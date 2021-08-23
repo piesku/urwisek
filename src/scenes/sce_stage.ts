@@ -5,6 +5,10 @@ import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_lisek} from "../blueprints/blu_lisek.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_tree} from "../blueprints/blu_tree.js";
+import {children} from "../components/com_children.js";
+import {control_always} from "../components/com_control_always.js";
+import {control_player} from "../components/com_control_player.js";
+import {move} from "../components/com_move.js";
 import {render_colored_shadows, render_instanced} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
@@ -15,7 +19,7 @@ export function scene_stage(game: Game) {
     game.ViewportResized = true;
 
     // Camera.
-    instantiate(game, [...blueprint_camera(game), transform([0, 1, 2], [0, 1, 0, 0])]);
+    instantiate(game, [...blueprint_camera(game), transform([0, 1, 3], [0, 1, 0, 0])]);
 
     // Sun.
     instantiate(game, [
@@ -63,10 +67,17 @@ export function scene_stage(game: Game) {
             ),
         ]);
 
-    // Lisek.
+    // Lisek walking around.
     instantiate(game, [
-        transform([0, 0, 0], from_euler([0, 0, 0, 0], 0, 30, 0)),
-        ...blueprint_lisek(game),
+        transform(),
+        control_always(null, [0, 1, 0, 0]),
+        move(0, 0.5),
+        children([
+            transform([-1.5, 0, 0]),
+            ...blueprint_lisek(game),
+            control_player(true),
+            move(0, 0),
+        ]),
     ]);
 
     // instantiate(game, [transform([0, -1, 0]), light_directional([1, 1, 1], 0.6)]);

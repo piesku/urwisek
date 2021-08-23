@@ -21,13 +21,7 @@ export interface ControlPlayer {
  * @param min_pitch - Min pitch allowed, in arc degrees.
  * @param max_pitch - Max pitch allowed, in arc degrees.
  */
-export function control_player(
-    move: boolean,
-    yaw: number,
-    pitch: number,
-    min_pitch = 0,
-    max_pitch = 0
-) {
+export function control_player(move: boolean, yaw = 0, pitch = 0, min_pitch = 0, max_pitch = 0) {
     return (game: Game, entity: Entity) => {
         game.World.Signature[entity] |= Has.ControlPlayer;
         game.World.ControlPlayer[entity] = {

@@ -87,11 +87,11 @@ export function blueprint_lisek(game: Game) {
                             Keyframes: [
                                 {
                                     Timestamp: 0.0,
-                                    Rotation: from_euler([0, 0, 0, 1], 0, 5, 0),
+                                    Rotation: from_euler([0, 0, 0, 1], -30, 0, 5),
                                 },
                                 {
                                     Timestamp: 0.2,
-                                    Rotation: from_euler([0, 0, 0, 1], 0, -5, 0),
+                                    Rotation: from_euler([0, 0, 0, 1], -30, 0, -5),
                                 },
                             ],
                         },
@@ -137,11 +137,11 @@ export function blueprint_lisek(game: Game) {
                             Keyframes: [
                                 {
                                     Timestamp: 0,
-                                    Rotation: from_euler([0, 0, 0, 1], 30, 0, 0),
+                                    Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
                                 },
                                 {
                                     Timestamp: 0.2,
-                                    Rotation: from_euler([0, 0, 0, 1], -60, 0, 0),
+                                    Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
                                 },
                             ],
                         },
@@ -187,11 +187,11 @@ export function blueprint_lisek(game: Game) {
                             Keyframes: [
                                 {
                                     Timestamp: 0,
-                                    Rotation: from_euler([0, 0, 0, 1], -60, 0, 0),
+                                    Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
                                 },
                                 {
                                     Timestamp: 0.2,
-                                    Rotation: from_euler([0, 0, 0, 1], 30, 0, 0),
+                                    Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
                                 },
                             ],
                         },
@@ -237,11 +237,11 @@ export function blueprint_lisek(game: Game) {
                             Keyframes: [
                                 {
                                     Timestamp: 0,
-                                    Rotation: from_euler([0, 0, 0, 1], -45, 0, 0),
+                                    Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
                                 },
                                 {
                                     Timestamp: 0.2,
-                                    Rotation: from_euler([0, 0, 0, 1], 45, 0, 0),
+                                    Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
                                 },
                             ],
                         },
@@ -287,11 +287,11 @@ export function blueprint_lisek(game: Game) {
                             Keyframes: [
                                 {
                                     Timestamp: 0,
-                                    Rotation: from_euler([0, 0, 0, 1], 45, 0, 0),
+                                    Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
                                 },
                                 {
                                     Timestamp: 0.2,
-                                    Rotation: from_euler([0, 0, 0, 1], -45, 0, 0),
+                                    Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
                                 },
                             ],
                         },

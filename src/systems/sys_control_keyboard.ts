@@ -1,5 +1,6 @@
 import {get_pitch} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
+import {query_all} from "../components/com_children.js";
 import {Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -33,6 +34,11 @@ function update(game: Game, entity: Entity) {
         if (game.InputState["KeyD"]) {
             // Strafe right
             move.Directions.push([-1, 0, 0]);
+        }
+
+        for (let ent of query_all(game.World, entity, Has.Animate)) {
+            let animate = game.World.Animate[ent];
+            animate.Trigger = "walk";
         }
     }
 
