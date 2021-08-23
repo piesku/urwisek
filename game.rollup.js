@@ -1388,6 +1388,138 @@
     function mesh_cube(gl) {
         let vertex_buf = gl.createBuffer();
         gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$6, GL_STATIC_DRAW);
+        let normal_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$6, GL_STATIC_DRAW);
+        let texcoord_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$6, GL_STATIC_DRAW);
+        let weights_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$6, GL_STATIC_DRAW);
+        let index_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$6, GL_STATIC_DRAW);
+        return {
+            VertexBuffer: vertex_buf,
+            VertexArray: vertex_arr$6,
+            NormalBuffer: normal_buf,
+            NormalArray: normal_arr$6,
+            TexCoordBuffer: texcoord_buf,
+            TexCoordArray: texcoord_arr$6,
+            WeightsBuffer: weights_buf,
+            WeightsArray: weights_arr$6,
+            IndexBuffer: index_buf,
+            IndexArray: index_arr$6,
+            IndexCount: index_arr$6.length,
+        };
+    }
+    // prettier-ignore
+    let vertex_arr$6 = Float32Array.from([
+        -0.5, -0.5, 0.5,
+        -0.5, 0.5, 0.5,
+        -0.5, 0.5, -0.5,
+        -0.5, -0.5, -0.5,
+        -0.5, -0.5, -0.5,
+        -0.5, 0.5, -0.5,
+        0.5, 0.5, -0.5,
+        0.5, -0.5, -0.5,
+        0.5, -0.5, -0.5,
+        0.5, 0.5, -0.5,
+        0.5, 0.5, 0.5,
+        0.5, -0.5, 0.5,
+        0.5, -0.5, 0.5,
+        0.5, 0.5, 0.5,
+        -0.5, 0.5, 0.5,
+        -0.5, -0.5, 0.5,
+        -0.5, -0.5, -0.5,
+        0.5, -0.5, -0.5,
+        0.5, -0.5, 0.5,
+        -0.5, -0.5, 0.5,
+        0.5, 0.5, -0.5,
+        -0.5, 0.5, -0.5,
+        -0.5, 0.5, 0.5,
+        0.5, 0.5, 0.5
+    ]);
+    // prettier-ignore
+    let normal_arr$6 = Float32Array.from([
+        -1, 0, 0,
+        -1, 0, 0,
+        -1, 0, 0,
+        -1, 0, 0,
+        0, 0, -1,
+        0, 0, -1,
+        0, 0, -1,
+        0, 0, -1,
+        1, 0, 0,
+        1, 0, 0,
+        1, 0, 0,
+        1, 0, 0,
+        0, 0, 1,
+        0, 0, 1,
+        0, 0, 1,
+        0, 0, 1,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, 1, 0,
+        0, 1, 0,
+        0, 1, 0,
+        0, 1, 0
+    ]);
+    // prettier-ignore
+    let texcoord_arr$6 = Float32Array.from([
+        0.666667, 0.333333,
+        0.333333, 0.333333,
+        0.333333, 0,
+        0.666667, 0,
+        0.333333, 0.666667,
+        0, 0.666667,
+        0, 0.333333,
+        0.333333, 0.333333,
+        0.333333, 0.333333,
+        0, 0.333333,
+        0, 0,
+        0.333333, 0,
+        0.333333, 0.666667,
+        0.333333, 0.333333,
+        0.666667, 0.333333,
+        0.666667, 0.666667,
+        1, 0.333333,
+        0.666667, 0.333333,
+        0.666667, 0,
+        1, 0,
+        0.333333, 0.666667,
+        0.333333, 1,
+        0, 1,
+        0, 0.666667
+    ]);
+    // prettier-ignore
+    let weights_arr$6 = Float32Array.from([
+    // Weights must be assigned manually for now b/c OBJ doesn't support them.
+    // WARNING: Remaking the mesh file will overwrite your weights here.
+    ]);
+    // prettier-ignore
+    let index_arr$6 = Uint16Array.from([
+        23, 22, 20,
+        22, 21, 20,
+        19, 18, 16,
+        18, 17, 16,
+        15, 14, 12,
+        14, 13, 12,
+        11, 10, 8,
+        10, 9, 8,
+        7, 6, 4,
+        6, 5, 4,
+        3, 2, 0,
+        2, 1, 0
+    ]);
+
+    function mesh_grass(gl) {
+        let vertex_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
         gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$5, GL_STATIC_DRAW);
         let normal_buf = gl.createBuffer();
         gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
@@ -1417,84 +1549,30 @@
     }
     // prettier-ignore
     let vertex_arr$5 = Float32Array.from([
-        -0.5, -0.5, 0.5,
-        -0.5, 0.5, 0.5,
-        -0.5, 0.5, -0.5,
-        -0.5, -0.5, -0.5,
-        -0.5, -0.5, -0.5,
-        -0.5, 0.5, -0.5,
-        0.5, 0.5, -0.5,
-        0.5, -0.5, -0.5,
-        0.5, -0.5, -0.5,
-        0.5, 0.5, -0.5,
-        0.5, 0.5, 0.5,
-        0.5, -0.5, 0.5,
-        0.5, -0.5, 0.5,
-        0.5, 0.5, 0.5,
-        -0.5, 0.5, 0.5,
-        -0.5, -0.5, 0.5,
-        -0.5, -0.5, -0.5,
-        0.5, -0.5, -0.5,
-        0.5, -0.5, 0.5,
-        -0.5, -0.5, 0.5,
-        0.5, 0.5, -0.5,
-        -0.5, 0.5, -0.5,
-        -0.5, 0.5, 0.5,
-        0.5, 0.5, 0.5
+        -0.008597, 0.008676, 0,
+        0.008402, 0.007591, 0,
+        0, 0.416493, 0.06595,
+        -0.008597, 0.008676, 0,
+        0, -0.416493, 0.06595,
+        0.008402, 0.007591, 0
     ]);
     // prettier-ignore
     let normal_arr$5 = Float32Array.from([
-        -1, 0, 0,
-        -1, 0, 0,
-        -1, 0, 0,
-        -1, 0, 0,
-        0, 0, -1,
-        0, 0, -1,
-        0, 0, -1,
-        0, 0, -1,
-        1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, -1, 0,
-        0, -1, 0,
-        0, -1, 0,
-        0, -1, 0,
-        0, 1, 0,
-        0, 1, 0,
-        0, 1, 0,
-        0, 1, 0
+        -0.0102, -0.1594, 0.9872,
+        -0.0102, -0.1594, 0.9872,
+        -0.0102, -0.1594, 0.9872,
+        0.0098, 0.1535, 0.9881,
+        0.0098, 0.1535, 0.9881,
+        0.0098, 0.1535, 0.9881
     ]);
     // prettier-ignore
     let texcoord_arr$5 = Float32Array.from([
-        0.666667, 0.333333,
-        0.333333, 0.333333,
-        0.333333, 0,
-        0.666667, 0,
-        0.333333, 0.666667,
-        0, 0.666667,
-        0, 0.333333,
-        0.333333, 0.333333,
-        0.333333, 0.333333,
-        0, 0.333333,
         0, 0,
-        0.333333, 0,
-        0.333333, 0.666667,
-        0.333333, 0.333333,
-        0.666667, 0.333333,
-        0.666667, 0.666667,
-        1, 0.333333,
-        0.666667, 0.333333,
-        0.666667, 0,
-        1, 0,
-        0.333333, 0.666667,
-        0.333333, 1,
+        1, 1,
         0, 1,
-        0, 0.666667
+        0, 0,
+        1, 0,
+        1, 1
     ]);
     // prettier-ignore
     let weights_arr$5 = Float32Array.from([
@@ -1503,21 +1581,11 @@
     ]);
     // prettier-ignore
     let index_arr$5 = Uint16Array.from([
-        23, 22, 20,
-        22, 21, 20,
-        19, 18, 16,
-        18, 17, 16,
-        15, 14, 12,
-        14, 13, 12,
-        11, 10, 8,
-        10, 9, 8,
-        7, 6, 4,
-        6, 5, 4,
-        3, 2, 0,
+        5, 4, 3,
         2, 1, 0
     ]);
 
-    function mesh_grass(gl) {
+    function mesh_leaf(gl) {
         let vertex_buf = gl.createBuffer();
         gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
         gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$4, GL_STATIC_DRAW);
@@ -1549,30 +1617,30 @@
     }
     // prettier-ignore
     let vertex_arr$4 = Float32Array.from([
-        -0.008597, 0.008676, 0,
-        0.008402, 0.007591, 0,
-        0, 0.416493, 0.06595,
-        -0.008597, 0.008676, 0,
-        0, -0.416493, 0.06595,
-        0.008402, 0.007591, 0
+        0.040103, 0, 0.044704,
+        -0.054562, 0, -0.050619,
+        -0.124883, 0.01643, 0.126198,
+        0.040103, 0, 0.044704,
+        0.12554, 0.021688, -0.126198,
+        -0.054562, 0, -0.050619
     ]);
     // prettier-ignore
     let normal_arr$4 = Float32Array.from([
-        -0.0102, -0.1594, 0.9872,
-        -0.0102, -0.1594, 0.9872,
-        -0.0102, -0.1594, 0.9872,
-        0.0098, 0.1535, 0.9881,
-        0.0098, 0.1535, 0.9881,
-        0.0098, 0.1535, 0.9881
+        0.0665, 0.9956, -0.0661,
+        0.0665, 0.9956, -0.0661,
+        0.0665, 0.9956, -0.0661,
+        -0.0844, 0.9929, 0.0838,
+        -0.0844, 0.9929, 0.0838,
+        -0.0844, 0.9929, 0.0838
     ]);
     // prettier-ignore
     let texcoord_arr$4 = Float32Array.from([
-        0, 0,
-        1, 1,
+        1, 0,
         0, 1,
         0, 0,
         1, 0,
-        1, 1
+        1, 1,
+        0, 1
     ]);
     // prettier-ignore
     let weights_arr$4 = Float32Array.from([
@@ -1585,7 +1653,7 @@
         2, 1, 0
     ]);
 
-    function mesh_leaf(gl) {
+    function mesh_lisek(gl) {
         let vertex_buf = gl.createBuffer();
         gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
         gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$3, GL_STATIC_DRAW);
@@ -1617,97 +1685,29 @@
     }
     // prettier-ignore
     let vertex_arr$3 = Float32Array.from([
-        0.040103, 0, 0.044704,
-        -0.054562, 0, -0.050619,
-        -0.124883, 0.01643, 0.126198,
-        0.040103, 0, 0.044704,
-        0.12554, 0.021688, -0.126198,
-        -0.054562, 0, -0.050619
+        0.147, 0.440, 0.021,
+        0.073, -0.000, -0.008,
+        0.132, 0.234, -0.280,
+        0.088, 0.409, -0.550,
+        0.073, -0.001, -0.521,
+        0.103, 0.688, 0.168,
+        0.176, 0.893, 0.080,
+        -0.147, 0.440, 0.021,
+        0.000, 0.482, -0.037,
+        0.000, 0.219, -0.012,
+        -0.073, -0.000, -0.008,
+        -0.132, 0.234, -0.280,
+        0.000, 0.219, -0.530,
+        -0.088, 0.409, -0.550,
+        0.000, 0.432, -0.585,
+        -0.073, -0.001, -0.521,
+        -0.103, 0.688, 0.168,
+        0.000, 0.571, 0.373,
+        -0.176, 0.893, 0.080,
+        0.000, 0.746, 0.168
     ]);
     // prettier-ignore
     let normal_arr$3 = Float32Array.from([
-        0.0665, 0.9956, -0.0661,
-        0.0665, 0.9956, -0.0661,
-        0.0665, 0.9956, -0.0661,
-        -0.0844, 0.9929, 0.0838,
-        -0.0844, 0.9929, 0.0838,
-        -0.0844, 0.9929, 0.0838
-    ]);
-    // prettier-ignore
-    let texcoord_arr$3 = Float32Array.from([
-        1, 0,
-        0, 1,
-        0, 0,
-        1, 0,
-        1, 1,
-        0, 1
-    ]);
-    // prettier-ignore
-    let weights_arr$3 = Float32Array.from([
-    // Weights must be assigned manually for now b/c OBJ doesn't support them.
-    // WARNING: Remaking the mesh file will overwrite your weights here.
-    ]);
-    // prettier-ignore
-    let index_arr$3 = Uint16Array.from([
-        5, 4, 3,
-        2, 1, 0
-    ]);
-
-    function mesh_lisek(gl) {
-        let vertex_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$2, GL_STATIC_DRAW);
-        let normal_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$2, GL_STATIC_DRAW);
-        let texcoord_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$2, GL_STATIC_DRAW);
-        let weights_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$2, GL_STATIC_DRAW);
-        let index_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$2, GL_STATIC_DRAW);
-        return {
-            VertexBuffer: vertex_buf,
-            VertexArray: vertex_arr$2,
-            NormalBuffer: normal_buf,
-            NormalArray: normal_arr$2,
-            TexCoordBuffer: texcoord_buf,
-            TexCoordArray: texcoord_arr$2,
-            WeightsBuffer: weights_buf,
-            WeightsArray: weights_arr$2,
-            IndexBuffer: index_buf,
-            IndexArray: index_arr$2,
-            IndexCount: index_arr$2.length,
-        };
-    }
-    // prettier-ignore
-    let vertex_arr$2 = Float32Array.from([
-        0.221, 0.661, 0.032,
-        0.110, -0.000, -0.012,
-        0.199, 0.351, -0.421,
-        0.132, 0.615, -0.826,
-        0.110, -0.001, -0.782,
-        0.154, 1.033, 0.252,
-        0.264, 1.341, 0.120,
-        -0.221, 0.661, 0.032,
-        0.000, 0.725, -0.056,
-        0.000, 0.329, -0.017,
-        -0.110, -0.000, -0.012,
-        -0.199, 0.351, -0.421,
-        0.000, 0.329, -0.795,
-        -0.132, 0.615, -0.826,
-        0.000, 0.649, -0.879,
-        -0.110, -0.001, -0.782,
-        -0.154, 1.033, 0.252,
-        0.000, 0.857, 0.560,
-        -0.264, 1.341, 0.120,
-        0.000, 1.121, 0.252
-    ]);
-    // prettier-ignore
-    let normal_arr$2 = Float32Array.from([
         0.997, 0.009, 0.083,
         -0.007, -0.962, 0.275,
         0.797, -0.599, -0.074,
@@ -1730,9 +1730,9 @@
         0.000, 0.932, 0.363
     ]);
     // prettier-ignore
-    let texcoord_arr$2 = Float32Array.from([]);
+    let texcoord_arr$3 = Float32Array.from([]);
     // prettier-ignore
-    let weights_arr$2 = Float32Array.from([
+    let weights_arr$3 = Float32Array.from([
         2.000, 0.918, 1.000, 0.082,
         2.000, 1.000, 0.000, 0.000,
         4.000, 0.500, 2.000, 0.500,
@@ -1755,7 +1755,7 @@
         1.000, 1.000, 0.000, 0.000
     ]);
     // prettier-ignore
-    let index_arr$2 = Uint16Array.from([
+    let index_arr$3 = Uint16Array.from([
         18, 19, 16,
         19, 17, 16,
         7, 13, 8,
@@ -1793,8 +1793,137 @@
         1, 2, 9,
         1, 0, 2
     ]);
+    /*
+    1.000, 0.000, 0.000, 0.000, 0.000, 0.096, -0.995, 0.000, 0.000, 0.995, 0.096, 0.000, 0.000, 0.433, 0.395, 1.000
+    1.000, 0.000, 0.000, 0.000, 0.000, 0.795, -0.606, 0.000, 0.000, 0.606, 0.795, 0.000, 0.000, -0.306, 0.251, 1.000
+    1.000, 0.000, 0.000, 0.000, 0.000, -1.000, 0.000, 0.000, 0.000, -0.000, -1.000, 0.000, -0.073, 0.395, -0.015, 1.000
+    1.000, 0.000, 0.000, 0.000, 0.000, -1.000, 0.000, 0.000, 0.000, -0.000, -1.000, 0.000, 0.073, 0.395, -0.015, 1.000
+    1.000, 0.000, 0.000, 0.000, 0.000, -0.992, 0.124, 0.000, 0.000, -0.124, -0.992, 0.000, -0.073, 0.291, -0.509, 1.000
+    1.000, 0.000, 0.000, 0.000, 0.000, -0.992, 0.124, 0.000, 0.000, -0.124, -0.992, 0.000, 0.073, 0.291, -0.509, 1.000
+    */
 
     function mesh_ludek(gl) {
+        let vertex_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$2, GL_STATIC_DRAW);
+        let normal_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$2, GL_STATIC_DRAW);
+        let texcoord_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$2, GL_STATIC_DRAW);
+        let weights_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$2, GL_STATIC_DRAW);
+        let index_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$2, GL_STATIC_DRAW);
+        return {
+            VertexBuffer: vertex_buf,
+            VertexArray: vertex_arr$2,
+            NormalBuffer: normal_buf,
+            NormalArray: normal_arr$2,
+            TexCoordBuffer: texcoord_buf,
+            TexCoordArray: texcoord_arr$2,
+            WeightsBuffer: weights_buf,
+            WeightsArray: weights_arr$2,
+            IndexBuffer: index_buf,
+            IndexArray: index_arr$2,
+            IndexCount: index_arr$2.length,
+        };
+    }
+    // prettier-ignore
+    let vertex_arr$2 = Float32Array.from([
+        -0.3, 1.2, -0.15,
+        0.45, 1.47, 0,
+        0.3, 1.2, -0.15,
+        0.27, 0.63, 0,
+        0, 0.63, 0.15,
+        0.15, 0, 0,
+        0.3, 1.2, 0.15,
+        1.05, 1.35, 0,
+        -1.05, 1.35, 0,
+        -0.45, 1.47, 0,
+        -0.3, 1.2, 0.15,
+        0, 0.63, -0.15,
+        -0.15, 0, 0,
+        -0.27, 0.63, 0,
+        0, 2.25, -0.15,
+        0, 2.25, 0.45
+    ]);
+    // prettier-ignore
+    let normal_arr$2 = Float32Array.from([
+        -0.424, -0.0402, -0.9048,
+        0.3556, 0.9341, -0.0314,
+        0.424, -0.0402, -0.9048,
+        0.9544, -0.2985, 0,
+        0, -0.2684, 0.9633,
+        0.0912, -0.9958, 0,
+        0.424, -0.0402, 0.9048,
+        0.9979, 0.0645, 0,
+        -0.9979, 0.0645, 0,
+        -0.3556, 0.9341, -0.0314,
+        -0.424, -0.0402, 0.9048,
+        0, -0.2684, -0.9633,
+        -0.0912, -0.9958, 0,
+        -0.9544, -0.2985, 0,
+        0, 0.767, -0.6416,
+        0, 0.6255, 0.7802
+    ]);
+    // prettier-ignore
+    let texcoord_arr$2 = Float32Array.from([]);
+    // prettier-ignore
+    let weights_arr$2 = Float32Array.from([
+        3, 1, 0, 0,
+        1, 0.75, 2, 0.25,
+        2, 1, 0, 0,
+        4, 1, 0, 0,
+        4, 0.5, 5, 0.5,
+        4, 1, 0, 0,
+        2, 1, 0, 0,
+        2, 1, 0, 0,
+        3, 1, 0, 0,
+        1, 0.75, 3, 0.25,
+        3, 1, 0, 0,
+        4, 0.5, 5, 0.5,
+        5, 1, 0, 0,
+        5, 1, 0, 0,
+        1, 1, 0, 0,
+        1, 1, 0, 0,
+    ]);
+    // prettier-ignore
+    let index_arr$2 = Uint16Array.from([
+        15, 9, 14,
+        1, 15, 14,
+        9, 15, 1,
+        1, 14, 9,
+        2, 7, 1,
+        9, 1, 6,
+        6, 7, 2,
+        7, 6, 1,
+        6, 2, 3,
+        6, 3, 4,
+        5, 4, 3,
+        11, 3, 2,
+        4, 5, 11,
+        4, 11, 12,
+        11, 5, 3,
+        12, 13, 4,
+        13, 12, 11,
+        10, 6, 4,
+        10, 4, 13,
+        6, 10, 9,
+        8, 9, 10,
+        0, 11, 2,
+        0, 13, 11,
+        1, 9, 0,
+        10, 0, 8,
+        0, 10, 13,
+        9, 8, 0,
+        2, 1, 0
+    ]);
+
+    function mesh_ogon(gl) {
         let vertex_buf = gl.createBuffer();
         gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
         gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$1, GL_STATIC_DRAW);
@@ -1826,94 +1955,106 @@
     }
     // prettier-ignore
     let vertex_arr$1 = Float32Array.from([
-        -0.3, 1.2, -0.15,
-        0.45, 1.47, 0,
-        0.3, 1.2, -0.15,
-        0.27, 0.63, 0,
-        0, 0.63, 0.15,
-        0.15, 0, 0,
-        0.3, 1.2, 0.15,
-        1.05, 1.35, 0,
-        -1.05, 1.35, 0,
-        -0.45, 1.47, 0,
-        -0.3, 1.2, 0.15,
-        0, 0.63, -0.15,
-        -0.15, 0, 0,
-        -0.27, 0.63, 0,
-        0, 2.25, -0.15,
-        0, 2.25, 0.45
+        -0.111, 0.575, -0.859,
+        -0.000, 0.384, -0.481,
+        -0.000, 0.251, -0.862,
+        0.131, 0.518, -0.819,
+        -0.152, 0.634, -1.248,
+        -0.008, 0.196, -1.300,
+        0.216, 0.518, -1.191,
+        -0.247, 0.793, -1.762,
+        -0.000, 0.141, -1.608,
+        0.242, 0.549, -1.756,
+        -0.208, 0.738, -2.194,
+        -0.000, 0.234, -2.101,
+        0.167, 0.495, -2.202,
+        -0.076, 0.650, -2.622,
+        -0.000, 0.376, -2.482,
+        0.137, 0.502, -2.539,
+        -0.038, 0.426, -2.917
     ]);
     // prettier-ignore
     let normal_arr$1 = Float32Array.from([
-        -0.424, -0.0402, -0.9048,
-        0.3556, 0.9341, -0.0314,
-        0.424, -0.0402, -0.9048,
-        0.9544, -0.2985, 0,
-        0, -0.2684, 0.9633,
-        0.0912, -0.9958, 0,
-        0.424, -0.0402, 0.9048,
-        0.9979, 0.0645, 0,
-        -0.9979, 0.0645, 0,
-        -0.3556, 0.9341, -0.0314,
-        -0.424, -0.0402, 0.9048,
-        0, -0.2684, -0.9633,
-        -0.0912, -0.9958, 0,
-        -0.9544, -0.2985, 0,
-        0, 0.767, -0.6416,
-        0, 0.6255, 0.7802
+        -0.701, 0.652, 0.289,
+        -0.030, -0.161, 0.986,
+        -0.097, -0.964, 0.248,
+        0.848, 0.425, 0.317,
+        -0.708, 0.678, 0.198,
+        -0.131, -0.980, 0.148,
+        0.940, 0.301, 0.159,
+        -0.662, 0.749, -0.020,
+        -0.089, -0.996, 0.005,
+        0.956, 0.294, -0.017,
+        -0.643, 0.705, -0.298,
+        -0.110, -0.970, -0.215,
+        0.976, 0.155, -0.154,
+        -0.456, 0.779, -0.431,
+        -0.203, -0.949, -0.242,
+        0.966, 0.102, -0.237,
+        -0.139, -0.245, -0.960
     ]);
     // prettier-ignore
     let texcoord_arr$1 = Float32Array.from([]);
     // prettier-ignore
     let weights_arr$1 = Float32Array.from([
-        3, 1, 0, 0,
-        1, 0.75, 2, 0.25,
-        2, 1, 0, 0,
-        4, 1, 0, 0,
-        4, 0.5, 5, 0.5,
-        4, 1, 0, 0,
-        2, 1, 0, 0,
-        2, 1, 0, 0,
-        3, 1, 0, 0,
-        1, 0.75, 3, 0.25,
-        3, 1, 0, 0,
-        4, 0.5, 5, 0.5,
-        5, 1, 0, 0,
-        5, 1, 0, 0,
-        1, 1, 0, 0,
-        1, 1, 0, 0,
+        0.000, 0.933, 1.000, 0.067,
+        0.000, 1.000, 0.000, 0.000,
+        0.000, 0.946, 1.000, 0.054,
+        0.000, 0.953, 1.000, 0.047,
+        1.000, 0.942, 2.000, 0.058,
+        1.000, 0.877, 2.000, 0.123,
+        1.000, 0.970, 2.000, 0.030,
+        2.000, 0.858, 3.000, 0.142,
+        2.000, 0.911, 3.000, 0.089,
+        2.000, 0.932, 3.000, 0.068,
+        3.000, 0.917, 4.000, 0.083,
+        3.000, 0.937, 4.000, 0.063,
+        3.000, 0.945, 4.000, 0.055,
+        4.000, 0.983, 3.000, 0.017,
+        4.000, 0.917, 3.000, 0.083,
+        4.000, 0.956, 3.000, 0.044,
+        4.000, 1.000, 0.000, 0.000
     ]);
     // prettier-ignore
     let index_arr$1 = Uint16Array.from([
-        15, 9, 14,
-        1, 15, 14,
-        9, 15, 1,
-        1, 14, 9,
-        2, 7, 1,
-        9, 1, 6,
-        6, 7, 2,
-        7, 6, 1,
-        6, 2, 3,
-        6, 3, 4,
-        5, 4, 3,
-        11, 3, 2,
-        4, 5, 11,
-        4, 11, 12,
-        11, 5, 3,
-        12, 13, 4,
-        13, 12, 11,
-        10, 6, 4,
-        10, 4, 13,
-        6, 10, 9,
-        8, 9, 10,
-        0, 11, 2,
-        0, 13, 11,
-        1, 9, 0,
-        10, 0, 8,
-        0, 10, 13,
-        9, 8, 0,
-        2, 1, 0
+        16, 15, 13,
+        16, 14, 15,
+        16, 13, 14,
+        13, 15, 10,
+        15, 12, 10,
+        15, 14, 12,
+        14, 11, 12,
+        14, 13, 11,
+        13, 10, 11,
+        12, 11, 9,
+        11, 8, 9,
+        11, 10, 8,
+        10, 7, 8,
+        8, 7, 5,
+        7, 4, 5,
+        7, 9, 4,
+        9, 6, 4,
+        10, 12, 7,
+        12, 9, 7,
+        6, 5, 3,
+        5, 2, 3,
+        5, 4, 2,
+        4, 0, 2,
+        4, 6, 0,
+        6, 3, 0,
+        9, 8, 6,
+        8, 5, 6,
+        1, 0, 3,
+        1, 3, 2,
+        2, 0, 1
     ]);
+    /*
+    1.000, -0.000, -0.000, 0.000, 0.000, 0.000, 1.000, 0.000, 0.000, -1.000, 0.000, 0.000, -0.000, -0.701, -0.428, 1.000
+    1.000, -0.000, -0.000, 0.000, 0.000, 0.132, 0.991, 0.000, 0.000, -0.991, 0.132, 0.000, -0.000, -1.100, -0.285, 1.000
+    1.000, -0.000, -0.000, 0.000, 0.000, 0.000, 1.000, 0.000, 0.000, -1.000, 0.000, 0.000, -0.000, -1.492, -0.487, 1.000
+    -1.000, -0.000, -0.000, 0.000, 0.000, 0.137, -0.991, 0.000, 0.000, -0.991, -0.137, 0.000, -0.000, -2.009, 0.214, 1.000
+    -1.000, 0.000, -0.000, 0.000, 0.000, -0.204, -0.979, 0.000, -0.000, -0.979, 0.204, 0.000, -0.000, -2.224, 1.021, 1.000
+    */
 
     function mesh_plane(gl) {
         let vertex_buf = gl.createBuffer();
@@ -2997,22 +3138,16 @@
     function update$e(game, entity) {
         let control = game.World.ControlPlayer[entity];
         if (control.Move) {
-            let move = game.World.Move[entity];
-            if (game.InputState["KeyW"]) {
-                // Move forward
-                move.Directions.push([0, 0, 1]);
+            let anim_name;
+            if (game.InputState["Space"]) {
+                anim_name = "jump";
             }
-            if (game.InputState["KeyA"]) {
-                // Strafe left
-                move.Directions.push([1, 0, 0]);
+            else {
+                anim_name = "walk";
             }
-            if (game.InputState["KeyS"]) {
-                // Move backward
-                move.Directions.push([0, 0, -1]);
-            }
-            if (game.InputState["KeyD"]) {
-                // Strafe right
-                move.Directions.push([-1, 0, 0]);
+            for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
+                let animate = game.World.Animate[ent];
+                animate.Trigger = anim_name;
             }
         }
         if (control.Yaw) {
@@ -3394,6 +3529,7 @@
      */
     const colored_shaded_vaos = new WeakMap();
     const colored_shadows_vaos = new WeakMap();
+    const colored_skinned_vaos = new WeakMap();
     function render_colored_shaded(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
         return (game, entity) => {
             if (!colored_shaded_vaos.has(mesh)) {
@@ -3446,6 +3582,38 @@
                 Mesh: mesh,
                 FrontFace: front_face,
                 Vao: colored_shadows_vaos.get(mesh),
+                DiffuseColor: diffuse_color,
+                SpecularColor: specular_color,
+                Shininess: shininess,
+            };
+        };
+    }
+    function render_colored_skinned(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
+        return (game, entity) => {
+            if (!colored_skinned_vaos.has(mesh)) {
+                // We only need to create the VAO once.
+                let vao = game.Gl.createVertexArray();
+                game.Gl.bindVertexArray(vao);
+                game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+                game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+                game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+                game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
+                game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
+                game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
+                game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.WeightsBuffer);
+                game.Gl.enableVertexAttribArray(material.Locations.VertexWeights);
+                game.Gl.vertexAttribPointer(material.Locations.VertexWeights, 4, GL_FLOAT, false, 0, 0);
+                game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+                game.Gl.bindVertexArray(null);
+                colored_skinned_vaos.set(mesh, vao);
+            }
+            game.World.Signature[entity] |= 65536 /* Render */;
+            game.World.Render[entity] = {
+                Kind: 3 /* ColoredSkinned */,
+                Material: material,
+                Mesh: mesh,
+                FrontFace: front_face,
+                Vao: colored_skinned_vaos.get(mesh),
                 DiffuseColor: diffuse_color,
                 SpecularColor: specular_color,
                 Shininess: shininess,
@@ -3814,8 +3982,8 @@
         }
     }
     // Other methods are free functions for the sake of tree-shakability.
-    function first_entity(world, query) {
-        for (let i = 0; i < world.Signature.length; i++) {
+    function first_entity(world, query, start_at = 0) {
+        for (let i = start_at; i < world.Signature.length; i++) {
             if ((world.Signature[i] & query) === query) {
                 return i;
             }
@@ -4095,7 +4263,25 @@
         game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
         game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
         game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
-        for (let bone_entity of query_all(game.World, entity, 8 /* Bone */ | 4194304 /* Transform */)) {
+        let bone_entities = [];
+        if (game.World.Signature[entity] & 32 /* Children */) {
+            for (let bone_entity of query_all(game.World, entity, 8 /* Bone */ | 4194304 /* Transform */)) {
+                bone_entities.push(bone_entity);
+            }
+        }
+        else {
+            // Find the 5 tail bones. They're top-level for mimic() to work, so we
+            // need to find them in the world rather than the tail's children.
+            let start_here = entity;
+            for (let i = 0; i < 5; i++) {
+                let bone_entity = first_entity(game.World, 8 /* Bone */ | 4194304 /* Transform */, start_here);
+                if (bone_entity) {
+                    bone_entities.push(bone_entity);
+                    start_here = bone_entity + 1;
+                }
+            }
+        }
+        for (let bone_entity of bone_entities) {
             let bone_transform = game.World.Transform[bone_entity];
             let bone = game.World.Bone[bone_entity];
             let bone_view = bones.subarray(bone.Index * 16);
@@ -4421,6 +4607,7 @@
             this.MeshCube = mesh_cube(this.Gl);
             this.MeshLudek = mesh_ludek(this.Gl);
             this.MeshLisek = mesh_lisek(this.Gl);
+            this.MeshOgon = mesh_ogon(this.Gl);
             // The rendering pipeline supports 8 lights.
             this.LightPositions = new Float32Array(4 * 8);
             this.LightDetails = new Float32Array(4 * 8);
@@ -4540,6 +4727,334 @@
         ];
     }
 
+    function ease_out_quart(t) {
+        return 1 - (1 - t) ** 4;
+    }
+    function ease_in_out_quart(t) {
+        return t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
+    }
+
+    /**
+     * @module components/com_animate
+     */
+    function animate(clips) {
+        return (game, entity) => {
+            let States = {};
+            for (let name in clips) {
+                let { Keyframes, Flags = 7 /* Default */ } = clips[name];
+                let duration = Keyframes[Keyframes.length - 1].Timestamp;
+                States[name] = {
+                    // One-level-deep copy of the clip's keyframes. When
+                    // AnimationFlag.Alternate is set, sys_animate recalculates
+                    // keyframes' timestamps after each alternation. We want to
+                    // modify copies of the timestamps defined in the clip. It's OK
+                    // to copy other keyframe properties by reference.
+                    Keyframes: Keyframes.map((keyframe) => ({ ...keyframe })),
+                    Flags,
+                    Duration: duration,
+                    Time: 0,
+                };
+            }
+            game.World.Signature[entity] |= 1 /* Animate */;
+            game.World.Animate[entity] = {
+                States,
+                Current: States["idle"],
+            };
+        };
+    }
+
+    function bone(index, inverse_bind_pose) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 8 /* Bone */;
+            game.World.Bone[entity] = {
+                Index: index,
+                Dirty: inverse_bind_pose === undefined,
+                InverseBindPose: inverse_bind_pose || create(),
+            };
+        };
+    }
+
+    function blueprint_lisek(game) {
+        return [
+            render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshLisek, [1, 0.5, 0, 1], 0),
+            children([
+                transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74]),
+                bone(0 /* Root */, [
+                    1.0, 0.0, 0.0, 0.0, 0.0, 0.096, -0.995, 0.0, 0.0, 0.995, 0.096, 0.0, 0.0, 0.433,
+                    0.395, 1.0,
+                ]),
+                animate({
+                    idle: {
+                        Keyframes: [
+                            {
+                                Timestamp: Infinity,
+                                Translation: [0, 0.35, -0.47],
+                                Rotation: [0.672, 0, 0, 0.74],
+                            },
+                        ],
+                    },
+                    jump: {
+                        Keyframes: [
+                            {
+                                Timestamp: 0.0,
+                                Translation: [0, 0.63, 0],
+                            },
+                            {
+                                Timestamp: 0.2,
+                                Translation: [0, 1.13, 0],
+                                Ease: ease_in_out_quart,
+                            },
+                            {
+                                Timestamp: 0.4,
+                                Translation: [0, 0.63, 0],
+                                Ease: ease_out_quart,
+                            },
+                        ],
+                        Flags: 0 /* None */,
+                    },
+                }),
+                children([
+                    transform([0, 0.46, 0], [-0.4, 0, 0, 0.92]),
+                    bone(1 /* Head */, [
+                        1.0, 0.0, 0.0, 0.0, 0.0, 0.795, -0.606, 0.0, 0.0, 0.606, 0.795, 0.0,
+                        0.0, -0.306, 0.251, 1.0,
+                    ]),
+                    animate({
+                        idle: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0.0,
+                                    Rotation: from_euler([0, 0, 0, 1], -30, 15, 0),
+                                    Ease: ease_in_out_quart,
+                                },
+                                {
+                                    Timestamp: 1,
+                                    Rotation: from_euler([0, 0, 0, 1], -30, -15, 0),
+                                    Ease: ease_in_out_quart,
+                                },
+                            ],
+                        },
+                        walk: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0.0,
+                                    Rotation: from_euler([0, 0, 0, 1], -30, 0, 5),
+                                },
+                                {
+                                    Timestamp: 0.2,
+                                    Rotation: from_euler([0, 0, 0, 1], -30, 0, -5),
+                                },
+                            ],
+                        },
+                        jump: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0.0,
+                                    Rotation: [0, 0, 0, 1],
+                                },
+                                {
+                                    Timestamp: 0.2,
+                                    Rotation: from_euler([0, 0, 0, 1], -15, 0, 0),
+                                    Ease: ease_in_out_quart,
+                                },
+                                {
+                                    Timestamp: 0.4,
+                                    Rotation: from_euler([0, 0, 0, 1], 0, 0, 0),
+                                    Ease: ease_out_quart,
+                                },
+                            ],
+                            Flags: 0 /* None */,
+                        },
+                    }),
+                ], [
+                    transform([0.07, 0.46, 0], [0.74, 0, 0, 0.672]),
+                    bone(2 /* ArmL */, [
+                        1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -0.0, -1.0, 0.0, -0.073,
+                        0.395, -0.015, 1.0,
+                    ]),
+                    animate({
+                        idle: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0,
+                                },
+                            ],
+                        },
+                        walk: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0,
+                                    Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
+                                },
+                                {
+                                    Timestamp: 0.2,
+                                    Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
+                                },
+                            ],
+                        },
+                        jump: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0.0,
+                                    Rotation: [0, 0, 0, 1],
+                                },
+                                {
+                                    Timestamp: 0.2,
+                                    Rotation: from_euler([0, 0, 0, 1], 0, 0, 135),
+                                    Ease: ease_in_out_quart,
+                                },
+                                {
+                                    Timestamp: 0.4,
+                                    Rotation: [0, 0, 0, 1],
+                                    Ease: ease_out_quart,
+                                },
+                            ],
+                            Flags: 0 /* None */,
+                        },
+                    }),
+                ], [
+                    transform([-0.07, 0.46, 0], [0.74, 0, 0, 0.672]),
+                    bone(3 /* ArmR */, [
+                        1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -0.0, -1.0, 0.0, 0.073,
+                        0.395, -0.015, 1.0,
+                    ]),
+                    animate({
+                        idle: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0,
+                                },
+                            ],
+                        },
+                        walk: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0,
+                                    Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
+                                },
+                                {
+                                    Timestamp: 0.2,
+                                    Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
+                                },
+                            ],
+                        },
+                        jump: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0.0,
+                                    Rotation: [0, 0, 0, 1],
+                                },
+                                {
+                                    Timestamp: 0.2,
+                                    Rotation: from_euler([0, 0, 0, 1], 0, 0, -135),
+                                    Ease: ease_in_out_quart,
+                                },
+                                {
+                                    Timestamp: 0.4,
+                                    Rotation: [0, 0, 0, 1],
+                                    Ease: ease_out_quart,
+                                },
+                            ],
+                            Flags: 0 /* None */,
+                        },
+                    }),
+                ], [
+                    transform([0.07, 0, 0], [0.753, 0, 0, 0.658]),
+                    bone(4 /* HipL */, [
+                        1.0, 0.0, 0.0, 0.0, 0.0, -0.992, 0.124, 0.0, 0.0, -0.124, -0.992, 0.0,
+                        -0.073, 0.291, -0.509, 1.0,
+                    ]),
+                    animate({
+                        idle: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0,
+                                },
+                            ],
+                        },
+                        walk: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0,
+                                    Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
+                                },
+                                {
+                                    Timestamp: 0.2,
+                                    Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
+                                },
+                            ],
+                        },
+                        jump: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0.0,
+                                    Rotation: [0, 0, 0, 1],
+                                },
+                                {
+                                    Timestamp: 0.2,
+                                    Rotation: from_euler([0, 0, 0, 1], 0, 0, 45),
+                                    Ease: ease_in_out_quart,
+                                },
+                                {
+                                    Timestamp: 0.4,
+                                    Rotation: [0, 0, 0, 1],
+                                    Ease: ease_out_quart,
+                                },
+                            ],
+                            Flags: 0 /* None */,
+                        },
+                    }),
+                ], [
+                    transform([-0.07, 0, 0], [0.753, 0, 0, 0.658]),
+                    bone(5 /* HipR */, [
+                        1.0, 0.0, 0.0, 0.0, 0.0, -0.992, 0.124, 0.0, 0.0, -0.124, -0.992, 0.0,
+                        0.073, 0.291, -0.509, 1.0,
+                    ]),
+                    animate({
+                        idle: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0,
+                                },
+                            ],
+                        },
+                        walk: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0,
+                                    Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
+                                },
+                                {
+                                    Timestamp: 0.2,
+                                    Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
+                                },
+                            ],
+                        },
+                        jump: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0.0,
+                                    Rotation: [0, 0, 0, 1],
+                                },
+                                {
+                                    Timestamp: 0.2,
+                                    Rotation: from_euler([0, 0, 0, 1], 0, 0, -45),
+                                    Ease: ease_in_out_quart,
+                                },
+                                {
+                                    Timestamp: 0.4,
+                                    Rotation: [0, 0, 0, 1],
+                                    Ease: ease_out_quart,
+                                },
+                            ],
+                            Flags: 0 /* None */,
+                        },
+                    }),
+                ]),
+            ]),
+        ];
+    }
+
     /**
      * @module components/com_control_always
      */
@@ -4632,6 +5147,52 @@
         ];
     }
 
+    /**
+     * @module components/com_callback
+     */
+    function callback(fn) {
+        return (game, entity) => {
+            fn(game, entity);
+        };
+    }
+
+    /**
+     * The ControlPlayer mixin.
+     *
+     * @param move - Whether to control the entity's movement.
+     * @param yaw - Sensitivity of the yaw control. 1 means that 1 pixel traveled
+     * by the mouse is equal to 1° of rotation; that's too sensitive usually.
+     * @param pitch - Sensitivity of the pitch control. 1 means that 1 pixel traveled
+     * by the mouse is equal to 1° of rotation; that's too sensitive usually.
+     * @param min_pitch - Min pitch allowed, in arc degrees.
+     * @param max_pitch - Max pitch allowed, in arc degrees.
+     */
+    function control_player(move, yaw = 0, pitch = 0, min_pitch = 0, max_pitch = 0) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 256 /* ControlPlayer */;
+            game.World.ControlPlayer[entity] = {
+                Move: move,
+                Yaw: yaw,
+                Pitch: pitch,
+                MinPitch: min_pitch,
+                MaxPitch: max_pitch,
+            };
+        };
+    }
+
+    /**
+     * @module components/com_mimic
+     */
+    function mimic(Target, Stiffness = 0.1) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 8192 /* Mimic */;
+            game.World.Mimic[entity] = {
+                Target,
+                Stiffness,
+            };
+        };
+    }
+
     function scene_stage(game) {
         game.World = new World();
         game.ViewportResized = true;
@@ -4663,15 +5224,93 @@
             zdz_offsets.push(float(-ground_size / 2, ground_size / 2), 0.45, float(-ground_size / 4, ground_size / 4), integer(0, 2));
             zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, 0, 0));
         }
+        let tailbone = 0;
+        // Lisek walking around.
         instantiate(game, [
-            transform([0, 0, 0]),
-            render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
+            transform(),
+            control_always(null, [0, 1, 0, 0]),
+            move(0, 0.5),
+            children([
+                transform([-1.5, 0, 0]),
+                children([transform(), ...blueprint_lisek(game), control_player(true), move(0, 0)]),
+            ], [
+                transform([-1.5, 0, 0]),
+                render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
+            ], [
+                transform([-1.5, 0.4, -0.4], from_euler([0, 0, 0, 0], -90, 0, 0)),
+                children([
+                    transform(),
+                    control_always(null, [0, 1, 0, 0]),
+                    move(0, 5),
+                    children([
+                        transform([0, 0, 0.3]),
+                        callback((game, entity) => (tailbone = entity)),
+                    ]),
+                ]),
+            ]),
         ]);
-        // Lisek.
-        instantiate(game, [
-            transform([0, 0, 0], from_euler([0, 0, 0, 0], 0, 30, 0), [0.4, 0.4, 0.4]),
-            render_colored_shaded(game.MaterialColoredShaded, game.MeshLisek, [1, 0.54, 0, 1]),
-        ]);
+        {
+            let tailbone0 = instantiate(game, [
+                transform(),
+                mimic(tailbone, 0.1),
+                bone(0 /* Root */, [
+                    1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -0.701,
+                    -0.428, 1.0,
+                ]),
+                children([
+                    transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                    render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
+                ]),
+            ]);
+            let tailbone1 = instantiate(game, [
+                transform(),
+                mimic(tailbone0, 0.08),
+                bone(1 /* Bone1 */, [
+                    1.0, -0.0, -0.0, 0.0, 0.0, 0.132, 0.991, 0.0, 0.0, -0.991, 0.132, 0.0, -0.0,
+                    -1.1, -0.285, 1.0,
+                ]),
+                children([
+                    transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                    render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
+                ]),
+            ]);
+            let tailbone2 = instantiate(game, [
+                transform(),
+                mimic(tailbone1, 0.06),
+                bone(2 /* Bone2 */, [
+                    1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -1.492,
+                    -0.487, 1.0,
+                ]),
+                children([
+                    transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                    render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
+                ]),
+            ]);
+            let tailbone3 = instantiate(game, [
+                transform(),
+                mimic(tailbone2, 0.04),
+                bone(3 /* Bone3 */, [
+                    -1.0, -0.0, -0.0, 0.0, 0.0, 0.137, -0.991, 0.0, 0.0, -0.991, -0.137, 0.0, -0.0,
+                    -2.009, 0.214, 1.0,
+                ]),
+                children([
+                    transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                    render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
+                ]),
+            ]);
+            instantiate(game, [
+                transform(),
+                mimic(tailbone3, 0.02),
+                bone(4 /* Bone4 */, [
+                    -1.0, 0.0, -0.0, 0.0, 0.0, -0.204, -0.979, 0.0, -0.0, -0.979, 0.204, 0.0, -0.0,
+                    -2.224, 1.021, 1.0,
+                ]),
+                children([
+                    transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                    render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
+                ]),
+            ]);
+        }
         // instantiate(game, [transform([0, -1, 0]), light_directional([1, 1, 1], 0.6)]);
     }
 
