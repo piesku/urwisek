@@ -4533,7 +4533,10 @@ ClearColor: clear_color,
 
 function blueprint_camera(game) {
 return [
-children([transform(undefined, [0, 1, 0, 0]), camera_forward_perspective(1, 0.1, 1000)]),
+children([
+transform(undefined, from_euler([0, 0, 0, 1], -15, 180, 0)),
+camera_forward_perspective(1, 0.1, 1000),
+]),
 ];
 }
 
@@ -4633,7 +4636,7 @@ function scene_stage(game) {
 game.World = new World();
 game.ViewportResized = true;
 
-instantiate(game, [...blueprint_camera(), transform([0, 0.5, 1.5], [0, 1, 0, 0])]);
+instantiate(game, [...blueprint_camera(), transform([0, 1, 3], [0, 1, 0, 0])]);
 
 instantiate(game, [
 transform(undefined, from_euler([0, 0, 0, 0], -45, 45, 0)),
@@ -4647,7 +4650,7 @@ render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1])
 ]);
 let trees = 100;
 for (let i = 0; i < trees; i++) {
-let z = float(-8, -2);
+let z = float(-8, -0.5);
 instantiate(game, [
 transform([float(-ground_size / 2, ground_size / 2), 0, z]),
 ...blueprint_tree(game),
@@ -4657,7 +4660,7 @@ let zdzblos = 10000;
 let zdz_offsets = [];
 let zdz_rotations = [];
 for (let i = 0; i < zdzblos; i++) {
-zdz_offsets.push(float(-ground_size / 2, ground_size / 2), float(-0.2, 0.2), float(-ground_size / 4, ground_size / 4), integer(0, 2));
+zdz_offsets.push(float(-ground_size / 2, ground_size / 2), 0.45, float(-ground_size / 4, ground_size / 4), integer(0, 2));
 zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, 0, 0));
 }
 instantiate(game, [
