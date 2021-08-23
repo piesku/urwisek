@@ -1388,6 +1388,138 @@
     function mesh_cube(gl) {
         let vertex_buf = gl.createBuffer();
         gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$5, GL_STATIC_DRAW);
+        let normal_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$5, GL_STATIC_DRAW);
+        let texcoord_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$5, GL_STATIC_DRAW);
+        let weights_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$5, GL_STATIC_DRAW);
+        let index_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$5, GL_STATIC_DRAW);
+        return {
+            VertexBuffer: vertex_buf,
+            VertexArray: vertex_arr$5,
+            NormalBuffer: normal_buf,
+            NormalArray: normal_arr$5,
+            TexCoordBuffer: texcoord_buf,
+            TexCoordArray: texcoord_arr$5,
+            WeightsBuffer: weights_buf,
+            WeightsArray: weights_arr$5,
+            IndexBuffer: index_buf,
+            IndexArray: index_arr$5,
+            IndexCount: index_arr$5.length,
+        };
+    }
+    // prettier-ignore
+    let vertex_arr$5 = Float32Array.from([
+        -0.5, -0.5, 0.5,
+        -0.5, 0.5, 0.5,
+        -0.5, 0.5, -0.5,
+        -0.5, -0.5, -0.5,
+        -0.5, -0.5, -0.5,
+        -0.5, 0.5, -0.5,
+        0.5, 0.5, -0.5,
+        0.5, -0.5, -0.5,
+        0.5, -0.5, -0.5,
+        0.5, 0.5, -0.5,
+        0.5, 0.5, 0.5,
+        0.5, -0.5, 0.5,
+        0.5, -0.5, 0.5,
+        0.5, 0.5, 0.5,
+        -0.5, 0.5, 0.5,
+        -0.5, -0.5, 0.5,
+        -0.5, -0.5, -0.5,
+        0.5, -0.5, -0.5,
+        0.5, -0.5, 0.5,
+        -0.5, -0.5, 0.5,
+        0.5, 0.5, -0.5,
+        -0.5, 0.5, -0.5,
+        -0.5, 0.5, 0.5,
+        0.5, 0.5, 0.5
+    ]);
+    // prettier-ignore
+    let normal_arr$5 = Float32Array.from([
+        -1, 0, 0,
+        -1, 0, 0,
+        -1, 0, 0,
+        -1, 0, 0,
+        0, 0, -1,
+        0, 0, -1,
+        0, 0, -1,
+        0, 0, -1,
+        1, 0, 0,
+        1, 0, 0,
+        1, 0, 0,
+        1, 0, 0,
+        0, 0, 1,
+        0, 0, 1,
+        0, 0, 1,
+        0, 0, 1,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, 1, 0,
+        0, 1, 0,
+        0, 1, 0,
+        0, 1, 0
+    ]);
+    // prettier-ignore
+    let texcoord_arr$5 = Float32Array.from([
+        0.666667, 0.333333,
+        0.333333, 0.333333,
+        0.333333, 0,
+        0.666667, 0,
+        0.333333, 0.666667,
+        0, 0.666667,
+        0, 0.333333,
+        0.333333, 0.333333,
+        0.333333, 0.333333,
+        0, 0.333333,
+        0, 0,
+        0.333333, 0,
+        0.333333, 0.666667,
+        0.333333, 0.333333,
+        0.666667, 0.333333,
+        0.666667, 0.666667,
+        1, 0.333333,
+        0.666667, 0.333333,
+        0.666667, 0,
+        1, 0,
+        0.333333, 0.666667,
+        0.333333, 1,
+        0, 1,
+        0, 0.666667
+    ]);
+    // prettier-ignore
+    let weights_arr$5 = Float32Array.from([
+    // Weights must be assigned manually for now b/c OBJ doesn't support them.
+    // WARNING: Remaking the mesh file will overwrite your weights here.
+    ]);
+    // prettier-ignore
+    let index_arr$5 = Uint16Array.from([
+        23, 22, 20,
+        22, 21, 20,
+        19, 18, 16,
+        18, 17, 16,
+        15, 14, 12,
+        14, 13, 12,
+        11, 10, 8,
+        10, 9, 8,
+        7, 6, 4,
+        6, 5, 4,
+        3, 2, 0,
+        2, 1, 0
+    ]);
+
+    function mesh_grass(gl) {
+        let vertex_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
         gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$4, GL_STATIC_DRAW);
         let normal_buf = gl.createBuffer();
         gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
@@ -1417,84 +1549,30 @@
     }
     // prettier-ignore
     let vertex_arr$4 = Float32Array.from([
-        -0.5, -0.5, 0.5,
-        -0.5, 0.5, 0.5,
-        -0.5, 0.5, -0.5,
-        -0.5, -0.5, -0.5,
-        -0.5, -0.5, -0.5,
-        -0.5, 0.5, -0.5,
-        0.5, 0.5, -0.5,
-        0.5, -0.5, -0.5,
-        0.5, -0.5, -0.5,
-        0.5, 0.5, -0.5,
-        0.5, 0.5, 0.5,
-        0.5, -0.5, 0.5,
-        0.5, -0.5, 0.5,
-        0.5, 0.5, 0.5,
-        -0.5, 0.5, 0.5,
-        -0.5, -0.5, 0.5,
-        -0.5, -0.5, -0.5,
-        0.5, -0.5, -0.5,
-        0.5, -0.5, 0.5,
-        -0.5, -0.5, 0.5,
-        0.5, 0.5, -0.5,
-        -0.5, 0.5, -0.5,
-        -0.5, 0.5, 0.5,
-        0.5, 0.5, 0.5
+        -0.008597, 0.008676, 0,
+        0.008402, 0.007591, 0,
+        0, 0.416493, 0.06595,
+        -0.008597, 0.008676, 0,
+        0, -0.416493, 0.06595,
+        0.008402, 0.007591, 0
     ]);
     // prettier-ignore
     let normal_arr$4 = Float32Array.from([
-        -1, 0, 0,
-        -1, 0, 0,
-        -1, 0, 0,
-        -1, 0, 0,
-        0, 0, -1,
-        0, 0, -1,
-        0, 0, -1,
-        0, 0, -1,
-        1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, -1, 0,
-        0, -1, 0,
-        0, -1, 0,
-        0, -1, 0,
-        0, 1, 0,
-        0, 1, 0,
-        0, 1, 0,
-        0, 1, 0
+        -0.0102, -0.1594, 0.9872,
+        -0.0102, -0.1594, 0.9872,
+        -0.0102, -0.1594, 0.9872,
+        0.0098, 0.1535, 0.9881,
+        0.0098, 0.1535, 0.9881,
+        0.0098, 0.1535, 0.9881
     ]);
     // prettier-ignore
     let texcoord_arr$4 = Float32Array.from([
-        0.666667, 0.333333,
-        0.333333, 0.333333,
-        0.333333, 0,
-        0.666667, 0,
-        0.333333, 0.666667,
-        0, 0.666667,
-        0, 0.333333,
-        0.333333, 0.333333,
-        0.333333, 0.333333,
-        0, 0.333333,
         0, 0,
-        0.333333, 0,
-        0.333333, 0.666667,
-        0.333333, 0.333333,
-        0.666667, 0.333333,
-        0.666667, 0.666667,
-        1, 0.333333,
-        0.666667, 0.333333,
-        0.666667, 0,
-        1, 0,
-        0.333333, 0.666667,
-        0.333333, 1,
+        1, 1,
         0, 1,
-        0, 0.666667
+        0, 0,
+        1, 0,
+        1, 1
     ]);
     // prettier-ignore
     let weights_arr$4 = Float32Array.from([
@@ -1503,17 +1581,7 @@
     ]);
     // prettier-ignore
     let index_arr$4 = Uint16Array.from([
-        23, 22, 20,
-        22, 21, 20,
-        19, 18, 16,
-        18, 17, 16,
-        15, 14, 12,
-        14, 13, 12,
-        11, 10, 8,
-        10, 9, 8,
-        7, 6, 4,
-        6, 5, 4,
-        3, 2, 0,
+        5, 4, 3,
         2, 1, 0
     ]);
 
@@ -4290,34 +4358,8 @@
     `;
     }
 
-    function Score(game) {
-        return html `
-        <div
-            style="
-                position: absolute;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                height: 10vmin;
-
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-
-                background: rgba(0, 0, 0, 0.5);
-                color: #fff;
-                font: 24px Impact;
-                font-style: italic;
-            "
-        >
-            <div>Collected: ${game.ItemsCollected}</div>
-            <div>Missed: ${game.ItemsMissed}</div>
-        </div>
-    `;
-    }
-
     function App(game) {
-        return html `<div>${Fullscreen()} ${Score(game)}</div>`;
+        return html `<div>${Fullscreen()}</div>`;
     }
 
     /**
@@ -4325,7 +4367,7 @@
      */
     let prev;
     function sys_ui(game, delta) {
-        let next = App(game);
+        let next = App();
         if (next !== prev) {
             game.Ui.innerHTML = prev = next;
         }
@@ -4374,6 +4416,7 @@
             this.MaterialDepthInstanced = mat_forward_depth_instanced(this.Gl);
             this.MaterialInstanced = mat_forward_instanced(this.Gl);
             this.MeshLeaf = mesh_leaf(this.Gl);
+            this.MeshGrass = mesh_grass(this.Gl);
             this.MeshPlane = mesh_plane(this.Gl);
             this.MeshCube = mesh_cube(this.Gl);
             this.MeshLudek = mesh_ludek(this.Gl);
@@ -4590,30 +4633,43 @@
         game.World = new World();
         game.ViewportResized = true;
         // Camera.
-        instantiate(game, [...blueprint_camera(), transform([0, 0.5, 3], [0, 1, 0, 0])]);
+        instantiate(game, [...blueprint_camera(), transform([0, 0.5, 1.5], [0, 1, 0, 0])]);
         // Sun.
         instantiate(game, [
             transform(undefined, from_euler([0, 0, 0, 0], -45, 45, 0)),
             ...blueprint_sun(game),
         ]);
         // Ground.
+        let ground_size = 16;
         instantiate(game, [
-            transform(undefined, undefined, [16, 0, 16]),
+            transform(undefined, undefined, [ground_size, 0, ground_size]),
             render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1]),
         ]);
         let trees = 100;
         for (let i = 0; i < trees; i++) {
             let z = float(-8, -2);
             instantiate(game, [
-                transform([float(-8, 8), 0, z]),
-                ...blueprint_tree(game, (12 + z) / 11, (12 + z) / 5),
+                transform([float(-ground_size / 2, ground_size / 2), 0, z]),
+                ...blueprint_tree(game),
             ]);
         }
+        let zdzblos = 10000;
+        let zdz_offsets = [];
+        let zdz_rotations = [];
+        for (let i = 0; i < zdzblos; i++) {
+            zdz_offsets.push(float(-ground_size / 2, ground_size / 2), float(-0.2, 0.2), float(-ground_size / 4, ground_size / 4), integer(0, 2));
+            zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, 0, 0));
+        }
+        instantiate(game, [
+            transform([0, 0, 0]),
+            render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
+        ]);
         // Lisek.
         instantiate(game, [
-            transform([0, 0, 0], from_euler([0, 0, 0, 0], 0, 30, 0)),
+            transform([0, 0, 0], from_euler([0, 0, 0, 0], 0, 30, 0), [0.4, 0.4, 0.4]),
             render_colored_shaded(game.MaterialColoredShaded, game.MeshLisek, [1, 0.54, 0, 1]),
         ]);
+        // instantiate(game, [transform([0, -1, 0]), light_directional([1, 1, 1], 0.6)]);
     }
 
     let game = new Game();
