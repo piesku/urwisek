@@ -18,7 +18,7 @@ export function scene_stage(game: Game) {
     game.ViewportResized = true;
 
     // Camera.
-    instantiate(game, [...blueprint_camera(game), transform([0, 0.5, 1.5], [0, 1, 0, 0])]);
+    instantiate(game, [...blueprint_camera(game), transform([0, 1, 3], [0, 1, 0, 0])]);
 
     // Sun.
     instantiate(game, [
@@ -35,7 +35,7 @@ export function scene_stage(game: Game) {
 
     let trees = 100;
     for (let i = 0; i < trees; i++) {
-        let z = float(-8, -2);
+        let z = float(-8, -0.5);
         instantiate(game, [
             transform([float(-ground_size / 2, ground_size / 2), 0, z]),
             ...blueprint_tree(game),
@@ -48,7 +48,7 @@ export function scene_stage(game: Game) {
     for (let i = 0; i < zdzblos; i++) {
         zdz_offsets.push(
             float(-ground_size / 2, ground_size / 2),
-            float(-0.2, 0.2),
+            0.45,
             float(-ground_size / 4, ground_size / 4),
             integer(0, 2)
         );
