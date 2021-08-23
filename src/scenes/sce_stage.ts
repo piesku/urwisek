@@ -9,7 +9,11 @@ import {children} from "../components/com_children.js";
 import {control_always} from "../components/com_control_always.js";
 import {control_player} from "../components/com_control_player.js";
 import {move} from "../components/com_move.js";
-import {render_colored_shadows, render_instanced} from "../components/com_render.js";
+import {
+    render_colored_shaded,
+    render_colored_shadows,
+    render_instanced,
+} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {World} from "../world.js";
@@ -72,12 +76,16 @@ export function scene_stage(game: Game) {
         transform(),
         control_always(null, [0, 1, 0, 0]),
         move(0, 0.5),
-        children([
-            transform([-1.5, 0, 0]),
-            ...blueprint_lisek(game),
-            control_player(true),
-            move(0, 0),
-        ]),
+        children(
+            [
+                transform([-1.5, 0, 0]),
+                children([transform(), ...blueprint_lisek(game), control_player(true), move(0, 0)]),
+            ],
+            [
+                transform([-1.5, 0, 0]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshOgon, [1, 0.5, 0, 1]),
+            ]
+        ),
     ]);
 
     // instantiate(game, [transform([0, -1, 0]), light_directional([1, 1, 1], 0.6)]);
