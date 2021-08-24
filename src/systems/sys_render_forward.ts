@@ -384,7 +384,24 @@ function draw_colored_skinned(
     game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
     game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
 
-    for (let bone_entity of query_all(game.World, entity, Has.Bone | Has.Transform)) {
+    let bone_entities: Array<Entity> = [];
+    if (game.World.Signature[entity] & Has.Children) {
+        for (let bone_entity of query_all(game.World, entity, Has.Bone | Has.Transform)) {
+            bone_entities.push(bone_entity);
+        }
+    } else {
+        // Find the 5 tail bones. They're top-level for mimic() to work, so we
+        // need to find them in the world rather than the tail's children.
+        let start_here = entity;
+        for (let i = 0; i < 5; i++) {
+            let bone_entity = first_entity(game.World, Has.Bone | Has.Transform, start_here);
+            if (bone_entity) {
+                bone_entities.push(bone_entity);
+                start_here = bone_entity + 1;
+            }
+        }
+    }
+    for (let bone_entity of bone_entities) {
         let bone_transform = game.World.Transform[bone_entity];
         let bone = game.World.Bone[bone_entity];
         let bone_view = bones.subarray(bone.Index * 16);

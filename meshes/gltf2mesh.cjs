@@ -12,6 +12,29 @@ process.stdin.resume();
 let json = readFileSync(process.stdin.fd, "utf8");
 process.stdin.pause();
 
+function break_every(count, elements, decimals = 0) {
+    if (elements.length === 0) {
+        return "";
+    }
+
+    let output = "\n    " + elements[0].toFixed(decimals);
+    for (let i = 1; i < elements.length; i++) {
+        let elem = elements[i].toFixed(decimals);
+        if (i % count > 0) {
+            output += ", " + elem;
+        } else {
+            output += ",\n    " + elem;
+        }
+    }
+    return output + "\n";
+}
+
+function data_uri_to_buffer(uri) {
+    let data = uri.split(",")[1];
+    let buf = Buffer.from(data, "base64");
+    return buf;
+}
+
 let gltf = JSON.parse(json);
 let buffer = data_uri_to_buffer(gltf.buffers[0].uri);
 
@@ -139,25 +162,18 @@ let index_arr = Uint16Array.from([${break_every(
         .reverse()
 )}]);`);
 
-function break_every(count, elements, decimals = 0) {
-    if (elements.length === 0) {
-        return "";
-    }
+let skin = gltf.skins[0];
+let bind_poses_accessor = gltf.accessors[skin.inverseBindMatrices];
+let bind_poses_view = gltf.bufferViews[bind_poses_accessor.bufferView];
+let bind_poses_data = new Float32Array(
+    buffer.buffer,
+    buffer.byteOffset + bind_poses_view.byteOffset,
+    bind_poses_view.byteLength / 4
+);
 
-    let output = "\n    " + elements[0].toFixed(decimals);
-    for (let i = 1; i < elements.length; i++) {
-        let elem = elements[i].toFixed(decimals);
-        if (i % count > 0) {
-            output += ", " + elem;
-        } else {
-            output += ",\n    " + elem;
-        }
-    }
-    return output + "\n";
+console.log("\n/*");
+for (let j = 0; j < bind_poses_accessor.count; j++) {
+    let mat = bind_poses_data.subarray(j * 16, j * 16 + 16);
+    console.log(Array.from(mat, (x) => x.toFixed(3)).join(", "));
 }
-
-function data_uri_to_buffer(uri) {
-    let data = uri.split(",")[1];
-    let buf = Buffer.from(data, "base64");
-    return buf;
-}
+console.log("*/");

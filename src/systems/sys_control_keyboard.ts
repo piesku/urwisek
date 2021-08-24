@@ -1,5 +1,6 @@
 import {get_pitch} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
+import {query_all} from "../components/com_children.js";
 import {Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -17,22 +18,15 @@ function update(game: Game, entity: Entity) {
     let control = game.World.ControlPlayer[entity];
 
     if (control.Move) {
-        let move = game.World.Move[entity];
-        if (game.InputState["KeyW"]) {
-            // Move forward
-            move.Directions.push([0, 0, 1]);
+        let anim_name: "walk" | "jump";
+        if (game.InputState["Space"]) {
+            anim_name = "jump";
+        } else {
+            anim_name = "walk";
         }
-        if (game.InputState["KeyA"]) {
-            // Strafe left
-            move.Directions.push([1, 0, 0]);
-        }
-        if (game.InputState["KeyS"]) {
-            // Move backward
-            move.Directions.push([0, 0, -1]);
-        }
-        if (game.InputState["KeyD"]) {
-            // Strafe right
-            move.Directions.push([-1, 0, 0]);
+        for (let ent of query_all(game.World, entity, Has.Animate)) {
+            let animate = game.World.Animate[ent];
+            animate.Trigger = anim_name;
         }
     }
 
