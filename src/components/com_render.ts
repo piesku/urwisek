@@ -756,6 +756,8 @@ export interface RenderInstanced {
     readonly Vao: WebGLVertexArrayObject;
     readonly InstanceCount: number;
     readonly Palette: Array<number>;
+    readonly InstanceOffsetBuffer: WebGLBuffer;
+    readonly InstanceRotationBuffer: WebGLBuffer;
 }
 
 export type InstancedData = Float32Array;
@@ -786,13 +788,15 @@ export function render_instanced(
         game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
         game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
 
-        game.Gl.bindBuffer(GL_ARRAY_BUFFER, game.Gl.createBuffer());
+        let instance_offset_buffer = game.Gl.createBuffer()!;
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_offset_buffer);
         game.Gl.bufferData(GL_ARRAY_BUFFER, offsets, GL_STATIC_DRAW);
         game.Gl.enableVertexAttribArray(material.Locations.InstanceOffset);
         game.Gl.vertexAttribPointer(material.Locations.InstanceOffset, 4, GL_FLOAT, false, 0, 0);
         game.Gl.vertexAttribDivisor(material.Locations.InstanceOffset, 1);
 
-        game.Gl.bindBuffer(GL_ARRAY_BUFFER, game.Gl.createBuffer());
+        let instance_rotation_buffer = game.Gl.createBuffer()!;
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_rotation_buffer);
         game.Gl.bufferData(GL_ARRAY_BUFFER, rotation_offsets, GL_STATIC_DRAW);
         game.Gl.enableVertexAttribArray(material.Locations.InstanceRotation);
         game.Gl.vertexAttribPointer(material.Locations.InstanceRotation, 4, GL_FLOAT, false, 0, 0);
@@ -810,6 +814,8 @@ export function render_instanced(
             Vao: vao,
             InstanceCount: offsets.length / 4,
             Palette: palette,
+            InstanceOffsetBuffer: instance_offset_buffer,
+            InstanceRotationBuffer: instance_rotation_buffer,
         };
     };
 }
