@@ -18,9 +18,10 @@ import {Entity} from "../../common/world.js";
 import {
     ColoredShadedLayout,
     ColoredUnlitLayout,
-    ForwardInstancedLayout,
     ForwardShadingLayout,
+    InstancedLayout,
     MappedShadedLayout,
+    PaletteShadedLayout,
     ParticlesColoredLayout,
     ParticlesTexturedLayout,
     ShadowMappingLayout,
@@ -749,7 +750,7 @@ export function render_particles_textured(
 
 export interface RenderInstanced {
     readonly Kind: RenderKind.Instanced;
-    readonly Material: Material<ForwardInstancedLayout>;
+    readonly Material: Material<PaletteShadedLayout & InstancedLayout & ForwardShadingLayout>;
     readonly Mesh: Mesh;
     readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;

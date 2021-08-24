@@ -21,9 +21,10 @@ import {Entity, first_entity} from "../../common/world.js";
 import {
     ColoredShadedLayout,
     ColoredUnlitLayout,
-    ForwardInstancedLayout,
     ForwardShadingLayout,
+    InstancedLayout,
     MappedShadedLayout,
+    PaletteShadedLayout,
     ParticlesColoredLayout,
     ParticlesTexturedLayout,
     ShadowMappingLayout,
@@ -517,7 +518,11 @@ function draw_particles_textured(
     game.Gl.drawArrays(render.Material.Mode, 0, emitter.Instances.length / DATA_PER_PARTICLE);
 }
 
-function use_instanced(game: Game, material: Material<ForwardInstancedLayout>, eye: CameraEye) {
+function use_instanced(
+    game: Game,
+    material: Material<PaletteShadedLayout & InstancedLayout & ForwardShadingLayout>,
+    eye: CameraEye
+) {
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);

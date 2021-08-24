@@ -1,6 +1,6 @@
 import {link, Material} from "../common/material.js";
 import {GL_TRIANGLES} from "../common/webgl.js";
-import {ForwardInstancedLayout} from "./layout.js";
+import {ForwardShadingLayout, InstancedLayout, PaletteShadedLayout} from "./layout.js";
 
 let vertex = `#version 300 es\n
     // See Game.LightPositions and Game.LightDetails.
@@ -118,7 +118,7 @@ let fragment = `#version 300 es\n
 
 export function mat_forward_instanced(
     gl: WebGL2RenderingContext
-): Material<ForwardInstancedLayout> {
+): Material<PaletteShadedLayout & InstancedLayout & ForwardShadingLayout> {
     let program = link(gl, vertex, fragment);
     return {
         Mode: GL_TRIANGLES,
@@ -128,6 +128,7 @@ export function mat_forward_instanced(
             World: gl.getUniformLocation(program, "world")!,
             Self: gl.getUniformLocation(program, "self")!,
             Palette: gl.getUniformLocation(program, "palette")!,
+            Eye: gl.getUniformLocation(program, "eye")!,
             LightPositions: gl.getUniformLocation(program, "light_positions")!,
             LightDetails: gl.getUniformLocation(program, "light_details")!,
             VertexPosition: gl.getAttribLocation(program, "attr_position")!,

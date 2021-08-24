@@ -113,7 +113,6 @@ function use_instanced_shading(game: Game, camera: CameraDepth) {
 
 function draw_instanced_shading(game: Game, transform: Transform, render: RenderInstanced) {
     game.Gl.uniformMatrix4fv(game.MaterialDepthInstanced.Locations.World, false, transform.World);
-    game.Gl.uniformMatrix4fv(game.MaterialDepthInstanced.Locations.Self, false, transform.Self);
     game.Gl.bindVertexArray(render.Vao);
     game.Gl.drawElementsInstanced(
         game.MaterialDepthInstanced.Mode,

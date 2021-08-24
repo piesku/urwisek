@@ -73,6 +73,19 @@ export interface MappedShadedLayout {
     VertexBitangent: GLint;
 }
 
+export interface PaletteShadedLayout {
+    // Uniforms
+    Pv: WebGLUniformLocation;
+    World: WebGLUniformLocation;
+    Self: WebGLUniformLocation;
+
+    Palette: WebGLUniformLocation;
+
+    // Attributes
+    VertexPosition: GLint;
+    VertexNormal: GLint;
+}
+
 export interface ForwardShadingLayout {
     // Uniforms
     Eye: WebGLUniformLocation;
@@ -93,18 +106,6 @@ export interface DepthMappingLayout {
 
     // Attributes
     VertexPosition: GLint;
-}
-
-export interface DepthMappingInstancedLayout {
-    // Uniforms
-    Pv: WebGLUniformLocation;
-    World: WebGLUniformLocation;
-    Self: WebGLUniformLocation;
-
-    // Attributes
-    VertexPosition: GLint;
-    VertexOffset: GLint;
-    VertexOffsetRotation: GLint;
 }
 
 export interface DeferredPostprocessLayout {
@@ -155,20 +156,7 @@ export interface ParticlesTexturedLayout {
     DirectionSeed: GLint;
 }
 
-export interface ForwardInstancedLayout {
-    // Uniforms
-    Pv: WebGLUniformLocation;
-    World: WebGLUniformLocation;
-    Self: WebGLUniformLocation;
-
-    Palette: WebGLUniformLocation;
-
-    LightPositions: WebGLUniformLocation;
-    LightDetails: WebGLUniformLocation;
-
-    // Attributes
-    VertexPosition: GLint;
-    VertexNormal: GLint;
+export interface InstancedLayout {
     VertexOffset: GLint;
     VertexOffsetRotation: GLint;
 }
