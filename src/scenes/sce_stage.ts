@@ -14,7 +14,6 @@ import {control_player} from "../components/com_control_player.js";
 import {mimic} from "../components/com_mimic.js";
 import {move} from "../components/com_move.js";
 import {
-    render_colored_shaded,
     render_colored_shadows,
     render_colored_skinned,
     render_instanced,
@@ -31,7 +30,10 @@ export function scene_stage(game: Game) {
     instantiate(game, [...blueprint_camera(game), transform([0, 1, 3], [0, 1, 0, 0])]);
 
     // Sun.
-    instantiate(game, [transform(), ...blueprint_sun(game)]);
+    instantiate(game, [
+        transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
+        ...blueprint_sun(game),
+    ]);
 
     // Ground.
     let ground_size = 16;
@@ -49,7 +51,7 @@ export function scene_stage(game: Game) {
         ]);
     }
 
-    let zdzblos = 10000;
+    let zdzblos = 0;
     let zdz_scale = 0.3;
     let zdz_offsets = [];
     let zdz_rotations = [];
@@ -98,10 +100,7 @@ export function scene_stage(game: Game) {
                     transform(),
                     control_always(null, [0, 1, 0, 0]),
                     move(0, 5),
-                    children([
-                        transform([0, 0, 0.3]),
-                        callback((game, entity) => (tailbone = entity)),
-                    ]),
+                    children([transform(), callback((game, entity) => (tailbone = entity))]),
                 ]),
             ]
         ),
@@ -126,10 +125,10 @@ export function scene_stage(game: Game) {
                     -0.428, 1.0,
                 ]
             ),
-            children([
-                transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
         ]);
 
         let tailbone1 = instantiate(game, [
@@ -142,10 +141,10 @@ export function scene_stage(game: Game) {
                     -1.1, -0.285, 1.0,
                 ]
             ),
-            children([
-                transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
         ]);
 
         let tailbone2 = instantiate(game, [
@@ -158,10 +157,10 @@ export function scene_stage(game: Game) {
                     -0.487, 1.0,
                 ]
             ),
-            children([
-                transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
         ]);
 
         let tailbone3 = instantiate(game, [
@@ -174,10 +173,10 @@ export function scene_stage(game: Game) {
                     -2.009, 0.214, 1.0,
                 ]
             ),
-            children([
-                transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
         ]);
 
         let tailbone4 = instantiate(game, [
@@ -190,12 +189,10 @@ export function scene_stage(game: Game) {
                     -2.224, 1.021, 1.0,
                 ]
             ),
-            children([
-                transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
         ]);
     }
-
-    // instantiate(game, [transform([0, -1, 0]), light_directional([1, 1, 1], 0.6)]);
 }
