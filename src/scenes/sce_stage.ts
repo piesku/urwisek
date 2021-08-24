@@ -31,10 +31,7 @@ export function scene_stage(game: Game) {
     instantiate(game, [...blueprint_camera(game), transform([0, 1, 3], [0, 1, 0, 0])]);
 
     // Sun.
-    instantiate(game, [
-        transform(undefined, from_euler([0, 0, 0, 0], -45, 45, 0)),
-        ...blueprint_sun(game),
-    ]);
+    instantiate(game, [transform(), ...blueprint_sun(game)]);
 
     // Ground.
     let ground_size = 16;
