@@ -1060,17 +1060,16 @@
 
     uniform mat4 pv;
     uniform mat4 world;
-    uniform mat4 self;
 
     in vec3 attr_position;
     in vec4 attr_offset;
-    in vec4 attr_offset_rotation;
+    in vec4 attr_rotation;
 
     void main() {
-        float x = attr_offset_rotation.x;
-        float y = attr_offset_rotation.y;
-        float z = attr_offset_rotation.z;
-        float w = attr_offset_rotation.w;
+        float x = attr_rotation.x;
+        float y = attr_rotation.y;
+        float z = attr_rotation.z;
+        float w = attr_rotation.w;
 
         float x2 = x + x;
         float y2 = y + y;
@@ -1132,10 +1131,9 @@
             Locations: {
                 Pv: gl.getUniformLocation(program, "pv"),
                 World: gl.getUniformLocation(program, "world"),
-                Self: gl.getUniformLocation(program, "self"),
                 VertexPosition: gl.getAttribLocation(program, "attr_position"),
-                VertexOffset: gl.getAttribLocation(program, "attr_offset"),
-                VertexOffsetRotation: gl.getAttribLocation(program, "attr_offset_rotation"),
+                InstanceOffset: gl.getAttribLocation(program, "attr_offset"),
+                InstanceRotation: gl.getAttribLocation(program, "attr_rotation"),
             },
         };
     }
@@ -1156,15 +1154,15 @@
     in vec3 attr_position;
     in vec3 attr_normal;
     in vec4 attr_offset;
-    in vec4 attr_offset_rotation;
+    in vec4 attr_rotation;
 
     out vec4 vert_color;
 
     void main() {
-        float x = attr_offset_rotation.x;
-        float y = attr_offset_rotation.y;
-        float z = attr_offset_rotation.z;
-        float w = attr_offset_rotation.w;
+        float x = attr_rotation.x;
+        float y = attr_rotation.y;
+        float z = attr_rotation.z;
+        float w = attr_rotation.w;
 
         float x2 = x + x;
         float y2 = y + y;
@@ -1262,12 +1260,13 @@
                 World: gl.getUniformLocation(program, "world"),
                 Self: gl.getUniformLocation(program, "self"),
                 Palette: gl.getUniformLocation(program, "palette"),
+                Eye: gl.getUniformLocation(program, "eye"),
                 LightPositions: gl.getUniformLocation(program, "light_positions"),
                 LightDetails: gl.getUniformLocation(program, "light_details"),
                 VertexPosition: gl.getAttribLocation(program, "attr_position"),
                 VertexNormal: gl.getAttribLocation(program, "attr_normal"),
-                VertexOffset: gl.getAttribLocation(program, "attr_offset"),
-                VertexOffsetRotation: gl.getAttribLocation(program, "attr_offset_rotation"),
+                InstanceOffset: gl.getAttribLocation(program, "attr_offset"),
+                InstanceRotation: gl.getAttribLocation(program, "attr_rotation"),
             },
         };
     }
@@ -3638,16 +3637,18 @@
             game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
             game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
             game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
-            game.Gl.bindBuffer(GL_ARRAY_BUFFER, game.Gl.createBuffer());
+            let instance_offset_buffer = game.Gl.createBuffer();
+            game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_offset_buffer);
             game.Gl.bufferData(GL_ARRAY_BUFFER, offsets, GL_STATIC_DRAW);
-            game.Gl.enableVertexAttribArray(material.Locations.VertexOffset);
-            game.Gl.vertexAttribPointer(material.Locations.VertexOffset, 4, GL_FLOAT, false, 0, 0);
-            game.Gl.vertexAttribDivisor(material.Locations.VertexOffset, 1);
-            game.Gl.bindBuffer(GL_ARRAY_BUFFER, game.Gl.createBuffer());
+            game.Gl.enableVertexAttribArray(material.Locations.InstanceOffset);
+            game.Gl.vertexAttribPointer(material.Locations.InstanceOffset, 4, GL_FLOAT, false, 0, 0);
+            game.Gl.vertexAttribDivisor(material.Locations.InstanceOffset, 1);
+            let instance_rotation_buffer = game.Gl.createBuffer();
+            game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_rotation_buffer);
             game.Gl.bufferData(GL_ARRAY_BUFFER, rotation_offsets, GL_STATIC_DRAW);
-            game.Gl.enableVertexAttribArray(material.Locations.VertexOffsetRotation);
-            game.Gl.vertexAttribPointer(material.Locations.VertexOffsetRotation, 4, GL_FLOAT, false, 0, 0);
-            game.Gl.vertexAttribDivisor(material.Locations.VertexOffsetRotation, 1);
+            game.Gl.enableVertexAttribArray(material.Locations.InstanceRotation);
+            game.Gl.vertexAttribPointer(material.Locations.InstanceRotation, 4, GL_FLOAT, false, 0, 0);
+            game.Gl.vertexAttribDivisor(material.Locations.InstanceRotation, 1);
             game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
             game.Gl.bindVertexArray(null);
             game.World.Signature[entity] |= 65536 /* Render */;
@@ -3659,6 +3660,8 @@
                 Vao: vao,
                 InstanceCount: offsets.length / 4,
                 Palette: palette,
+                InstanceOffsetBuffer: instance_offset_buffer,
+                InstanceRotationBuffer: instance_rotation_buffer,
             };
         };
     }
@@ -3954,11 +3957,21 @@
         game.Gl.uniformMatrix4fv(game.MaterialDepthInstanced.Locations.Pv, false, camera.Pv);
     }
     function draw_instanced_shading(game, transform, render) {
-        game.Gl.uniformMatrix4fv(game.MaterialDepthInstanced.Locations.World, false, transform.World);
-        game.Gl.uniformMatrix4fv(game.MaterialDepthInstanced.Locations.Self, false, transform.Self);
-        game.Gl.bindVertexArray(render.Vao);
+        let material = game.MaterialDepthInstanced;
+        game.Gl.uniformMatrix4fv(material.Locations.World, false, transform.World);
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.Mesh.VertexBuffer);
+        game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+        game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.InstanceOffsetBuffer);
+        game.Gl.enableVertexAttribArray(material.Locations.InstanceOffset);
+        game.Gl.vertexAttribPointer(material.Locations.InstanceOffset, 4, GL_FLOAT, false, 0, 0);
+        game.Gl.vertexAttribDivisor(material.Locations.InstanceOffset, 1);
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.InstanceRotationBuffer);
+        game.Gl.enableVertexAttribArray(material.Locations.InstanceRotation);
+        game.Gl.vertexAttribPointer(material.Locations.InstanceRotation, 4, GL_FLOAT, false, 0, 0);
+        game.Gl.vertexAttribDivisor(material.Locations.InstanceRotation, 1);
+        game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, render.Mesh.IndexBuffer);
         game.Gl.drawElementsInstanced(game.MaterialDepthInstanced.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0, render.InstanceCount);
-        game.Gl.bindVertexArray(null);
     }
 
     class WorldImpl {
@@ -5112,7 +5125,7 @@
             control_always(null, [0, 1, 0, 0]),
             move(0, 1.5),
             children([
-                transform([0, 0, 10]),
+                transform([0, 10, 10], from_euler([0, 0, 0, 1], -45, 0, 0)),
                 light_directional([1, 1, 1], 0.9),
                 camera_depth_ortho(game.Targets.Sun, 10, 1, 100),
             ]),
@@ -5202,10 +5215,7 @@
         // Camera.
         instantiate(game, [...blueprint_camera(), transform([0, 1, 3], [0, 1, 0, 0])]);
         // Sun.
-        instantiate(game, [
-            transform(undefined, from_euler([0, 0, 0, 0], -45, 45, 0)),
-            ...blueprint_sun(game),
-        ]);
+        instantiate(game, [transform(), ...blueprint_sun(game)]);
         // Ground.
         let ground_size = 16;
         instantiate(game, [
@@ -5221,12 +5231,17 @@
             ]);
         }
         let zdzblos = 10000;
+        let zdz_scale = 0.3;
         let zdz_offsets = [];
         let zdz_rotations = [];
         for (let i = 0; i < zdzblos; i++) {
-            zdz_offsets.push(float(-ground_size / 2, ground_size / 2), 0.45, float(-ground_size / 4, ground_size / 4), integer(0, 2));
+            zdz_offsets.push(float(-ground_size / 2 / zdz_scale, ground_size / 2 / zdz_scale), 0.45, float(-ground_size / 4 / zdz_scale, ground_size / 4 / zdz_scale), integer(0, 2));
             zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, 0, 0));
         }
+        instantiate(game, [
+            transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
+            render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
+        ]);
         let tailbone = 0;
         // Lisek walking around.
         instantiate(game, [
