@@ -3941,10 +3941,13 @@
         game.Gl.uniformMatrix4fv(game.MaterialDepth.Locations.Pv, false, camera.Pv);
     }
     function draw_default_shading(game, transform, render) {
-        game.Gl.uniformMatrix4fv(game.MaterialDepth.Locations.World, false, transform.World);
-        game.Gl.bindVertexArray(render.Vao);
-        game.Gl.drawElements(game.MaterialDepth.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-        game.Gl.bindVertexArray(null);
+        let material = game.MaterialDepth;
+        game.Gl.uniformMatrix4fv(material.Locations.World, false, transform.World);
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.Mesh.VertexBuffer);
+        game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+        game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+        game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, render.Mesh.IndexBuffer);
+        game.Gl.drawElements(material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
     }
     function use_instanced_shading(game, camera) {
         game.Gl.useProgram(game.MaterialDepthInstanced.Program);
