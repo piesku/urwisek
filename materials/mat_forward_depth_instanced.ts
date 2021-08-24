@@ -9,13 +9,13 @@ let vertex = `#version 300 es\n
 
     in vec3 attr_position;
     in vec4 attr_offset;
-    in vec4 attr_offset_rotation;
+    in vec4 attr_rotation;
 
     void main() {
-        float x = attr_offset_rotation.x;
-        float y = attr_offset_rotation.y;
-        float z = attr_offset_rotation.z;
-        float w = attr_offset_rotation.w;
+        float x = attr_rotation.x;
+        float y = attr_rotation.y;
+        float z = attr_rotation.z;
+        float w = attr_rotation.w;
 
         float x2 = x + x;
         float y2 = y + y;
@@ -82,8 +82,8 @@ export function mat_forward_depth_instanced(
             Pv: gl.getUniformLocation(program, "pv")!,
             World: gl.getUniformLocation(program, "world")!,
             VertexPosition: gl.getAttribLocation(program, "attr_position")!,
-            VertexOffset: gl.getAttribLocation(program, "attr_offset")!,
-            VertexOffsetRotation: gl.getAttribLocation(program, "attr_offset_rotation")!,
+            InstanceOffset: gl.getAttribLocation(program, "attr_offset")!,
+            InstanceRotation: gl.getAttribLocation(program, "attr_rotation")!,
         },
     };
 }

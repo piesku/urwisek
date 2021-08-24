@@ -157,6 +157,6 @@ export interface ParticlesTexturedLayout {
 }
 
 export interface InstancedLayout {
-    VertexOffset: GLint;
-    VertexOffsetRotation: GLint;
+    InstanceOffset: GLint;
+    InstanceRotation: GLint;
 }

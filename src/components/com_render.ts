@@ -788,22 +788,15 @@ export function render_instanced(
 
         game.Gl.bindBuffer(GL_ARRAY_BUFFER, game.Gl.createBuffer());
         game.Gl.bufferData(GL_ARRAY_BUFFER, offsets, GL_STATIC_DRAW);
-        game.Gl.enableVertexAttribArray(material.Locations.VertexOffset);
-        game.Gl.vertexAttribPointer(material.Locations.VertexOffset, 4, GL_FLOAT, false, 0, 0);
-        game.Gl.vertexAttribDivisor(material.Locations.VertexOffset, 1);
+        game.Gl.enableVertexAttribArray(material.Locations.InstanceOffset);
+        game.Gl.vertexAttribPointer(material.Locations.InstanceOffset, 4, GL_FLOAT, false, 0, 0);
+        game.Gl.vertexAttribDivisor(material.Locations.InstanceOffset, 1);
 
         game.Gl.bindBuffer(GL_ARRAY_BUFFER, game.Gl.createBuffer());
         game.Gl.bufferData(GL_ARRAY_BUFFER, rotation_offsets, GL_STATIC_DRAW);
-        game.Gl.enableVertexAttribArray(material.Locations.VertexOffsetRotation);
-        game.Gl.vertexAttribPointer(
-            material.Locations.VertexOffsetRotation,
-            4,
-            GL_FLOAT,
-            false,
-            0,
-            0
-        );
-        game.Gl.vertexAttribDivisor(material.Locations.VertexOffsetRotation, 1);
+        game.Gl.enableVertexAttribArray(material.Locations.InstanceRotation);
+        game.Gl.vertexAttribPointer(material.Locations.InstanceRotation, 4, GL_FLOAT, false, 0, 0);
+        game.Gl.vertexAttribDivisor(material.Locations.InstanceRotation, 1);
 
         game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 

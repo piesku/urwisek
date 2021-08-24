@@ -18,15 +18,15 @@ let vertex = `#version 300 es\n
     in vec3 attr_position;
     in vec3 attr_normal;
     in vec4 attr_offset;
-    in vec4 attr_offset_rotation;
+    in vec4 attr_rotation;
 
     out vec4 vert_color;
 
     void main() {
-        float x = attr_offset_rotation.x;
-        float y = attr_offset_rotation.y;
-        float z = attr_offset_rotation.z;
-        float w = attr_offset_rotation.w;
+        float x = attr_rotation.x;
+        float y = attr_rotation.y;
+        float z = attr_rotation.z;
+        float w = attr_rotation.w;
 
         float x2 = x + x;
         float y2 = y + y;
@@ -133,8 +133,8 @@ export function mat_forward_instanced(
             LightDetails: gl.getUniformLocation(program, "light_details")!,
             VertexPosition: gl.getAttribLocation(program, "attr_position")!,
             VertexNormal: gl.getAttribLocation(program, "attr_normal")!,
-            VertexOffset: gl.getAttribLocation(program, "attr_offset")!,
-            VertexOffsetRotation: gl.getAttribLocation(program, "attr_offset_rotation")!,
+            InstanceOffset: gl.getAttribLocation(program, "attr_offset")!,
+            InstanceRotation: gl.getAttribLocation(program, "attr_rotation")!,
         },
     };
 }
