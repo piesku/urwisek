@@ -696,6 +696,11 @@
 
     out vec4 frag_color;
 
+    const float bands = 2.0;
+    float posterize(float factor) {
+        return floor(factor * bands) / bands;
+    }
+
     void main() {
         vec3 world_normal = normalize(vert_normal);
 
@@ -703,7 +708,7 @@
         vec3 view_normal = normalize(view_dir);
 
         // Ambient light.
-        vec3 light_acc = diffuse_color.rgb * 0.1;
+        vec3 light_acc = diffuse_color.rgb * 0.3;
 
         for (int i = 0; i < MAX_LIGHTS; i++) {
             if (light_positions[i].w == 0.0) {
@@ -728,7 +733,7 @@
             float diffuse_factor = dot(world_normal, light_normal);
             if (diffuse_factor > 0.0) {
                 // Diffuse color.
-                light_acc += diffuse_color.rgb * diffuse_factor * light_color * light_intensity;
+                light_acc += diffuse_color.rgb * light_color * posterize(diffuse_factor * light_intensity);
 
                 if (shininess > 0.0) {
                     // Phong reflection model.
@@ -742,7 +747,7 @@
                     float specular_factor = pow(specular_angle, shininess);
 
                     // Specular color.
-                    light_acc += specular_color.rgb * specular_factor * light_color * light_intensity;
+                    light_acc += specular_color.rgb * light_color * posterize(specular_factor * light_intensity);
                 }
             }
         }
@@ -813,6 +818,11 @@
 
     out vec4 frag_color;
 
+    const float bands = 2.0;
+    float posterize(float factor) {
+        return floor(factor * bands) / bands;
+    }
+
     void main() {
         vec3 world_normal = normalize(vert_normal);
 
@@ -820,7 +830,7 @@
         vec3 view_normal = normalize(view_dir);
 
         // Ambient light.
-        vec3 light_acc = diffuse_color.rgb * 0.1;
+        vec3 light_acc = diffuse_color.rgb * 0.3;
 
         for (int i = 0; i < MAX_LIGHTS; i++) {
             if (light_positions[i].w == 0.0) {
@@ -845,7 +855,7 @@
             float diffuse_factor = dot(world_normal, light_normal);
             if (diffuse_factor > 0.0) {
                 // Diffuse color.
-                light_acc += diffuse_color.rgb * diffuse_factor * light_color * light_intensity;
+                light_acc += diffuse_color.rgb * light_color * posterize(diffuse_factor * light_intensity);
 
                 if (shininess > 0.0) {
                     // Phong reflection model.
@@ -859,7 +869,7 @@
                     float specular_factor = pow(specular_angle, shininess);
 
                     // Specular color.
-                    light_acc += specular_color.rgb * specular_factor * light_color * light_intensity;
+                    light_acc += specular_color.rgb * light_color * posterize(specular_factor * light_intensity);
                 }
             }
         }
@@ -5123,7 +5133,7 @@
     function blueprint_sun(game) {
         return [
             control_always(null, [0, 1, 0, 0]),
-            move(0, 1.5),
+            move(0, 0.03),
             children([
                 transform([0, 10, 10], from_euler([0, 0, 0, 1], -45, 0, 0)),
                 light_directional([1, 1, 1], 0.9),
@@ -5215,7 +5225,10 @@
         // Camera.
         instantiate(game, [...blueprint_camera(), transform([0, 1, 3], [0, 1, 0, 0])]);
         // Sun.
-        instantiate(game, [transform(), ...blueprint_sun(game)]);
+        instantiate(game, [
+            transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
+            ...blueprint_sun(game),
+        ]);
         // Ground.
         let ground_size = 16;
         instantiate(game, [
@@ -5230,7 +5243,7 @@
                 ...blueprint_tree(game),
             ]);
         }
-        let zdzblos = 10000;
+        let zdzblos = 0;
         let zdz_scale = 0.3;
         let zdz_offsets = [];
         let zdz_rotations = [];
@@ -5260,10 +5273,7 @@
                     transform(),
                     control_always(null, [0, 1, 0, 0]),
                     move(0, 5),
-                    children([
-                        transform([0, 0, 0.3]),
-                        callback((game, entity) => (tailbone = entity)),
-                    ]),
+                    children([transform(), callback((game, entity) => (tailbone = entity))]),
                 ]),
             ]),
         ]);
@@ -5275,10 +5285,10 @@
                     1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -0.701,
                     -0.428, 1.0,
                 ]),
-                children([
-                    transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                    render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-                ]),
+                // children([
+                //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+                // ]),
             ]);
             let tailbone1 = instantiate(game, [
                 transform(),
@@ -5287,10 +5297,10 @@
                     1.0, -0.0, -0.0, 0.0, 0.0, 0.132, 0.991, 0.0, 0.0, -0.991, 0.132, 0.0, -0.0,
                     -1.1, -0.285, 1.0,
                 ]),
-                children([
-                    transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                    render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-                ]),
+                // children([
+                //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+                // ]),
             ]);
             let tailbone2 = instantiate(game, [
                 transform(),
@@ -5299,10 +5309,10 @@
                     1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -1.492,
                     -0.487, 1.0,
                 ]),
-                children([
-                    transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                    render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-                ]),
+                // children([
+                //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+                // ]),
             ]);
             let tailbone3 = instantiate(game, [
                 transform(),
@@ -5311,10 +5321,10 @@
                     -1.0, -0.0, -0.0, 0.0, 0.0, 0.137, -0.991, 0.0, 0.0, -0.991, -0.137, 0.0, -0.0,
                     -2.009, 0.214, 1.0,
                 ]),
-                children([
-                    transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                    render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-                ]),
+                // children([
+                //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+                // ]),
             ]);
             instantiate(game, [
                 transform(),
@@ -5323,13 +5333,12 @@
                     -1.0, 0.0, -0.0, 0.0, 0.0, -0.204, -0.979, 0.0, -0.0, -0.979, 0.204, 0.0, -0.0,
                     -2.224, 1.021, 1.0,
                 ]),
-                children([
-                    transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                    render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-                ]),
+                // children([
+                //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+                // ]),
             ]);
         }
-        // instantiate(game, [transform([0, -1, 0]), light_directional([1, 1, 1], 0.6)]);
     }
 
     let game = new Game();
