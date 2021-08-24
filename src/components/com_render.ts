@@ -18,6 +18,7 @@ import {Entity} from "../../common/world.js";
 import {
     ColoredShadedLayout,
     ColoredUnlitLayout,
+    FogLayout,
     ForwardShadingLayout,
     InstancedLayout,
     MappedShadedLayout,
@@ -121,7 +122,7 @@ export function render_colored_unlit(
 
 export interface RenderColoredShaded {
     readonly Kind: RenderKind.ColoredShaded;
-    readonly Material: Material<ColoredShadedLayout & ForwardShadingLayout>;
+    readonly Material: Material<ColoredShadedLayout & ForwardShadingLayout & FogLayout>;
     readonly Mesh: Mesh;
     readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;
@@ -131,7 +132,7 @@ export interface RenderColoredShaded {
 }
 
 export function render_colored_shaded(
-    material: Material<ColoredShadedLayout & ForwardShadingLayout>,
+    material: Material<ColoredShadedLayout & ForwardShadingLayout & FogLayout>,
     mesh: Mesh,
     diffuse_color: Vec4,
     shininess: number = 0,
@@ -181,7 +182,9 @@ export function render_colored_shaded(
 
 export interface RenderColoredShadows {
     readonly Kind: RenderKind.ColoredShadows;
-    readonly Material: Material<ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout>;
+    readonly Material: Material<
+        ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout & FogLayout
+    >;
     readonly Mesh: Mesh;
     readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;
@@ -191,7 +194,9 @@ export interface RenderColoredShadows {
 }
 
 export function render_colored_shadows(
-    material: Material<ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout>,
+    material: Material<
+        ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout & FogLayout
+    >,
     mesh: Mesh,
     diffuse_color: Vec4,
     shininess: number = 0,
@@ -750,7 +755,9 @@ export function render_particles_textured(
 
 export interface RenderInstanced {
     readonly Kind: RenderKind.Instanced;
-    readonly Material: Material<PaletteShadedLayout & InstancedLayout & ForwardShadingLayout>;
+    readonly Material: Material<
+        PaletteShadedLayout & InstancedLayout & ForwardShadingLayout & FogLayout
+    >;
     readonly Mesh: Mesh;
     readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;

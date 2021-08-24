@@ -1,6 +1,11 @@
 import {link, Material} from "../common/material.js";
 import {GL_TRIANGLES} from "../common/webgl.js";
-import {ColoredShadedLayout, ForwardShadingLayout, ShadowMappingLayout} from "./layout.js";
+import {
+    ColoredShadedLayout,
+    FogLayout,
+    ForwardShadingLayout,
+    ShadowMappingLayout,
+} from "./layout.js";
 
 let vertex = `#version 300 es\n
 
@@ -36,6 +41,8 @@ let fragment = `#version 300 es\n
     uniform vec4 light_details[MAX_LIGHTS];
     uniform mat4 shadow_space;
     uniform sampler2DShadow shadow_map;
+    uniform vec4 fog_color;
+    uniform float fog_distance;
 
     in vec4 vert_position;
     in vec3 vert_normal;
@@ -109,12 +116,16 @@ let fragment = `#version 300 es\n
 
         vec3 shaded_rgb = light_acc * shadow_factor(vert_position, 0.5);
         frag_color= vec4(shaded_rgb, 1.0);
+
+        float eye_distance = length(view_dir);
+        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+        frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
     }
 `;
 
 export function mat_forward_colored_shadows(
     gl: WebGL2RenderingContext
-): Material<ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout> {
+): Material<ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout & FogLayout> {
     let program = link(gl, vertex, fragment);
     return {
         Mode: GL_TRIANGLES,
@@ -134,6 +145,9 @@ export function mat_forward_colored_shadows(
 
             ShadowSpace: gl.getUniformLocation(program, "shadow_space")!,
             ShadowMap: gl.getUniformLocation(program, "shadow_map")!,
+
+            FogColor: gl.getUniformLocation(program, "fog_color")!,
+            FogDistance: gl.getUniformLocation(program, "fog_distance")!,
 
             VertexPosition: gl.getAttribLocation(program, "attr_position")!,
             VertexNormal: gl.getAttribLocation(program, "attr_normal")!,

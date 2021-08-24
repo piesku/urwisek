@@ -21,6 +21,7 @@ import {Entity, first_entity} from "../../common/world.js";
 import {
     ColoredShadedLayout,
     ColoredUnlitLayout,
+    FogLayout,
     ForwardShadingLayout,
     InstancedLayout,
     MappedShadedLayout,
@@ -209,7 +210,7 @@ function draw_colored_unlit(game: Game, transform: Transform, render: RenderColo
 
 function use_colored_shaded(
     game: Game,
-    material: Material<ColoredShadedLayout & ForwardShadingLayout>,
+    material: Material<ColoredShadedLayout & ForwardShadingLayout & FogLayout>,
     eye: CameraEye
 ) {
     game.Gl.useProgram(material.Program);
@@ -217,6 +218,8 @@ function use_colored_shaded(
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
     game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+    game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
+    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
 
 function draw_colored_shaded(game: Game, transform: Transform, render: RenderColoredShaded) {
@@ -328,7 +331,9 @@ function draw_mapped(game: Game, transform: Transform, render: RenderMappedShade
 
 function use_colored_shadows(
     game: Game,
-    material: Material<ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout>,
+    material: Material<
+        ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout & FogLayout
+    >,
     eye: CameraEye
 ) {
     game.Gl.useProgram(material.Program);
@@ -336,6 +341,8 @@ function use_colored_shadows(
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
     game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+    game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
+    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 
     game.Gl.activeTexture(GL_TEXTURE0);
     game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Sun.DepthTexture);
@@ -520,13 +527,15 @@ function draw_particles_textured(
 
 function use_instanced(
     game: Game,
-    material: Material<PaletteShadedLayout & InstancedLayout & ForwardShadingLayout>,
+    material: Material<PaletteShadedLayout & InstancedLayout & ForwardShadingLayout & FogLayout>,
     eye: CameraEye
 ) {
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
     game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+    game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
+    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
 
 function draw_instanced(game: Game, transform: Transform, render: RenderInstanced) {

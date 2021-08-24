@@ -160,3 +160,8 @@ export interface InstancedLayout {
     InstanceOffset: GLint;
     InstanceRotation: GLint;
 }
+
+export interface FogLayout {
+    FogColor: WebGLUniformLocation;
+    FogDistance: WebGLUniformLocation;
+}

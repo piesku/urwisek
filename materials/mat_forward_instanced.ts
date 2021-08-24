@@ -1,6 +1,6 @@
 import {link, Material} from "../common/material.js";
 import {GL_TRIANGLES} from "../common/webgl.js";
-import {ForwardShadingLayout, InstancedLayout, PaletteShadedLayout} from "./layout.js";
+import {FogLayout, ForwardShadingLayout, InstancedLayout, PaletteShadedLayout} from "./layout.js";
 
 let vertex = `#version 300 es\n
     // See Game.LightPositions and Game.LightDetails.
@@ -14,6 +14,10 @@ let vertex = `#version 300 es\n
     uniform int light_count;
     uniform vec4 light_positions[MAX_LIGHTS];
     uniform vec4 light_details[MAX_LIGHTS];
+
+    uniform vec3 eye;
+    uniform vec4 fog_color;
+    uniform float fog_distance;
 
     in vec3 attr_position;
     in vec3 attr_normal;
@@ -101,6 +105,10 @@ let vertex = `#version 300 es\n
         }
 
         vert_color = vec4(light_acc, 1.0);
+
+        float eye_distance = length(eye - world_position.xyz);
+        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+        vert_color = mix(vert_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
     }
 
 `;
@@ -118,7 +126,7 @@ let fragment = `#version 300 es\n
 
 export function mat_forward_instanced(
     gl: WebGL2RenderingContext
-): Material<PaletteShadedLayout & InstancedLayout & ForwardShadingLayout> {
+): Material<PaletteShadedLayout & InstancedLayout & ForwardShadingLayout & FogLayout> {
     let program = link(gl, vertex, fragment);
     return {
         Mode: GL_TRIANGLES,
@@ -131,6 +139,9 @@ export function mat_forward_instanced(
             Eye: gl.getUniformLocation(program, "eye")!,
             LightPositions: gl.getUniformLocation(program, "light_positions")!,
             LightDetails: gl.getUniformLocation(program, "light_details")!,
+            FogColor: gl.getUniformLocation(program, "fog_color")!,
+            FogDistance: gl.getUniformLocation(program, "fog_distance")!,
+
             VertexPosition: gl.getAttribLocation(program, "attr_position")!,
             VertexNormal: gl.getAttribLocation(program, "attr_normal")!,
             InstanceOffset: gl.getAttribLocation(program, "attr_offset")!,

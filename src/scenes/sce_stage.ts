@@ -39,7 +39,7 @@ export function scene_stage(game: Game) {
     let ground_size = 16;
     instantiate(game, [
         transform(undefined, undefined, [ground_size, 0, ground_size]),
-        render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1]),
+        render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.2, 0.2, 1]),
     ]);
 
     let trees = 100;

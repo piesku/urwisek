@@ -8,7 +8,7 @@ export function blueprint_camera(game: Game) {
     return [
         children([
             transform(undefined, from_euler([0, 0, 0, 1], -15, 180, 0)),
-            camera_forward_perspective(1, 0.1, 1000),
+            camera_forward_perspective(1, 0.1, 10, [0.4, 0.6, 0.4, 1]),
         ]),
     ];
 }
