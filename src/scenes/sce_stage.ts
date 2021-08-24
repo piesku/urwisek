@@ -50,28 +50,28 @@ export function scene_stage(game: Game) {
     }
 
     let zdzblos = 10000;
+    let zdz_scale = 0.3;
     let zdz_offsets = [];
     let zdz_rotations = [];
     for (let i = 0; i < zdzblos; i++) {
         zdz_offsets.push(
-            float(-ground_size / 2, ground_size / 2),
+            float(-ground_size / 2 / zdz_scale, ground_size / 2 / zdz_scale),
             0.45,
-            float(-ground_size / 4, ground_size / 4),
+            float(-ground_size / 4 / zdz_scale, ground_size / 4 / zdz_scale),
             integer(0, 2)
         );
         zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, 0, 0));
     }
 
-    false &&
-        instantiate(game, [
-            transform([0, 0, 0]),
-            render_instanced(
-                game.MeshGrass,
-                Float32Array.from(zdz_offsets),
-                Float32Array.from(zdz_rotations),
-                [1, 0.54, 0, 1, 0.84, 0]
-            ),
-        ]);
+    instantiate(game, [
+        transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
+        render_instanced(
+            game.MeshGrass,
+            Float32Array.from(zdz_offsets),
+            Float32Array.from(zdz_rotations),
+            [1, 0.54, 0, 1, 0.84, 0]
+        ),
+    ]);
 
     let tailbone: Entity = 0;
     // Lisek walking around.
