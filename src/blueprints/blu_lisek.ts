@@ -330,10 +330,10 @@ export function blueprint_lisek(game: Game) {
 
 export function instantiate_lisek(game: Game) {
     let tailbone: Entity = 0;
-    // Lisek walking around.
+    // Lisek NOT walking around.
     let lisek_entity = instantiate(game, [
-        transform(),
-        control_always(null, [0, 1, 0, 0]),
+        transform([-2.2, 0, -1], from_euler([0, 0, 0, 1], 0, 90, 0)),
+        // control_always(null, [0, 1, 0, 0]),
         move(0, 0.5),
         children(
             [

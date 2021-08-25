@@ -2,12 +2,10 @@ import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
 import {float, integer} from "../../common/random.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
-import {blueprint_car} from "../blueprints/blu_car.js";
 import {instantiate_lisek} from "../blueprints/blu_lisek.js";
+import {blueprint_slup} from "../blueprints/blu_slup.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_tree} from "../blueprints/blu_tree.js";
-import {control_always} from "../components/com_control_always.js";
-import {move} from "../components/com_move.js";
 import {render_colored_shadows, render_instanced} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
@@ -18,7 +16,10 @@ export function scene_stage(game: Game) {
     game.ViewportResized = true;
 
     // Camera.
-    instantiate(game, [...blueprint_camera(game), transform([0, 1, 3], [0, 1, 0, 0])]);
+    instantiate(game, [
+        ...blueprint_camera(game),
+        transform([0, 1, 6], from_euler([0, 0, 0, 1], -25, 180, 0)),
+    ]);
 
     // Sun.
     instantiate(game, [
@@ -33,14 +34,7 @@ export function scene_stage(game: Game) {
         render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.2, 0.2, 1]),
     ]);
 
-    instantiate(game, [
-        transform([0, 0.1, 5], from_euler([0, 0, 0, 1], 0, 90, 0)),
-        control_always(null, [0, 1, 0, 0]),
-        move(0, 1.5),
-        ...blueprint_car(game),
-    ]);
-
-    let trees = 100;
+    let trees = 0;
     for (let i = 0; i < trees; i++) {
         let z = float(-8, -0.5);
         instantiate(game, [
@@ -74,4 +68,9 @@ export function scene_stage(game: Game) {
     ]);
 
     instantiate_lisek(game);
+
+    instantiate(game, [
+        transform([0, -3, -3], from_euler([0, 0, 0, 1], 0, 180, 0)),
+        ...blueprint_slup(game),
+    ]);
 }

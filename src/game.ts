@@ -10,6 +10,7 @@ import {mat_forward_instanced} from "../materials/mat_forward_instanced.js";
 import {mat_forward_particles_colored} from "../materials/mat_forward_particles_colored.js";
 import {mat_forward_particles_textured} from "../materials/mat_forward_particles_textured.js";
 import {mesh_cube} from "../meshes/cube.js";
+import {mesh_cylinder} from "../meshes/cylinder.js";
 import {mesh_grass} from "../meshes/grass.js";
 import {mesh_leaf} from "../meshes/leaf.js";
 import {mesh_lisek} from "../meshes/lisek.js";
@@ -66,6 +67,7 @@ export class Game extends Game3D {
     MeshLudek = mesh_ludek(this.Gl);
     MeshLisek = mesh_lisek(this.Gl);
     MeshOgon = mesh_ogon(this.Gl);
+    MeshCylinder = mesh_cylinder(this.Gl);
 
     // The rendering pipeline supports 8 lights.
     LightPositions = new Float32Array(4 * 8);
