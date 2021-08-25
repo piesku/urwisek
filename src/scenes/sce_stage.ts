@@ -9,9 +9,11 @@ import {blueprint_slup} from "../blueprints/blu_slup.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_bush, blueprint_tree} from "../blueprints/blu_tree.js";
 import {children} from "../components/com_children.js";
+import {collide} from "../components/com_collide.js";
 import {render_colored_shadows, render_instanced} from "../components/com_render.js";
+import {RigidKind, rigid_body} from "../components/com_rigid_body.js";
 import {transform} from "../components/com_transform.js";
-import {Game} from "../game.js";
+import {Game, Layer} from "../game.js";
 import {World} from "../world.js";
 
 export function scene_stage(game: Game) {
@@ -28,6 +30,8 @@ export function scene_stage(game: Game) {
     let ground_size = 16;
     instantiate(game, [
         transform(undefined, undefined, [ground_size, 0, ground_size]),
+        collide(false, Layer.Terrain, Layer.None),
+        rigid_body(RigidKind.Static),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.5, 0.5, 1]),
     ]);
 
@@ -64,7 +68,7 @@ export function scene_stage(game: Game) {
         ),
     ]);
 
-    instantiate_lisek(game, [-1, 0, 1]);
+    instantiate_lisek(game, [-1, 1, 1]);
 
     let slups = 2;
     for (let i = 0; i < slups; i++) {
