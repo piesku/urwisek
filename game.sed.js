@@ -3258,6 +3258,19 @@ if (game.InputState["ArrowRight"]) {
 move.Directions.push([0, 0, 1]);
 }
 }
+if (control.Rotate) {
+let transform = game.World.Transform[entity];
+if (game.InputState["ArrowLeft"] && control.IsFacingRight) {
+control.IsFacingRight = false;
+transform.Rotation = [0, 1, 0, 0];
+transform.Dirty = true;
+}
+if (game.InputState["ArrowRight"] && !control.IsFacingRight) {
+control.IsFacingRight = true;
+transform.Rotation = [0, 0, 0, 1];
+transform.Dirty = true;
+}
+}
 if (control.Animate) {
 let anim_name = "idle";
 if (game.InputState["ArrowLeft"]) {
@@ -4888,12 +4901,14 @@ Rotation: rotation,
 };
 }
 
-function control_player(move, animate) {
+function control_player(move, rotate, animate) {
 return (game, entity) => {
 game.World.Signature[entity] |= 256 /* ControlPlayer */;
 game.World.ControlPlayer[entity] = {
 Move: move,
+Rotate: rotate,
 Animate: animate,
+IsFacingRight: true,
 };
 };
 }
@@ -4934,7 +4949,11 @@ SelfRotations: [],
 }
 
 function blueprint_player(game) {
-return [control_player(true, false), move(1.5, 0)];
+return [
+control_player(true, false, false),
+move(1.5, 0),
+children([transform(), control_player(false, true, false)]),
+];
 }
 
 function blueprint_lisek(game) {
@@ -5222,11 +5241,12 @@ let player = instantiate(game, [
 ...blueprint_player(),
 transform(translation, from_euler([0, 0, 0, 1], 0, 90, 0)),
 ]);
+let player_anchor = game.World.Children[player].Children[0];
 let tail_attachment = 0;
 let lisek_entity = instantiate(game, [
 transform([-10, 0, 0.5]),
-mimic(player, 0.2),
-children([...blueprint_lisek(game), transform(), control_player(false, true)], [
+mimic(player_anchor, 0.2),
+children([...blueprint_lisek(game), transform(), control_player(false, false, true)], [
 transform(),
 render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
 ], [
