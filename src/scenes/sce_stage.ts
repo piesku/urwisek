@@ -18,12 +18,6 @@ export function scene_stage(game: Game) {
     game.World = new World();
     game.ViewportResized = true;
 
-    // Camera.
-    instantiate(game, [
-        ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
-        transform([0, 1, 6], from_euler([0, 0, 0, 1], -25, 180, 0)),
-    ]);
-
     // Sun.
     instantiate(game, [
         transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
@@ -109,4 +103,10 @@ export function scene_stage(game: Game) {
     instantiate(game, [transform([-4, -0.3, 0.5]), ...blueprint_bush(game)]);
 
     instantiate(game, [transform([2.5, 0.2, 3.5]), ...blueprint_bush(game)]);
+
+    // Camera.
+    instantiate(game, [
+        ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
+        transform([0, 0, 0], from_euler([0, 0, 0, 1], -30, 0, 0)),
+    ]);
 }
