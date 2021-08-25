@@ -11,15 +11,19 @@ export function blueprint_player(game: Game) {
     return [
         control_player(true, false, false),
         move(1.5, 0),
-        collide(true, Layer.Player, Layer.Terrain),
+        collide(true, Layer.Player, Layer.Terrain | Layer.Obstacle, [0.6, 0.8, 0.8]),
         rigid_body(RigidKind.Dynamic, 0),
         children(
+            // [
+            //     transform(undefined, undefined, [0.6, 0.8, 0.8]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
+            // ],
             [
                 named("mesh anchor"),
-                transform([0, -0.51, 0], [0, 0.7, 0, 0.7]),
+                transform([0, -0.42, 0], [0, 0.7, 0, 0.7]),
                 control_player(false, true, false),
             ],
-            [named("camera anchor"), transform([0.5, -1, 0])]
+            [named("camera anchor"), transform([0.5, -0.5, 0])]
         ),
     ];
 }

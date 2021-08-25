@@ -1,6 +1,7 @@
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
 import {float, integer} from "../../common/random.js";
+import {blueprint_box} from "../blueprints/blu_box.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_car2} from "../blueprints/blu_car2.js";
 import {blueprint_house} from "../blueprints/blu_house.js";
@@ -28,8 +29,9 @@ export function scene_stage(game: Game) {
 
     // Ground.
     let ground_size = 16;
+    let ground_height = 50;
     instantiate(game, [
-        transform(undefined, undefined, [ground_size, 0, ground_size]),
+        transform([0, -ground_height / 2, 0], undefined, [ground_size, ground_height, ground_size]),
         collide(false, Layer.Terrain, Layer.None),
         rigid_body(RigidKind.Static),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.5, 0.5, 1]),
@@ -69,6 +71,7 @@ export function scene_stage(game: Game) {
     ]);
 
     instantiate_lisek(game, [-1, 1, 1]);
+    instantiate(game, [...blueprint_box(game), transform([2.5, 5, 1])]);
 
     let slups = 2;
     for (let i = 0; i < slups; i++) {
