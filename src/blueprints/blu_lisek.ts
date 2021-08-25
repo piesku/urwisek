@@ -1,5 +1,6 @@
 import {ease_in_out_quart, ease_out_quart} from "../../common/easing.js";
 import {instantiate} from "../../common/game.js";
+import {Vec3} from "../../common/math.js";
 import {from_euler} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
 import {animate, AnimationFlag} from "../components/com_animate.js";
@@ -328,11 +329,11 @@ export function blueprint_lisek(game: Game) {
     ];
 }
 
-export function instantiate_lisek(game: Game) {
+export function instantiate_lisek(game: Game, translation: Vec3) {
     let tailbone: Entity = 0;
     // Lisek NOT walking around.
     let lisek_entity = instantiate(game, [
-        transform([-2.2, 0, -1], from_euler([0, 0, 0, 1], 0, 90, 0)),
+        transform(translation, from_euler([0, 0, 0, 1], 0, 90, 0)),
         // control_always(null, [0, 1, 0, 0]),
         move(0, 0.5),
         children(

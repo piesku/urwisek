@@ -68,7 +68,7 @@ export function scene_stage(game: Game) {
         ),
     ]);
 
-    instantiate_lisek(game);
+    instantiate_lisek(game, [2, 0, 0.5]);
 
     let slups = 3;
     for (let i = 0; i < slups; i++) {
@@ -84,5 +84,15 @@ export function scene_stage(game: Game) {
     instantiate(game, [
         transform([-4, 0, -1], from_euler([0, 0, 0, 1], 0, -35 + 180, 0), [0.6, 0.6, 0.6]),
         ...blueprint_car2(game),
+    ]);
+
+    instantiate(game, [
+        transform([20, -12, -4], from_euler([0, 0, 0, 1], 0, 90, 0), [30, 30, 30]),
+        render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
+    ]);
+
+    instantiate(game, [
+        transform([55, -10, -3.5], from_euler([0, 0, 0, 1], 0, 90, 0), [20, 20, 20]),
+        render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
 }
