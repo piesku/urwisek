@@ -50,7 +50,12 @@ export function blueprint_${blueprint_name}(game: Game) {
     return [
         children(${nodes
             .map((node) =>
-                create_child(node.name.split(".")[0], node.translation, node.rotation, node.scale)
+                create_child(
+                    node.name.split(".")[0],
+                    node.translation ? node.translation.map((el) => el / 2) : node.translation,
+                    node.rotation,
+                    node.scale
+                )
             )
             .join(",\n")}),
     ];

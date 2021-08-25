@@ -3,6 +3,7 @@ import {from_euler} from "../../common/quat.js";
 import {float, integer} from "../../common/random.js";
 import {Entity} from "../../common/world.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {blueprint_car} from "../blueprints/blu_car.js";
 import {blueprint_lisek} from "../blueprints/blu_lisek.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_tree} from "../blueprints/blu_tree.js";
@@ -43,6 +44,13 @@ export function scene_stage(game: Game) {
         render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1]),
     ]);
 
+    instantiate(game, [
+        transform([0, 0.1, 5], from_euler([0, 0, 0, 1], 0, 90, 0)),
+        control_always(null, [0, 1, 0, 0]),
+        move(0, 1.5),
+        ...blueprint_car(game),
+    ]);
+
     let trees = 100;
     for (let i = 0; i < trees; i++) {
         let z = float(-8, -0.5);
@@ -52,7 +60,7 @@ export function scene_stage(game: Game) {
         ]);
     }
 
-    let zdzblos = 10000;
+    let zdzblos = 8000;
     let zdz_offsets = [];
     let zdz_rotations = [];
     for (let i = 0; i < zdzblos; i++) {
@@ -65,7 +73,7 @@ export function scene_stage(game: Game) {
         zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, 0, 0));
     }
 
-    false &&
+    true &&
         instantiate(game, [
             transform([0, 0, 0]),
             render_instanced(
