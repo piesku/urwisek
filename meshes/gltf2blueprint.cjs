@@ -58,7 +58,7 @@ export function blueprint_${blueprint_name}(game: Game) {
             .map((node) =>
                 create_child(
                     node.name.split(".")[0],
-                    node.translation ? node.translation.map((el) => el / 2) : node.translation,
+                    node.translation,
                     node.rotation,
                     node.scale,
                     color_map[node.name] || color_map["Cylinder.001"]

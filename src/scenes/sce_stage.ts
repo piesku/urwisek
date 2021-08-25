@@ -2,6 +2,7 @@ import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
 import {float, integer} from "../../common/random.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {blueprint_car2} from "../blueprints/blu_car2.js";
 import {instantiate_lisek} from "../blueprints/blu_lisek.js";
 import {blueprint_slup} from "../blueprints/blu_slup.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
@@ -31,10 +32,10 @@ export function scene_stage(game: Game) {
     let ground_size = 16;
     instantiate(game, [
         transform(undefined, undefined, [ground_size, 0, ground_size]),
-        render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.2, 0.2, 1]),
+        render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.5, 0.5, 1]),
     ]);
 
-    let trees = 0;
+    let trees = 10;
     for (let i = 0; i < trees; i++) {
         let z = float(-8, -0.5);
         instantiate(game, [
@@ -43,14 +44,14 @@ export function scene_stage(game: Game) {
         ]);
     }
 
-    let zdzblos = 0;
-    let zdz_scale = 0.3;
+    let zdzblos = 50;
+    let zdz_scale = 0.5;
     let zdz_offsets = [];
     let zdz_rotations = [];
     for (let i = 0; i < zdzblos; i++) {
         zdz_offsets.push(
             float(-ground_size / 2 / zdz_scale, ground_size / 2 / zdz_scale),
-            0.45,
+            0.2,
             float(-ground_size / 4 / zdz_scale, ground_size / 4 / zdz_scale),
             integer(0, 2)
         );
@@ -69,8 +70,19 @@ export function scene_stage(game: Game) {
 
     instantiate_lisek(game);
 
+    let slups = 3;
+    for (let i = 0; i < slups; i++) {
+        instantiate(game, [
+            transform(
+                [float(-ground_size / 2, ground_size / 2), 0, float(-3, 0)],
+                from_euler([0, 0, 0, 1], 0, float(-180, 180), 0)
+            ),
+            ...blueprint_slup(game),
+        ]);
+    }
+
     instantiate(game, [
-        transform([0, -3, -3], from_euler([0, 0, 0, 1], 0, 180, 0)),
-        ...blueprint_slup(game),
+        transform([-4, 0, -1], from_euler([0, 0, 0, 1], 0, -35 + 180, 0), [0.6, 0.6, 0.6]),
+        ...blueprint_car2(game),
     ]);
 }
