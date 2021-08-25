@@ -2527,7 +2527,7 @@
         return out;
     }
 
-    function set(out, x, y, z) {
+    function set$1(out, x, y, z) {
         out[0] = x;
         out[1] = y;
         out[2] = z;
@@ -2610,6 +2610,13 @@
         return out;
     }
 
+    function set(out, x, y, z, w) {
+        out[0] = x;
+        out[1] = y;
+        out[2] = z;
+        out[3] = w;
+        return out;
+    }
     function multiply(out, a, b) {
         let ax = a[0], ay = a[1], az = a[2], aw = a[3];
         let bx = b[0], by = b[1], bz = b[2], bw = b[3];
@@ -3252,22 +3259,22 @@
         if (control.Move) {
             let move = game.World.Move[entity];
             if (game.InputState["ArrowLeft"]) {
-                move.Directions.push([0, 0, -1]);
+                move.Directions.push([-1, 0, 0]);
             }
             if (game.InputState["ArrowRight"]) {
-                move.Directions.push([0, 0, 1]);
+                move.Directions.push([1, 0, 0]);
             }
         }
         if (control.Rotate) {
             let transform = game.World.Transform[entity];
             if (game.InputState["ArrowLeft"] && control.IsFacingRight) {
                 control.IsFacingRight = false;
-                transform.Rotation = [0, 1, 0, 0];
+                set(transform.Rotation, 0, -0.7, 0.0, 0.7);
                 transform.Dirty = true;
             }
             if (game.InputState["ArrowRight"] && !control.IsFacingRight) {
                 control.IsFacingRight = true;
-                transform.Rotation = [0, 0, 0, 1];
+                set(transform.Rotation, 0, 0.7, 0.0, 0.7);
                 transform.Dirty = true;
             }
         }
@@ -3752,7 +3759,7 @@
             add(transform.Translation, transform.Translation, vel_delta);
             transform.Dirty = true;
             // Reset force/acceleration.
-            set(rigid_body.Acceleration, 0, 0, 0);
+            set$1(rigid_body.Acceleration, 0, 0, 0);
         }
     }
 
@@ -4763,11 +4770,43 @@
         };
     }
 
+    /**
+     * @module components/com_mimic
+     */
+    function mimic(Target, Stiffness = 0.1) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 8192 /* Mimic */;
+            game.World.Mimic[entity] = {
+                Target,
+                Stiffness,
+            };
+        };
+    }
+
+    /**
+     * @module components/com_named
+     */
+    function named(Name) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 32768 /* Named */;
+            game.World.Named[entity] = { Name };
+        };
+    }
+    function find_first(world, name) {
+        for (let i = 0; i < world.Signature.length; i++) {
+            if (world.Signature[i] & 32768 /* Named */ && world.Named[i].Name === name) {
+                return i;
+            }
+        }
+        throw `No entity named ${name}.`;
+    }
+
     function blueprint_camera(game, clear_color) {
         return [
+            mimic(find_first(game.World, "camera anchor"), 0.01),
             children([
-                transform(undefined, from_euler([0, 0, 0, 1], -15, 180, 0)),
-                camera_forward_perspective(1, 0.1, 15, clear_color),
+                transform([0, 1, 5], from_euler([0, 0, 0, 1], 10, 0, 0)),
+                children([transform(), camera_forward_perspective(1, 0.1, 15, clear_color)]),
             ]),
         ];
     }
@@ -4914,19 +4953,6 @@
     }
 
     /**
-     * @module components/com_mimic
-     */
-    function mimic(Target, Stiffness = 0.1) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 8192 /* Mimic */;
-            game.World.Mimic[entity] = {
-                Target,
-                Stiffness,
-            };
-        };
-    }
-
-    /**
      * @module components/com_move
      */
     /**
@@ -4952,7 +4978,11 @@
         return [
             control_player(true, false, false),
             move(1.5, 0),
-            children([transform(), control_player(false, true, false)]),
+            children([
+                named("mesh anchor"),
+                transform(undefined, [0, 0.7, 0, 0.7]),
+                control_player(false, true, false),
+            ], [named("camera anchor"), transform([0.5, 0, 0])]),
         ];
     }
 
@@ -5237,15 +5267,11 @@
         ];
     }
     function instantiate_lisek(game, translation) {
-        let player = instantiate(game, [
-            ...blueprint_player(),
-            transform(translation, from_euler([0, 0, 0, 1], 0, 90, 0)),
-        ]);
-        let player_anchor = game.World.Children[player].Children[0];
+        instantiate(game, [...blueprint_player(), transform(translation)]);
         let tail_attachment = 0;
         let lisek_entity = instantiate(game, [
             transform([-10, 0, 0.5]),
-            mimic(player_anchor, 0.2),
+            mimic(find_first(game.World, "mesh anchor"), 0.2),
             children([...blueprint_lisek(game), transform(), control_player(false, false, true)], [
                 transform(),
                 render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
@@ -5436,11 +5462,6 @@
     function scene_stage(game) {
         game.World = new World();
         game.ViewportResized = true;
-        // Camera.
-        instantiate(game, [
-            ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
-            transform([0, 1, 6], from_euler([0, 0, 0, 1], -25, 180, 0)),
-        ]);
         // Sun.
         instantiate(game, [
             transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
@@ -5498,6 +5519,11 @@
         ]);
         instantiate(game, [transform([-4, -0.3, 0.5]), ...blueprint_bush(game)]);
         instantiate(game, [transform([2.5, 0.2, 3.5]), ...blueprint_bush(game)]);
+        // Camera.
+        instantiate(game, [
+            ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
+            transform([0, 0, 0], from_euler([0, 0, 0, 1], -30, 0, 0)),
+        ]);
     }
 
     let game = new Game();
