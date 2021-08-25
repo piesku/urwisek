@@ -4885,11 +4885,11 @@ ClearColor: clear_color,
 };
 }
 
-function blueprint_camera(game) {
+function blueprint_camera(game, clear_color) {
 return [
 children([
 transform(undefined, from_euler([0, 0, 0, 1], -15, 180, 0)),
-camera_forward_perspective(1, 0.1, 10, [0.4, 0.6, 0.4, 1]),
+camera_forward_perspective(1, 0.1, 15, clear_color),
 ]),
 ];
 }
@@ -4932,6 +4932,24 @@ render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0, 0, 0, 1]),
 ], [
 transform([0.26432204246520996, 1.5499989986419678, -0.550000011920929], undefined, [0.20000000298023224, 0.5, 0.800000011920929]),
 render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0, 0, 0, 1]),
+]),
+];
+}
+
+function blueprint_house(game) {
+return [
+children([
+transform([0, 1.7000000476837158, 0], undefined, [3, 3, 3]),
+render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.095, 0.095, 0.095, 1]),
+], [
+transform([-2.25, 1.7000000476837158, 0], undefined, [1.5, 0.10000000149011612, 3]),
+render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.069, 0.154, 0.8, 1]),
+], [
+transform([-0.800000011920929, 0.10000000149011612, 0], undefined, [4.900000095367432, 0.20000000298023224, 3.4000000953674316]),
+render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.095, 0.095, 0.095, 1]),
+], [
+transform([-2.814239978790283, 0.949999988079071, 0], undefined, [0.10000000149011612, 1.5, 0.10000000149011612]),
+render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.095, 0.095, 0.095, 1]),
 ]),
 ];
 }
@@ -5527,13 +5545,26 @@ render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(ro
 ]),
 ];
 }
+function blueprint_bush(game) {
+let radius = float(0.5, 0.9);
+let leaf_count = integer(400, 600);
+let offsets = [];
+let rotations = [];
+for (let i = 0; i < leaf_count; i++) {
+offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), integer(0, 7));
+rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
+}
+return [
+render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), leaft_colors),
+];
+}
 
 function scene_stage(game) {
 game.World = new World();
 game.ViewportResized = true;
 
 instantiate(game, [
-...blueprint_camera(),
+...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
 transform([0, 1, 6], from_euler([0, 0, 0, 1], -25, 180, 0)),
 ]);
 
@@ -5547,7 +5578,7 @@ instantiate(game, [
 transform(undefined, undefined, [ground_size, 0, ground_size]),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.5, 0.5, 1]),
 ]);
-let trees = 10;
+let trees = 8;
 for (let i = 0; i < trees; i++) {
 let z = float(-8, -0.5);
 instantiate(game, [
@@ -5555,7 +5586,7 @@ transform([float(-ground_size / 2, ground_size / 2), 0, z]),
 ...blueprint_tree(game),
 ]);
 }
-let zdzblos = 50;
+let zdzblos = 80;
 let zdz_scale = 0.5;
 let zdz_offsets = [];
 let zdz_rotations = [];
@@ -5567,8 +5598,8 @@ instantiate(game, [
 transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
 render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
 ]);
-instantiate_lisek(game, [2, 0, 0.5]);
-let slups = 3;
+instantiate_lisek(game, [-1, 0, 0.5]);
+let slups = 2;
 for (let i = 0; i < slups; i++) {
 instantiate(game, [
 transform([float(-ground_size / 2, ground_size / 2), 0, float(-3, 0)], from_euler([0, 0, 0, 1], 0, float(-180, 180), 0)),
@@ -5580,13 +5611,19 @@ transform([-4, 0, -1], from_euler([0, 0, 0, 1], 0, -35 + 180, 0), [0.6, 0.6, 0.6
 ...blueprint_car2(game),
 ]);
 instantiate(game, [
-transform([20, -12, -4], from_euler([0, 0, 0, 1], 0, 90, 0), [30, 30, 30]),
+transform([20, -12, -5], from_euler([0, 0, 0, 1], 0, 90, 0), [30, 30, 30]),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
 ]);
 instantiate(game, [
-transform([55, -10, -3.5], from_euler([0, 0, 0, 1], 0, 90, 0), [20, 20, 20]),
+transform([55, -10, -5.5], from_euler([0, 0, 0, 1], 0, 90, 0), [20, 20, 20]),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
 ]);
+instantiate(game, [
+transform([4.4, 0, -2], from_euler([0, 0, 0, 1], 0, 12, 0), [1, 1, 1]),
+children([transform(), ...blueprint_house(game)], [transform([0.5, 0, 1.5]), ...blueprint_bush(game)]),
+]);
+instantiate(game, [transform([-4, -0.3, 0.5]), ...blueprint_bush(game)]);
+instantiate(game, [transform([2.5, 0.2, 3.5]), ...blueprint_bush(game)]);
 }
 
 let game = new Game();
