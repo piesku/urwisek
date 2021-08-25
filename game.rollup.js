@@ -3264,6 +3264,11 @@
             if (game.InputState["ArrowRight"]) {
                 move.Directions.push([1, 0, 0]);
             }
+            if (game.InputDelta["ArrowUp"] === 1) {
+                move.Directions.push([1, 0, 0]);
+                let rigid_body = game.World.RigidBody[entity];
+                rigid_body.Acceleration[1] += 300;
+            }
         }
         if (control.Rotate) {
             let transform = game.World.Transform[entity];
@@ -4974,15 +4979,65 @@
         };
     }
 
+    /**
+     * @module components/com_collide
+     */
+    /**
+     * Add the Collide component.
+     *
+     * @param dynamic Dynamic colliders collider with all colliders. Static
+     * colliders collide only with dynamic colliders.
+     * @param layers Bit field with layers this collider is on.
+     * @param mask Bit mask with layers visible to this collider.
+     * @param size Size of the collider relative to the entity's transform.
+     */
+    function collide(dynamic, layers, mask, size = [1, 1, 1]) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 64 /* Collide */;
+            game.World.Collide[entity] = {
+                Entity: entity,
+                New: true,
+                Dynamic: dynamic,
+                Layers: layers,
+                Signature: mask,
+                Size: size,
+                Min: [0, 0, 0],
+                Max: [0, 0, 0],
+                Center: [0, 0, 0],
+                Half: [0, 0, 0],
+                Collisions: [],
+            };
+        };
+    }
+
+    /**
+     * @module components/com_rigid_body
+     */
+    function rigid_body(kind, bounciness = 0.5) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 131072 /* RigidBody */;
+            game.World.RigidBody[entity] = {
+                Kind: kind,
+                Bounciness: bounciness,
+                Acceleration: [0, 0, 0],
+                VelocityIntegrated: [0, 0, 0],
+                VelocityResolved: [0, 0, 0],
+                LastPosition: [0, 0, 0],
+            };
+        };
+    }
+
     function blueprint_player(game) {
         return [
             control_player(true, false, false),
             move(1.5, 0),
+            collide(true, 1 /* Player */, 2 /* Terrain */),
+            rigid_body(1 /* Dynamic */, 0),
             children([
                 named("mesh anchor"),
-                transform(undefined, [0, 0.7, 0, 0.7]),
+                transform([0, -0.51, 0], [0, 0.7, 0, 0.7]),
                 control_player(false, true, false),
-            ], [named("camera anchor"), transform([0.5, 0, 0])]),
+            ], [named("camera anchor"), transform([0.5, -1, 0])]),
         ];
     }
 
@@ -5471,6 +5526,8 @@
         let ground_size = 16;
         instantiate(game, [
             transform(undefined, undefined, [ground_size, 0, ground_size]),
+            collide(false, 2 /* Terrain */, 0 /* None */),
+            rigid_body(0 /* Static */),
             render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.5, 0.5, 1]),
         ]);
         let trees = 8;
@@ -5493,7 +5550,7 @@
             transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
             render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
         ]);
-        instantiate_lisek(game, [-1, 0, 1]);
+        instantiate_lisek(game, [-1, 1, 1]);
         let slups = 2;
         for (let i = 0; i < slups; i++) {
             instantiate(game, [
