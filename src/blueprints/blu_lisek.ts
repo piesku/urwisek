@@ -334,6 +334,14 @@ export function blueprint_lisek(game: Game) {
 export function instantiate_lisek(game: Game, translation: Vec3) {
     instantiate(game, [...blueprint_player(game), transform(translation)]);
 
+    const enum BoneIndex {
+        Root = 0,
+        Bone1,
+        Bone2,
+        Bone3,
+        Bone4,
+    }
+
     let tail_attachment: Entity = 0;
     let lisek_entity = instantiate(game, [
         transform([-10, 0, 0.5]),
@@ -349,45 +357,35 @@ export function instantiate_lisek(game: Game, translation: Vec3) {
                 ),
             ],
             [
-                transform([0, 0.4, -0.4], from_euler([0, 0, 0, 0], -90, 0, 0)),
+                transform([0, 0.4, -0.7], from_euler([0, 0, 0, 0], -90, 0, 0)),
                 children([
                     transform(),
                     control_always(null, [0, 1, 0, 0]),
                     move(0, 5),
-                    children([transform(), callback((game, entity) => (tail_attachment = entity))]),
+                    children([
+                        transform(),
+                        callback((game, entity) => (tail_attachment = entity)),
+                        bone(
+                            BoneIndex.Root,
+                            [
+                                1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0,
+                                -0.701, -0.428, 1.0,
+                            ]
+                        ),
+                        // children([
+                        //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                        //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+                        // ]),
+                    ]),
                 ]),
             ]
         ),
     ]);
 
     {
-        const enum BoneIndex {
-            Root = 0,
-            Bone1,
-            Bone2,
-            Bone3,
-            Bone4,
-        }
-
-        let tailbone0 = instantiate(game, [
-            transform(),
-            mimic(tail_attachment, 0.1),
-            bone(
-                BoneIndex.Root,
-                [
-                    1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -0.701,
-                    -0.428, 1.0,
-                ]
-            ),
-            // children([
-            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-            // ]),
-        ]);
-
         let tailbone1 = instantiate(game, [
             transform(),
-            mimic(tailbone0, 0.08),
+            mimic(tail_attachment, 0.08),
             bone(
                 BoneIndex.Bone1,
                 [
