@@ -1311,6 +1311,138 @@
     function mesh_cube(gl) {
         let vertex_buf = gl.createBuffer();
         gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$7, GL_STATIC_DRAW);
+        let normal_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$7, GL_STATIC_DRAW);
+        let texcoord_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$7, GL_STATIC_DRAW);
+        let weights_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$7, GL_STATIC_DRAW);
+        let index_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$7, GL_STATIC_DRAW);
+        return {
+            VertexBuffer: vertex_buf,
+            VertexArray: vertex_arr$7,
+            NormalBuffer: normal_buf,
+            NormalArray: normal_arr$7,
+            TexCoordBuffer: texcoord_buf,
+            TexCoordArray: texcoord_arr$7,
+            WeightsBuffer: weights_buf,
+            WeightsArray: weights_arr$7,
+            IndexBuffer: index_buf,
+            IndexArray: index_arr$7,
+            IndexCount: index_arr$7.length,
+        };
+    }
+    // prettier-ignore
+    let vertex_arr$7 = Float32Array.from([
+        -0.5, -0.5, 0.5,
+        -0.5, 0.5, 0.5,
+        -0.5, 0.5, -0.5,
+        -0.5, -0.5, -0.5,
+        -0.5, -0.5, -0.5,
+        -0.5, 0.5, -0.5,
+        0.5, 0.5, -0.5,
+        0.5, -0.5, -0.5,
+        0.5, -0.5, -0.5,
+        0.5, 0.5, -0.5,
+        0.5, 0.5, 0.5,
+        0.5, -0.5, 0.5,
+        0.5, -0.5, 0.5,
+        0.5, 0.5, 0.5,
+        -0.5, 0.5, 0.5,
+        -0.5, -0.5, 0.5,
+        -0.5, -0.5, -0.5,
+        0.5, -0.5, -0.5,
+        0.5, -0.5, 0.5,
+        -0.5, -0.5, 0.5,
+        0.5, 0.5, -0.5,
+        -0.5, 0.5, -0.5,
+        -0.5, 0.5, 0.5,
+        0.5, 0.5, 0.5
+    ]);
+    // prettier-ignore
+    let normal_arr$7 = Float32Array.from([
+        -1, 0, 0,
+        -1, 0, 0,
+        -1, 0, 0,
+        -1, 0, 0,
+        0, 0, -1,
+        0, 0, -1,
+        0, 0, -1,
+        0, 0, -1,
+        1, 0, 0,
+        1, 0, 0,
+        1, 0, 0,
+        1, 0, 0,
+        0, 0, 1,
+        0, 0, 1,
+        0, 0, 1,
+        0, 0, 1,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, 1, 0,
+        0, 1, 0,
+        0, 1, 0,
+        0, 1, 0
+    ]);
+    // prettier-ignore
+    let texcoord_arr$7 = Float32Array.from([
+        0.666667, 0.333333,
+        0.333333, 0.333333,
+        0.333333, 0,
+        0.666667, 0,
+        0.333333, 0.666667,
+        0, 0.666667,
+        0, 0.333333,
+        0.333333, 0.333333,
+        0.333333, 0.333333,
+        0, 0.333333,
+        0, 0,
+        0.333333, 0,
+        0.333333, 0.666667,
+        0.333333, 0.333333,
+        0.666667, 0.333333,
+        0.666667, 0.666667,
+        1, 0.333333,
+        0.666667, 0.333333,
+        0.666667, 0,
+        1, 0,
+        0.333333, 0.666667,
+        0.333333, 1,
+        0, 1,
+        0, 0.666667
+    ]);
+    // prettier-ignore
+    let weights_arr$7 = Float32Array.from([
+    // Weights must be assigned manually for now b/c OBJ doesn't support them.
+    // WARNING: Remaking the mesh file will overwrite your weights here.
+    ]);
+    // prettier-ignore
+    let index_arr$7 = Uint16Array.from([
+        23, 22, 20,
+        22, 21, 20,
+        19, 18, 16,
+        18, 17, 16,
+        15, 14, 12,
+        14, 13, 12,
+        11, 10, 8,
+        10, 9, 8,
+        7, 6, 4,
+        6, 5, 4,
+        3, 2, 0,
+        2, 1, 0
+    ]);
+
+    function mesh_cylinder(gl) {
+        let vertex_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
         gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$6, GL_STATIC_DRAW);
         let normal_buf = gl.createBuffer();
         gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
@@ -1340,84 +1472,156 @@
     }
     // prettier-ignore
     let vertex_arr$6 = Float32Array.from([
-        -0.5, -0.5, 0.5,
-        -0.5, 0.5, 0.5,
-        -0.5, 0.5, -0.5,
-        -0.5, -0.5, -0.5,
-        -0.5, -0.5, -0.5,
-        -0.5, 0.5, -0.5,
-        0.5, 0.5, -0.5,
-        0.5, -0.5, -0.5,
-        0.5, -0.5, -0.5,
-        0.5, 0.5, -0.5,
-        0.5, 0.5, 0.5,
-        0.5, -0.5, 0.5,
-        0.5, -0.5, 0.5,
-        0.5, 0.5, 0.5,
-        -0.5, 0.5, 0.5,
-        -0.5, -0.5, 0.5,
-        -0.5, -0.5, -0.5,
-        0.5, -0.5, -0.5,
-        0.5, -0.5, 0.5,
-        -0.5, -0.5, 0.5,
-        0.5, 0.5, -0.5,
-        -0.5, 0.5, -0.5,
-        -0.5, 0.5, 0.5,
-        0.5, 0.5, 0.5
+        0, -0.25, -0.25,
+        0, 0.25, -0.25,
+        0.176777, 0.25, -0.176777,
+        0.176777, -0.25, -0.176777,
+        0.176777, -0.25, -0.176777,
+        0.176777, 0.25, -0.176777,
+        0.25, 0.25, 0,
+        0.25, -0.25, 0,
+        0.25, -0.25, 0,
+        0.25, 0.25, 0,
+        0.176777, 0.25, 0.176777,
+        0.176777, -0.25, 0.176777,
+        0.176777, -0.25, 0.176777,
+        0.176777, 0.25, 0.176777,
+        0, 0.25, 0.25,
+        0, -0.25, 0.25,
+        0, -0.25, 0.25,
+        0, 0.25, 0.25,
+        -0.176777, 0.25, 0.176777,
+        -0.176777, -0.25, 0.176777,
+        -0.176777, -0.25, 0.176777,
+        -0.176777, 0.25, 0.176777,
+        -0.25, 0.25, 0,
+        -0.25, -0.25, 0,
+        0.176777, 0.25, -0.176777,
+        0, 0.25, -0.25,
+        -0.176777, 0.25, -0.176777,
+        -0.25, 0.25, 0,
+        -0.176777, 0.25, 0.176777,
+        0, 0.25, 0.25,
+        0.176777, 0.25, 0.176777,
+        0.25, 0.25, 0,
+        -0.25, -0.25, 0,
+        -0.25, 0.25, 0,
+        -0.176777, 0.25, -0.176777,
+        -0.176777, -0.25, -0.176777,
+        -0.176777, -0.25, -0.176777,
+        -0.176777, 0.25, -0.176777,
+        0, 0.25, -0.25,
+        0, -0.25, -0.25,
+        0, -0.25, -0.25,
+        0.176777, -0.25, -0.176777,
+        0.25, -0.25, 0,
+        0.176777, -0.25, 0.176777,
+        0, -0.25, 0.25,
+        -0.176777, -0.25, 0.176777,
+        -0.25, -0.25, 0,
+        -0.176777, -0.25, -0.176777
     ]);
     // prettier-ignore
     let normal_arr$6 = Float32Array.from([
-        -1, 0, 0,
-        -1, 0, 0,
-        -1, 0, 0,
-        -1, 0, 0,
-        0, 0, -1,
-        0, 0, -1,
-        0, 0, -1,
-        0, 0, -1,
-        1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
-        1, 0, 0,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, -1, 0,
-        0, -1, 0,
-        0, -1, 0,
-        0, -1, 0,
+        0.3827, 0, -0.9239,
+        0.3827, 0, -0.9239,
+        0.3827, 0, -0.9239,
+        0.3827, 0, -0.9239,
+        0.9239, 0, -0.3827,
+        0.9239, 0, -0.3827,
+        0.9239, 0, -0.3827,
+        0.9239, 0, -0.3827,
+        0.9239, 0, 0.3827,
+        0.9239, 0, 0.3827,
+        0.9239, 0, 0.3827,
+        0.9239, 0, 0.3827,
+        0.3827, 0, 0.9239,
+        0.3827, 0, 0.9239,
+        0.3827, 0, 0.9239,
+        0.3827, 0, 0.9239,
+        -0.3827, 0, 0.9239,
+        -0.3827, 0, 0.9239,
+        -0.3827, 0, 0.9239,
+        -0.3827, 0, 0.9239,
+        -0.9239, 0, 0.3827,
+        -0.9239, 0, 0.3827,
+        -0.9239, 0, 0.3827,
+        -0.9239, 0, 0.3827,
         0, 1, 0,
         0, 1, 0,
         0, 1, 0,
-        0, 1, 0
+        0, 1, 0,
+        0, 1, 0,
+        0, 1, 0,
+        0, 1, 0,
+        0, 1, 0,
+        -0.9239, 0, -0.3827,
+        -0.9239, 0, -0.3827,
+        -0.9239, 0, -0.3827,
+        -0.9239, 0, -0.3827,
+        -0.3827, 0, -0.9239,
+        -0.3827, 0, -0.9239,
+        -0.3827, 0, -0.9239,
+        -0.3827, 0, -0.9239,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0,
+        0, -1, 0
     ]);
     // prettier-ignore
     let texcoord_arr$6 = Float32Array.from([
-        0.666667, 0.333333,
-        0.333333, 0.333333,
-        0.333333, 0,
-        0.666667, 0,
-        0.333333, 0.666667,
-        0, 0.666667,
-        0, 0.333333,
-        0.333333, 0.333333,
-        0.333333, 0.333333,
-        0, 0.333333,
-        0, 0,
-        0.333333, 0,
-        0.333333, 0.666667,
-        0.333333, 0.333333,
-        0.666667, 0.333333,
-        0.666667, 0.666667,
-        1, 0.333333,
-        0.666667, 0.333333,
-        0.666667, 0,
-        1, 0,
-        0.333333, 0.666667,
-        0.333333, 1,
+        1, 0.5,
+        1, 1,
+        0.875, 1,
+        0.875, 0.5,
+        0.875, 0.5,
+        0.875, 1,
+        0.75, 1,
+        0.75, 0.5,
+        0.75, 0.5,
+        0.75, 1,
+        0.625, 1,
+        0.625, 0.5,
+        0.625, 0.5,
+        0.625, 1,
+        0.5, 1,
+        0.5, 0.5,
+        0.5, 0.5,
+        0.5, 1,
+        0.375, 1,
+        0.375, 0.5,
+        0.375, 0.5,
+        0.375, 1,
+        0.25, 1,
+        0.25, 0.5,
+        0.419706, 0.419706,
+        0.25, 0.49,
+        0.080294, 0.419706,
+        0.01, 0.25,
+        0.080294, 0.080294,
+        0.25, 0.01,
+        0.419706, 0.080294,
+        0.49, 0.25,
+        0.25, 0.5,
+        0.25, 1,
+        0.125, 1,
+        0.125, 0.5,
+        0.125, 0.5,
+        0.125, 1,
         0, 1,
-        0, 0.666667
+        0, 0.5,
+        0.75, 0.49,
+        0.919706, 0.419706,
+        0.99, 0.25,
+        0.919706, 0.080294,
+        0.75, 0.01,
+        0.580294, 0.080294,
+        0.51, 0.25,
+        0.580294, 0.419706
     ]);
     // prettier-ignore
     let weights_arr$6 = Float32Array.from([
@@ -1426,6 +1630,22 @@
     ]);
     // prettier-ignore
     let index_arr$6 = Uint16Array.from([
+        47, 46, 45,
+        45, 44, 47,
+        44, 43, 47,
+        43, 42, 47,
+        42, 41, 47,
+        41, 40, 47,
+        39, 38, 36,
+        38, 37, 36,
+        35, 34, 32,
+        34, 33, 32,
+        31, 30, 29,
+        29, 28, 31,
+        28, 27, 31,
+        27, 26, 31,
+        26, 25, 31,
+        25, 24, 31,
         23, 22, 20,
         22, 21, 20,
         19, 18, 16,
@@ -4553,6 +4773,7 @@
             this.MeshLudek = mesh_ludek(this.Gl);
             this.MeshLisek = mesh_lisek(this.Gl);
             this.MeshOgon = mesh_ogon(this.Gl);
+            this.MeshCylinder = mesh_cylinder(this.Gl);
             // The rendering pipeline supports 8 lights.
             this.LightPositions = new Float32Array(4 * 8);
             this.LightDetails = new Float32Array(4 * 8);
@@ -4672,6 +4893,48 @@
         ];
     }
 
+    function blueprint_car2(game) {
+        return [
+            children([
+                transform([0, 0.800000011920929, 0], undefined, [4, 1, 2]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+            ], [
+                transform([1.2764941453933716, 0.5, 0], [0.7071068286895752, 0, 0, 0.7071068286895752], [1 * 2, 2.200000047683716 * 2, 1 * 2]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0, 0, 0, 1]),
+            ], [
+                transform([-1.100000023841858, 0.5, 0], [0.7071068286895752, 0, 0, 0.7071068286895752], [1 * 2, 2.200000047683716 * 2, 1 * 2]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0, 0, 0, 1]),
+            ], [
+                transform([-0.5, 2, 0.8999999761581421], undefined, [0.20000000298023224, 1.399999976158142, 0.20000000298023224]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+            ], [
+                transform([-0.5, 2, -0.8999999761581421], undefined, [0.20000000298023224, 1.399999976158142, 0.20000000298023224]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+            ], [
+                transform([1.899999976158142, 2, 0.8999999761581421], undefined, [0.20000000298023224, 1.399999976158142, 0.20000000298023224]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+            ], [
+                transform([1.899999976158142, 2, -0.8999999761581421], undefined, [0.20000000298023224, 1.399999976158142, 0.20000000298023224]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+            ], [
+                transform([0.7000470161437988, 2.799999952316284, 0], undefined, [2.5999999046325684, 0.20000000298023224, 2]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+            ], [
+                transform([-2, 1, -0.6000000238418579], [0.5, 0.5, -0.5, 0.4999999701976776], [0.4000000059604645 * 2, 0.20000000298023224 * 2, 0.4000000059604645 * 2]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
+            ], [
+                transform([-2, 1, 0.6000000238418579], [0.5, 0.5, -0.5, 0.4999999701976776], [0.4000000059604645 * 2, 0.20000000298023224 * 2, 0.4000000059604645 * 2]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
+            ], [
+                transform([0.26432204246520996, 1.5499989986419678, 0.550000011920929], undefined, [0.20000000298023224, 0.5, 0.800000011920929]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0, 0, 0, 1]),
+            ], [
+                transform([0.26432204246520996, 1.5499989986419678, -0.550000011920929], undefined, [0.20000000298023224, 0.5, 0.800000011920929]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0, 0, 0, 1]),
+            ]),
+        ];
+    }
+
     function ease_out_quart(t) {
         return 1 - (1 - t) ** 4;
     }
@@ -4715,6 +4978,87 @@
                 Index: index,
                 Dirty: inverse_bind_pose === undefined,
                 InverseBindPose: inverse_bind_pose || create(),
+            };
+        };
+    }
+
+    /**
+     * @module components/com_callback
+     */
+    function callback(fn) {
+        return (game, entity) => {
+            fn(game, entity);
+        };
+    }
+
+    /**
+     * @module components/com_control_always
+     */
+    function control_always(direction, rotation) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 128 /* ControlAlways */;
+            game.World.ControlAlways[entity] = {
+                Direction: direction,
+                Rotation: rotation,
+            };
+        };
+    }
+
+    /**
+     * The ControlPlayer mixin.
+     *
+     * @param move - Whether to control the entity's movement.
+     * @param yaw - Sensitivity of the yaw control. 1 means that 1 pixel traveled
+     * by the mouse is equal to 1° of rotation; that's too sensitive usually.
+     * @param pitch - Sensitivity of the pitch control. 1 means that 1 pixel traveled
+     * by the mouse is equal to 1° of rotation; that's too sensitive usually.
+     * @param min_pitch - Min pitch allowed, in arc degrees.
+     * @param max_pitch - Max pitch allowed, in arc degrees.
+     */
+    function control_player(move, yaw = 0, pitch = 0, min_pitch = 0, max_pitch = 0) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 256 /* ControlPlayer */;
+            game.World.ControlPlayer[entity] = {
+                Move: move,
+                Yaw: yaw,
+                Pitch: pitch,
+                MinPitch: min_pitch,
+                MaxPitch: max_pitch,
+            };
+        };
+    }
+
+    /**
+     * @module components/com_mimic
+     */
+    function mimic(Target, Stiffness = 0.1) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 8192 /* Mimic */;
+            game.World.Mimic[entity] = {
+                Target,
+                Stiffness,
+            };
+        };
+    }
+
+    /**
+     * @module components/com_move
+     */
+    /**
+     * The Move mixin.
+     *
+     * @param move_speed - Movement speed in units per second.
+     * @param rotation_speed - Rotation speed, in radians per second.
+     */
+    function move(move_speed, rotation_speed) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 16384 /* Move */;
+            game.World.Move[entity] = {
+                MoveSpeed: move_speed,
+                RotationSpeed: rotation_speed,
+                Directions: [],
+                LocalRotations: [],
+                SelfRotations: [],
             };
         };
     }
@@ -4999,186 +5343,12 @@
             ]),
         ];
     }
-
-    /**
-     * @module components/com_control_always
-     */
-    function control_always(direction, rotation) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 128 /* ControlAlways */;
-            game.World.ControlAlways[entity] = {
-                Direction: direction,
-                Rotation: rotation,
-            };
-        };
-    }
-
-    /**
-     * @module components/com_light
-     */
-    function light_directional(color = [1, 1, 1], range = 1) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 4096 /* Light */;
-            game.World.Light[entity] = {
-                Kind: 1 /* Directional */,
-                Color: color,
-                Intensity: range ** 2,
-            };
-        };
-    }
-
-    /**
-     * @module components/com_move
-     */
-    /**
-     * The Move mixin.
-     *
-     * @param move_speed - Movement speed in units per second.
-     * @param rotation_speed - Rotation speed, in radians per second.
-     */
-    function move(move_speed, rotation_speed) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 16384 /* Move */;
-            game.World.Move[entity] = {
-                MoveSpeed: move_speed,
-                RotationSpeed: rotation_speed,
-                Directions: [],
-                LocalRotations: [],
-                SelfRotations: [],
-            };
-        };
-    }
-
-    function blueprint_sun(game) {
-        return [
-            control_always(null, [0, 1, 0, 0]),
-            move(0, 0.03),
-            children([
-                transform([0, 10, 10], from_euler([0, 0, 0, 1], -45, 0, 0)),
-                light_directional([1, 1, 1], 0.9),
-                camera_depth_ortho(game.Targets.Sun, 10, 1, 100),
-            ]),
-        ];
-    }
-
-    // prettier-ignore
-    const leaft_colors = [
-        0, 1, 0,
-        0, 0.36, 0,
-        0, 0.5, 0,
-        0.48, 0.98, 0,
-        1, 0.84, 0,
-        1, 0.54, 0,
-        0.84, 0.21, 0.21,
-    ];
-    function blueprint_tree(game, min = 0.7, max = 2.5) {
-        let radius = float(0.5, 0.9);
-        let leaf_count = integer(400, 600);
-        let height = float(min, max);
-        let offsets = [];
-        let rotations = [];
-        for (let i = 0; i < leaf_count; i++) {
-            offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), integer(0, 7));
-            rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
-        }
-        return [
-            children([
-                transform([0, height / 2, 0], undefined, [0.1, height, 0.1]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.64, 0.16, 0.16, 1]),
-            ], [
-                transform([0, height, 0]),
-                render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), leaft_colors),
-            ]),
-        ];
-    }
-
-    /**
-     * @module components/com_callback
-     */
-    function callback(fn) {
-        return (game, entity) => {
-            fn(game, entity);
-        };
-    }
-
-    /**
-     * The ControlPlayer mixin.
-     *
-     * @param move - Whether to control the entity's movement.
-     * @param yaw - Sensitivity of the yaw control. 1 means that 1 pixel traveled
-     * by the mouse is equal to 1° of rotation; that's too sensitive usually.
-     * @param pitch - Sensitivity of the pitch control. 1 means that 1 pixel traveled
-     * by the mouse is equal to 1° of rotation; that's too sensitive usually.
-     * @param min_pitch - Min pitch allowed, in arc degrees.
-     * @param max_pitch - Max pitch allowed, in arc degrees.
-     */
-    function control_player(move, yaw = 0, pitch = 0, min_pitch = 0, max_pitch = 0) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 256 /* ControlPlayer */;
-            game.World.ControlPlayer[entity] = {
-                Move: move,
-                Yaw: yaw,
-                Pitch: pitch,
-                MinPitch: min_pitch,
-                MaxPitch: max_pitch,
-            };
-        };
-    }
-
-    /**
-     * @module components/com_mimic
-     */
-    function mimic(Target, Stiffness = 0.1) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 8192 /* Mimic */;
-            game.World.Mimic[entity] = {
-                Target,
-                Stiffness,
-            };
-        };
-    }
-
-    function scene_stage(game) {
-        game.World = new World();
-        game.ViewportResized = true;
-        // Camera.
-        instantiate(game, [...blueprint_camera(), transform([0, 1, 3], [0, 1, 0, 0])]);
-        // Sun.
-        instantiate(game, [
-            transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
-            ...blueprint_sun(game),
-        ]);
-        // Ground.
-        let ground_size = 16;
-        instantiate(game, [
-            transform(undefined, undefined, [ground_size, 0, ground_size]),
-            render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.2, 0.2, 1]),
-        ]);
-        let trees = 100;
-        for (let i = 0; i < trees; i++) {
-            let z = float(-8, -0.5);
-            instantiate(game, [
-                transform([float(-ground_size / 2, ground_size / 2), 0, z]),
-                ...blueprint_tree(game),
-            ]);
-        }
-        let zdzblos = 0;
-        let zdz_scale = 0.3;
-        let zdz_offsets = [];
-        let zdz_rotations = [];
-        for (let i = 0; i < zdzblos; i++) {
-            zdz_offsets.push(float(-ground_size / 2 / zdz_scale, ground_size / 2 / zdz_scale), 0.45, float(-ground_size / 4 / zdz_scale, ground_size / 4 / zdz_scale), integer(0, 2));
-            zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, 0, 0));
-        }
-        instantiate(game, [
-            transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
-            render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
-        ]);
+    function instantiate_lisek(game, translation) {
         let tailbone = 0;
-        // Lisek walking around.
-        instantiate(game, [
-            transform(),
-            control_always(null, [0, 1, 0, 0]),
+        // Lisek NOT walking around.
+        let lisek_entity = instantiate(game, [
+            transform(translation, from_euler([0, 0, 0, 1], 0, 90, 0)),
+            // control_always(null, [0, 1, 0, 0]),
             move(0, 0.5),
             children([
                 transform([-1.5, 0, 0]),
@@ -5258,6 +5428,164 @@
                 // ]),
             ]);
         }
+        return lisek_entity;
+    }
+
+    function blueprint_slup(game) {
+        return [
+            children([
+                transform([0, 2, 0], undefined, [0.5, 8, 0.5]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.119, 0.027, 0.012, 1]),
+            ], [
+                transform([0, 3.7051446437835693, -0.125], undefined, [1.5, 0.22499999403953552, 0.10000000149011612]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.119, 0.027, 0.012, 1]),
+            ], [
+                transform([0, 3.7051446437835693, 0.125], undefined, [1.5, 0.22499999403953552, 0.10000000149011612]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.119, 0.027, 0.012, 1]),
+            ], [
+                transform([0, 3.1643192768096924, -0.125], undefined, [1.5, 0.22499999403953552, 0.10000000149011612]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.119, 0.027, 0.012, 1]),
+            ], [
+                transform([0.6499999761581421, 3.875, -0.125], undefined, [0.20000000298023224, 0.30000001192092896, 0.20000000298023224]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+            ], [
+                transform([0.5, 3.875, -0.125], undefined, [0.20000000298023224, 0.30000001192092896, 0.20000000298023224]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+            ], [
+                transform([0.6499999761581421, 3.3499999046325684, -0.125], undefined, [0.20000000298023224, 0.30000001192092896, 0.20000000298023224]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+            ], [
+                transform([0.5, 3.3499999046325684, -0.125], undefined, [0.20000000298023224, 0.30000001192092896, 0.20000000298023224]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+            ], [
+                transform([-0.1698063760995865, 2.8801214694976807, -0.12012429535388947], [0, 0, -0.38340887427330017, 0.9235787391662598], [0.6000000238418579, 0.10000000149011612, 0.02500000037252903]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.367, 0.367, 0.367, 1]),
+            ], [
+                transform([-0.5, 3.875, 0.125], undefined, [0.20000000298023224, 0.30000001192092896, 0.20000000298023224]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+            ], [
+                transform([-0.6499999761581421, 3.875, 0.125], undefined, [0.20000000298023224, 0.30000001192092896, 0.20000000298023224]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+            ]),
+        ];
+    }
+
+    /**
+     * @module components/com_light
+     */
+    function light_directional(color = [1, 1, 1], range = 1) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 4096 /* Light */;
+            game.World.Light[entity] = {
+                Kind: 1 /* Directional */,
+                Color: color,
+                Intensity: range ** 2,
+            };
+        };
+    }
+
+    function blueprint_sun(game) {
+        return [
+            control_always(null, [0, 1, 0, 0]),
+            move(0, 0.03),
+            children([
+                transform([0, 10, 10], from_euler([0, 0, 0, 1], -45, 0, 0)),
+                light_directional([1, 1, 1], 0.9),
+                camera_depth_ortho(game.Targets.Sun, 10, 1, 100),
+            ]),
+        ];
+    }
+
+    // prettier-ignore
+    const leaft_colors = [
+        0, 1, 0,
+        0, 0.36, 0,
+        0, 0.5, 0,
+        0.48, 0.98, 0,
+        1, 0.84, 0,
+        1, 0.54, 0,
+        0.84, 0.21, 0.21,
+    ];
+    function blueprint_tree(game, min = 0.7, max = 2.5) {
+        let radius = float(0.5, 0.9);
+        let leaf_count = integer(400, 600);
+        let height = float(min, max);
+        let offsets = [];
+        let rotations = [];
+        for (let i = 0; i < leaf_count; i++) {
+            offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), integer(0, 7));
+            rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
+        }
+        return [
+            children([
+                transform([0, height / 2, 0], undefined, [0.25, height * 2, 0.25]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.64, 0.16, 0.16, 1]),
+            ], [
+                transform([0, height, 0]),
+                render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), leaft_colors),
+            ]),
+        ];
+    }
+
+    function scene_stage(game) {
+        game.World = new World();
+        game.ViewportResized = true;
+        // Camera.
+        instantiate(game, [
+            ...blueprint_camera(),
+            transform([0, 1, 6], from_euler([0, 0, 0, 1], -25, 180, 0)),
+        ]);
+        // Sun.
+        instantiate(game, [
+            transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
+            ...blueprint_sun(game),
+        ]);
+        // Ground.
+        let ground_size = 16;
+        instantiate(game, [
+            transform(undefined, undefined, [ground_size, 0, ground_size]),
+            render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.5, 0.5, 1]),
+        ]);
+        let trees = 10;
+        for (let i = 0; i < trees; i++) {
+            let z = float(-8, -0.5);
+            instantiate(game, [
+                transform([float(-ground_size / 2, ground_size / 2), 0, z]),
+                ...blueprint_tree(game),
+            ]);
+        }
+        let zdzblos = 50;
+        let zdz_scale = 0.5;
+        let zdz_offsets = [];
+        let zdz_rotations = [];
+        for (let i = 0; i < zdzblos; i++) {
+            zdz_offsets.push(float(-ground_size / 2 / zdz_scale, ground_size / 2 / zdz_scale), 0.2, float(-ground_size / 4 / zdz_scale, ground_size / 4 / zdz_scale), integer(0, 2));
+            zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, 0, 0));
+        }
+        instantiate(game, [
+            transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
+            render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
+        ]);
+        instantiate_lisek(game, [2, 0, 0.5]);
+        let slups = 3;
+        for (let i = 0; i < slups; i++) {
+            instantiate(game, [
+                transform([float(-ground_size / 2, ground_size / 2), 0, float(-3, 0)], from_euler([0, 0, 0, 1], 0, float(-180, 180), 0)),
+                ...blueprint_slup(game),
+            ]);
+        }
+        instantiate(game, [
+            transform([-4, 0, -1], from_euler([0, 0, 0, 1], 0, -35 + 180, 0), [0.6, 0.6, 0.6]),
+            ...blueprint_car2(game),
+        ]);
+        instantiate(game, [
+            transform([20, -12, -4], from_euler([0, 0, 0, 1], 0, 90, 0), [30, 30, 30]),
+            render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
+        ]);
+        instantiate(game, [
+            transform([55, -10, -3.5], from_euler([0, 0, 0, 1], 0, 90, 0), [20, 20, 20]),
+            render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
+        ]);
     }
 
     let game = new Game();
