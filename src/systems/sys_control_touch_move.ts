@@ -1,6 +1,5 @@
-import {DEG_TO_RAD, Quat, Vec2, Vec3} from "../../common/math.js";
+import {Quat, Vec2, Vec3} from "../../common/math.js";
 import {clamp} from "../../common/number.js";
-import {from_axis, get_pitch, multiply} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
 import {Game} from "../game.js";
 import {Has} from "../world.js";
@@ -48,30 +47,5 @@ function update(game: Game, entity: Entity) {
             // Forward movement.
             move.Directions.push([0, 0, clamp(-1, 1, -amount_y)]);
         }
-    }
-
-    if (control.Yaw && game.InputDelta["Touch1X"]) {
-        let amount = game.InputDelta["Touch1X"] * control.Yaw * TOUCH_SENSITIVITY * DEG_TO_RAD;
-        // See sys_control_mouse.
-        from_axis(rotation, AXIS_Y, -amount);
-        multiply(transform.Rotation, rotation, transform.Rotation);
-        transform.Dirty = true;
-    }
-
-    if (control.Pitch && game.InputDelta["Touch1Y"]) {
-        let current_pitch = get_pitch(transform.Rotation);
-        let min_amount = control.MinPitch - current_pitch;
-        let max_amount = control.MaxPitch - current_pitch;
-
-        let amount = clamp(
-            min_amount,
-            max_amount,
-            game.InputDelta["Touch1Y"] * control.Pitch * TOUCH_SENSITIVITY
-        );
-        from_axis(rotation, AXIS_X, amount * DEG_TO_RAD);
-        // Pitch is post-multiplied, i.e. applied relative to the entity's self
-        // space; the X axis is always aligned with its left and right sides.
-        multiply(transform.Rotation, transform.Rotation, rotation);
-        transform.Dirty = true;
     }
 }

@@ -70,7 +70,7 @@ export function scene_stage(game: Game) {
         ),
     ]);
 
-    instantiate_lisek(game, [-1, 0, 0.5]);
+    instantiate_lisek(game, [-1, 0, 1]);
 
     let slups = 2;
     for (let i = 0; i < slups; i++) {

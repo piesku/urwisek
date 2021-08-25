@@ -14,6 +14,7 @@ import {move} from "../components/com_move.js";
 import {render_colored_skinned} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
+import {blueprint_player} from "./blu_player.js";
 
 const enum BoneIndex {
     Root = 0,
@@ -330,19 +331,19 @@ export function blueprint_lisek(game: Game) {
 }
 
 export function instantiate_lisek(game: Game, translation: Vec3) {
-    let tailbone: Entity = 0;
-    // Lisek NOT walking around.
-    let lisek_entity = instantiate(game, [
+    let player = instantiate(game, [
+        ...blueprint_player(game),
         transform(translation, from_euler([0, 0, 0, 1], 0, 90, 0)),
-        // control_always(null, [0, 1, 0, 0]),
-        move(0, 0.5),
+    ]);
+
+    let tail_attachment: Entity = 0;
+    let lisek_entity = instantiate(game, [
+        transform([-10, 0, 0.5]),
+        mimic(player, 0.2),
         children(
+            [...blueprint_lisek(game), transform(), control_player(false, true)],
             [
-                transform([-1.5, 0, 0]),
-                children([transform(), ...blueprint_lisek(game), control_player(true), move(0, 0)]),
-            ],
-            [
-                transform([-1.5, 0, 0]),
+                transform(),
                 render_colored_skinned(
                     game.MaterialColoredPhongSkinned,
                     game.MeshOgon,
@@ -350,12 +351,12 @@ export function instantiate_lisek(game: Game, translation: Vec3) {
                 ),
             ],
             [
-                transform([-1.5, 0.4, -0.4], from_euler([0, 0, 0, 0], -90, 0, 0)),
+                transform([0, 0.4, -0.4], from_euler([0, 0, 0, 0], -90, 0, 0)),
                 children([
                     transform(),
                     control_always(null, [0, 1, 0, 0]),
                     move(0, 5),
-                    children([transform(), callback((game, entity) => (tailbone = entity))]),
+                    children([transform(), callback((game, entity) => (tail_attachment = entity))]),
                 ]),
             ]
         ),
@@ -372,7 +373,7 @@ export function instantiate_lisek(game: Game, translation: Vec3) {
 
         let tailbone0 = instantiate(game, [
             transform(),
-            mimic(tailbone, 0.1),
+            mimic(tail_attachment, 0.1),
             bone(
                 BoneIndex.Root,
                 [
