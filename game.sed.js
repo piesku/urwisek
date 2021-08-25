@@ -4496,6 +4496,7 @@ game.Gl.drawArrays(render.Material.Mode, 0, emitter.Instances.length / DATA_PER_
 function use_instanced(game, material, eye) {
 game.Gl.useProgram(material.Program);
 game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
 game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
 game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
 game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
