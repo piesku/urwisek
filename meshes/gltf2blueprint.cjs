@@ -21,7 +21,8 @@ let blueprint_name = process.argv[2]
     .replace(/^-+/, "")
     .replace(/-+$/, "");
 
-let vec = (arr) => (arr ? "[" + arr.join(", ") + "]" : "undefined");
+let vec = (arr) =>
+    arr ? "[" + arr.map((v) => parseFloat(v.toFixed(3))).join(", ") + "]" : "undefined";
 
 let create_child = (mesh, translation, rotation, scale, color) => {
     return `
@@ -58,7 +59,7 @@ export function blueprint_${blueprint_name}(game: Game) {
             .map((node) =>
                 create_child(
                     node.name.split(".")[0],
-                    node.translation,
+                    node.translation.map((e) => e / 2),
                     node.rotation,
                     node.scale,
                     color_map[node.name] || color_map["Cylinder.001"]

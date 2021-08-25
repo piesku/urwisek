@@ -7,7 +7,7 @@ export function blueprint_house(game: Game) {
     return [
         children(
             [
-                transform([0, 1.7000000476837158, 0], undefined, [3, 3, 3]),
+                transform([0, 1.7, 0], undefined, [3, 3, 3]),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCube,
@@ -16,7 +16,7 @@ export function blueprint_house(game: Game) {
             ],
 
             [
-                transform([-2.25, 1.7000000476837158, 0], undefined, [1.5, 0.10000000149011612, 3]),
+                transform([-2.25, 1.7, 0], undefined, [1.5, 0.1, 3]),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCube,
@@ -25,11 +25,7 @@ export function blueprint_house(game: Game) {
             ],
 
             [
-                transform(
-                    [-0.800000011920929, 0.10000000149011612, 0],
-                    undefined,
-                    [4.900000095367432, 0.20000000298023224, 3.4000000953674316]
-                ),
+                transform([-0.8, 0.1, 0], undefined, [4.9, 0.2, 3.4]),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCube,
@@ -38,11 +34,7 @@ export function blueprint_house(game: Game) {
             ],
 
             [
-                transform(
-                    [-2.814239978790283, 0.949999988079071, 0],
-                    undefined,
-                    [0.10000000149011612, 1.5, 0.10000000149011612]
-                ),
+                transform([-2.814, 0.95, 0], undefined, [0.1, 1.5, 0.1]),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCube,

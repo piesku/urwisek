@@ -7,7 +7,7 @@ export function blueprint_car2(game: Game) {
     return [
         children(
             [
-                transform([0, 0.800000011920929, 0], undefined, [4, 1, 2]),
+                transform([0, 0.8, 0], undefined, [4, 1, 2]),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCube,
@@ -16,29 +16,17 @@ export function blueprint_car2(game: Game) {
             ],
 
             [
-                transform(
-                    [1.2764941453933716, 0.5, 0],
-                    [0.7071068286895752, 0, 0, 0.7071068286895752],
-                    [1 * 2, 2.200000047683716 * 2, 1 * 2]
-                ),
+                transform([1.276, 0.5, 0], [0.707, 0, 0, 0.707], [2, 4.4, 2]),
                 render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0, 0, 0, 1]),
             ],
 
             [
-                transform(
-                    [-1.100000023841858, 0.5, 0],
-                    [0.7071068286895752, 0, 0, 0.7071068286895752],
-                    [1 * 2, 2.200000047683716 * 2, 1 * 2]
-                ),
+                transform([-1.1, 0.5, 0], [0.707, 0, 0, 0.707], [2, 4.4, 2]),
                 render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0, 0, 0, 1]),
             ],
 
             [
-                transform(
-                    [-0.5, 2, 0.8999999761581421],
-                    undefined,
-                    [0.20000000298023224, 1.399999976158142, 0.20000000298023224]
-                ),
+                transform([-0.5, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCube,
@@ -47,11 +35,7 @@ export function blueprint_car2(game: Game) {
             ],
 
             [
-                transform(
-                    [-0.5, 2, -0.8999999761581421],
-                    undefined,
-                    [0.20000000298023224, 1.399999976158142, 0.20000000298023224]
-                ),
+                transform([-0.5, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCube,
@@ -60,11 +44,7 @@ export function blueprint_car2(game: Game) {
             ],
 
             [
-                transform(
-                    [1.899999976158142, 2, 0.8999999761581421],
-                    undefined,
-                    [0.20000000298023224, 1.399999976158142, 0.20000000298023224]
-                ),
+                transform([1.9, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCube,
@@ -73,11 +53,7 @@ export function blueprint_car2(game: Game) {
             ],
 
             [
-                transform(
-                    [1.899999976158142, 2, -0.8999999761581421],
-                    undefined,
-                    [0.20000000298023224, 1.399999976158142, 0.20000000298023224]
-                ),
+                transform([1.9, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCube,
@@ -86,11 +62,7 @@ export function blueprint_car2(game: Game) {
             ],
 
             [
-                transform(
-                    [0.7000470161437988, 2.799999952316284, 0],
-                    undefined,
-                    [2.5999999046325684, 0.20000000298023224, 2]
-                ),
+                transform([0.7, 2.8, 0], undefined, [2.6, 0.2, 2]),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCube,
@@ -99,11 +71,7 @@ export function blueprint_car2(game: Game) {
             ],
 
             [
-                transform(
-                    [-2, 1, -0.6000000238418579],
-                    [0.5, 0.5, -0.5, 0.4999999701976776],
-                    [0.4000000059604645 * 2, 0.20000000298023224 * 2, 0.4000000059604645 * 2]
-                ),
+                transform([-2, 1, -0.6], [0.5, 0.5, -0.5, 0.5], [0.8, 0.4, 0.8]),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCylinder,
@@ -112,11 +80,7 @@ export function blueprint_car2(game: Game) {
             ],
 
             [
-                transform(
-                    [-2, 1, 0.6000000238418579],
-                    [0.5, 0.5, -0.5, 0.4999999701976776],
-                    [0.4000000059604645 * 2, 0.20000000298023224 * 2, 0.4000000059604645 * 2]
-                ),
+                transform([-2, 1, 0.6], [0.5, 0.5, -0.5, 0.5], [0.8, 0.4, 0.8]),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCylinder,
@@ -125,20 +89,12 @@ export function blueprint_car2(game: Game) {
             ],
 
             [
-                transform(
-                    [0.26432204246520996, 1.5499989986419678, 0.550000011920929],
-                    undefined,
-                    [0.20000000298023224, 0.5, 0.800000011920929]
-                ),
+                transform([0.264, 1.55, 0.55], undefined, [0.2, 0.5, 0.8]),
                 render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0, 0, 0, 1]),
             ],
 
             [
-                transform(
-                    [0.26432204246520996, 1.5499989986419678, -0.550000011920929],
-                    undefined,
-                    [0.20000000298023224, 0.5, 0.800000011920929]
-                ),
+                transform([0.264, 1.55, -0.55], undefined, [0.2, 0.5, 0.8]),
                 render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0, 0, 0, 1]),
             ]
         ),
