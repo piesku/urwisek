@@ -18,9 +18,11 @@ import {Entity} from "../../common/world.js";
 import {
     ColoredShadedLayout,
     ColoredUnlitLayout,
-    ForwardInstancedLayout,
+    FogLayout,
     ForwardShadingLayout,
+    InstancedLayout,
     MappedShadedLayout,
+    PaletteShadedLayout,
     ParticlesColoredLayout,
     ParticlesTexturedLayout,
     ShadowMappingLayout,
@@ -120,7 +122,7 @@ export function render_colored_unlit(
 
 export interface RenderColoredShaded {
     readonly Kind: RenderKind.ColoredShaded;
-    readonly Material: Material<ColoredShadedLayout & ForwardShadingLayout>;
+    readonly Material: Material<ColoredShadedLayout & ForwardShadingLayout & FogLayout>;
     readonly Mesh: Mesh;
     readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;
@@ -130,7 +132,7 @@ export interface RenderColoredShaded {
 }
 
 export function render_colored_shaded(
-    material: Material<ColoredShadedLayout & ForwardShadingLayout>,
+    material: Material<ColoredShadedLayout & ForwardShadingLayout & FogLayout>,
     mesh: Mesh,
     diffuse_color: Vec4,
     shininess: number = 0,
@@ -180,7 +182,9 @@ export function render_colored_shaded(
 
 export interface RenderColoredShadows {
     readonly Kind: RenderKind.ColoredShadows;
-    readonly Material: Material<ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout>;
+    readonly Material: Material<
+        ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout & FogLayout
+    >;
     readonly Mesh: Mesh;
     readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;
@@ -190,7 +194,9 @@ export interface RenderColoredShadows {
 }
 
 export function render_colored_shadows(
-    material: Material<ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout>,
+    material: Material<
+        ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout & FogLayout
+    >,
     mesh: Mesh,
     diffuse_color: Vec4,
     shininess: number = 0,
@@ -749,12 +755,16 @@ export function render_particles_textured(
 
 export interface RenderInstanced {
     readonly Kind: RenderKind.Instanced;
-    readonly Material: Material<ForwardInstancedLayout>;
+    readonly Material: Material<
+        PaletteShadedLayout & InstancedLayout & ForwardShadingLayout & FogLayout
+    >;
     readonly Mesh: Mesh;
     readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;
     readonly InstanceCount: number;
     readonly Palette: Array<number>;
+    readonly InstanceOffsetBuffer: WebGLBuffer;
+    readonly InstanceRotationBuffer: WebGLBuffer;
 }
 
 export type InstancedData = Float32Array;
@@ -785,24 +795,19 @@ export function render_instanced(
         game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
         game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
 
-        game.Gl.bindBuffer(GL_ARRAY_BUFFER, game.Gl.createBuffer());
+        let instance_offset_buffer = game.Gl.createBuffer()!;
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_offset_buffer);
         game.Gl.bufferData(GL_ARRAY_BUFFER, offsets, GL_STATIC_DRAW);
-        game.Gl.enableVertexAttribArray(material.Locations.VertexOffset);
-        game.Gl.vertexAttribPointer(material.Locations.VertexOffset, 4, GL_FLOAT, false, 0, 0);
-        game.Gl.vertexAttribDivisor(material.Locations.VertexOffset, 1);
+        game.Gl.enableVertexAttribArray(material.Locations.InstanceOffset);
+        game.Gl.vertexAttribPointer(material.Locations.InstanceOffset, 4, GL_FLOAT, false, 0, 0);
+        game.Gl.vertexAttribDivisor(material.Locations.InstanceOffset, 1);
 
-        game.Gl.bindBuffer(GL_ARRAY_BUFFER, game.Gl.createBuffer());
+        let instance_rotation_buffer = game.Gl.createBuffer()!;
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_rotation_buffer);
         game.Gl.bufferData(GL_ARRAY_BUFFER, rotation_offsets, GL_STATIC_DRAW);
-        game.Gl.enableVertexAttribArray(material.Locations.VertexOffsetRotation);
-        game.Gl.vertexAttribPointer(
-            material.Locations.VertexOffsetRotation,
-            4,
-            GL_FLOAT,
-            false,
-            0,
-            0
-        );
-        game.Gl.vertexAttribDivisor(material.Locations.VertexOffsetRotation, 1);
+        game.Gl.enableVertexAttribArray(material.Locations.InstanceRotation);
+        game.Gl.vertexAttribPointer(material.Locations.InstanceRotation, 4, GL_FLOAT, false, 0, 0);
+        game.Gl.vertexAttribDivisor(material.Locations.InstanceRotation, 1);
 
         game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 
@@ -816,6 +821,8 @@ export function render_instanced(
             Vao: vao,
             InstanceCount: offsets.length / 4,
             Palette: palette,
+            InstanceOffsetBuffer: instance_offset_buffer,
+            InstanceRotationBuffer: instance_rotation_buffer,
         };
     };
 }

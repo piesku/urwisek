@@ -1,3 +1,4 @@
+import {from_euler} from "../../common/quat.js";
 import {camera_depth_ortho} from "../components/com_camera.js";
 import {children} from "../components/com_children.js";
 import {control_always} from "../components/com_control_always.js";
@@ -9,9 +10,9 @@ import {Game} from "../game.js";
 export function blueprint_sun(game: Game) {
     return [
         control_always(null, [0, 1, 0, 0]),
-        move(0, 1.5),
+        move(0, 0.03),
         children([
-            transform([0, 0, 10]),
+            transform([0, 10, 10], from_euler([0, 0, 0, 1], -45, 0, 0)),
             light_directional([1, 1, 1], 0.9),
             camera_depth_ortho(game.Targets.Sun, 10, 1, 100),
         ]),

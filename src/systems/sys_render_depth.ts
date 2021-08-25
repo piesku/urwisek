@@ -3,8 +3,11 @@
  */
 
 import {
+    GL_ARRAY_BUFFER,
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
+    GL_ELEMENT_ARRAY_BUFFER,
+    GL_FLOAT,
     GL_FRAMEBUFFER,
     GL_UNSIGNED_SHORT,
 } from "../../common/webgl.js";
@@ -94,10 +97,13 @@ function draw_default_shading(
     transform: Transform,
     render: Exclude<Render, RenderVertices | RenderParticlesColored | RenderParticlesTextured>
 ) {
-    game.Gl.uniformMatrix4fv(game.MaterialDepth.Locations.World, false, transform.World);
-    game.Gl.bindVertexArray(render.Vao);
-    game.Gl.drawElements(game.MaterialDepth.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-    game.Gl.bindVertexArray(null);
+    let material = game.MaterialDepth;
+    game.Gl.uniformMatrix4fv(material.Locations.World, false, transform.World);
+    game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.Mesh.VertexBuffer);
+    game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+    game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+    game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, render.Mesh.IndexBuffer);
+    game.Gl.drawElements(material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
 }
 
 function use_instanced_shading(game: Game, camera: CameraDepth) {
@@ -106,9 +112,25 @@ function use_instanced_shading(game: Game, camera: CameraDepth) {
 }
 
 function draw_instanced_shading(game: Game, transform: Transform, render: RenderInstanced) {
-    game.Gl.uniformMatrix4fv(game.MaterialDepthInstanced.Locations.World, false, transform.World);
-    game.Gl.uniformMatrix4fv(game.MaterialDepthInstanced.Locations.Self, false, transform.Self);
-    game.Gl.bindVertexArray(render.Vao);
+    let material = game.MaterialDepthInstanced;
+    game.Gl.uniformMatrix4fv(material.Locations.World, false, transform.World);
+
+    game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.Mesh.VertexBuffer);
+    game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+    game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+
+    game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.InstanceOffsetBuffer);
+    game.Gl.enableVertexAttribArray(material.Locations.InstanceOffset);
+    game.Gl.vertexAttribPointer(material.Locations.InstanceOffset, 4, GL_FLOAT, false, 0, 0);
+    game.Gl.vertexAttribDivisor(material.Locations.InstanceOffset, 1);
+
+    game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.InstanceRotationBuffer);
+    game.Gl.enableVertexAttribArray(material.Locations.InstanceRotation);
+    game.Gl.vertexAttribPointer(material.Locations.InstanceRotation, 4, GL_FLOAT, false, 0, 0);
+    game.Gl.vertexAttribDivisor(material.Locations.InstanceRotation, 1);
+
+    game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, render.Mesh.IndexBuffer);
+
     game.Gl.drawElementsInstanced(
         game.MaterialDepthInstanced.Mode,
         render.Mesh.IndexCount,
@@ -116,5 +138,4 @@ function draw_instanced_shading(game: Game, transform: Transform, render: Render
         0,
         render.InstanceCount
     );
-    game.Gl.bindVertexArray(null);
 }

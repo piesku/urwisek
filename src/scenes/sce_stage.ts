@@ -15,7 +15,6 @@ import {control_player} from "../components/com_control_player.js";
 import {mimic} from "../components/com_mimic.js";
 import {move} from "../components/com_move.js";
 import {
-    render_colored_shaded,
     render_colored_shadows,
     render_colored_skinned,
     render_instanced,
@@ -33,7 +32,7 @@ export function scene_stage(game: Game) {
 
     // Sun.
     instantiate(game, [
-        transform(undefined, from_euler([0, 0, 0, 0], -45, 45, 0)),
+        transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
         ...blueprint_sun(game),
     ]);
 
@@ -41,7 +40,7 @@ export function scene_stage(game: Game) {
     let ground_size = 16;
     instantiate(game, [
         transform(undefined, undefined, [ground_size, 0, ground_size]),
-        render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 0, 1]),
+        render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.2, 0.2, 1]),
     ]);
 
     instantiate(game, [
@@ -60,29 +59,29 @@ export function scene_stage(game: Game) {
         ]);
     }
 
-    let zdzblos = 8000;
+    let zdzblos = 0;
+    let zdz_scale = 0.3;
     let zdz_offsets = [];
     let zdz_rotations = [];
     for (let i = 0; i < zdzblos; i++) {
         zdz_offsets.push(
-            float(-ground_size / 2, ground_size / 2),
+            float(-ground_size / 2 / zdz_scale, ground_size / 2 / zdz_scale),
             0.45,
-            float(-ground_size / 4, ground_size / 4),
+            float(-ground_size / 4 / zdz_scale, ground_size / 4 / zdz_scale),
             integer(0, 2)
         );
         zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, 0, 0));
     }
 
-    true &&
-        instantiate(game, [
-            transform([0, 0, 0]),
-            render_instanced(
-                game.MeshGrass,
-                Float32Array.from(zdz_offsets),
-                Float32Array.from(zdz_rotations),
-                [1, 0.54, 0, 1, 0.84, 0]
-            ),
-        ]);
+    instantiate(game, [
+        transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
+        render_instanced(
+            game.MeshGrass,
+            Float32Array.from(zdz_offsets),
+            Float32Array.from(zdz_rotations),
+            [1, 0.54, 0, 1, 0.84, 0]
+        ),
+    ]);
 
     let tailbone: Entity = 0;
     // Lisek walking around.
@@ -109,10 +108,7 @@ export function scene_stage(game: Game) {
                     transform(),
                     control_always(null, [0, 1, 0, 0]),
                     move(0, 5),
-                    children([
-                        transform([0, 0, 0.3]),
-                        callback((game, entity) => (tailbone = entity)),
-                    ]),
+                    children([transform(), callback((game, entity) => (tailbone = entity))]),
                 ]),
             ]
         ),
@@ -137,10 +133,10 @@ export function scene_stage(game: Game) {
                     -0.428, 1.0,
                 ]
             ),
-            children([
-                transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
         ]);
 
         let tailbone1 = instantiate(game, [
@@ -153,10 +149,10 @@ export function scene_stage(game: Game) {
                     -1.1, -0.285, 1.0,
                 ]
             ),
-            children([
-                transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
         ]);
 
         let tailbone2 = instantiate(game, [
@@ -169,10 +165,10 @@ export function scene_stage(game: Game) {
                     -0.487, 1.0,
                 ]
             ),
-            children([
-                transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
         ]);
 
         let tailbone3 = instantiate(game, [
@@ -185,10 +181,10 @@ export function scene_stage(game: Game) {
                     -2.009, 0.214, 1.0,
                 ]
             ),
-            children([
-                transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
         ]);
 
         let tailbone4 = instantiate(game, [
@@ -201,12 +197,10 @@ export function scene_stage(game: Game) {
                     -2.224, 1.021, 1.0,
                 ]
             ),
-            children([
-                transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
         ]);
     }
-
-    // instantiate(game, [transform([0, -1, 0]), light_directional([1, 1, 1], 0.6)]);
 }

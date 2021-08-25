@@ -22,7 +22,6 @@ export const enum CameraKind {
 export interface CameraForward extends CameraEye {
     Kind: CameraKind.Forward;
     Projection: Projection;
-    ClearColor: Vec4;
 }
 
 export function camera_forward_perspective(
@@ -55,7 +54,6 @@ export interface CameraFramebuffer extends CameraEye {
     Kind: CameraKind.Framebuffer;
     Target: ForwardTarget;
     Projection: Projection;
-    ClearColor: Vec4;
 }
 
 export function camera_framebuffer_perspective(
@@ -90,7 +88,6 @@ export interface CameraDeferred extends CameraEye {
     Kind: CameraKind.Deferred;
     Target: DeferredTarget;
     Projection: Projection;
-    ClearColor: Vec4;
 }
 
 export function camera_deferred_perspective(
@@ -125,7 +122,6 @@ export interface CameraDepth extends CameraEye {
     Kind: CameraKind.Depth;
     Target: DepthTarget;
     Projection: Projection;
-    ClearColor: Vec4;
 }
 
 export function camera_depth_ortho(
@@ -161,4 +157,8 @@ export interface CameraEye {
     View: Mat4;
     Pv: Mat4;
     Position: Vec3;
+    ClearColor: Vec4;
+    Projection: {
+        Far: number;
+    };
 }

@@ -45,6 +45,11 @@ let fragment = `#version 300 es\n
 
     out vec4 frag_color;
 
+    const float bands = 2.0;
+    float posterize(float factor) {
+        return floor(factor * bands) / bands;
+    }
+
     void main() {
         vec3 world_normal = normalize(vert_normal);
 
@@ -52,7 +57,7 @@ let fragment = `#version 300 es\n
         vec3 view_normal = normalize(view_dir);
 
         // Ambient light.
-        vec3 light_acc = diffuse_color.rgb * 0.1;
+        vec3 light_acc = diffuse_color.rgb * 0.3;
 
         for (int i = 0; i < MAX_LIGHTS; i++) {
             if (light_positions[i].w == 0.0) {
@@ -77,7 +82,7 @@ let fragment = `#version 300 es\n
             float diffuse_factor = dot(world_normal, light_normal);
             if (diffuse_factor > 0.0) {
                 // Diffuse color.
-                light_acc += diffuse_color.rgb * diffuse_factor * light_color * light_intensity;
+                light_acc += diffuse_color.rgb * light_color * posterize(diffuse_factor * light_intensity);
 
                 if (shininess > 0.0) {
                     // Phong reflection model.
@@ -91,7 +96,7 @@ let fragment = `#version 300 es\n
                     float specular_factor = pow(specular_angle, shininess);
 
                     // Specular color.
-                    light_acc += specular_color.rgb * specular_factor * light_color * light_intensity;
+                    light_acc += specular_color.rgb * light_color * posterize(specular_factor * light_intensity);
                 }
             }
         }

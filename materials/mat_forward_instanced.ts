@@ -1,6 +1,6 @@
 import {link, Material} from "../common/material.js";
 import {GL_TRIANGLES} from "../common/webgl.js";
-import {ForwardInstancedLayout} from "./layout.js";
+import {FogLayout, ForwardShadingLayout, InstancedLayout, PaletteShadedLayout} from "./layout.js";
 
 let vertex = `#version 300 es\n
     // See Game.LightPositions and Game.LightDetails.
@@ -15,18 +15,22 @@ let vertex = `#version 300 es\n
     uniform vec4 light_positions[MAX_LIGHTS];
     uniform vec4 light_details[MAX_LIGHTS];
 
+    uniform vec3 eye;
+    uniform vec4 fog_color;
+    uniform float fog_distance;
+
     in vec3 attr_position;
     in vec3 attr_normal;
     in vec4 attr_offset;
-    in vec4 attr_offset_rotation;
+    in vec4 attr_rotation;
 
     out vec4 vert_color;
 
     void main() {
-        float x = attr_offset_rotation.x;
-        float y = attr_offset_rotation.y;
-        float z = attr_offset_rotation.z;
-        float w = attr_offset_rotation.w;
+        float x = attr_rotation.x;
+        float y = attr_rotation.y;
+        float z = attr_rotation.z;
+        float w = attr_rotation.w;
 
         float x2 = x + x;
         float y2 = y + y;
@@ -101,6 +105,10 @@ let vertex = `#version 300 es\n
         }
 
         vert_color = vec4(light_acc, 1.0);
+
+        float eye_distance = length(eye - world_position.xyz);
+        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+        vert_color = mix(vert_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
     }
 
 `;
@@ -118,7 +126,7 @@ let fragment = `#version 300 es\n
 
 export function mat_forward_instanced(
     gl: WebGL2RenderingContext
-): Material<ForwardInstancedLayout> {
+): Material<PaletteShadedLayout & InstancedLayout & ForwardShadingLayout & FogLayout> {
     let program = link(gl, vertex, fragment);
     return {
         Mode: GL_TRIANGLES,
@@ -128,12 +136,16 @@ export function mat_forward_instanced(
             World: gl.getUniformLocation(program, "world")!,
             Self: gl.getUniformLocation(program, "self")!,
             Palette: gl.getUniformLocation(program, "palette")!,
+            Eye: gl.getUniformLocation(program, "eye")!,
             LightPositions: gl.getUniformLocation(program, "light_positions")!,
             LightDetails: gl.getUniformLocation(program, "light_details")!,
+            FogColor: gl.getUniformLocation(program, "fog_color")!,
+            FogDistance: gl.getUniformLocation(program, "fog_distance")!,
+
             VertexPosition: gl.getAttribLocation(program, "attr_position")!,
             VertexNormal: gl.getAttribLocation(program, "attr_normal")!,
-            VertexOffset: gl.getAttribLocation(program, "attr_offset")!,
-            VertexOffsetRotation: gl.getAttribLocation(program, "attr_offset_rotation")!,
+            InstanceOffset: gl.getAttribLocation(program, "attr_offset")!,
+            InstanceRotation: gl.getAttribLocation(program, "attr_rotation")!,
         },
     };
 }
