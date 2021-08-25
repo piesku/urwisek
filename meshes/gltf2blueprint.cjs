@@ -23,20 +23,27 @@ let blueprint_name = process.argv[2]
 
 let vec = (arr) => (arr ? "[" + arr.join(", ") + "]" : "undefined");
 
-let create_child = (mesh, translation, rotation, scale) => {
+let create_child = (mesh, translation, rotation, scale, color) => {
     return `
     [
         transform(${vec(translation)}, ${vec(rotation)}, ${vec(scale)}),
         render_colored_shaded(
             game.MaterialColoredShaded,
             game.Mesh${mesh},
-            color
+            ${vec(color)}
         ),
     ]`;
 };
 
 let gltf = JSON.parse(json);
 let nodes = gltf.nodes;
+let colors = gltf.materials.map((mat) =>
+    mat.pbrMetallicRoughness.baseColorFactor.map((col) => parseFloat(col.toFixed(3)))
+);
+let color_map = gltf.meshes.reduce((acc, curr) => {
+    acc[curr.name] = colors[curr.primitives[0].material];
+    return acc;
+}, {});
 
 let result = `\
 import {Vec4} from "../../common/math.js";
@@ -45,7 +52,6 @@ import {render_colored_shaded} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
-let color: Vec4 = [0.4, 0.2, 0.5, 1];
 export function blueprint_${blueprint_name}(game: Game) {
     return [
         children(${nodes
@@ -54,7 +60,8 @@ export function blueprint_${blueprint_name}(game: Game) {
                     node.name.split(".")[0],
                     node.translation ? node.translation.map((el) => el / 2) : node.translation,
                     node.rotation,
-                    node.scale
+                    node.scale,
+                    color_map[node.name] || color_map["Cylinder.001"]
                 )
             )
             .join(",\n")}),
