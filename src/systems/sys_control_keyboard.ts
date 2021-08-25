@@ -26,6 +26,20 @@ function update(game: Game, entity: Entity) {
         }
     }
 
+    if (control.Rotate) {
+        let transform = game.World.Transform[entity];
+        if (game.InputState["ArrowLeft"] && control.IsFacingRight) {
+            control.IsFacingRight = false;
+            transform.Rotation = [0, 1, 0, 0];
+            transform.Dirty = true;
+        }
+        if (game.InputState["ArrowRight"] && !control.IsFacingRight) {
+            control.IsFacingRight = true;
+            transform.Rotation = [0, 0, 0, 1];
+            transform.Dirty = true;
+        }
+    }
+
     if (control.Animate) {
         let anim_name: "walk" | "idle" = "idle";
 

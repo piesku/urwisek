@@ -336,12 +336,14 @@ export function instantiate_lisek(game: Game, translation: Vec3) {
         transform(translation, from_euler([0, 0, 0, 1], 0, 90, 0)),
     ]);
 
+    let player_anchor = game.World.Children[player].Children[0];
+
     let tail_attachment: Entity = 0;
     let lisek_entity = instantiate(game, [
         transform([-10, 0, 0.5]),
-        mimic(player, 0.2),
+        mimic(player_anchor, 0.2),
         children(
-            [...blueprint_lisek(game), transform(), control_player(false, true)],
+            [...blueprint_lisek(game), transform(), control_player(false, false, true)],
             [
                 transform(),
                 render_colored_skinned(
