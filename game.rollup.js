@@ -1,10 +1,6 @@
 (function () {
     'use strict';
 
-    function input_pointer_lock(game) {
-        game.Ui.addEventListener("click", () => game.Ui.requestPointerLock());
-    }
-
     // The following defined constants and descriptions are directly ported from
     // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Constants.
     // Any copyright is dedicated to the Public Domain.
@@ -2263,7 +2259,6 @@
 
     const EPSILON = 0.000001;
     const DEG_TO_RAD = Math.PI / 180;
-    const RAD_TO_DEG = 180 / Math.PI;
 
     function clamp(min, max, num) {
         return Math.max(min, Math.min(max, num));
@@ -2645,32 +2640,6 @@
         return out;
     }
     /**
-     * Get the pitch (rotation around the X axis) of a quaternion, in arc degrees.
-     * @param quat Quaternion to decompose.
-     */
-    function get_pitch(quat) {
-        let x = quat[0];
-        let y = quat[1];
-        let z = quat[2];
-        let w = quat[3];
-        let m23 = 2 * (y * z - w * x);
-        return Math.asin(-clamp(-1, 1, m23)) * RAD_TO_DEG;
-    }
-    /**
-     * Compute a quaternion from an axis and an angle of rotation around the axis.
-     * @param out Quaternion to write to.
-     * @param axis Axis of rotation.
-     * @param angle Rotation in radians.
-     */
-    function from_axis(out, axis, angle) {
-        let half = angle / 2;
-        out[0] = Math.sin(half) * axis[0];
-        out[1] = Math.sin(half) * axis[1];
-        out[2] = Math.sin(half) * axis[2];
-        out[3] = Math.cos(half);
-        return out;
-    }
-    /**
      * Performs a spherical linear interpolation between two quat
      *
      * @param out - the receiving quaternion
@@ -2719,15 +2688,15 @@
     /**
      * @module systems/sys_animate
      */
-    const QUERY$q = 4194304 /* Transform */ | 1 /* Animate */;
+    const QUERY$p = 4194304 /* Transform */ | 1 /* Animate */;
     function sys_animate(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$q) === QUERY$q) {
-                update$i(game, i, delta);
+            if ((game.World.Signature[i] & QUERY$p) === QUERY$p) {
+                update$h(game, i, delta);
             }
         }
     }
-    function update$i(game, entity, delta) {
+    function update$h(game, entity, delta) {
         let transform = game.World.Transform[entity];
         let animate = game.World.Animate[entity];
         // 1. Switch to the trigger if the clip has completed or early exits are allowed.
@@ -2807,18 +2776,18 @@
     /**
      * @module systems/sys_audio_listener
      */
-    const QUERY$p = 2 /* AudioListener */ | 4194304 /* Transform */;
+    const QUERY$o = 2 /* AudioListener */ | 4194304 /* Transform */;
     function sys_audio_listener(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$p) === QUERY$p) {
-                update$h(game, i);
+            if ((game.World.Signature[i] & QUERY$o) === QUERY$o) {
+                update$g(game, i);
             }
         }
     }
     let position$1 = [0, 0, 0];
     let forward$2 = [0, 0, 0];
     let up = [0, 0, 0];
-    function update$h(game, entity) {
+    function update$g(game, entity) {
         let transform = game.World.Transform[entity];
         get_translation(position$1, transform.World);
         get_forward(forward$2, transform.World);
@@ -2983,15 +2952,15 @@
     /**
      * @module systems/sys_audio_source
      */
-    const QUERY$o = 4 /* AudioSource */ | 4194304 /* Transform */;
+    const QUERY$n = 4 /* AudioSource */ | 4194304 /* Transform */;
     function sys_audio_source(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$o) === QUERY$o) {
-                update$g(game, i, delta);
+            if ((game.World.Signature[i] & QUERY$n) === QUERY$n) {
+                update$f(game, i, delta);
             }
         }
     }
-    function update$g(game, entity, delta) {
+    function update$f(game, entity, delta) {
         let audio_source = game.World.AudioSource[entity];
         let transform = game.World.Transform[entity];
         if (audio_source.Current) {
@@ -3068,11 +3037,11 @@
     /**
      * @module systems/sys_camera
      */
-    const QUERY$n = 4194304 /* Transform */ | 16 /* Camera */;
+    const QUERY$m = 4194304 /* Transform */ | 16 /* Camera */;
     function sys_camera(game, delta) {
         game.Cameras = [];
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$n) === QUERY$n) {
+            if ((game.World.Signature[i] & QUERY$m) === QUERY$m) {
                 let camera = game.World.Camera[i];
                 let transform = game.World.Transform[i];
                 let projection = camera.Projection;
@@ -3181,13 +3150,13 @@
     /**
      * @module systems/sys_collide
      */
-    const QUERY$m = 4194304 /* Transform */ | 64 /* Collide */;
+    const QUERY$l = 4194304 /* Transform */ | 64 /* Collide */;
     function sys_collide(game, delta) {
         // Collect all colliders.
         let static_colliders = [];
         let dynamic_colliders = [];
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$m) === QUERY$m) {
+            if ((game.World.Signature[i] & QUERY$l) === QUERY$l) {
                 let transform = game.World.Transform[i];
                 let collider = game.World.Collide[i];
                 // Prepare the collider for this tick's detection.
@@ -3251,15 +3220,15 @@
     /**
      * @module systems/sys_control_always
      */
-    const QUERY$l = 128 /* ControlAlways */ | 4194304 /* Transform */ | 16384 /* Move */;
+    const QUERY$k = 128 /* ControlAlways */ | 4194304 /* Transform */ | 16384 /* Move */;
     function sys_control_always(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$l) === QUERY$l) {
-                update$f(game, i);
+            if ((game.World.Signature[i] & QUERY$k) === QUERY$k) {
+                update$e(game, i);
             }
         }
     }
-    function update$f(game, entity) {
+    function update$e(game, entity) {
         let control = game.World.ControlAlways[entity];
         let move = game.World.Move[entity];
         if (control.Direction) {
@@ -3270,22 +3239,31 @@
         }
     }
 
-    const QUERY$k = 16384 /* Move */ | 256 /* ControlPlayer */;
+    const QUERY$j = 256 /* ControlPlayer */;
     function sys_control_keyboard(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$k) === QUERY$k) {
-                update$e(game, i);
+            if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
+                update$d(game, i);
             }
         }
     }
-    function update$e(game, entity) {
+    function update$d(game, entity) {
         let control = game.World.ControlPlayer[entity];
         if (control.Move) {
-            let anim_name;
-            if (game.InputState["Space"]) {
-                anim_name = "jump";
+            let move = game.World.Move[entity];
+            if (game.InputState["ArrowLeft"]) {
+                move.Directions.push([0, 0, -1]);
             }
-            else {
+            if (game.InputState["ArrowRight"]) {
+                move.Directions.push([0, 0, 1]);
+            }
+        }
+        if (control.Animate) {
+            let anim_name = "idle";
+            if (game.InputState["ArrowLeft"]) {
+                anim_name = "walk";
+            }
+            if (game.InputState["ArrowRight"]) {
                 anim_name = "walk";
             }
             for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
@@ -3293,85 +3271,12 @@
                 animate.Trigger = anim_name;
             }
         }
-        if (control.Yaw) {
-            // Yaw is applied relative to the entity's local space; the Y axis is
-            // not affected by its current orientation.
-            let move = game.World.Move[entity];
-            if (game.InputState["ArrowLeft"]) {
-                // Look left.
-                move.LocalRotations.push([0, 1, 0, 0]);
-            }
-            if (game.InputState["ArrowRight"]) {
-                // Look right.
-                move.LocalRotations.push([0, -1, 0, 0]);
-            }
-        }
-        if (control.Pitch) {
-            // Pitch is applied relative to the entity's self space; the X axis is
-            // always aligned with its left and right sides.
-            let transform = game.World.Transform[entity];
-            let move = game.World.Move[entity];
-            let current_pitch = get_pitch(transform.Rotation);
-            if (game.InputState["ArrowUp"] && current_pitch > control.MinPitch) {
-                // Look up.
-                move.SelfRotations.push([-1, 0, 0, 0]);
-            }
-            if (game.InputState["ArrowDown"] && current_pitch < control.MaxPitch) {
-                // Look down.
-                move.SelfRotations.push([1, 0, 0, 0]);
-            }
-        }
-    }
-
-    const QUERY$j = 4194304 /* Transform */ | 16384 /* Move */ | 256 /* ControlPlayer */;
-    const AXIS_X$2 = [1, 0, 0];
-    const AXIS_Y$2 = [0, 1, 0];
-    function sys_control_mouse_move(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
-                update$d(game, i);
-            }
-        }
-    }
-    const rotation$1 = [0, 0, 0, 0];
-    function update$d(game, entity) {
-        let control = game.World.ControlPlayer[entity];
-        let transform = game.World.Transform[entity];
-        if (control.Yaw && game.InputDelta.MouseX) {
-            // Scale the mouse input by the sensitivity.
-            let amount = game.InputDelta.MouseX * control.Yaw * DEG_TO_RAD;
-            // Treat the pixels traveled by the mouse in this frame as literal Euler
-            // angles. This happens to work well and gives the mouse control an
-            // instant and precise feel. Note that the rotation won't be passed to
-            // sys_move; instead it's applied here and ignores Move.RotationSpeed on
-            // purpose.
-            from_axis(rotation$1, AXIS_Y$2, -amount);
-            // Yaw is pre-multiplied, i.e. applied relative to the entity's local
-            // space; the Y axis is not affected by its current orientation.
-            multiply(transform.Rotation, rotation$1, transform.Rotation);
-            transform.Dirty = true;
-        }
-        if (control.Pitch && game.InputDelta.MouseY) {
-            let current_pitch = get_pitch(transform.Rotation);
-            let min_amount = control.MinPitch - current_pitch;
-            let max_amount = control.MaxPitch - current_pitch;
-            let amount = clamp(min_amount, max_amount, game.InputDelta.MouseY * control.Pitch);
-            from_axis(rotation$1, AXIS_X$2, amount * DEG_TO_RAD);
-            // Pitch is post-multiplied, i.e. applied relative to the entity's self
-            // space; the X axis is always aligned with its left and right sides.
-            multiply(transform.Rotation, transform.Rotation, rotation$1);
-            transform.Dirty = true;
-        }
     }
 
     const QUERY$i = 16384 /* Move */ | 256 /* ControlPlayer */;
-    const AXIS_Y$1 = [0, 1, 0];
-    const AXIS_X$1 = [1, 0, 0];
     const DEAD_ZONE$1 = 0.01;
-    const TOUCH_SENSITIVITY = 10;
     // The position of the joystick center, given by the initial Touch0's x and y.
     const joystick = [0, 0];
-    const rotation = [0, 0, 0, 0];
     function sys_control_touch_move(game, delta) {
         if (game.InputDelta["Touch0"] === 1) {
             // The center of the invisible joystick is given by the position of the
@@ -3386,7 +3291,7 @@
         }
     }
     function update$c(game, entity) {
-        let transform = game.World.Transform[entity];
+        game.World.Transform[entity];
         let control = game.World.ControlPlayer[entity];
         let move = game.World.Move[entity];
         if (control.Move && game.InputState["Touch0"] === 1) {
@@ -3402,29 +3307,9 @@
                 move.Directions.push([0, 0, clamp(-1, 1, -amount_y)]);
             }
         }
-        if (control.Yaw && game.InputDelta["Touch1X"]) {
-            let amount = game.InputDelta["Touch1X"] * control.Yaw * TOUCH_SENSITIVITY * DEG_TO_RAD;
-            // See sys_control_mouse.
-            from_axis(rotation, AXIS_Y$1, -amount);
-            multiply(transform.Rotation, rotation, transform.Rotation);
-            transform.Dirty = true;
-        }
-        if (control.Pitch && game.InputDelta["Touch1Y"]) {
-            let current_pitch = get_pitch(transform.Rotation);
-            let min_amount = control.MinPitch - current_pitch;
-            let max_amount = control.MaxPitch - current_pitch;
-            let amount = clamp(min_amount, max_amount, game.InputDelta["Touch1Y"] * control.Pitch * TOUCH_SENSITIVITY);
-            from_axis(rotation, AXIS_X$1, amount * DEG_TO_RAD);
-            // Pitch is post-multiplied, i.e. applied relative to the entity's self
-            // space; the X axis is always aligned with its left and right sides.
-            multiply(transform.Rotation, transform.Rotation, rotation);
-            transform.Dirty = true;
-        }
     }
 
     const QUERY$h = 16384 /* Move */ | 256 /* ControlPlayer */;
-    const AXIS_Y = [0, 1, 0];
-    const AXIS_X = [1, 0, 0];
     const DEAD_ZONE = 0.1;
     function sys_control_xbox(game, delta) {
         for (let pad of navigator.getGamepads()) {
@@ -3452,25 +3337,6 @@
             if (Math.abs(game.InputDelta["pad0_axis_2"]) > DEAD_ZONE) {
                 // Forward movement.
                 move.Directions.push([0, 0, -game.InputDelta["pad0_axis_2"]]);
-            }
-        }
-        if (control.Yaw && Math.abs(game.InputDelta["pad0_axis_3"]) > DEAD_ZONE) {
-            let move = game.World.Move[entity];
-            let amount = game.InputDelta["pad0_axis_3"] * Math.PI;
-            // Yaw is applied relative to the entity's local space; the Y axis is
-            // not affected by its current orientation.
-            move.LocalRotations.push(from_axis([0, 0, 0, 0], AXIS_Y, -amount));
-        }
-        if (control.Pitch && Math.abs(game.InputDelta["pad0_axis_4"]) > DEAD_ZONE) {
-            let transform = game.World.Transform[entity];
-            let move = game.World.Move[entity];
-            let amount = game.InputDelta["pad0_axis_4"] * Math.PI;
-            let current_pitch = get_pitch(transform.Rotation);
-            if ((amount < 0 && current_pitch > control.MinPitch) ||
-                (amount > 0 && current_pitch < control.MaxPitch)) {
-                // Pitch applied relative to the entity's self space; the X axis is
-                // always aligned with its left and right sides.
-                move.SelfRotations.push(from_axis([0, 0, 0, 0], AXIS_X, amount));
             }
         }
     }
@@ -4800,7 +4666,6 @@
             sys_poll(this, delta);
             // Player input.
             sys_control_keyboard(this);
-            sys_control_mouse_move(this);
             sys_control_touch_move(this);
             sys_control_xbox(this);
             // AI.
@@ -5023,26 +4888,12 @@
         };
     }
 
-    /**
-     * The ControlPlayer mixin.
-     *
-     * @param move - Whether to control the entity's movement.
-     * @param yaw - Sensitivity of the yaw control. 1 means that 1 pixel traveled
-     * by the mouse is equal to 1° of rotation; that's too sensitive usually.
-     * @param pitch - Sensitivity of the pitch control. 1 means that 1 pixel traveled
-     * by the mouse is equal to 1° of rotation; that's too sensitive usually.
-     * @param min_pitch - Min pitch allowed, in arc degrees.
-     * @param max_pitch - Max pitch allowed, in arc degrees.
-     */
-    function control_player(move, yaw = 0, pitch = 0, min_pitch = 0, max_pitch = 0) {
+    function control_player(move, animate) {
         return (game, entity) => {
             game.World.Signature[entity] |= 256 /* ControlPlayer */;
             game.World.ControlPlayer[entity] = {
                 Move: move,
-                Yaw: yaw,
-                Pitch: pitch,
-                MinPitch: min_pitch,
-                MaxPitch: max_pitch,
+                Animate: animate,
             };
         };
     }
@@ -5080,6 +4931,10 @@
                 SelfRotations: [],
             };
         };
+    }
+
+    function blueprint_player(game) {
+        return [control_player(true, false), move(1.5, 0)];
     }
 
     function blueprint_lisek(game) {
@@ -5363,32 +5218,31 @@
         ];
     }
     function instantiate_lisek(game, translation) {
-        let tailbone = 0;
-        // Lisek NOT walking around.
-        let lisek_entity = instantiate(game, [
+        let player = instantiate(game, [
+            ...blueprint_player(),
             transform(translation, from_euler([0, 0, 0, 1], 0, 90, 0)),
-            // control_always(null, [0, 1, 0, 0]),
-            move(0, 0.5),
-            children([
-                transform([-1.5, 0, 0]),
-                children([transform(), ...blueprint_lisek(game), control_player(true), move(0, 0)]),
-            ], [
-                transform([-1.5, 0, 0]),
+        ]);
+        let tail_attachment = 0;
+        let lisek_entity = instantiate(game, [
+            transform([-10, 0, 0.5]),
+            mimic(player, 0.2),
+            children([...blueprint_lisek(game), transform(), control_player(false, true)], [
+                transform(),
                 render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
             ], [
-                transform([-1.5, 0.4, -0.4], from_euler([0, 0, 0, 0], -90, 0, 0)),
+                transform([0, 0.4, -0.4], from_euler([0, 0, 0, 0], -90, 0, 0)),
                 children([
                     transform(),
                     control_always(null, [0, 1, 0, 0]),
                     move(0, 5),
-                    children([transform(), callback((game, entity) => (tailbone = entity))]),
+                    children([transform(), callback((game, entity) => (tail_attachment = entity))]),
                 ]),
             ]),
         ]);
         {
             let tailbone0 = instantiate(game, [
                 transform(),
-                mimic(tailbone, 0.1),
+                mimic(tail_attachment, 0.1),
                 bone(0 /* Root */, [
                     1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -0.701,
                     -0.428, 1.0,
@@ -5598,7 +5452,7 @@
             transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
             render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
         ]);
-        instantiate_lisek(game, [-1, 0, 0.5]);
+        instantiate_lisek(game, [-1, 0, 1]);
         let slups = 2;
         for (let i = 0; i < slups; i++) {
             instantiate(game, [
@@ -5627,7 +5481,6 @@
     }
 
     let game = new Game();
-    input_pointer_lock(game);
     scene_stage(game);
     game.Start();
     // @ts-ignore
