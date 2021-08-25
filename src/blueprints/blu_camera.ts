@@ -1,14 +1,15 @@
+import {Vec4} from "../../common/math.js";
 import {from_euler} from "../../common/quat.js";
 import {camera_forward_perspective} from "../components/com_camera.js";
 import {children} from "../components/com_children.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
-export function blueprint_camera(game: Game) {
+export function blueprint_camera(game: Game, clear_color: Vec4) {
     return [
         children([
             transform(undefined, from_euler([0, 0, 0, 1], -15, 180, 0)),
-            camera_forward_perspective(1, 0.1, 10, [0.4, 0.6, 0.4, 1]),
+            camera_forward_perspective(1, 0.1, 15, clear_color),
         ]),
     ];
 }

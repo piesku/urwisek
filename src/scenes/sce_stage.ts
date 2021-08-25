@@ -3,10 +3,12 @@ import {from_euler} from "../../common/quat.js";
 import {float, integer} from "../../common/random.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_car2} from "../blueprints/blu_car2.js";
+import {blueprint_house} from "../blueprints/blu_house.js";
 import {instantiate_lisek} from "../blueprints/blu_lisek.js";
 import {blueprint_slup} from "../blueprints/blu_slup.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
-import {blueprint_tree} from "../blueprints/blu_tree.js";
+import {blueprint_bush, blueprint_tree} from "../blueprints/blu_tree.js";
+import {children} from "../components/com_children.js";
 import {render_colored_shadows, render_instanced} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
@@ -18,7 +20,7 @@ export function scene_stage(game: Game) {
 
     // Camera.
     instantiate(game, [
-        ...blueprint_camera(game),
+        ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
         transform([0, 1, 6], from_euler([0, 0, 0, 1], -25, 180, 0)),
     ]);
 
@@ -35,7 +37,7 @@ export function scene_stage(game: Game) {
         render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.5, 0.5, 1]),
     ]);
 
-    let trees = 10;
+    let trees = 8;
     for (let i = 0; i < trees; i++) {
         let z = float(-8, -0.5);
         instantiate(game, [
@@ -44,7 +46,7 @@ export function scene_stage(game: Game) {
         ]);
     }
 
-    let zdzblos = 50;
+    let zdzblos = 80;
     let zdz_scale = 0.5;
     let zdz_offsets = [];
     let zdz_rotations = [];
@@ -68,9 +70,9 @@ export function scene_stage(game: Game) {
         ),
     ]);
 
-    instantiate_lisek(game, [2, 0, 0.5]);
+    instantiate_lisek(game, [-1, 0, 0.5]);
 
-    let slups = 3;
+    let slups = 2;
     for (let i = 0; i < slups; i++) {
         instantiate(game, [
             transform(
@@ -87,12 +89,24 @@ export function scene_stage(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([20, -12, -4], from_euler([0, 0, 0, 1], 0, 90, 0), [30, 30, 30]),
+        transform([20, -12, -5], from_euler([0, 0, 0, 1], 0, 90, 0), [30, 30, 30]),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
 
     instantiate(game, [
-        transform([55, -10, -3.5], from_euler([0, 0, 0, 1], 0, 90, 0), [20, 20, 20]),
+        transform([55, -10, -5.5], from_euler([0, 0, 0, 1], 0, 90, 0), [20, 20, 20]),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
+
+    instantiate(game, [
+        transform([4.4, 0, -2], from_euler([0, 0, 0, 1], 0, 12, 0), [1, 1, 1]),
+        children(
+            [transform(), ...blueprint_house(game)],
+            [transform([0.5, 0, 1.5]), ...blueprint_bush(game)]
+        ),
+    ]);
+
+    instantiate(game, [transform([-4, -0.3, 0.5]), ...blueprint_bush(game)]);
+
+    instantiate(game, [transform([2.5, 0.2, 3.5]), ...blueprint_bush(game)]);
 }
