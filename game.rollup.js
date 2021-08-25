@@ -4731,6 +4731,71 @@
     }
 
     /**
+     * @module components/com_collide
+     */
+    /**
+     * Add the Collide component.
+     *
+     * @param dynamic Dynamic colliders collider with all colliders. Static
+     * colliders collide only with dynamic colliders.
+     * @param layers Bit field with layers this collider is on.
+     * @param mask Bit mask with layers visible to this collider.
+     * @param size Size of the collider relative to the entity's transform.
+     */
+    function collide(dynamic, layers, mask, size = [1, 1, 1]) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 64 /* Collide */;
+            game.World.Collide[entity] = {
+                Entity: entity,
+                New: true,
+                Dynamic: dynamic,
+                Layers: layers,
+                Signature: mask,
+                Size: size,
+                Min: [0, 0, 0],
+                Max: [0, 0, 0],
+                Center: [0, 0, 0],
+                Half: [0, 0, 0],
+                Collisions: [],
+            };
+        };
+    }
+
+    /**
+     * @module components/com_rigid_body
+     */
+    function rigid_body(kind, bounciness = 0.5) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 131072 /* RigidBody */;
+            game.World.RigidBody[entity] = {
+                Kind: kind,
+                Bounciness: bounciness,
+                Acceleration: [0, 0, 0],
+                VelocityIntegrated: [0, 0, 0],
+                VelocityResolved: [0, 0, 0],
+                LastPosition: [0, 0, 0],
+            };
+        };
+    }
+
+    function blueprint_box(game) {
+        return [
+            collide(true, 4 /* Obstacle */, 2 /* Terrain */ | 1 /* Player */),
+            rigid_body(1 /* Dynamic */),
+            children([
+                transform(undefined, undefined, undefined),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.342, 0.17, 0.035, 1]),
+            ], [
+                transform([0.17110759019851685, 0.6197071075439453, 0], [0, 0, 0.5735764503479004, 0.8191520571708679], [0.03887861594557762, 0.699999988079071, 1]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.342, 0.17, 0.035, 1]),
+            ], [
+                transform([-0.2931903600692749, 0.536466121673584, 0], [0, 0, -0.6427876353263855, 0.766044557094574], [0.03887861594557762, 0.42000001668930054, 1]),
+                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.342, 0.17, 0.035, 1]),
+            ]),
+        ];
+    }
+
+    /**
      * @module components/com_camera
      */
     function camera_forward_perspective(fovy, near, far, clear_color = [0.9, 0.9, 0.9, 1]) {
@@ -4979,65 +5044,22 @@
         };
     }
 
-    /**
-     * @module components/com_collide
-     */
-    /**
-     * Add the Collide component.
-     *
-     * @param dynamic Dynamic colliders collider with all colliders. Static
-     * colliders collide only with dynamic colliders.
-     * @param layers Bit field with layers this collider is on.
-     * @param mask Bit mask with layers visible to this collider.
-     * @param size Size of the collider relative to the entity's transform.
-     */
-    function collide(dynamic, layers, mask, size = [1, 1, 1]) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 64 /* Collide */;
-            game.World.Collide[entity] = {
-                Entity: entity,
-                New: true,
-                Dynamic: dynamic,
-                Layers: layers,
-                Signature: mask,
-                Size: size,
-                Min: [0, 0, 0],
-                Max: [0, 0, 0],
-                Center: [0, 0, 0],
-                Half: [0, 0, 0],
-                Collisions: [],
-            };
-        };
-    }
-
-    /**
-     * @module components/com_rigid_body
-     */
-    function rigid_body(kind, bounciness = 0.5) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 131072 /* RigidBody */;
-            game.World.RigidBody[entity] = {
-                Kind: kind,
-                Bounciness: bounciness,
-                Acceleration: [0, 0, 0],
-                VelocityIntegrated: [0, 0, 0],
-                VelocityResolved: [0, 0, 0],
-                LastPosition: [0, 0, 0],
-            };
-        };
-    }
-
     function blueprint_player(game) {
         return [
             control_player(true, false, false),
             move(1.5, 0),
-            collide(true, 1 /* Player */, 2 /* Terrain */),
+            collide(true, 1 /* Player */, 2 /* Terrain */ | 4 /* Obstacle */, [0.6, 0.8, 0.8]),
             rigid_body(1 /* Dynamic */, 0),
-            children([
+            children(
+            // [
+            //     transform(undefined, undefined, [0.6, 0.8, 0.8]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
+            // ],
+            [
                 named("mesh anchor"),
-                transform([0, -0.51, 0], [0, 0.7, 0, 0.7]),
+                transform([0, -0.42, 0], [0, 0.7, 0, 0.7]),
                 control_player(false, true, false),
-            ], [named("camera anchor"), transform([0.5, -1, 0])]),
+            ], [named("camera anchor"), transform([0.5, -0.5, 0])]),
         ];
     }
 
@@ -5331,31 +5353,30 @@
                 transform(),
                 render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
             ], [
-                transform([0, 0.4, -0.4], from_euler([0, 0, 0, 0], -90, 0, 0)),
+                transform([0, 0.4, -0.7], from_euler([0, 0, 0, 0], -90, 0, 0)),
                 children([
                     transform(),
                     control_always(null, [0, 1, 0, 0]),
                     move(0, 5),
-                    children([transform(), callback((game, entity) => (tail_attachment = entity))]),
+                    children([
+                        transform(),
+                        callback((game, entity) => (tail_attachment = entity)),
+                        bone(0 /* Root */, [
+                            1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0,
+                            -0.701, -0.428, 1.0,
+                        ]),
+                        // children([
+                        //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                        //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+                        // ]),
+                    ]),
                 ]),
             ]),
         ]);
         {
-            let tailbone0 = instantiate(game, [
-                transform(),
-                mimic(tail_attachment, 0.1),
-                bone(0 /* Root */, [
-                    1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -0.701,
-                    -0.428, 1.0,
-                ]),
-                // children([
-                //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-                // ]),
-            ]);
             let tailbone1 = instantiate(game, [
                 transform(),
-                mimic(tailbone0, 0.08),
+                mimic(tail_attachment, 0.08),
                 bone(1 /* Bone1 */, [
                     1.0, -0.0, -0.0, 0.0, 0.0, 0.132, 0.991, 0.0, 0.0, -0.991, 0.132, 0.0, -0.0,
                     -1.1, -0.285, 1.0,
@@ -5524,8 +5545,9 @@
         ]);
         // Ground.
         let ground_size = 16;
+        let ground_height = 50;
         instantiate(game, [
-            transform(undefined, undefined, [ground_size, 0, ground_size]),
+            transform([0, -ground_height / 2, 0], undefined, [ground_size, ground_height, ground_size]),
             collide(false, 2 /* Terrain */, 0 /* None */),
             rigid_body(0 /* Static */),
             render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.5, 0.5, 1]),
@@ -5551,6 +5573,7 @@
             render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
         ]);
         instantiate_lisek(game, [-1, 1, 1]);
+        instantiate(game, [...blueprint_box(game), transform([2.5, 5, 1])]);
         let slups = 2;
         for (let i = 0; i < slups; i++) {
             instantiate(game, [
