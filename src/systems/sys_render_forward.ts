@@ -25,7 +25,13 @@ import {
     ParticlesColoredLayout,
     ShadowMappingLayout,
 } from "../../materials/layout.js";
-import {CameraEye, CameraForward, CameraFramebuffer, CameraKind} from "../components/com_camera.js";
+import {
+    CameraDepth,
+    CameraEye,
+    CameraForward,
+    CameraFramebuffer,
+    CameraKind,
+} from "../components/com_camera.js";
 import {query_all} from "../components/com_children.js";
 import {EmitParticles} from "../components/com_emit_particles.js";
 import {
@@ -55,6 +61,9 @@ export function sys_render_forward(game: Game, delta: number) {
             case CameraKind.Framebuffer:
                 render_framebuffer(game, camera);
                 break;
+            case CameraKind.Depth:
+                render_depth(game, camera);
+                break;
         }
     }
 }
@@ -73,6 +82,14 @@ function render_framebuffer(game: Game, camera: CameraFramebuffer) {
     game.Gl.clearColor(...camera.ClearColor);
     game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     render(game, camera, camera.Target.RenderTexture);
+}
+
+function render_depth(game: Game, camera: CameraDepth) {
+    game.Gl.bindFramebuffer(GL_FRAMEBUFFER, camera.Target.Framebuffer);
+    game.Gl.viewport(0, 0, camera.Target.Width, camera.Target.Height);
+    game.Gl.clearColor(...camera.ClearColor);
+    game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    render(game, camera);
 }
 
 function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
@@ -215,15 +232,21 @@ function use_colored_shadows(
     game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
     game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 
-    game.Gl.activeTexture(GL_TEXTURE0);
-    game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Sun.DepthTexture);
-    game.Gl.uniform1i(material.Locations.ShadowMap, 0);
+    if (eye.Kind === CameraKind.Depth) {
+        game.Gl.activeTexture(GL_TEXTURE0);
+        game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Noop.DepthTexture);
+        game.Gl.uniform1i(material.Locations.ShadowMap, 0);
+    } else {
+        game.Gl.activeTexture(GL_TEXTURE0);
+        game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Sun.DepthTexture);
+        game.Gl.uniform1i(material.Locations.ShadowMap, 0);
 
-    // Only one shadow source is supported.
-    let light_entity = first_entity(game.World, Has.Camera | Has.Light);
-    if (light_entity) {
-        let light_camera = game.World.Camera[light_entity];
-        game.Gl.uniformMatrix4fv(material.Locations.ShadowSpace, false, light_camera.Pv);
+        // Only one shadow source is supported.
+        let light_entity = first_entity(game.World, Has.Camera | Has.Light);
+        if (light_entity) {
+            let light_camera = game.World.Camera[light_entity];
+            game.Gl.uniformMatrix4fv(material.Locations.ShadowSpace, false, light_camera.Pv);
+        }
     }
 }
 

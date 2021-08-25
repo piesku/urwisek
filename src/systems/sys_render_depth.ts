@@ -129,7 +129,7 @@ function draw_instanced_shading(game: Game, transform: Transform, render: Render
     game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, render.Mesh.IndexBuffer);
 
     game.Gl.drawElementsInstanced(
-        game.MaterialDepthInstanced.Mode,
+        material.Mode,
         render.Mesh.IndexCount,
         GL_UNSIGNED_SHORT,
         0,

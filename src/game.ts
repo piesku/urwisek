@@ -37,7 +37,6 @@ import {sys_physics_integrate} from "./systems/sys_physics_integrate.js";
 import {sys_physics_kinematic} from "./systems/sys_physics_kinematic.js";
 import {sys_physics_resolve} from "./systems/sys_physics_resolve.js";
 import {sys_poll} from "./systems/sys_poll.js";
-import {sys_render_depth} from "./systems/sys_render_depth.js";
 import {sys_render_forward} from "./systems/sys_render_forward.js";
 import {sys_resize} from "./systems/sys_resize.js";
 import {sys_shake} from "./systems/sys_shake.js";
@@ -74,6 +73,7 @@ export class Game extends Game3D {
     Cameras: Array<Entity> = [];
 
     Targets = {
+        Noop: create_depth_target(this.Gl, 2, 2),
         Sun: create_depth_target(this.Gl, 2048, 2048),
     };
 
@@ -125,7 +125,6 @@ export class Game extends Game3D {
         sys_resize(this, delta);
         sys_camera(this, delta);
         sys_light(this, delta);
-        sys_render_depth(this, delta);
         sys_render_forward(this, delta);
         sys_draw(this, delta);
         sys_ui(this, delta);
