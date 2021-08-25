@@ -1,3 +1,4 @@
+import {set} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
 import {query_all} from "../components/com_children.js";
 import {Game} from "../game.js";
@@ -19,10 +20,10 @@ function update(game: Game, entity: Entity) {
     if (control.Move) {
         let move = game.World.Move[entity];
         if (game.InputState["ArrowLeft"]) {
-            move.Directions.push([0, 0, -1]);
+            move.Directions.push([-1, 0, 0]);
         }
         if (game.InputState["ArrowRight"]) {
-            move.Directions.push([0, 0, 1]);
+            move.Directions.push([1, 0, 0]);
         }
     }
 
@@ -30,12 +31,12 @@ function update(game: Game, entity: Entity) {
         let transform = game.World.Transform[entity];
         if (game.InputState["ArrowLeft"] && control.IsFacingRight) {
             control.IsFacingRight = false;
-            transform.Rotation = [0, 1, 0, 0];
+            set(transform.Rotation, 0, -0.7, 0.0, 0.7);
             transform.Dirty = true;
         }
         if (game.InputState["ArrowRight"] && !control.IsFacingRight) {
             control.IsFacingRight = true;
-            transform.Rotation = [0, 0, 0, 1];
+            set(transform.Rotation, 0, 0.7, 0.0, 0.7);
             transform.Dirty = true;
         }
     }

@@ -11,6 +11,7 @@ import {control_always} from "../components/com_control_always.js";
 import {control_player} from "../components/com_control_player.js";
 import {mimic} from "../components/com_mimic.js";
 import {move} from "../components/com_move.js";
+import {find_first} from "../components/com_named.js";
 import {render_colored_skinned} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
@@ -331,17 +332,12 @@ export function blueprint_lisek(game: Game) {
 }
 
 export function instantiate_lisek(game: Game, translation: Vec3) {
-    let player = instantiate(game, [
-        ...blueprint_player(game),
-        transform(translation, from_euler([0, 0, 0, 1], 0, 90, 0)),
-    ]);
-
-    let player_anchor = game.World.Children[player].Children[0];
+    instantiate(game, [...blueprint_player(game), transform(translation)]);
 
     let tail_attachment: Entity = 0;
     let lisek_entity = instantiate(game, [
         transform([-10, 0, 0.5]),
-        mimic(player_anchor, 0.2),
+        mimic(find_first(game.World, "mesh anchor"), 0.2),
         children(
             [...blueprint_lisek(game), transform(), control_player(false, false, true)],
             [
