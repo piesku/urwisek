@@ -32,9 +32,7 @@ export function blueprint_lisek(game: Game) {
                 idle: {
                     Keyframes: [
                         {
-                            Timestamp: Infinity,
-                            Translation: [0, 0.35, -0.47],
-                            Rotation: [0.672, 0, 0, 0.74],
+                            Timestamp: 0,
                         },
                     ],
                 },

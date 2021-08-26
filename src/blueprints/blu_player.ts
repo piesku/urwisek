@@ -50,6 +50,11 @@ export function instantiate_player(game: Game, translation: Vec3) {
     }
 
     let tail_attachment: Entity = 0;
+    let tail_bone1: Entity = 0;
+    let tail_bone2: Entity = 0;
+    let tail_bone3: Entity = 0;
+    let tail_bone4: Entity = 0;
+
     let lisek_entity = instantiate(game, [
         transform([-10, 0, 0.5]),
         mimic(find_first(game.World, "mesh anchor"), 0.2),
@@ -71,28 +76,25 @@ export function instantiate_player(game: Game, translation: Vec3) {
                 children([
                     transform(),
                     control_always(null, [0, 1, 0, 0]),
-                    move(0, 5),
-                    children([
-                        transform(),
-                        callback((game, entity) => (tail_attachment = entity)),
-                        bone(
-                            TailBoneIndex.Root,
-                            [
-                                1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0,
-                                -0.701, -0.428, 1.0,
-                            ]
-                        ),
-                        // children([
-                        //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                        //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-                        // ]),
-                    ]),
+                    move(0, 1),
+                    callback((game, entity) => (tail_attachment = entity)),
+                    bone(
+                        TailBoneIndex.Root,
+                        [
+                            1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0,
+                            -0.701, -0.428, 1.0,
+                        ]
+                    ),
+                    // children([
+                    //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                    //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+                    // ]),
                 ]),
             ]
         ),
     ]);
 
-    let tailbone1 = instantiate(game, [
+    instantiate(game, [
         transform(),
         mimic(tail_attachment, 0.08),
         bone(
@@ -102,15 +104,16 @@ export function instantiate_player(game: Game, translation: Vec3) {
                 -0.285, 1.0,
             ]
         ),
-        // children([
-        //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-        //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-        // ]),
+        children([
+            transform([0, 0.2, 0.1], undefined, [0.1, 0.1, 0.1]),
+            callback((game, entity) => (tail_bone1 = entity)),
+            // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+        ]),
     ]);
 
-    let tailbone2 = instantiate(game, [
+    instantiate(game, [
         transform(),
-        mimic(tailbone1, 0.06),
+        mimic(tail_bone1, 0.06),
         bone(
             TailBoneIndex.Bone2,
             [
@@ -118,15 +121,16 @@ export function instantiate_player(game: Game, translation: Vec3) {
                 1.0,
             ]
         ),
-        // children([
-        //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-        //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-        // ]),
+        children([
+            transform([0, 0.2, 0.1], undefined, [0.1, 0.1, 0.1]),
+            callback((game, entity) => (tail_bone2 = entity)),
+            // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+        ]),
     ]);
 
-    let tailbone3 = instantiate(game, [
+    instantiate(game, [
         transform(),
-        mimic(tailbone2, 0.04),
+        mimic(tail_bone2, 0.04),
         bone(
             TailBoneIndex.Bone3,
             [
@@ -134,15 +138,16 @@ export function instantiate_player(game: Game, translation: Vec3) {
                 -2.009, 0.214, 1.0,
             ]
         ),
-        // children([
-        //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-        //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-        // ]),
+        children([
+            transform([0, 0.2, 0.1], undefined, [0.1, 0.1, 0.1]),
+            callback((game, entity) => (tail_bone3 = entity)),
+            // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+        ]),
     ]);
 
-    let tailbone4 = instantiate(game, [
+    instantiate(game, [
         transform(),
-        mimic(tailbone3, 0.02),
+        mimic(tail_bone3, 0.02),
         bone(
             TailBoneIndex.Bone4,
             [
@@ -150,10 +155,11 @@ export function instantiate_player(game: Game, translation: Vec3) {
                 -2.224, 1.021, 1.0,
             ]
         ),
-        // children([
-        //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-        //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-        // ]),
+        children([
+            transform([0, 0.2, 0.1], undefined, [0.1, 0.1, 0.1]),
+            callback((game, entity) => (tail_bone4 = entity)),
+            // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+        ]),
     ]);
 
     return lisek_entity;
