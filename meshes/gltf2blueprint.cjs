@@ -39,10 +39,13 @@ let create_child = (mesh, translation, rotation, scale, color) => {
 let gltf = JSON.parse(json);
 let nodes = gltf.nodes;
 let colors = gltf.materials.map((mat) =>
-    mat.pbrMetallicRoughness.baseColorFactor.map((col) => parseFloat(col.toFixed(3)))
+    (mat.pbrMetallicRoughness.baseColorFactor || [0, 0, 0, 1]).map((col) =>
+        parseFloat(col.toFixed(3))
+    )
 );
-let color_map = gltf.meshes.reduce((acc, curr) => {
-    acc[curr.name] = colors[curr.primitives[0].material];
+let color_map = gltf.meshes.reduce((acc, curr, index) => {
+    // acc[curr.name] = colors[curr.primitives[0].material];
+    acc[index] = colors[curr.primitives[0].material];
     return acc;
 }, {});
 
@@ -62,7 +65,7 @@ export function blueprint_${blueprint_name}(game: Game) {
                     node.translation.map((e) => e / 1),
                     node.rotation,
                     node.scale,
-                    color_map[node.name] || color_map["Cylinder.001"]
+                    color_map[node.mesh]
                 )
             )
             .join(",\n")}),
