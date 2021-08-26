@@ -14,7 +14,7 @@ import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {World} from "../world.js";
 
-export function scene_level1(game: Game) {
+export function scene_level_city(game: Game) {
     game.World = new World();
     game.ViewportResized = true;
 
