@@ -5,7 +5,7 @@ import {blueprint_box} from "../blueprints/blu_box.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_car2} from "../blueprints/blu_car2.js";
 import {blueprint_house} from "../blueprints/blu_house.js";
-import {instantiate_lisek} from "../blueprints/blu_lisek.js";
+import {instantiate_player} from "../blueprints/blu_player.js";
 import {blueprint_slup} from "../blueprints/blu_slup.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_bush, blueprint_tree} from "../blueprints/blu_tree.js";
@@ -70,7 +70,7 @@ export function scene_stage(game: Game) {
         ),
     ]);
 
-    instantiate_lisek(game, [-1, 1, 1]);
+    instantiate_player(game, [-1, 1, 1]);
     instantiate(game, [...blueprint_box(game), transform([2.5, 5, 1])]);
 
     let slups = 2;

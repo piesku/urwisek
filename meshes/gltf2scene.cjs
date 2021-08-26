@@ -31,7 +31,7 @@ let create_instance = (name, translation, rotation, scale) => {
         case "lisek":
             starting_translation = translation || starting_translation;
             return `
-    instantiate_lisek(game, ${vec(translation)});
+    instantiate_player(game, ${vec(translation)});
     `;
         case "ogon":
             return `
@@ -59,7 +59,7 @@ import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_car2} from "../blueprints/blu_car2.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
 import {blueprint_house} from "../blueprints/blu_house.js";
-import {instantiate_lisek} from "../blueprints/blu_lisek.js";
+import {instantiate_player} from "../blueprints/blu_player.js";
 import {blueprint_slup} from "../blueprints/blu_slup.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_bush, blueprint_tree} from "../blueprints/blu_tree.js";

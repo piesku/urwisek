@@ -4,7 +4,7 @@ import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_car2} from "../blueprints/blu_car2.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
 import {blueprint_house} from "../blueprints/blu_house.js";
-import {instantiate_lisek} from "../blueprints/blu_lisek.js";
+import {instantiate_player} from "../blueprints/blu_player.js";
 import {blueprint_slup} from "../blueprints/blu_slup.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_bush, blueprint_tree} from "../blueprints/blu_tree.js";
@@ -62,7 +62,7 @@ export function scene_level1(game: Game) {
         ...blueprint_ground(game),
     ]);
 
-    instantiate_lisek(game, [-6.258, 0.774, 0.343]);
+    instantiate_player(game, [-6.258, 0.774, 0.343]);
 
     instantiate(game, [
         transform([10.595, -3.406, -6.05], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
