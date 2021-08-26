@@ -44,6 +44,11 @@
      */
     const GL_STATIC_DRAW = 0x88e4;
     /**
+     * Passed to bufferData as a hint about whether the contents of the buffer are likely to be used often and change often.
+     * @constant {number}
+     */
+    const GL_DYNAMIC_DRAW = 0x88e8;
+    /**
      * Passed to bindBuffer or bufferData to specify the type of buffer being used.
      * @constant {number}
      */
@@ -3655,6 +3660,24 @@
         };
     }
     const DATA_PER_PARTICLE = 8;
+    const MAX_PARTICLES = 200;
+    function render_particles_colored(start_color, start_size, end_color, end_size) {
+        return (game, entity) => {
+            let buffer = game.Gl.createBuffer();
+            game.Gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
+            game.Gl.bufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * DATA_PER_PARTICLE * 4, GL_DYNAMIC_DRAW);
+            game.World.Signature[entity] |= 65536 /* Render */;
+            game.World.Render[entity] = {
+                Kind: 9 /* ParticlesColored */,
+                Material: game.MaterialParticlesColored,
+                Buffer: buffer,
+                ColorStart: start_color,
+                ColorEnd: end_color,
+                Size: [start_size, end_size],
+                FrontFace: GL_CW,
+            };
+        };
+    }
     function render_instanced(mesh, offsets, rotation_offsets, palette) {
         return (game, entity) => {
             let material = game.MaterialInstanced;
@@ -4928,6 +4951,78 @@
         ];
     }
 
+    /**
+     * Add EmitParticles.
+     *
+     * @param lifespan How long particles live for.
+     * @param frequency How often particles spawn.
+     * @param speed How fast particles move.
+     */
+    function emit_particles(lifespan, frequency, speed) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 1024 /* EmitParticles */;
+            game.World.EmitParticles[entity] = {
+                Lifespan: lifespan,
+                Frequency: frequency,
+                Speed: speed,
+                Instances: [],
+                SinceLast: 0,
+            };
+        };
+    }
+
+    /**
+     * @module components/com_light
+     */
+    function light_directional(color = [1, 1, 1], range = 1) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 4096 /* Light */;
+            game.World.Light[entity] = {
+                Kind: 1 /* Directional */,
+                Color: color,
+                Intensity: range ** 2,
+            };
+        };
+    }
+    function light_point(color = [1, 1, 1], range = 1) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 4096 /* Light */;
+            game.World.Light[entity] = {
+                Kind: 2 /* Point */,
+                Color: color,
+                Intensity: range ** 2,
+            };
+        };
+    }
+
+    /**
+     * @module components/com_shake
+     */
+    /**
+     * sys_shake modifies the transform of the entity. Add it to children only.
+     */
+    function shake(magnitude) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 262144 /* Shake */;
+            game.World.Shake[entity] = {
+                Magnitude: magnitude,
+            };
+        };
+    }
+
+    function blueprint_guide(game) {
+        return [
+            mimic(find_first(game.World, "guide anchor"), 0.02),
+            light_point([1, 1, 1], 0.3),
+            children([
+                transform(),
+                shake(0.1),
+                emit_particles(1, 0.1, 0.1),
+                render_particles_colored([1, 1, 1, 1], 4, [0.5, 0.5, 1, 1], 1),
+            ]),
+        ];
+    }
+
     function blueprint_house(game) {
         return [
             children([
@@ -5343,7 +5438,14 @@
                 named("mesh anchor"),
                 transform([0, -0.42, 0], [0, 0.7, 0, 0.7]),
                 control_player(false, true, false),
-            ], [named("camera anchor"), transform([0.5, -0.5, 0])]),
+            ], [named("camera anchor"), transform([0.5, -0.5, 0])], [
+                named("guide anchor"),
+                transform([4, 1, 0], [0, 0.7, 0, 0.7]),
+                // children([
+                //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+                // ]),
+            ]),
         ];
     }
     function instantiate_player(game, translation) {
@@ -5476,20 +5578,6 @@
         ];
     }
 
-    /**
-     * @module components/com_light
-     */
-    function light_directional(color = [1, 1, 1], range = 1) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 4096 /* Light */;
-            game.World.Light[entity] = {
-                Kind: 1 /* Directional */,
-                Color: color,
-                Intensity: range ** 2,
-            };
-        };
-    }
-
     function blueprint_sun(game) {
         return [
             control_always(null, [0, 1, 0, 0]),
@@ -5586,6 +5674,7 @@
             ...blueprint_ground(game),
         ]);
         instantiate_player(game, [-6.258, 0.774, 0.343]);
+        instantiate(game, [...blueprint_guide(game), transform([-20, 5, 0])]);
         instantiate(game, [
             transform([10.595, -3.406, -6.05], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
             render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
