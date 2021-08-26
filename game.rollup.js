@@ -4946,42 +4946,6 @@
         ];
     }
 
-    function ease_out_quart(t) {
-        return 1 - (1 - t) ** 4;
-    }
-    function ease_in_out_quart(t) {
-        return t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
-    }
-
-    /**
-     * @module components/com_animate
-     */
-    function animate(clips) {
-        return (game, entity) => {
-            let States = {};
-            for (let name in clips) {
-                let { Keyframes, Flags = 7 /* Default */ } = clips[name];
-                let duration = Keyframes[Keyframes.length - 1].Timestamp;
-                States[name] = {
-                    // One-level-deep copy of the clip's keyframes. When
-                    // AnimationFlag.Alternate is set, sys_animate recalculates
-                    // keyframes' timestamps after each alternation. We want to
-                    // modify copies of the timestamps defined in the clip. It's OK
-                    // to copy other keyframe properties by reference.
-                    Keyframes: Keyframes.map((keyframe) => ({ ...keyframe })),
-                    Flags,
-                    Duration: duration,
-                    Time: 0,
-                };
-            }
-            game.World.Signature[entity] |= 1 /* Animate */;
-            game.World.Animate[entity] = {
-                States,
-                Current: States["idle"],
-            };
-        };
-    }
-
     function bone(index, inverse_bind_pose) {
         return (game, entity) => {
             game.World.Signature[entity] |= 8 /* Bone */;
@@ -5049,23 +5013,40 @@
         };
     }
 
-    function blueprint_player(game) {
-        return [
-            control_player(true, false, false),
-            move(1.5, 0),
-            collide(true, 1 /* Player */, 2 /* Terrain */ | 4 /* Obstacle */, [0.6, 0.8, 0.8]),
-            rigid_body(1 /* Dynamic */, 0),
-            children(
-            // [
-            //     transform(undefined, undefined, [0.6, 0.8, 0.8]),
-            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
-            // ],
-            [
-                named("mesh anchor"),
-                transform([0, -0.42, 0], [0, 0.7, 0, 0.7]),
-                control_player(false, true, false),
-            ], [named("camera anchor"), transform([0.5, -0.5, 0])]),
-        ];
+    function ease_out_quart(t) {
+        return 1 - (1 - t) ** 4;
+    }
+    function ease_in_out_quart(t) {
+        return t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
+    }
+
+    /**
+     * @module components/com_animate
+     */
+    function animate(clips) {
+        return (game, entity) => {
+            let States = {};
+            for (let name in clips) {
+                let { Keyframes, Flags = 7 /* Default */ } = clips[name];
+                let duration = Keyframes[Keyframes.length - 1].Timestamp;
+                States[name] = {
+                    // One-level-deep copy of the clip's keyframes. When
+                    // AnimationFlag.Alternate is set, sys_animate recalculates
+                    // keyframes' timestamps after each alternation. We want to
+                    // modify copies of the timestamps defined in the clip. It's OK
+                    // to copy other keyframe properties by reference.
+                    Keyframes: Keyframes.map((keyframe) => ({ ...keyframe })),
+                    Flags,
+                    Duration: duration,
+                    Time: 0,
+                };
+            }
+            game.World.Signature[entity] |= 1 /* Animate */;
+            game.World.Animate[entity] = {
+                States,
+                Current: States["idle"],
+            };
+        };
     }
 
     function blueprint_lisek(game) {
@@ -5348,16 +5329,41 @@
             ]),
         ];
     }
-    function instantiate_lisek(game, translation) {
+
+    function blueprint_player(game) {
+        return [
+            control_player(true, false, false),
+            move(1.5, 0),
+            collide(true, 1 /* Player */, 2 /* Terrain */ | 4 /* Obstacle */, [0.6, 0.8, 0.8]),
+            rigid_body(1 /* Dynamic */, 0),
+            children(
+            // [
+            //     transform(undefined, undefined, [0.6, 0.8, 0.8]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
+            // ],
+            [
+                named("mesh anchor"),
+                transform([0, -0.42, 0], [0, 0.7, 0, 0.7]),
+                control_player(false, true, false),
+            ], [named("camera anchor"), transform([0.5, -0.5, 0])]),
+        ];
+    }
+    function instantiate_player(game, translation) {
         instantiate(game, [...blueprint_player(), transform(translation)]);
         let tail_attachment = 0;
         let lisek_entity = instantiate(game, [
             transform([-10, 0, 0.5]),
             mimic(find_first(game.World, "mesh anchor"), 0.2),
-            children([...blueprint_lisek(game), transform(), control_player(false, false, true)], [
+            children(
+            // The mesh, animated by the player.
+            [...blueprint_lisek(game), transform(), control_player(false, false, true)], 
+            // The tail, animated procedurally.
+            [
                 transform(),
                 render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
-            ], [
+            ], 
+            // The tail attachment, animated procedurally.
+            [
                 transform([0, 0.4, -0.7], from_euler([0, 0, 0, 0], -90, 0, 0)),
                 children([
                     transform(),
@@ -5378,56 +5384,54 @@
                 ]),
             ]),
         ]);
-        {
-            let tailbone1 = instantiate(game, [
-                transform(),
-                mimic(tail_attachment, 0.08),
-                bone(1 /* Bone1 */, [
-                    1.0, -0.0, -0.0, 0.0, 0.0, 0.132, 0.991, 0.0, 0.0, -0.991, 0.132, 0.0, -0.0,
-                    -1.1, -0.285, 1.0,
-                ]),
-                // children([
-                //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-                // ]),
-            ]);
-            let tailbone2 = instantiate(game, [
-                transform(),
-                mimic(tailbone1, 0.06),
-                bone(2 /* Bone2 */, [
-                    1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -1.492,
-                    -0.487, 1.0,
-                ]),
-                // children([
-                //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-                // ]),
-            ]);
-            let tailbone3 = instantiate(game, [
-                transform(),
-                mimic(tailbone2, 0.04),
-                bone(3 /* Bone3 */, [
-                    -1.0, -0.0, -0.0, 0.0, 0.0, 0.137, -0.991, 0.0, 0.0, -0.991, -0.137, 0.0, -0.0,
-                    -2.009, 0.214, 1.0,
-                ]),
-                // children([
-                //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-                // ]),
-            ]);
-            instantiate(game, [
-                transform(),
-                mimic(tailbone3, 0.02),
-                bone(4 /* Bone4 */, [
-                    -1.0, 0.0, -0.0, 0.0, 0.0, -0.204, -0.979, 0.0, -0.0, -0.979, 0.204, 0.0, -0.0,
-                    -2.224, 1.021, 1.0,
-                ]),
-                // children([
-                //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-                // ]),
-            ]);
-        }
+        let tailbone1 = instantiate(game, [
+            transform(),
+            mimic(tail_attachment, 0.08),
+            bone(1 /* Bone1 */, [
+                1.0, -0.0, -0.0, 0.0, 0.0, 0.132, 0.991, 0.0, 0.0, -0.991, 0.132, 0.0, -0.0, -1.1,
+                -0.285, 1.0,
+            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
+        ]);
+        let tailbone2 = instantiate(game, [
+            transform(),
+            mimic(tailbone1, 0.06),
+            bone(2 /* Bone2 */, [
+                1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -1.492, -0.487,
+                1.0,
+            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
+        ]);
+        let tailbone3 = instantiate(game, [
+            transform(),
+            mimic(tailbone2, 0.04),
+            bone(3 /* Bone3 */, [
+                -1.0, -0.0, -0.0, 0.0, 0.0, 0.137, -0.991, 0.0, 0.0, -0.991, -0.137, 0.0, -0.0,
+                -2.009, 0.214, 1.0,
+            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
+        ]);
+        instantiate(game, [
+            transform(),
+            mimic(tailbone3, 0.02),
+            bone(4 /* Bone4 */, [
+                -1.0, 0.0, -0.0, 0.0, 0.0, -0.204, -0.979, 0.0, -0.0, -0.979, 0.204, 0.0, -0.0,
+                -2.224, 1.021, 1.0,
+            ]),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
+        ]);
         return lisek_entity;
     }
 
@@ -5579,7 +5583,7 @@
             transform([6.267, 0, -5.233], [0, 0.707, 0, 0.707], [10, 1, 40]),
             ...blueprint_ground(game),
         ]);
-        instantiate_lisek(game, [-6.258, 0.774, 0.343]);
+        instantiate_player(game, [-6.258, 0.774, 0.343]);
         instantiate(game, [
             transform([10.595, -3.406, -6.05], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
             render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
