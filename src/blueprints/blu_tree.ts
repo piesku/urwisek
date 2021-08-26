@@ -16,7 +16,7 @@ export const leaft_colors = [
     0.84, 0.21, 0.21,
 ];
 
-export function blueprint_tree(game: Game, min = 0.7, max = 2.5) {
+export function blueprint_tree(game: Game, min = 2, max = 4) {
     let radius = float(0.5, 0.9);
     let leaf_count = integer(400, 600);
     let height = float(min, max);
@@ -39,7 +39,7 @@ export function blueprint_tree(game: Game, min = 0.7, max = 2.5) {
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCylinder,
-                    [0.64, 0.16, 0.16, 1]
+                    [0.8, 0.2, 0.2, 1]
                 ),
             ],
             [
