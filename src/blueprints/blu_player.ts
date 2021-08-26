@@ -33,7 +33,15 @@ function blueprint_player(game: Game) {
                 transform([0, -0.42, 0], [0, 0.7, 0, 0.7]),
                 control_player(false, true, false),
             ],
-            [named("camera anchor"), transform([0.5, -0.5, 0])]
+            [named("camera anchor"), transform([0.5, -0.5, 0])],
+            [
+                named("guide anchor"),
+                transform([4, 1, 0], [0, 0.7, 0, 0.7]),
+                // children([
+                //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+                //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+                // ]),
+            ]
         ),
     ];
 }
