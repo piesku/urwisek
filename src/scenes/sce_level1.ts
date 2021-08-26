@@ -22,7 +22,6 @@ export function scene_level1(game: Game) {
         ...blueprint_sun(game),
     ]);
 
-    
     instantiate(game, [
         transform([-9, -0.498, 1.767], [0, 0.707, 0, 0.707], [4, 2.003, 8]),
         ...blueprint_ground(game),
@@ -64,25 +63,21 @@ export function scene_level1(game: Game) {
     ]);
 
     instantiate_lisek(game, [-6.258, 0.774, 0.343]);
-    
 
     instantiate(game, [
         transform([10.595, -3.406, -6.05], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
-    
 
     instantiate(game, [
         transform([22.619, -2.849, -5.884], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
-    
 
     instantiate(game, [
         transform([33.788, -8.323, -6.71], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 8]),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
-    
 
     instantiate(game, [
         transform([0, 0.5, -2.177], undefined, undefined),
