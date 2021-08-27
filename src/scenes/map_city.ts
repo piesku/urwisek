@@ -2,22 +2,20 @@ import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
-import {blueprint_guide} from "../blueprints/blu_guide.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_bush, blueprint_tree} from "../blueprints/blu_tree.js";
 import {render_colored_shadows} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
+import {prop_barn} from "../props/prop_barn.js";
 import {prop_car2} from "../props/prop_car2.js";
+import {prop_fence} from "../props/prop_fence.js";
 import {prop_house} from "../props/prop_house.js";
+import {prop_silo} from "../props/prop_silo.js";
 import {prop_slup} from "../props/prop_slup.js";
-import {World} from "../world.js";
 
-export function scene_level_city(game: Game) {
-    game.World = new World();
-    game.ViewportResized = true;
-
+export function map_city(game: Game) {
     instantiate(game, [
         transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
         ...blueprint_sun(game),
@@ -64,7 +62,6 @@ export function scene_level_city(game: Game) {
     ]);
 
     instantiate_player(game, [-6.258, 0.774, 0.343]);
-    instantiate(game, [...blueprint_guide(game), transform([-20, 5, 0])]);
 
     instantiate(game, [
         transform([10.595, -3.406, -6.05], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
@@ -81,7 +78,10 @@ export function scene_level_city(game: Game) {
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
 
-    instantiate(game, [transform([0, 0.5, -2.177], undefined, undefined), ...prop_house(game)]);
+    instantiate(game, [
+        transform([0, 0.5, -2.177], undefined, undefined),
+        ...prop_house(game),
+    ]);
 
     instantiate(game, [
         transform([7.88, 0.5, -3.146], [0, -0.986, 0, 0.166], undefined),
@@ -276,11 +276,5 @@ export function scene_level_city(game: Game) {
     instantiate(game, [
         transform([2.839, 1, -3.027], [-0.147, 0.684, 0.7, 0.144], [0.4, 0.4, 0.4]),
         ...prop_car2(game),
-    ]);
-
-    // Camera.
-    instantiate(game, [
-        ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
-        transform([-6.258, 0.774, 0.343], from_euler([0, 0, 0, 1], -30, 0, 0)),
     ]);
 }
