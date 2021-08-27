@@ -4321,7 +4321,7 @@
         return html `
         <div
             style="
-                animation: 8s ease-out 4s forwards intro;
+                animation: 8s ease-out 5s forwards intro;
             "
         >
             <div
@@ -4518,6 +4518,41 @@
     }
 
     /**
+     * @module components/com_control_always
+     */
+    function control_always(direction, rotation) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 128 /* ControlAlways */;
+            game.World.ControlAlways[entity] = {
+                Direction: direction,
+                Rotation: rotation,
+            };
+        };
+    }
+
+    /**
+     * @module components/com_move
+     */
+    /**
+     * The Move mixin.
+     *
+     * @param move_speed - Movement speed in units per second.
+     * @param rotation_speed - Rotation speed, in radians per second.
+     */
+    function move(move_speed, rotation_speed) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 32768 /* Move */;
+            game.World.Move[entity] = {
+                MoveSpeed: move_speed,
+                RotationSpeed: rotation_speed,
+                Directions: [],
+                LocalRotations: [],
+                SelfRotations: [],
+            };
+        };
+    }
+
+    /**
      * @module components/com_mimic
      */
     function mimic(Target, Stiffness = 0.1) {
@@ -4630,6 +4665,15 @@
         ];
     }
 
+    /**
+     * @module components/com_audio_listener
+     */
+    function audio_listener() {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 2 /* AudioListener */;
+        };
+    }
+
     function bone(index, inverse_bind_pose) {
         return (game, entity) => {
             game.World.Signature[entity] |= 8 /* Bone */;
@@ -4650,19 +4694,6 @@
         };
     }
 
-    /**
-     * @module components/com_control_always
-     */
-    function control_always(direction, rotation) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 128 /* ControlAlways */;
-            game.World.ControlAlways[entity] = {
-                Direction: direction,
-                Rotation: rotation,
-            };
-        };
-    }
-
     function control_player(move, rotate, animate) {
         return (game, entity) => {
             game.World.Signature[entity] |= 512 /* ControlPlayer */;
@@ -4671,28 +4702,6 @@
                 Rotate: rotate,
                 Animate: animate,
                 IsFacingRight: true,
-            };
-        };
-    }
-
-    /**
-     * @module components/com_move
-     */
-    /**
-     * The Move mixin.
-     *
-     * @param move_speed - Movement speed in units per second.
-     * @param rotation_speed - Rotation speed, in radians per second.
-     */
-    function move(move_speed, rotation_speed) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 32768 /* Move */;
-            game.World.Move[entity] = {
-                MoveSpeed: move_speed,
-                RotationSpeed: rotation_speed,
-                Directions: [],
-                LocalRotations: [],
-                SelfRotations: [],
             };
         };
     }
@@ -5014,6 +5023,7 @@
 
     function blueprint_player(game) {
         return [
+            audio_listener(),
             control_player(true, false, false),
             move(1.5, 0),
             collide(true, 1 /* Player */, 2 /* Terrain */ | 4 /* Obstacle */, [0.6, 0.8, 0.8]),
