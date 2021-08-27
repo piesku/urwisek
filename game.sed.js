@@ -704,6 +704,8 @@ uniform vec4 specular_color;
 uniform float shininess;
 uniform vec4 light_positions[MAX_LIGHTS];
 uniform vec4 light_details[MAX_LIGHTS];
+uniform vec4 fog_color;
+uniform float fog_distance;
 
 in vec4 vert_position;
 in vec3 vert_normal;
@@ -767,6 +769,10 @@ light_acc += specular_color.rgb * light_color * posterize(specular_factor * ligh
 }
 
 frag_color = vec4(light_acc, 1.0);
+
+float eye_distance = length(view_dir);
+float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
 }
 `;
 function mat_forward_colored_phong_skinned(gl) {
@@ -786,6 +792,8 @@ LightPositions: gl.getUniformLocation(program, "light_positions"),
 LightDetails: gl.getUniformLocation(program, "light_details"),
 VertexPosition: gl.getAttribLocation(program, "attr_position"),
 VertexNormal: gl.getAttribLocation(program, "attr_normal"),
+FogColor: gl.getUniformLocation(program, "fog_color"),
+FogDistance: gl.getUniformLocation(program, "fog_distance"),
 Bones: gl.getUniformLocation(program, "bones"),
 VertexWeights: gl.getAttribLocation(program, "attr_weights"),
 },
@@ -1307,138 +1315,6 @@ DirectionSeed: gl.getAttribLocation(program, "attr_direction_seed"),
 function mesh_cube(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$7, GL_STATIC_DRAW);
-let normal_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$7, GL_STATIC_DRAW);
-let texcoord_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$7, GL_STATIC_DRAW);
-let weights_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-gl.bufferData(GL_ARRAY_BUFFER, weights_arr$7, GL_STATIC_DRAW);
-let index_buf = gl.createBuffer();
-gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$7, GL_STATIC_DRAW);
-return {
-VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$7,
-NormalBuffer: normal_buf,
-NormalArray: normal_arr$7,
-TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$7,
-WeightsBuffer: weights_buf,
-WeightsArray: weights_arr$7,
-IndexBuffer: index_buf,
-IndexArray: index_arr$7,
-IndexCount: index_arr$7.length,
-};
-}
-
-let vertex_arr$7 = Float32Array.from([
--0.5, -0.5, 0.5,
--0.5, 0.5, 0.5,
--0.5, 0.5, -0.5,
--0.5, -0.5, -0.5,
--0.5, -0.5, -0.5,
--0.5, 0.5, -0.5,
-0.5, 0.5, -0.5,
-0.5, -0.5, -0.5,
-0.5, -0.5, -0.5,
-0.5, 0.5, -0.5,
-0.5, 0.5, 0.5,
-0.5, -0.5, 0.5,
-0.5, -0.5, 0.5,
-0.5, 0.5, 0.5,
--0.5, 0.5, 0.5,
--0.5, -0.5, 0.5,
--0.5, -0.5, -0.5,
-0.5, -0.5, -0.5,
-0.5, -0.5, 0.5,
--0.5, -0.5, 0.5,
-0.5, 0.5, -0.5,
--0.5, 0.5, -0.5,
--0.5, 0.5, 0.5,
-0.5, 0.5, 0.5
-]);
-
-let normal_arr$7 = Float32Array.from([
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0
-]);
-
-let texcoord_arr$7 = Float32Array.from([
-0.666667, 0.333333,
-0.333333, 0.333333,
-0.333333, 0,
-0.666667, 0,
-0.333333, 0.666667,
-0, 0.666667,
-0, 0.333333,
-0.333333, 0.333333,
-0.333333, 0.333333,
-0, 0.333333,
-0, 0,
-0.333333, 0,
-0.333333, 0.666667,
-0.333333, 0.333333,
-0.666667, 0.333333,
-0.666667, 0.666667,
-1, 0.333333,
-0.666667, 0.333333,
-0.666667, 0,
-1, 0,
-0.333333, 0.666667,
-0.333333, 1,
-0, 1,
-0, 0.666667
-]);
-
-let weights_arr$7 = Float32Array.from([
-
-
-]);
-
-let index_arr$7 = Uint16Array.from([
-23, 22, 20,
-22, 21, 20,
-19, 18, 16,
-18, 17, 16,
-15, 14, 12,
-14, 13, 12,
-11, 10, 8,
-10, 9, 8,
-7, 6, 4,
-6, 5, 4,
-3, 2, 0,
-2, 1, 0
-]);
-
-function mesh_cylinder(gl) {
-let vertex_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$6, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
@@ -1468,195 +1344,79 @@ IndexCount: index_arr$6.length,
 }
 
 let vertex_arr$6 = Float32Array.from([
-0, -0.25, -0.25,
-0, 0.25, -0.25,
-0.176777, 0.25, -0.176777,
-0.176777, -0.25, -0.176777,
-0.176777, -0.25, -0.176777,
-0.176777, 0.25, -0.176777,
-0.25, 0.25, 0,
-0.25, -0.25, 0,
-0.25, -0.25, 0,
-0.25, 0.25, 0,
-0.176777, 0.25, 0.176777,
-0.176777, -0.25, 0.176777,
-0.176777, -0.25, 0.176777,
-0.176777, 0.25, 0.176777,
-0, 0.25, 0.25,
-0, -0.25, 0.25,
-0, -0.25, 0.25,
-0, 0.25, 0.25,
--0.176777, 0.25, 0.176777,
--0.176777, -0.25, 0.176777,
--0.176777, -0.25, 0.176777,
--0.176777, 0.25, 0.176777,
--0.25, 0.25, 0,
--0.25, -0.25, 0,
-0.176777, 0.25, -0.176777,
-0, 0.25, -0.25,
--0.176777, 0.25, -0.176777,
--0.25, 0.25, 0,
--0.176777, 0.25, 0.176777,
-0, 0.25, 0.25,
-0.176777, 0.25, 0.176777,
-0.25, 0.25, 0,
--0.25, -0.25, 0,
--0.25, 0.25, 0,
--0.176777, 0.25, -0.176777,
--0.176777, -0.25, -0.176777,
--0.176777, -0.25, -0.176777,
--0.176777, 0.25, -0.176777,
-0, 0.25, -0.25,
-0, -0.25, -0.25,
-0, -0.25, -0.25,
-0.176777, -0.25, -0.176777,
-0.25, -0.25, 0,
-0.176777, -0.25, 0.176777,
-0, -0.25, 0.25,
--0.176777, -0.25, 0.176777,
--0.25, -0.25, 0,
--0.176777, -0.25, -0.176777
+-0.500, -0.500, 0.500,
+-0.500, -0.500, 0.500,
+-0.500, -0.500, 0.500,
+-0.500, 0.500, 0.500,
+-0.500, 0.500, 0.500,
+-0.500, 0.500, 0.500,
+-0.500, -0.500, -0.500,
+-0.500, -0.500, -0.500,
+-0.500, -0.500, -0.500,
+-0.500, 0.500, -0.500,
+-0.500, 0.500, -0.500,
+-0.500, 0.500, -0.500,
+0.500, -0.500, 0.500,
+0.500, -0.500, 0.500,
+0.500, -0.500, 0.500,
+0.500, 0.500, 0.500,
+0.500, 0.500, 0.500,
+0.500, 0.500, 0.500,
+0.500, -0.500, -0.500,
+0.500, -0.500, -0.500,
+0.500, -0.500, -0.500,
+0.500, 0.500, -0.500,
+0.500, 0.500, -0.500,
+0.500, 0.500, -0.500
 ]);
 
 let normal_arr$6 = Float32Array.from([
-0.3827, 0, -0.9239,
-0.3827, 0, -0.9239,
-0.3827, 0, -0.9239,
-0.3827, 0, -0.9239,
-0.9239, 0, -0.3827,
-0.9239, 0, -0.3827,
-0.9239, 0, -0.3827,
-0.9239, 0, -0.3827,
-0.9239, 0, 0.3827,
-0.9239, 0, 0.3827,
-0.9239, 0, 0.3827,
-0.9239, 0, 0.3827,
-0.3827, 0, 0.9239,
-0.3827, 0, 0.9239,
-0.3827, 0, 0.9239,
-0.3827, 0, 0.9239,
--0.3827, 0, 0.9239,
--0.3827, 0, 0.9239,
--0.3827, 0, 0.9239,
--0.3827, 0, 0.9239,
--0.9239, 0, 0.3827,
--0.9239, 0, 0.3827,
--0.9239, 0, 0.3827,
--0.9239, 0, 0.3827,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
--0.9239, 0, -0.3827,
--0.9239, 0, -0.3827,
--0.9239, 0, -0.3827,
--0.9239, 0, -0.3827,
--0.3827, 0, -0.9239,
--0.3827, 0, -0.9239,
--0.3827, 0, -0.9239,
--0.3827, 0, -0.9239,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0
+-1.000, 0.000, 0.000,
+0.000, -1.000, 0.000,
+0.000, 0.000, 1.000,
+-1.000, 0.000, 0.000,
+0.000, 0.000, 1.000,
+0.000, 1.000, 0.000,
+-1.000, 0.000, 0.000,
+0.000, -1.000, 0.000,
+0.000, 0.000, -1.000,
+-1.000, 0.000, 0.000,
+0.000, 0.000, -1.000,
+0.000, 1.000, 0.000,
+0.000, -1.000, 0.000,
+0.000, 0.000, 1.000,
+1.000, 0.000, 0.000,
+0.000, 0.000, 1.000,
+0.000, 1.000, 0.000,
+1.000, 0.000, 0.000,
+0.000, -1.000, 0.000,
+0.000, 0.000, -1.000,
+1.000, 0.000, 0.000,
+0.000, 0.000, -1.000,
+0.000, 1.000, 0.000,
+1.000, 0.000, 0.000
 ]);
 
-let texcoord_arr$6 = Float32Array.from([
-1, 0.5,
-1, 1,
-0.875, 1,
-0.875, 0.5,
-0.875, 0.5,
-0.875, 1,
-0.75, 1,
-0.75, 0.5,
-0.75, 0.5,
-0.75, 1,
-0.625, 1,
-0.625, 0.5,
-0.625, 0.5,
-0.625, 1,
-0.5, 1,
-0.5, 0.5,
-0.5, 0.5,
-0.5, 1,
-0.375, 1,
-0.375, 0.5,
-0.375, 0.5,
-0.375, 1,
-0.25, 1,
-0.25, 0.5,
-0.419706, 0.419706,
-0.25, 0.49,
-0.080294, 0.419706,
-0.01, 0.25,
-0.080294, 0.080294,
-0.25, 0.01,
-0.419706, 0.080294,
-0.49, 0.25,
-0.25, 0.5,
-0.25, 1,
-0.125, 1,
-0.125, 0.5,
-0.125, 0.5,
-0.125, 1,
-0, 1,
-0, 0.5,
-0.75, 0.49,
-0.919706, 0.419706,
-0.99, 0.25,
-0.919706, 0.080294,
-0.75, 0.01,
-0.580294, 0.080294,
-0.51, 0.25,
-0.580294, 0.419706
-]);
+let texcoord_arr$6 = Float32Array.from([]);
 
-let weights_arr$6 = Float32Array.from([
-
-
-]);
+let weights_arr$6 = Float32Array.from([]);
 
 let index_arr$6 = Uint16Array.from([
-47, 46, 45,
-45, 44, 47,
-44, 43, 47,
-43, 42, 47,
-42, 41, 47,
-41, 40, 47,
-39, 38, 36,
-38, 37, 36,
-35, 34, 32,
-34, 33, 32,
-31, 30, 29,
-29, 28, 31,
-28, 27, 31,
-27, 26, 31,
-26, 25, 31,
-25, 24, 31,
-23, 22, 20,
-22, 21, 20,
-19, 18, 16,
-18, 17, 16,
-15, 14, 12,
-14, 13, 12,
-11, 10, 8,
-10, 9, 8,
-7, 6, 4,
-6, 5, 4,
-3, 2, 0,
-2, 1, 0
+16, 5, 22,
+5, 11, 22,
+1, 12, 7,
+12, 18, 7,
+2, 4, 13,
+4, 15, 13,
+14, 17, 20,
+17, 23, 20,
+19, 21, 8,
+21, 10, 8,
+6, 9, 0,
+9, 3, 0
 ]);
 
-function mesh_grass(gl) {
+function mesh_cylinder(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$5, GL_STATIC_DRAW);
@@ -1688,43 +1448,79 @@ IndexCount: index_arr$5.length,
 }
 
 let vertex_arr$5 = Float32Array.from([
--0.008597, 0.008676, 0,
-0.008402, 0.007591, 0,
-0, 0.416493, 0.06595,
--0.008597, 0.008676, 0,
-0, -0.416493, 0.06595,
-0.008402, 0.007591, 0
+0.000, -0.250, -0.250,
+0.000, 0.250, -0.250,
+0.177, -0.250, -0.177,
+0.177, 0.250, -0.177,
+0.250, -0.250, 0.000,
+0.250, 0.250, 0.000,
+0.177, -0.250, 0.177,
+0.177, 0.250, 0.177,
+-0.000, -0.250, 0.250,
+-0.000, 0.250, 0.250,
+-0.177, -0.250, 0.177,
+-0.177, 0.250, 0.177,
+-0.250, -0.250, -0.000,
+-0.250, 0.250, -0.000,
+-0.177, -0.250, -0.177,
+-0.177, 0.250, -0.177
 ]);
 
 let normal_arr$5 = Float32Array.from([
--0.0102, -0.1594, 0.9872,
--0.0102, -0.1594, 0.9872,
--0.0102, -0.1594, 0.9872,
-0.0098, 0.1535, 0.9881,
-0.0098, 0.1535, 0.9881,
-0.0098, 0.1535, 0.9881
+0.000, -0.630, -0.776,
+0.000, 0.630, -0.776,
+0.549, -0.630, -0.549,
+0.549, 0.630, -0.549,
+0.776, -0.630, 0.000,
+0.776, 0.630, 0.000,
+0.549, -0.630, 0.549,
+0.549, 0.630, 0.549,
+0.000, -0.630, 0.776,
+0.000, 0.630, 0.776,
+-0.549, -0.630, 0.549,
+-0.549, 0.630, 0.549,
+-0.776, -0.630, 0.000,
+-0.776, 0.630, 0.000,
+-0.549, -0.630, -0.549,
+-0.549, 0.630, -0.549
 ]);
 
-let texcoord_arr$5 = Float32Array.from([
-0, 0,
-1, 1,
-0, 1,
-0, 0,
-1, 0,
-1, 1
-]);
+let texcoord_arr$5 = Float32Array.from([]);
 
-let weights_arr$5 = Float32Array.from([
-
-
-]);
+let weights_arr$5 = Float32Array.from([]);
 
 let index_arr$5 = Uint16Array.from([
-5, 4, 3,
-2, 1, 0
+14, 10, 6,
+6, 2, 14,
+14, 12, 10,
+10, 8, 6,
+6, 4, 2,
+2, 0, 14,
+0, 1, 14,
+1, 15, 14,
+14, 15, 12,
+15, 13, 12,
+5, 9, 13,
+13, 1, 5,
+5, 7, 9,
+9, 11, 13,
+13, 15, 1,
+1, 3, 5,
+12, 13, 10,
+13, 11, 10,
+10, 11, 8,
+11, 9, 8,
+8, 9, 6,
+9, 7, 6,
+6, 7, 4,
+7, 5, 4,
+4, 5, 2,
+5, 3, 2,
+2, 3, 0,
+3, 1, 0
 ]);
 
-function mesh_leaf(gl) {
+function mesh_grass(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$4, GL_STATIC_DRAW);
@@ -1756,43 +1552,29 @@ IndexCount: index_arr$4.length,
 }
 
 let vertex_arr$4 = Float32Array.from([
-0.040103, 0, 0.044704,
--0.054562, 0, -0.050619,
--0.124883, 0.01643, 0.126198,
-0.040103, 0, 0.044704,
-0.12554, 0.021688, -0.126198,
--0.054562, 0, -0.050619
+-0.009, 0.009, 0.001,
+0.000, -0.422, 0.012,
+0.000, 0.405, 0.119,
+0.008, 0.008, 0.001
 ]);
 
 let normal_arr$4 = Float32Array.from([
-0.0665, 0.9956, -0.0661,
-0.0665, 0.9956, -0.0661,
-0.0665, 0.9956, -0.0661,
--0.0844, 0.9929, 0.0838,
--0.0844, 0.9929, 0.0838,
--0.0844, 0.9929, 0.0838
+-0.001, -0.138, 0.990,
+0.010, 0.025, 1.000,
+-0.010, -0.285, 0.959,
+0.000, -0.125, 0.992
 ]);
 
-let texcoord_arr$4 = Float32Array.from([
-1, 0,
-0, 1,
-0, 0,
-1, 0,
-1, 1,
-0, 1
-]);
+let texcoord_arr$4 = Float32Array.from([]);
 
-let weights_arr$4 = Float32Array.from([
-
-
-]);
+let weights_arr$4 = Float32Array.from([]);
 
 let index_arr$4 = Uint16Array.from([
-5, 4, 3,
-2, 1, 0
+3, 1, 0,
+2, 3, 0
 ]);
 
-function mesh_lisek(gl) {
+function mesh_leaf(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$3, GL_STATIC_DRAW);
@@ -1824,6 +1606,74 @@ IndexCount: index_arr$3.length,
 }
 
 let vertex_arr$3 = Float32Array.from([
+0.040103, 0, 0.044704,
+-0.054562, 0, -0.050619,
+-0.124883, 0.01643, 0.126198,
+0.040103, 0, 0.044704,
+0.12554, 0.021688, -0.126198,
+-0.054562, 0, -0.050619
+]);
+
+let normal_arr$3 = Float32Array.from([
+0.0665, 0.9956, -0.0661,
+0.0665, 0.9956, -0.0661,
+0.0665, 0.9956, -0.0661,
+-0.0844, 0.9929, 0.0838,
+-0.0844, 0.9929, 0.0838,
+-0.0844, 0.9929, 0.0838
+]);
+
+let texcoord_arr$3 = Float32Array.from([
+1, 0,
+0, 1,
+0, 0,
+1, 0,
+1, 1,
+0, 1
+]);
+
+let weights_arr$3 = Float32Array.from([
+
+
+]);
+
+let index_arr$3 = Uint16Array.from([
+5, 4, 3,
+2, 1, 0
+]);
+
+function mesh_lisek(gl) {
+let vertex_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$2, GL_STATIC_DRAW);
+let normal_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$2, GL_STATIC_DRAW);
+let texcoord_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$2, GL_STATIC_DRAW);
+let weights_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+gl.bufferData(GL_ARRAY_BUFFER, weights_arr$2, GL_STATIC_DRAW);
+let index_buf = gl.createBuffer();
+gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$2, GL_STATIC_DRAW);
+return {
+VertexBuffer: vertex_buf,
+VertexArray: vertex_arr$2,
+NormalBuffer: normal_buf,
+NormalArray: normal_arr$2,
+TexCoordBuffer: texcoord_buf,
+TexCoordArray: texcoord_arr$2,
+WeightsBuffer: weights_buf,
+WeightsArray: weights_arr$2,
+IndexBuffer: index_buf,
+IndexArray: index_arr$2,
+IndexCount: index_arr$2.length,
+};
+}
+
+let vertex_arr$2 = Float32Array.from([
 0.147, 0.440, 0.021,
 0.073, -0.000, -0.008,
 0.132, 0.234, -0.280,
@@ -1846,7 +1696,7 @@ let vertex_arr$3 = Float32Array.from([
 0.000, 0.746, 0.168
 ]);
 
-let normal_arr$3 = Float32Array.from([
+let normal_arr$2 = Float32Array.from([
 0.997, 0.009, 0.083,
 -0.007, -0.962, 0.275,
 0.797, -0.599, -0.074,
@@ -1869,9 +1719,9 @@ let normal_arr$3 = Float32Array.from([
 0.000, 0.932, 0.363
 ]);
 
-let texcoord_arr$3 = Float32Array.from([]);
+let texcoord_arr$2 = Float32Array.from([]);
 
-let weights_arr$3 = Float32Array.from([
+let weights_arr$2 = Float32Array.from([
 2.000, 0.918, 1.000, 0.082,
 2.000, 1.000, 0.000, 0.000,
 4.000, 0.500, 2.000, 0.500,
@@ -1894,7 +1744,7 @@ let weights_arr$3 = Float32Array.from([
 1.000, 1.000, 0.000, 0.000
 ]);
 
-let index_arr$3 = Uint16Array.from([
+let index_arr$2 = Uint16Array.from([
 18, 19, 16,
 19, 17, 16,
 7, 13, 8,
@@ -1940,127 +1790,6 @@ let index_arr$3 = Uint16Array.from([
 1.000, 0.000, 0.000, 0.000, 0.000, -0.992, 0.124, 0.000, 0.000, -0.124, -0.992, 0.000, -0.073, 0.291, -0.509, 1.000
 1.000, 0.000, 0.000, 0.000, 0.000, -0.992, 0.124, 0.000, 0.000, -0.124, -0.992, 0.000, 0.073, 0.291, -0.509, 1.000
 */
-
-function mesh_ludek(gl) {
-let vertex_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$2, GL_STATIC_DRAW);
-let normal_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$2, GL_STATIC_DRAW);
-let texcoord_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$2, GL_STATIC_DRAW);
-let weights_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-gl.bufferData(GL_ARRAY_BUFFER, weights_arr$2, GL_STATIC_DRAW);
-let index_buf = gl.createBuffer();
-gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$2, GL_STATIC_DRAW);
-return {
-VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$2,
-NormalBuffer: normal_buf,
-NormalArray: normal_arr$2,
-TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$2,
-WeightsBuffer: weights_buf,
-WeightsArray: weights_arr$2,
-IndexBuffer: index_buf,
-IndexArray: index_arr$2,
-IndexCount: index_arr$2.length,
-};
-}
-
-let vertex_arr$2 = Float32Array.from([
--0.3, 1.2, -0.15,
-0.45, 1.47, 0,
-0.3, 1.2, -0.15,
-0.27, 0.63, 0,
-0, 0.63, 0.15,
-0.15, 0, 0,
-0.3, 1.2, 0.15,
-1.05, 1.35, 0,
--1.05, 1.35, 0,
--0.45, 1.47, 0,
--0.3, 1.2, 0.15,
-0, 0.63, -0.15,
--0.15, 0, 0,
--0.27, 0.63, 0,
-0, 2.25, -0.15,
-0, 2.25, 0.45
-]);
-
-let normal_arr$2 = Float32Array.from([
--0.424, -0.0402, -0.9048,
-0.3556, 0.9341, -0.0314,
-0.424, -0.0402, -0.9048,
-0.9544, -0.2985, 0,
-0, -0.2684, 0.9633,
-0.0912, -0.9958, 0,
-0.424, -0.0402, 0.9048,
-0.9979, 0.0645, 0,
--0.9979, 0.0645, 0,
--0.3556, 0.9341, -0.0314,
--0.424, -0.0402, 0.9048,
-0, -0.2684, -0.9633,
--0.0912, -0.9958, 0,
--0.9544, -0.2985, 0,
-0, 0.767, -0.6416,
-0, 0.6255, 0.7802
-]);
-
-let texcoord_arr$2 = Float32Array.from([]);
-
-let weights_arr$2 = Float32Array.from([
-3, 1, 0, 0,
-1, 0.75, 2, 0.25,
-2, 1, 0, 0,
-4, 1, 0, 0,
-4, 0.5, 5, 0.5,
-4, 1, 0, 0,
-2, 1, 0, 0,
-2, 1, 0, 0,
-3, 1, 0, 0,
-1, 0.75, 3, 0.25,
-3, 1, 0, 0,
-4, 0.5, 5, 0.5,
-5, 1, 0, 0,
-5, 1, 0, 0,
-1, 1, 0, 0,
-1, 1, 0, 0,
-]);
-
-let index_arr$2 = Uint16Array.from([
-15, 9, 14,
-1, 15, 14,
-9, 15, 1,
-1, 14, 9,
-2, 7, 1,
-9, 1, 6,
-6, 7, 2,
-7, 6, 1,
-6, 2, 3,
-6, 3, 4,
-5, 4, 3,
-11, 3, 2,
-4, 5, 11,
-4, 11, 12,
-11, 5, 3,
-12, 13, 4,
-13, 12, 11,
-10, 6, 4,
-10, 4, 13,
-6, 10, 9,
-8, 9, 10,
-0, 11, 2,
-0, 13, 11,
-1, 9, 0,
-10, 0, 8,
-0, 10, 13,
-9, 8, 0,
-2, 1, 0
-]);
 
 function mesh_ogon(gl) {
 let vertex_buf = gl.createBuffer();
@@ -2227,34 +1956,26 @@ IndexCount: index_arr.length,
 }
 
 let vertex_arr = Float32Array.from([
-0.5, 0, 0.5,
--0.5, 0, -0.5,
--0.5, 0, 0.5,
-0.5, 0, -0.5
+-0.500, 0.000, 0.500,
+0.500, 0.000, 0.500,
+-0.500, 0.000, -0.500,
+0.500, 0.000, -0.500
 ]);
 
 let normal_arr = Float32Array.from([
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0
+0.000, 1.000, 0.000,
+0.000, 1.000, 0.000,
+0.000, 1.000, 0.000,
+0.000, 1.000, 0.000
 ]);
 
-let texcoord_arr = Float32Array.from([
-1, 0,
-0, 1,
-0, 0,
-1, 1
-]);
+let texcoord_arr = Float32Array.from([]);
 
-let weights_arr = Float32Array.from([
-
-
-]);
+let weights_arr = Float32Array.from([]);
 
 let index_arr = Uint16Array.from([
-1, 3, 0,
-2, 1, 0
+2, 3, 0,
+3, 1, 0
 ]);
 
 const EPSILON = 0.000001;
@@ -2695,15 +2416,15 @@ return out;
 /**
 * @module systems/sys_animate
 */
-const QUERY$p = 4194304 /* Transform */ | 1 /* Animate */;
+const QUERY$q = 8388608 /* Transform */ | 1 /* Animate */;
 function sys_animate(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$p) === QUERY$p) {
-update$h(game, i, delta);
+if ((game.World.Signature[i] & QUERY$q) === QUERY$q) {
+update$i(game, i, delta);
 }
 }
 }
-function update$h(game, entity, delta) {
+function update$i(game, entity, delta) {
 let transform = game.World.Transform[entity];
 let animate = game.World.Animate[entity];
 
@@ -2783,18 +2504,18 @@ animate.Current = animate.States["idle"];
 /**
 * @module systems/sys_audio_listener
 */
-const QUERY$o = 2 /* AudioListener */ | 4194304 /* Transform */;
+const QUERY$p = 2 /* AudioListener */ | 8388608 /* Transform */;
 function sys_audio_listener(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$o) === QUERY$o) {
-update$g(game, i);
+if ((game.World.Signature[i] & QUERY$p) === QUERY$p) {
+update$h(game, i);
 }
 }
 }
 let position$1 = [0, 0, 0];
 let forward$2 = [0, 0, 0];
 let up = [0, 0, 0];
-function update$g(game, entity) {
+function update$h(game, entity) {
 let transform = game.World.Transform[entity];
 get_translation(position$1, transform.World);
 get_forward(forward$2, transform.World);
@@ -2959,15 +2680,15 @@ source.start();
 /**
 * @module systems/sys_audio_source
 */
-const QUERY$n = 4 /* AudioSource */ | 4194304 /* Transform */;
+const QUERY$o = 4 /* AudioSource */ | 8388608 /* Transform */;
 function sys_audio_source(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$n) === QUERY$n) {
-update$f(game, i, delta);
+if ((game.World.Signature[i] & QUERY$o) === QUERY$o) {
+update$g(game, i, delta);
 }
 }
 }
-function update$f(game, entity, delta) {
+function update$g(game, entity, delta) {
 let audio_source = game.World.AudioSource[entity];
 let transform = game.World.Transform[entity];
 if (audio_source.Current) {
@@ -3044,11 +2765,11 @@ invert(projection.Inverse, projection.Projection);
 /**
 * @module systems/sys_camera
 */
-const QUERY$m = 4194304 /* Transform */ | 16 /* Camera */;
+const QUERY$n = 8388608 /* Transform */ | 16 /* Camera */;
 function sys_camera(game, delta) {
 game.Cameras = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$m) === QUERY$m) {
+if ((game.World.Signature[i] & QUERY$n) === QUERY$n) {
 let camera = game.World.Camera[i];
 let transform = game.World.Transform[i];
 let projection = camera.Projection;
@@ -3157,13 +2878,13 @@ a.Max[2] > b.Min[2]);
 /**
 * @module systems/sys_collide
 */
-const QUERY$l = 4194304 /* Transform */ | 64 /* Collide */;
+const QUERY$m = 8388608 /* Transform */ | 64 /* Collide */;
 function sys_collide(game, delta) {
 
 let static_colliders = [];
 let dynamic_colliders = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$l) === QUERY$l) {
+if ((game.World.Signature[i] & QUERY$m) === QUERY$m) {
 let transform = game.World.Transform[i];
 let collider = game.World.Collide[i];
 
@@ -3225,9 +2946,28 @@ Hit: negate([0, 0, 0], hit),
 }
 
 /**
+* @module systems/sys_control_ai
+*/
+const QUERY$l = 256 /* ControlAi */ | 8388608 /* Transform */;
+function sys_control_ai(game, delta) {
+for (let i = 0; i < game.World.Signature.length; i++) {
+if ((game.World.Signature[i] & QUERY$l) === QUERY$l) {
+update$f(game, i);
+}
+}
+}
+function update$f(game, entity) {
+let control = game.World.ControlAi[entity];
+for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
+let animate = game.World.Animate[ent];
+animate.Trigger = control.Animation;
+}
+}
+
+/**
 * @module systems/sys_control_always
 */
-const QUERY$k = 128 /* ControlAlways */ | 4194304 /* Transform */ | 16384 /* Move */;
+const QUERY$k = 128 /* ControlAlways */ | 8388608 /* Transform */ | 32768 /* Move */;
 function sys_control_always(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$k) === QUERY$k) {
@@ -3246,7 +2986,7 @@ move.LocalRotations.push(control.Rotation.slice());
 }
 }
 
-const QUERY$j = 256 /* ControlPlayer */;
+const QUERY$j = 512 /* ControlPlayer */;
 function sys_control_keyboard(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
@@ -3298,7 +3038,7 @@ animate.Trigger = anim_name;
 }
 }
 
-const QUERY$i = 16384 /* Move */ | 256 /* ControlPlayer */;
+const QUERY$i = 32768 /* Move */ | 512 /* ControlPlayer */;
 const DEAD_ZONE$1 = 0.01;
 
 const joystick = [0, 0];
@@ -3334,7 +3074,7 @@ move.Directions.push([0, 0, clamp(-1, 1, -amount_y)]);
 }
 }
 
-const QUERY$h = 16384 /* Move */ | 256 /* ControlPlayer */;
+const QUERY$h = 32768 /* Move */ | 512 /* ControlPlayer */;
 const DEAD_ZONE = 0.1;
 function sys_control_xbox(game, delta) {
 for (let pad of navigator.getGamepads()) {
@@ -3369,7 +3109,7 @@ move.Directions.push([0, 0, -game.InputDelta["pad0_axis_2"]]);
 /**
 * @module systems/sys_draw
 */
-const QUERY$g = 4194304 /* Transform */ | 512 /* Draw */;
+const QUERY$g = 8388608 /* Transform */ | 1024 /* Draw */;
 function sys_draw(game, delta) {
 game.Context2D.resetTransform();
 game.Context2D.clearRect(0, 0, game.ViewportWidth, game.ViewportHeight);
@@ -3420,7 +3160,7 @@ game.Context2D.strokeRect(-draw.Size / 2, -draw.Size / 2, draw.Size, draw.Size);
 /**
 * @module systems/sys_lifespan
 */
-const QUERY$f = 2048 /* Lifespan */;
+const QUERY$f = 4096 /* Lifespan */;
 function sys_lifespan(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$f) == QUERY$f) {
@@ -3442,7 +3182,7 @@ destroy_all(game.World, entity);
 /**
 * @module systems/sys_light
 */
-const QUERY$e = 4194304 /* Transform */ | 4096 /* Light */;
+const QUERY$e = 8388608 /* Transform */ | 8192 /* Light */;
 function sys_light(game, delta) {
 game.LightPositions.fill(0);
 game.LightDetails.fill(0);
@@ -3476,7 +3216,7 @@ game.LightDetails[4 * idx + 3] = light.Intensity;
 /**
 * @module systems/sys_mimic
 */
-const QUERY$d = 4194304 /* Transform */ | 8192 /* Mimic */;
+const QUERY$d = 8388608 /* Transform */ | 16384 /* Mimic */;
 function sys_mimic(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$d) === QUERY$d) {
@@ -3496,7 +3236,7 @@ follower_transform.Dirty = true;
 /**
 * @module systems/sys_move
 */
-const QUERY$c = 4194304 /* Transform */ | 16384 /* Move */;
+const QUERY$c = 8388608 /* Transform */ | 32768 /* Move */;
 const NO_ROTATION = [0, 0, 0, 1];
 function sys_move(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -3580,7 +3320,7 @@ game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.Gl.bindVertexArray(null);
 colored_shaded_vaos.set(mesh, vao);
 }
-game.World.Signature[entity] |= 65536 /* Render */;
+game.World.Signature[entity] |= 131072 /* Render */;
 game.World.Render[entity] = {
 Kind: 1 /* ColoredShaded */,
 Material: material,
@@ -3609,7 +3349,7 @@ game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.Gl.bindVertexArray(null);
 colored_shadows_vaos.set(mesh, vao);
 }
-game.World.Signature[entity] |= 65536 /* Render */;
+game.World.Signature[entity] |= 131072 /* Render */;
 game.World.Render[entity] = {
 Kind: 2 /* ColoredShadows */,
 Material: material,
@@ -3641,7 +3381,7 @@ game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.Gl.bindVertexArray(null);
 colored_skinned_vaos.set(mesh, vao);
 }
-game.World.Signature[entity] |= 65536 /* Render */;
+game.World.Signature[entity] |= 131072 /* Render */;
 game.World.Render[entity] = {
 Kind: 3 /* ColoredSkinned */,
 Material: material,
@@ -3686,7 +3426,7 @@ game.Gl.vertexAttribPointer(material.Locations.InstanceRotation, 4, GL_FLOAT, fa
 game.Gl.vertexAttribDivisor(material.Locations.InstanceRotation, 1);
 game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.Gl.bindVertexArray(null);
-game.World.Signature[entity] |= 65536 /* Render */;
+game.World.Signature[entity] |= 131072 /* Render */;
 game.World.Render[entity] = {
 Kind: 11 /* Instanced */,
 Material: material,
@@ -3701,7 +3441,7 @@ InstanceRotationBuffer: instance_rotation_buffer,
 };
 }
 
-const QUERY$b = 4194304 /* Transform */ | 1024 /* EmitParticles */;
+const QUERY$b = 8388608 /* Transform */ | 2048 /* EmitParticles */;
 function sys_particles(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$b) == QUERY$b) {
@@ -3740,7 +3480,7 @@ i += DATA_PER_PARTICLE;
 /**
 * @module systems/sys_physics_integrate
 */
-const QUERY$a = 4194304 /* Transform */ | 131072 /* RigidBody */;
+const QUERY$a = 8388608 /* Transform */ | 262144 /* RigidBody */;
 const GRAVITY = -9.81;
 function sys_physics_integrate(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -3771,7 +3511,7 @@ set$1(rigid_body.Acceleration, 0, 0, 0);
 /**
 * @module systems/sys_physics_kinematic
 */
-const QUERY$9 = 4194304 /* Transform */ | 131072 /* RigidBody */;
+const QUERY$9 = 8388608 /* Transform */ | 262144 /* RigidBody */;
 function sys_physics_kinematic(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$9) === QUERY$9) {
@@ -3796,7 +3536,7 @@ copy(rigid_body.LastPosition, current_position);
 /**
 * @module systems/sys_physics_resolve
 */
-const QUERY$8 = 4194304 /* Transform */ | 64 /* Collide */ | 131072 /* RigidBody */;
+const QUERY$8 = 8388608 /* Transform */ | 64 /* Collide */ | 262144 /* RigidBody */;
 function sys_physics_resolve(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$8) === QUERY$8) {
@@ -3814,7 +3554,7 @@ if (rigid_body.Kind === 1 /* Dynamic */) {
 let has_collision = false;
 for (let i = 0; i < collide.Collisions.length; i++) {
 let collision = collide.Collisions[i];
-if (game.World.Signature[collision.Other] & 131072 /* RigidBody */) {
+if (game.World.Signature[collision.Other] & 262144 /* RigidBody */) {
 has_collision = true;
 
 
@@ -3860,7 +3600,7 @@ copy(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated);
 /**
 * @module systems/sys_poll
 */
-const QUERY$7 = 1048576 /* Task */;
+const QUERY$7 = 2097152 /* Task */;
 function sys_poll(game, delta) {
 
 
@@ -3890,7 +3630,7 @@ break;
 }
 }
 for (let entity of tasks_to_complete) {
-game.World.Signature[entity] &= ~1048576 /* Task */;
+game.World.Signature[entity] &= ~2097152 /* Task */;
 if (game.World.Signature[entity] === 0 /* None */) {
 game.World.DestroyEntity(entity);
 }
@@ -3907,7 +3647,7 @@ function has_blocking_dependencies(world, entity) {
 if (world.Signature[entity] & 32 /* Children */) {
 let children = world.Children[entity];
 for (let child of children.Children) {
-if (world.Signature[child] & 1048576 /* Task */) {
+if (world.Signature[child] & 2097152 /* Task */) {
 
 return true;
 }
@@ -3919,7 +3659,7 @@ return false;
 /**
 * @module systems/sys_render_depth
 */
-const QUERY$6 = 4194304 /* Transform */ | 65536 /* Render */;
+const QUERY$6 = 8388608 /* Transform */ | 131072 /* Render */;
 function sys_render_depth(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -4044,7 +3784,7 @@ return i;
 /**
 * @module systems/sys_render_forward
 */
-const QUERY$5 = 4194304 /* Transform */ | 65536 /* Render */;
+const QUERY$5 = 8388608 /* Transform */ | 131072 /* Render */;
 function sys_render_forward(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -4288,7 +4028,7 @@ game.Gl.activeTexture(GL_TEXTURE0);
 game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Sun.DepthTexture);
 game.Gl.uniform1i(material.Locations.ShadowMap, 0);
 
-let light_entity = first_entity(game.World, 16 /* Camera */ | 4096 /* Light */);
+let light_entity = first_entity(game.World, 16 /* Camera */ | 8192 /* Light */);
 if (light_entity) {
 let light_camera = game.World.Camera[light_entity];
 game.Gl.uniformMatrix4fv(material.Locations.ShadowSpace, false, light_camera.Pv);
@@ -4310,6 +4050,8 @@ game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
 game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
 game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
+game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
 const bones = new Float32Array(16 * 6);
 function draw_colored_skinned(game, entity, transform, render) {
@@ -4320,7 +4062,7 @@ game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor
 game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
 let bone_entities = [];
 if (game.World.Signature[entity] & 32 /* Children */) {
-for (let bone_entity of query_all(game.World, entity, 8 /* Bone */ | 4194304 /* Transform */)) {
+for (let bone_entity of query_all(game.World, entity, 8 /* Bone */ | 8388608 /* Transform */)) {
 bone_entities.push(bone_entity);
 }
 }
@@ -4329,7 +4071,7 @@ else {
 
 let start_here = entity;
 for (let i = 0; i < 5; i++) {
-let bone_entity = first_entity(game.World, 8 /* Bone */ | 4194304 /* Transform */, start_here);
+let bone_entity = first_entity(game.World, 8 /* Bone */ | 8388608 /* Transform */, start_here);
 if (bone_entity) {
 bone_entities.push(bone_entity);
 start_here = bone_entity + 1;
@@ -4418,7 +4160,7 @@ game.ViewportHeight = game.Canvas3D.height = game.Canvas2D.height = window.inner
 /**
 * @module systems/sys_shake
 */
-const QUERY$4 = 4194304 /* Transform */ | 262144 /* Shake */;
+const QUERY$4 = 8388608 /* Transform */ | 524288 /* Shake */;
 function sys_shake(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$4) == QUERY$4) {
@@ -4439,7 +4181,7 @@ transform.Dirty = true;
 */
 function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
 return (game, entity) => {
-game.World.Signature[entity] |= 4194304 /* Transform */;
+game.World.Signature[entity] |= 8388608 /* Transform */;
 game.World.Transform[entity] = {
 World: create(),
 Self: create(),
@@ -4454,7 +4196,7 @@ Dirty: true,
 /**
 * @module systems/sys_spawn
 */
-const QUERY$3 = 4194304 /* Transform */ | 524288 /* Spawn */;
+const QUERY$3 = 8388608 /* Transform */ | 1048576 /* Spawn */;
 function sys_spawn(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$3) == QUERY$3) {
@@ -4479,7 +4221,7 @@ instantiate(game, [...spawn.Creator(game), transform(world_position, world_rotat
 /**
 * @module systems/sys_toggle
 */
-const QUERY$2 = 2097152 /* Toggle */;
+const QUERY$2 = 4194304 /* Toggle */;
 function sys_toggle(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$2) == QUERY$2) {
@@ -4506,7 +4248,7 @@ game.World.Signature[entity] |= toggle.Mask;
 /**
 * @module systems/sys_transform
 */
-const QUERY$1 = 4194304 /* Transform */;
+const QUERY$1 = 8388608 /* Transform */;
 function sys_transform(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$1) === QUERY$1) {
@@ -4528,7 +4270,7 @@ invert(transform.Self, transform.World);
 if (world.Signature[entity] & 32 /* Children */) {
 let children = world.Children[entity];
 for (let child of children.Children) {
-if (world.Signature[child] & 4194304 /* Transform */) {
+if (world.Signature[child] & 8388608 /* Transform */) {
 let child_transform = world.Transform[child];
 child_transform.Parent = entity;
 update_transform(world, child, child_transform);
@@ -4540,7 +4282,7 @@ update_transform(world, child, child_transform);
 /**
 * @module systems/sys_trigger
 */
-const QUERY = 4194304 /* Transform */ | 64 /* Collide */ | 8388608 /* Trigger */;
+const QUERY = 8388608 /* Transform */ | 64 /* Collide */ | 16777216 /* Trigger */;
 function sys_trigger(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY) {
@@ -4575,35 +4317,37 @@ function html(strings, ...values) {
 return strings.reduce((out, cur) => out + shift(values) + cur);
 }
 
-function Fullscreen() {
+function App(game) {
 return html `
 <div
 style="
-position: absolute;
-top: 1vmin;
-left: 1vmin;
-background: #000;
-color: #fff;
-font: 13px Arial;
+animation: 8s ease-out 4s forwards intro;
 "
 >
-<button
-onclick="$(${0 /* ToggleFullscreen */})"
+<div
 style="
-padding: 1vmin;
-background: #000;
+font-family: Arial;
+font-size: 40vmin;
+font-weight: 600;
 color: #fff;
-border: none;
+line-height: .9;
 "
 >
-${document.fullscreenElement ? "Exit Fullscreen" : "Enter Fullscreen"}
-</button>
+LEFT BEHIND
+</div>
+<div
+style="
+position: relative;
+left: 4vh;
+font-family: Arial;
+font-size: 3vh;
+color: #fff;
+"
+>
+A game by Piesku.
+</div>
 </div>
 `;
-}
-
-function App(game) {
-return html `<div>${Fullscreen()}</div>`;
 }
 
 /**
@@ -4627,6 +4371,7 @@ this.Camera = [];
 this.Children = [];
 this.Collide = [];
 this.ControlAlways = [];
+this.ControlAi = [];
 this.ControlPlayer = [];
 this.Draw = [];
 this.EmitParticles = [];
@@ -4662,7 +4407,6 @@ this.MeshLeaf = mesh_leaf(this.Gl);
 this.MeshGrass = mesh_grass(this.Gl);
 this.MeshPlane = mesh_plane(this.Gl);
 this.MeshCube = mesh_cube(this.Gl);
-this.MeshLudek = mesh_ludek(this.Gl);
 this.MeshLisek = mesh_lisek(this.Gl);
 this.MeshOgon = mesh_ogon(this.Gl);
 this.MeshCylinder = mesh_cylinder(this.Gl);
@@ -4694,6 +4438,7 @@ sys_control_keyboard(this);
 sys_control_touch_move(this);
 sys_control_xbox(this);
 
+sys_control_ai(this);
 sys_control_always(this);
 
 sys_animate(this, delta);
@@ -4763,12 +4508,21 @@ ClearColor: clear_color,
 };
 }
 
+function blueprint_camera(game, clear_color) {
+return [
+children([
+transform([0, 1, 5], from_euler([0, 0, 0, 1], 10, 0, 0)),
+camera_forward_perspective(1, 0.1, 15, clear_color),
+]),
+];
+}
+
 /**
 * @module components/com_mimic
 */
 function mimic(Target, Stiffness = 0.1) {
 return (game, entity) => {
-game.World.Signature[entity] |= 8192 /* Mimic */;
+game.World.Signature[entity] |= 16384 /* Mimic */;
 game.World.Mimic[entity] = {
 Target,
 Stiffness,
@@ -4781,69 +4535,17 @@ Stiffness,
 */
 function named(Name) {
 return (game, entity) => {
-game.World.Signature[entity] |= 32768 /* Named */;
+game.World.Signature[entity] |= 65536 /* Named */;
 game.World.Named[entity] = { Name };
 };
 }
 function find_first(world, name) {
 for (let i = 0; i < world.Signature.length; i++) {
-if (world.Signature[i] & 32768 /* Named */ && world.Named[i].Name === name) {
+if (world.Signature[i] & 65536 /* Named */ && world.Named[i].Name === name) {
 return i;
 }
 }
 throw `No entity named ${name}.`;
-}
-
-function blueprint_camera(game, clear_color) {
-return [
-mimic(find_first(game.World, "camera anchor"), 0.01),
-children([
-transform([0, 1, 5], from_euler([0, 0, 0, 1], 10, 0, 0)),
-children([transform(), camera_forward_perspective(1, 0.1, 15, clear_color)]),
-]),
-];
-}
-
-function blueprint_car2(game) {
-return [
-children([
-transform([0, 0.8, 0], undefined, [4, 1, 2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
-], [
-transform([1.276, 0.5, 0], [0.707, 0, 0, 0.707], [2, 4.4, 2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0, 0, 0, 1]),
-], [
-transform([-1.1, 0.5, 0], [0.707, 0, 0, 0.707], [2, 4.4, 2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0, 0, 0, 1]),
-], [
-transform([-0.5, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
-], [
-transform([-0.5, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
-], [
-transform([1.9, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
-], [
-transform([1.9, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
-], [
-transform([0.7, 2.8, 0], undefined, [2.6, 0.2, 2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
-], [
-transform([-2, 1, -0.6], [0.5, 0.5, -0.5, 0.5], [0.8, 0.4, 0.8]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
-], [
-transform([-2, 1, 0.6], [0.5, 0.5, -0.5, 0.5], [0.8, 0.4, 0.8]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
-], [
-transform([0.264, 1.55, 0.55], undefined, [0.2, 0.5, 0.8]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0, 0, 0, 1]),
-], [
-transform([0.264, 1.55, -0.55], undefined, [0.2, 0.5, 0.8]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0, 0, 0, 1]),
-]),
-];
 }
 
 let seed = 1;
@@ -4894,7 +4596,7 @@ Collisions: [],
 */
 function rigid_body(kind, bounciness = 0.5) {
 return (game, entity) => {
-game.World.Signature[entity] |= 131072 /* RigidBody */;
+game.World.Signature[entity] |= 262144 /* RigidBody */;
 game.World.RigidBody[entity] = {
 Kind: kind,
 Bounciness: bounciness,
@@ -4926,20 +4628,6 @@ transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
 render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
 ]),
 ];
-}
-
-/**
-* @module components/com_light
-*/
-function light_directional(color = [1, 1, 1], range = 1) {
-return (game, entity) => {
-game.World.Signature[entity] |= 4096 /* Light */;
-game.World.Light[entity] = {
-Kind: 1 /* Directional */,
-Color: color,
-Intensity: range ** 2,
-};
-};
 }
 
 function bone(index, inverse_bind_pose) {
@@ -4977,7 +4665,7 @@ Rotation: rotation,
 
 function control_player(move, rotate, animate) {
 return (game, entity) => {
-game.World.Signature[entity] |= 256 /* ControlPlayer */;
+game.World.Signature[entity] |= 512 /* ControlPlayer */;
 game.World.ControlPlayer[entity] = {
 Move: move,
 Rotate: rotate,
@@ -4998,7 +4686,7 @@ IsFacingRight: true,
 */
 function move(move_speed, rotation_speed) {
 return (game, entity) => {
-game.World.Signature[entity] |= 16384 /* Move */;
+game.World.Signature[entity] |= 32768 /* Move */;
 game.World.Move[entity] = {
 MoveSpeed: move_speed,
 RotationSpeed: rotation_speed,
@@ -5045,7 +4733,7 @@ Current: States["idle"],
 };
 }
 
-function blueprint_lisek(game) {
+function blueprint_lisek(game, animation_step_length = 0.2) {
 return [
 render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshLisek, [1, 0.5, 0, 1], 0),
 children([
@@ -5069,12 +4757,12 @@ Timestamp: 0.0,
 Translation: [0, 0.63, 0],
 },
 {
-Timestamp: 0.2,
+Timestamp: animation_step_length,
 Translation: [0, 1.13, 0],
 Ease: ease_in_out_quart,
 },
 {
-Timestamp: 0.4,
+Timestamp: animation_step_length * 2,
 Translation: [0, 0.63, 0],
 Ease: ease_out_quart,
 },
@@ -5097,7 +4785,7 @@ Rotation: from_euler([0, 0, 0, 1], -30, 15, 0),
 Ease: ease_in_out_quart,
 },
 {
-Timestamp: 1,
+Timestamp: animation_step_length * 5,
 Rotation: from_euler([0, 0, 0, 1], -30, -15, 0),
 Ease: ease_in_out_quart,
 },
@@ -5110,7 +4798,7 @@ Timestamp: 0.0,
 Rotation: from_euler([0, 0, 0, 1], -30, 0, 5),
 },
 {
-Timestamp: 0.2,
+Timestamp: animation_step_length,
 Rotation: from_euler([0, 0, 0, 1], -30, 0, -5),
 },
 ],
@@ -5122,12 +4810,12 @@ Timestamp: 0.0,
 Rotation: [0, 0, 0, 1],
 },
 {
-Timestamp: 0.2,
+Timestamp: animation_step_length,
 Rotation: from_euler([0, 0, 0, 1], -15, 0, 0),
 Ease: ease_in_out_quart,
 },
 {
-Timestamp: 0.4,
+Timestamp: animation_step_length * 2,
 Rotation: from_euler([0, 0, 0, 1], 0, 0, 0),
 Ease: ease_out_quart,
 },
@@ -5156,7 +4844,7 @@ Timestamp: 0,
 Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
 },
 {
-Timestamp: 0.2,
+Timestamp: animation_step_length,
 Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
 },
 ],
@@ -5168,12 +4856,12 @@ Timestamp: 0.0,
 Rotation: [0, 0, 0, 1],
 },
 {
-Timestamp: 0.2,
+Timestamp: animation_step_length,
 Rotation: from_euler([0, 0, 0, 1], 0, 0, 135),
 Ease: ease_in_out_quart,
 },
 {
-Timestamp: 0.4,
+Timestamp: animation_step_length * 2,
 Rotation: [0, 0, 0, 1],
 Ease: ease_out_quart,
 },
@@ -5202,7 +4890,7 @@ Timestamp: 0,
 Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
 },
 {
-Timestamp: 0.2,
+Timestamp: animation_step_length,
 Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
 },
 ],
@@ -5214,12 +4902,12 @@ Timestamp: 0.0,
 Rotation: [0, 0, 0, 1],
 },
 {
-Timestamp: 0.2,
+Timestamp: animation_step_length,
 Rotation: from_euler([0, 0, 0, 1], 0, 0, -135),
 Ease: ease_in_out_quart,
 },
 {
-Timestamp: 0.4,
+Timestamp: animation_step_length * 2,
 Rotation: [0, 0, 0, 1],
 Ease: ease_out_quart,
 },
@@ -5248,7 +4936,7 @@ Timestamp: 0,
 Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
 },
 {
-Timestamp: 0.2,
+Timestamp: animation_step_length,
 Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
 },
 ],
@@ -5260,12 +4948,12 @@ Timestamp: 0.0,
 Rotation: [0, 0, 0, 1],
 },
 {
-Timestamp: 0.2,
+Timestamp: animation_step_length,
 Rotation: from_euler([0, 0, 0, 1], 0, 0, 45),
 Ease: ease_in_out_quart,
 },
 {
-Timestamp: 0.4,
+Timestamp: animation_step_length * 2,
 Rotation: [0, 0, 0, 1],
 Ease: ease_out_quart,
 },
@@ -5294,7 +4982,7 @@ Timestamp: 0,
 Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
 },
 {
-Timestamp: 0.2,
+Timestamp: animation_step_length,
 Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
 },
 ],
@@ -5306,12 +4994,12 @@ Timestamp: 0.0,
 Rotation: [0, 0, 0, 1],
 },
 {
-Timestamp: 0.2,
+Timestamp: animation_step_length,
 Rotation: from_euler([0, 0, 0, 1], 0, 0, -45),
 Ease: ease_in_out_quart,
 },
 {
-Timestamp: 0.4,
+Timestamp: animation_step_length * 2,
 Rotation: [0, 0, 0, 1],
 Ease: ease_out_quart,
 },
@@ -5440,43 +5128,18 @@ callback((game, entity) => (entity)),
 return lisek_entity;
 }
 
-function blueprint_slup(game) {
-return [
-children([
-transform([0, 2, 0], undefined, [0.5, 8, 0.5]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.119, 0.027, 0.012, 1]),
-], [
-transform([0, 3.705, -0.125], undefined, [1.5, 0.225, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.119, 0.027, 0.012, 1]),
-], [
-transform([0, 3.705, 0.125], undefined, [1.5, 0.225, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.119, 0.027, 0.012, 1]),
-], [
-transform([0, 3.164, -0.125], undefined, [1.5, 0.225, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.119, 0.027, 0.012, 1]),
-], [
-transform([0.65, 3.875, -0.125], undefined, [0.2, 0.3, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
-], [
-transform([0.5, 3.875, -0.125], undefined, [0.2, 0.3, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
-], [
-transform([0.65, 3.35, -0.125], undefined, [0.2, 0.3, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
-], [
-transform([0.5, 3.35, -0.125], undefined, [0.2, 0.3, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
-], [
-transform([-0.17, 2.88, -0.12], [0, 0, -0.383, 0.924], [0.6, 0.1, 0.025]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.367, 0.367, 0.367, 1]),
-], [
-transform([-0.5, 3.875, 0.125], undefined, [0.2, 0.3, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
-], [
-transform([-0.65, 3.875, 0.125], undefined, [0.2, 0.3, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
-]),
-];
+/**
+* @module components/com_light
+*/
+function light_directional(color = [1, 1, 1], range = 1) {
+return (game, entity) => {
+game.World.Signature[entity] |= 8192 /* Light */;
+game.World.Light[entity] = {
+Kind: 1 /* Directional */,
+Color: color,
+Intensity: range ** 2,
+};
+};
 }
 
 function blueprint_sun(game) {
@@ -5535,144 +5198,31 @@ render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(ro
 ];
 }
 
-function blueprint_barn(game) {
+/**
+* @module components/com_control_ai
+*/
+function control_ai(Animation) {
+return (game, entity) => {
+game.World.Signature[entity] |= 256 /* ControlAi */;
+game.World.ControlAi[entity] = {
+Animation,
+};
+};
+}
+
+function blueprint_monster(game) {
 return [
 children([
-transform([0, 1, 0], undefined, [3, 2, 3]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.406, 0, 0, 1]),
-], [
-transform([0, 2, 0], [0.707, 0, 0, 0.707], [6, 6, 5.98]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.406, 0, 0, 1]),
-], [
-transform([-1.5, 1, -1.5], undefined, [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([-1.5, 1, 1.5], undefined, [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([1.5, 1, -1.5], undefined, [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0, 0, 0, 1]),
-], [
-transform([1.5, 1, 1.5], undefined, [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0, 2, 1.49], undefined, [3.099, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0, 2, -1.5], undefined, [3.099, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([1.5, 2, -0.001], [0, 0.707, 0, 0.707], [3.099, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([-1.498, 2, -0.001], [0, 0.707, 0, 0.707], [3.099, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([-1.28, 2.524, 1.49], [0, 0, 0.547, 0.837], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([-1.28, 2.524, -1.494], [0, 0, 0.547, 0.837], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([1.273, 2.524, 1.49], [0, 0, -0.547, 0.837], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([1.273, 2.524, -1.524], [0, 0, -0.547, 0.837], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0.507, 3.274, -1.524], [0, 0, -0.191, 0.982], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0.507, 3.274, 1.527], [0, 0, -0.191, 0.982], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([-0.521, 3.274, 1.527], [0, 0, 0.191, 0.982], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([-0.521, 3.274, -1.525], [0, 0, 0.191, 0.982], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0, 1.5, 1.6], undefined, [1.8, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0.854, 0.7, 1.6], [0, 0, -0.707, 0.707], [1.5, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([-0.85, 0.7, 1.6], [0, 0, -0.707, 0.707], [1.5, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0, 0.7, 1.59], [0, 0, -0.383, 0.924], [2.2, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0, 0.7, 1.58], [0, 0, 0.383, 0.924], [2.2, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([-1.247, 2.524, -0.011], [0, 0, 0.547, 0.837], [1.159, 0.1, 2.99]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.07, 0.07, 0.07, 1]),
-], [
-transform([1.242, 2.524, -0.011], [0, 0, -0.547, 0.837], [1.159, 0.1, 2.99]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.07, 0.07, 0.07, 1]),
-], [
-transform([0.508, 3.242, -0.011], [0, 0, -0.191, 0.982], [1.159, 0.1, 2.99]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.07, 0.07, 0.07, 1]),
-], [
-transform([-0.515, 3.242, -0.011], [0, 0, 0.191, 0.982], [1.159, 0.1, 2.99]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.07, 0.07, 0.07, 1]),
+transform([0, 0, 0], from_euler([0, 0, 0, 1], 0, -90, 0), [20, 50, 20]),
+control_always([0, 0, 1], null),
+control_ai("walk"),
+move(0.5, 0.5),
+...blueprint_lisek(game, 10),
 ]),
 ];
 }
 
-function blueprint_fence(game) {
-return [
-children([
-transform([0, 0.6, 0], undefined, [0.1, 1.2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0, 1.21, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0, 0.6, 1], undefined, [0.1, 1.2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0, 0.8, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0, 0.4, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-]),
-];
-}
-
-function blueprint_silo(game) {
-return [
-children([
-transform([0, 3, 0], undefined, [5, 12, 5]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.406, 0, 0, 1]),
-], [
-transform([0, 0.001, 0], undefined, [5.2, 0.4, 5.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0, 6, 0], undefined, [5.2, 0.4, 5.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0, 3, 0], undefined, [5.2, 0.4, 5.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0, 1.5, 0], undefined, [5.2, 0.4, 5.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0, 4.5, 0], undefined, [5.2, 0.4, 5.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
-], [
-transform([0.527, 3, 1.595], undefined, [0.8, 12, 0.8]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
-]),
-];
-}
-
-function scene_level_farm(game) {
-game.World = new World();
-game.ViewportResized = true;
+function map_forest(game) {
 instantiate(game, [
 transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
 ...blueprint_sun(game),
@@ -5711,210 +5261,159 @@ transform([6.267, 0, -5.233], [0, 0.707, 0, 0.707], [10, 1, 40]),
 ]);
 instantiate_player(game, [-6.258, 0.774, 0.343]);
 instantiate(game, [
-transform([17.281, 0.258, -3.373], undefined, undefined),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([22.628, 0.386, -3.539], undefined, undefined),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([-8.685, 0.5, -4.619], [0, 0.56, 0, 0.829], [2, 2, 2]),
-...blueprint_barn(game),
-]);
-instantiate(game, [
-transform([-12, 0.5, 3.5], [0, 0.707, 0, 0.707], undefined),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([-10, 0.5, 3.5], [0, 0.707, 0, 0.707], undefined),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([-8, 0.5, 3.5], [0, 0.707, 0, 0.707], undefined),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([-6, 0.5, 3.5], [0, 0.707, 0, 0.707], undefined),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([-2.123, 0.5, -4.634], [0, 0.175, 0, 0.985], undefined),
-...blueprint_silo(game),
-]);
-instantiate(game, [
-transform([-5, 0.5, -8], [0, 0.707, 0, 0.707], undefined),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([-3, 0.5, -8], [0, 0.707, 0, 0.707], undefined),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([-1, 0.5, -8], [0, 0.707, 0, 0.707], undefined),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([1, 0.5, -8], [0, 0.707, 0, 0.707], undefined),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([3, 0.5, -8], [0, 0.707, 0, 0.707], undefined),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([5.772, 0.5, -7.376], undefined, [0.8, 0.8, 0.8]),
-...blueprint_barn(game),
-]);
-instantiate(game, [
-transform([5, 0.5, -8], [0, 0.707, 0, 0.707], undefined),
-...blueprint_fence(game),
-]);
-instantiate(game, [
 transform([4.669, 0.547, -6.026], undefined, undefined),
 ...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([15.5, -2, -6.026], undefined, undefined),
+...blueprint_monster(game),
 ]);
 instantiate(game, [
 transform([3.112, 0.769, 3.408], undefined, undefined),
 ...blueprint_bush(game),
 ]);
 instantiate(game, [
-transform([3.714, 0.191, -2.208], undefined, undefined),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([9.436, 0.356, -3.75], [0, 0.952, 0, 0.305], undefined),
-...blueprint_slup(game),
-]);
-instantiate(game, [
-transform([13.056, 0.5, -6.526], [0, 0.175, 0, 0.985], [0.6, 0.6, 0.6]),
-...blueprint_silo(game),
-]);
-instantiate(game, [
-transform([15.088, 0.5, -6.526], [0, 0.175, 0, 0.985], [0.6, 0.6, 0.6]),
-...blueprint_silo(game),
-]);
-instantiate(game, [
-transform([17.147, 0.5, -6.526], [0, 0.175, 0, 0.985], [0.6, 0.6, 0.6]),
-...blueprint_silo(game),
-]);
-instantiate(game, [
-transform([13.606, 0.582, -6.194], undefined, undefined),
+transform([13.606, 0.582, -6.194], undefined, [2.439, 1, 2.539]),
 ...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([17.024, 3.589, -6.274], undefined, undefined),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([21.275, 0.356, -7.481], [0, 0.952, 0, 0.305], [0.7, 0.7, 0.7]),
-...blueprint_slup(game),
-]);
-instantiate(game, [
-transform([22.834, 0.5, -6.821], [0, -0.437, 0, 0.899], [0.8, 0.8, 0.8]),
-...blueprint_barn(game),
-]);
-instantiate(game, [
-transform([25.7, 0.5, -3], [0, 0.815, 0, 0.579], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([1.7, 0.9, -6], [0.681, 0.19, -0.19, 0.681], [0.4, 0.4, 0.4]),
-...blueprint_car2(game),
 ]);
 instantiate(game, [
 transform([1.334, 0.611, -5.021], undefined, undefined),
 ...blueprint_bush(game),
 ]);
 instantiate(game, [
-transform([24.836, 0.5, -2.687], [0, 0.815, 0, 0.579], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
+transform([-10.877, 0.191, -4.573], undefined, [20, 4, 20]),
+...blueprint_tree(game),
 ]);
 instantiate(game, [
-transform([23.942, 0.5, -2.493], [0, 0.739, 0, 0.674], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([23.024, 0.5, -2.431], [0, 0.722, 0, 0.692], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([22.074, 0.5, -2.387], [0, 0.722, 0, 0.692], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([21.15, 0.5, -2.497], [0, 0.602, 0, 0.798], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([20.344, 0.5, -2.934], [0, 0.411, 0, 0.911], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([18.363, 0.5, -4.784], [0, 0.411, 0, 0.911], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([17.557, 0.5, -5.128], [0, 0.678, 0, 0.735], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([16.626, 0.5, -5.209], [0, 0.678, 0, 0.735], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([15.701, 0.5, -5.209], [0, 0.739, 0, 0.674], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([14.795, 0.5, -5.122], [0, 0.739, 0, 0.674], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([19.038, 0.5, -4.178], [0, 0.411, 0, 0.911], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([13.888, 0.5, -5.109], [0, 0.678, 0, 0.735], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([12.964, 0.5, -5.109], [0, 0.739, 0, 0.674], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([12.126, 0.5, -5.315], [0, 0.476, 0, 0.88], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([11.445, 0.5, -5.934], [0, 0.33, 0, 0.944], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([11.101, 0.5, -6.778], [0, 0.049, 0, 0.999], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([11.014, 0.5, -7.721], [0, 0.049, 0, 0.999], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([19.421, 0.289, -3.388], [0.149, 0.384, -0.33, 0.85], [0.5, 0.5, 0.5]),
-...blueprint_fence(game),
-]);
-instantiate(game, [
-transform([19.003, 0.331, -4.134], undefined, undefined),
+transform([11.065, 0.547, -8.23], undefined, undefined),
 ...blueprint_bush(game),
 ]);
+instantiate(game, [
+transform([14.128, 0.547, -0.948], undefined, undefined),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([3.998, 0.547, -1.593], undefined, undefined),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([-8.014, 0.547, -1.915], undefined, undefined),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([11.522, 2.276, 0.987], undefined, undefined),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([21.291, 0.582, -2.405], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([23.468, 0.582, -8.639], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([-3.806, 0.582, -2.029], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([16.992, 0.582, -0.578], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([-6.169, 0.191, -7.926], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([-11.78, 0.191, -9.474], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([-1.494, 0.191, -9.474], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([-3.686, 0.191, -4.379], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([1.602, 0.191, -5.927], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([0.312, 0.191, -2.767], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([-10.296, 0.191, 2.747], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([2.731, 0.191, 2.521], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([5.471, 0.191, -9.023], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([5.149, 0.191, -2.864], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([8.503, 0.191, -5.798], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([12.243, 0.191, -8.765], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([10.889, 0.191, -2.348], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([14.758, 0.191, -4.799], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([18.37, 0.191, 2.521], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([17.789, 0.191, -9.023], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([19.305, 0.191, -4.154], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([24.045, 0.191, -2.251], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([22.981, 0.191, -7.83], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+}
+
+function scene_level3(game) {
+game.World = new World();
+game.ViewportResized = true;
+map_forest(game);
 
 instantiate(game, [
-...blueprint_camera(game, [255 / 255, 215 / 255, 55 / 255, 1]),
-transform([-6.258, 0.774, 0.343], from_euler([0, 0, 0, 1], -30, 0, 0)),
+...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
+transform([0, 0, 0], from_euler([0, 0, 0, 1], -30, 0, 0)),
+mimic(find_first(game.World, "camera anchor"), 0.01),
+
+
 ]);
 }
 
 let game = new Game();
-scene_level_farm(game);
+scene_level3(game);
 game.Start();
 
 window.$ = dispatch.bind(null, game);
