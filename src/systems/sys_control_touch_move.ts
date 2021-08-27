@@ -1,6 +1,7 @@
 import {Quat, Vec2, Vec3} from "../../common/math.js";
 import {clamp} from "../../common/number.js";
 import {Entity} from "../../common/world.js";
+import {Control} from "../components/com_control_player.js";
 import {Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -34,7 +35,7 @@ function update(game: Game, entity: Entity) {
     let control = game.World.ControlPlayer[entity];
     let move = game.World.Move[entity];
 
-    if (control.Move && game.InputState["Touch0"] === 1) {
+    if (control.Flags & Control.Move && game.InputState["Touch0"] === 1) {
         let divisor = Math.min(game.ViewportWidth, game.ViewportHeight) / 4;
         let amount_x = (game.InputState["Touch0X"] - joystick[0]) / divisor;
         let amount_y = (game.InputState["Touch0Y"] - joystick[1]) / divisor;

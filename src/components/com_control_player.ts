@@ -3,20 +3,26 @@ import {Game} from "../game.js";
 import {Has} from "../world.js";
 
 export interface ControlPlayer {
-    Move: boolean;
-    Rotate: boolean;
-    Animate: boolean;
+    Flags: number;
     IsFacingRight: boolean;
+    IsGrabbingEntity: Entity | null;
 }
 
-export function control_player(move: boolean, rotate: boolean, animate: boolean) {
+export const enum Control {
+    None,
+    Move = 1,
+    Rotate = 2,
+    Animate = 4,
+    Grab = 8,
+}
+
+export function control_player(flags: number) {
     return (game: Game, entity: Entity) => {
         game.World.Signature[entity] |= Has.ControlPlayer;
         game.World.ControlPlayer[entity] = {
-            Move: move,
-            Rotate: rotate,
-            Animate: animate,
+            Flags: flags,
             IsFacingRight: true,
+            IsGrabbingEntity: null,
         };
     };
 }
