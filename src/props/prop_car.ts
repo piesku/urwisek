@@ -5,7 +5,7 @@ import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
 let color: Vec4 = [0.4, 0.2, 0.5, 1];
-export function blueprint_car(game: Game) {
+export function prop_car(game: Game) {
     return [
         children(
             [

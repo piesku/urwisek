@@ -3,7 +3,7 @@ import {render_colored_shaded} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
-export function blueprint_slup(game: Game) {
+export function prop_slup(game: Game) {
     return [
         children(
             [

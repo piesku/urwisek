@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-const {readFileSync, writeFileSync} = require("fs");
+const {readFileSync} = require("fs");
 const path = require("path");
 
 if (process.argv.length !== 3) {
     console.error("Provide a GLTF file on stdin and the name of the blueprint:");
-    console.error("  cat foo.gltf | node gltf2blueprint.cjs foo");
+    console.error("  cat foo.gltf | node gltf2prop.cjs foo");
     process.exit(1);
 }
 
@@ -56,7 +56,7 @@ import {render_colored_shaded} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
-export function blueprint_${blueprint_name}(game: Game) {
+export function prop_${blueprint_name}(game: Game) {
     return [
         children(${nodes
             .map((node) =>
@@ -73,4 +73,4 @@ export function blueprint_${blueprint_name}(game: Game) {
 }
 `;
 
-writeFileSync(path.join("..", "src", "blueprints", `blu_${blueprint_name}.ts`), result);
+console.log(result);

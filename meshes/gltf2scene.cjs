@@ -44,7 +44,7 @@ let create_instance = (name, translation, rotation, scale) => {
             return `
     instantiate(game, [
         transform(${vec(translation)}, ${vec(rotation)}, ${vec(scale)}),
-        ...blueprint_${name}(game),
+        ...prop_${name}(game),
     ]);`;
     }
 };
@@ -55,16 +55,16 @@ let nodes = gltf.nodes;
 let result = `\
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
-import {blueprint_barn} from "../blueprints/blu_barn.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
-import {blueprint_car2} from "../blueprints/blu_car2.js";
-import {blueprint_fence} from "../blueprints/blu_fence.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
-import {instantiate_player} from "../blueprints/blu_player.js";
-import {blueprint_silo} from "../blueprints/blu_silo.js";
-import {blueprint_slup} from "../blueprints/blu_slup.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_bush, blueprint_tree} from "../blueprints/blu_tree.js";
+import {instantiate_player} from "../blueprints/blu_player.js";
+import {prop_barn} from "../props/prop_barn.js";
+import {prop_car2} from "../props/prop_car2.js";
+import {prop_fence} from "../props/prop_fence.js";
+import {prop_silo} from "../props/prop_silo.js";
+import {prop_slup} from "../props/prop_slup.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {World} from "../world.js";

@@ -1,10 +1,9 @@
-import {Vec4} from "../../common/math.js";
 import {children} from "../components/com_children.js";
 import {render_colored_shaded} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
-export function blueprint_barn(game: Game) {
+export function prop_barn(game: Game) {
     return [
         children(
             [

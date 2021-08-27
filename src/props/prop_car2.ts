@@ -3,7 +3,7 @@ import {render_colored_shaded} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
-export function blueprint_car2(game: Game) {
+export function prop_car2(game: Game) {
     return [
         children(
             [
