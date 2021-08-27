@@ -2,7 +2,7 @@ import {from_euler} from "../../common/quat.js";
 import {float, integer} from "../../common/random.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
-import {render_colored_shaded, render_instanced} from "../components/com_render.js";
+import {render_colored_shadows, render_instanced} from "../components/com_render.js";
 import {RigidKind, rigid_body} from "../components/com_rigid_body.js";
 import {transform} from "../components/com_transform.js";
 import {Game, Layer} from "../game.js";
@@ -28,8 +28,8 @@ export function blueprint_ground(game: Game) {
         children(
             [
                 transform(),
-                render_colored_shaded(
-                    game.MaterialColoredShaded,
+                render_colored_shadows(
+                    game.MaterialColoredShadows,
                     game.MeshCube,
                     [0.095, 0.095, 0.095, 1]
                 ),
