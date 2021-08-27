@@ -8,6 +8,8 @@ import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_bush, blueprint_tree} from "../blueprints/blu_tree.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
+import {mimic} from "../components/com_mimic.js";
+import {find_first} from "../components/com_named.js";
 import {render_colored_shadows, render_instanced} from "../components/com_render.js";
 import {RigidKind, rigid_body} from "../components/com_rigid_body.js";
 import {transform} from "../components/com_transform.js";
@@ -72,6 +74,7 @@ export function scene_stage(game: Game) {
 
     instantiate_player(game, [-1, 1, 1]);
     instantiate(game, [...blueprint_box(game), transform([2.5, 5, 1])]);
+    instantiate(game, [...blueprint_box(game), transform([2.5, 8, 1])]);
 
     let slups = 2;
     for (let i = 0; i < slups; i++) {
@@ -115,5 +118,6 @@ export function scene_stage(game: Game) {
     instantiate(game, [
         ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
         transform([0, 0, 0], from_euler([0, 0, 0, 1], -30, 0, 0)),
+        mimic(find_first(game.World, "camera anchor"), 0.01),
     ]);
 }
