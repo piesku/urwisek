@@ -3008,7 +3008,7 @@
             if (game.InputDelta["ArrowUp"] === 1) {
                 move.Directions.push([1, 0, 0]);
                 let rigid_body = game.World.RigidBody[entity];
-                rigid_body.Acceleration[1] += 300;
+                rigid_body.Acceleration[1] += 500;
             }
         }
         if (control.Flags & 2 /* Rotate */) {
@@ -3505,7 +3505,7 @@
      * @module systems/sys_physics_integrate
      */
     const QUERY$a = 8388608 /* Transform */ | 262144 /* RigidBody */;
-    const GRAVITY = -9.81;
+    const GRAVITY = -20;
     function sys_physics_integrate(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$a) === QUERY$a) {
@@ -5035,7 +5035,7 @@
         return [
             audio_listener(),
             control_player(1 /* Move */),
-            move(1.5, 0),
+            move(3, 0),
             collide(true, 1 /* Player */, 2 /* Terrain */ | 4 /* Obstacle */, [0.6, 0.8, 0.8]),
             rigid_body(1 /* Dynamic */, 0),
             children(
@@ -5342,7 +5342,7 @@
         return [
             collide(true, 4 /* Obstacle */, 2 /* Terrain */ | 4 /* Obstacle */),
             rigid_body(1 /* Dynamic */),
-            mimic(0, 0.05),
+            mimic(0),
             disable(16384 /* Mimic */),
             ...prop_box(game),
         ];
