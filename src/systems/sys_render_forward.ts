@@ -369,7 +369,7 @@ function draw_colored_shadows(game: Game, transform: Transform, render: RenderCo
 
 function use_colored_skinned(
     game: Game,
-    material: Material<ColoredShadedLayout & ForwardShadingLayout>,
+    material: Material<ColoredShadedLayout & ForwardShadingLayout & FogLayout>,
     eye: CameraEye
 ) {
     game.Gl.useProgram(material.Program);
@@ -377,6 +377,8 @@ function use_colored_skinned(
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
     game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+    game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
+    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
 
 const bones = new Float32Array(16 * 6);

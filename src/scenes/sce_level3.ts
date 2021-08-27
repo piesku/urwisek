@@ -16,5 +16,7 @@ export function scene_level3(game: Game) {
     instantiate(game, [
         ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
         transform([0, 0, 0], from_euler([0, 0, 0, 1], -30, 0, 0)),
+        // shake(0.02),
+        // toggle(Has.Shake, 0.5, true),
     ]);
 }

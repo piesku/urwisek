@@ -246,7 +246,9 @@ export function render_colored_shadows(
 
 export interface RenderColoredSkinned {
     readonly Kind: RenderKind.ColoredSkinned;
-    readonly Material: Material<ColoredShadedLayout & ForwardShadingLayout & SkinningLayout>;
+    readonly Material: Material<
+        ColoredShadedLayout & ForwardShadingLayout & SkinningLayout & FogLayout
+    >;
     readonly Mesh: Mesh;
     readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;
@@ -256,7 +258,7 @@ export interface RenderColoredSkinned {
 }
 
 export function render_colored_skinned(
-    material: Material<ColoredShadedLayout & ForwardShadingLayout & SkinningLayout>,
+    material: Material<ColoredShadedLayout & ForwardShadingLayout & SkinningLayout & FogLayout>,
     mesh: Mesh,
     diffuse_color: Vec4,
     shininess: number = 0,
