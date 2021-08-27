@@ -98,33 +98,6 @@ export function blueprint_barn(game: Game) {
     ],
 
     [
-        transform([0, 3.499, -0.001], [0, 0.707, 0, 0.707], [3.099, 0.1, 0.1]),
-        render_colored_shaded(
-            game.MaterialColoredShaded,
-            game.MeshCube,
-            [0.8, 0.8, 0.8, 1]
-        ),
-    ],
-
-    [
-        transform([1.039, 3.028, -0.001], [0, 0.707, 0, 0.707], [3.099, 0.1, 0.1]),
-        render_colored_shaded(
-            game.MaterialColoredShaded,
-            game.MeshCube,
-            [0.8, 0.8, 0.8, 1]
-        ),
-    ],
-
-    [
-        transform([-1.031, 3.028, -0.001], [0, 0.707, 0, 0.707], [3.099, 0.1, 0.1]),
-        render_colored_shaded(
-            game.MaterialColoredShaded,
-            game.MeshCube,
-            [0.8, 0.8, 0.8, 1]
-        ),
-    ],
-
-    [
         transform([-1.28, 2.524, 1.49], [0, 0, 0.547, 0.837], [1.159, 0.1, 0.1]),
         render_colored_shaded(
             game.MaterialColoredShaded,
@@ -238,6 +211,42 @@ export function blueprint_barn(game: Game) {
             game.MaterialColoredShaded,
             game.MeshCube,
             [0.8, 0.8, 0.8, 1]
+        ),
+    ],
+
+    [
+        transform([-1.247, 2.524, -0.011], [0, 0, 0.547, 0.837], [1.159, 0.1, 2.99]),
+        render_colored_shaded(
+            game.MaterialColoredShaded,
+            game.MeshCube,
+            [0.07, 0.07, 0.07, 1]
+        ),
+    ],
+
+    [
+        transform([1.242, 2.524, -0.011], [0, 0, -0.547, 0.837], [1.159, 0.1, 2.99]),
+        render_colored_shaded(
+            game.MaterialColoredShaded,
+            game.MeshCube,
+            [0.07, 0.07, 0.07, 1]
+        ),
+    ],
+
+    [
+        transform([0.508, 3.242, -0.011], [0, 0, -0.191, 0.982], [1.159, 0.1, 2.99]),
+        render_colored_shaded(
+            game.MaterialColoredShaded,
+            game.MeshCube,
+            [0.07, 0.07, 0.07, 1]
+        ),
+    ],
+
+    [
+        transform([-0.515, 3.242, -0.011], [0, 0, 0.191, 0.982], [1.159, 0.1, 2.99]),
+        render_colored_shaded(
+            game.MaterialColoredShaded,
+            game.MeshCube,
+            [0.07, 0.07, 0.07, 1]
         ),
     ]),
     ];

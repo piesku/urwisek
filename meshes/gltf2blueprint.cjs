@@ -62,7 +62,7 @@ export function blueprint_${blueprint_name}(game: Game) {
             .map((node) =>
                 create_child(
                     node.name.split(".")[0],
-                    node.translation.map((e) => e / 1),
+                    node.translation,
                     node.rotation,
                     node.scale,
                     color_map[node.mesh]

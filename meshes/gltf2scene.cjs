@@ -90,7 +90,7 @@ export function scene_${scene_name}(game: Game) {
 
     // Camera.
     instantiate(game, [
-        ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
+        ...blueprint_camera(game, [255 / 255, 215 / 255, 55 / 255, 1]),
         transform(${vec(starting_translation)}, from_euler([0, 0, 0, 1], -30, 0, 0)),
     ]);
 }
