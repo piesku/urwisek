@@ -22,7 +22,7 @@ function blueprint_player(game: Game) {
     return [
         audio_listener(),
         control_player(Control.Move),
-        move(1.5, 0),
+        move(3, 0),
         collide(true, Layer.Player, Layer.Terrain | Layer.Obstacle, [0.6, 0.8, 0.8]),
         rigid_body(RigidKind.Dynamic, 0),
         children(

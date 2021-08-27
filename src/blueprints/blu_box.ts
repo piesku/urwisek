@@ -10,7 +10,7 @@ export function blueprint_box(game: Game) {
     return [
         collide(true, Layer.Obstacle, Layer.Terrain | Layer.Obstacle),
         rigid_body(RigidKind.Dynamic),
-        mimic(0, 0.05),
+        mimic(0),
         disable(Has.Mimic),
         ...prop_box(game),
     ];

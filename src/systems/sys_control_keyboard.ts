@@ -30,7 +30,7 @@ function update(game: Game, entity: Entity) {
         if (game.InputDelta["ArrowUp"] === 1) {
             move.Directions.push([1, 0, 0]);
             let rigid_body = game.World.RigidBody[entity];
-            rigid_body.Acceleration[1] += 300;
+            rigid_body.Acceleration[1] += 500;
         }
     }
 
