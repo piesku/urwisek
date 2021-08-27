@@ -55,15 +55,16 @@ let nodes = gltf.nodes;
 let result = `\
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
+import {blueprint_barn} from "../blueprints/blu_barn.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_car2} from "../blueprints/blu_car2.js";
+import {blueprint_fence} from "../blueprints/blu_fence.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
-import {blueprint_house} from "../blueprints/blu_house.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
+import {blueprint_silo} from "../blueprints/blu_silo.js";
 import {blueprint_slup} from "../blueprints/blu_slup.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_bush, blueprint_tree} from "../blueprints/blu_tree.js";
-import {render_colored_shadows} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {World} from "../world.js";

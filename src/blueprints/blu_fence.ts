@@ -7,49 +7,50 @@ import {Game} from "../game.js";
 export function blueprint_fence(game: Game) {
     return [
         children(
-    [
-        transform([0, 0.6, 0], undefined, [0.1, 1.2, 0.1]),
-        render_colored_shaded(
-            game.MaterialColoredShaded,
-            game.MeshCube,
-            [0.8, 0.8, 0.8, 1]
-        ),
-    ],
+            [
+                transform([0, 0.6, 0], undefined, [0.1, 1.2, 0.1]),
+                render_colored_shaded(
+                    game.MaterialColoredShaded,
+                    game.MeshCube,
+                    [0.8, 0.8, 0.8, 1]
+                ),
+            ],
 
-    [
-        transform([0, 1.21, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
-        render_colored_shaded(
-            game.MaterialColoredShaded,
-            game.MeshCube,
-            [0.8, 0.8, 0.8, 1]
-        ),
-    ],
+            [
+                transform([0, 1.21, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
+                render_colored_shaded(
+                    game.MaterialColoredShaded,
+                    game.MeshCube,
+                    [0.8, 0.8, 0.8, 1]
+                ),
+            ],
 
-    [
-        transform([0, 0.6, 1], undefined, [0.1, 1.2, 0.1]),
-        render_colored_shaded(
-            game.MaterialColoredShaded,
-            game.MeshCube,
-            [0.8, 0.8, 0.8, 1]
-        ),
-    ],
+            [
+                transform([0, 0.6, 1], undefined, [0.1, 1.2, 0.1]),
+                render_colored_shaded(
+                    game.MaterialColoredShaded,
+                    game.MeshCube,
+                    [0.8, 0.8, 0.8, 1]
+                ),
+            ],
 
-    [
-        transform([0, 0.8, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
-        render_colored_shaded(
-            game.MaterialColoredShaded,
-            game.MeshCube,
-            [0.8, 0.8, 0.8, 1]
-        ),
-    ],
+            [
+                transform([0, 0.8, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
+                render_colored_shaded(
+                    game.MaterialColoredShaded,
+                    game.MeshCube,
+                    [0.8, 0.8, 0.8, 1]
+                ),
+            ],
 
-    [
-        transform([0, 0.4, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
-        render_colored_shaded(
-            game.MaterialColoredShaded,
-            game.MeshCube,
-            [0.8, 0.8, 0.8, 1]
+            [
+                transform([0, 0.4, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
+                render_colored_shaded(
+                    game.MaterialColoredShaded,
+                    game.MeshCube,
+                    [0.8, 0.8, 0.8, 1]
+                ),
+            ]
         ),
-    ]),
     ];
 }
