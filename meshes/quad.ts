@@ -39,36 +39,28 @@ export function mesh_quad(gl: WebGLRenderingContext): Mesh {
 
 // prettier-ignore
 let vertex_arr = Float32Array.from([
-    -1, -1, 0,
-    1, -1, 0,
-    1, 1, 0,
-    -1, 1, 0
+    -1.000, -1.000, -0.000,
+    1.000, -1.000, -0.000,
+    -1.000, 1.000, 0.000,
+    1.000, 1.000, 0.000
 ]);
 
 // prettier-ignore
 let normal_arr = Float32Array.from([
-    0, 0, 1,
-    0, 0, 1,
-    0, 0, 1,
-    0, 0, 1
+    0.000, -0.000, 1.000,
+    0.000, -0.000, 1.000,
+    0.000, -0.000, 1.000,
+    0.000, -0.000, 1.000
 ]);
 
 // prettier-ignore
-let texcoord_arr = Float32Array.from([
-    0, 0,
-    1, 0,
-    1, 1,
-    0, 1
-]);
+let texcoord_arr = Float32Array.from([]);
 
 // prettier-ignore
-let weights_arr = Float32Array.from([
-    // Weights must be assigned manually for now b/c OBJ doesn't support them.
-    // WARNING: Remaking the mesh file will overwrite your weights here.
-]);
+let weights_arr = Float32Array.from([]);
 
 // prettier-ignore
 let index_arr = Uint16Array.from([
-    3, 2, 0,
-    2, 1, 0
+    2, 3, 0,
+    3, 1, 0
 ]);

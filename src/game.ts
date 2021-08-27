@@ -14,7 +14,6 @@ import {mesh_cylinder} from "../meshes/cylinder.js";
 import {mesh_grass} from "../meshes/grass.js";
 import {mesh_leaf} from "../meshes/leaf.js";
 import {mesh_lisek} from "../meshes/lisek.js";
-import {mesh_ludek} from "../meshes/ludek.js";
 import {mesh_ogon} from "../meshes/ogon.js";
 import {mesh_plane} from "../meshes/plane.js";
 import {sys_animate} from "./systems/sys_animate.js";
@@ -63,7 +62,6 @@ export class Game extends Game3D {
     MeshGrass = mesh_grass(this.Gl);
     MeshPlane = mesh_plane(this.Gl);
     MeshCube = mesh_cube(this.Gl);
-    MeshLudek = mesh_ludek(this.Gl);
     MeshLisek = mesh_lisek(this.Gl);
     MeshOgon = mesh_ogon(this.Gl);
     MeshCylinder = mesh_cylinder(this.Gl);
