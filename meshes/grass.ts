@@ -39,42 +39,28 @@ export function mesh_grass(gl: WebGLRenderingContext): Mesh {
 
 // prettier-ignore
 let vertex_arr = Float32Array.from([
-    -0.008597, 0.008676, 0,
-    0.008402, 0.007591, 0,
-    0, 0.416493, 0.06595,
-    -0.008597, 0.008676, 0,
-    0, -0.416493, 0.06595,
-    0.008402, 0.007591, 0
+    -0.009, 0.009, 0.001,
+    0.000, -0.422, 0.012,
+    0.000, 0.405, 0.119,
+    0.008, 0.008, 0.001
 ]);
 
 // prettier-ignore
 let normal_arr = Float32Array.from([
-    -0.0102, -0.1594, 0.9872,
-    -0.0102, -0.1594, 0.9872,
-    -0.0102, -0.1594, 0.9872,
-    0.0098, 0.1535, 0.9881,
-    0.0098, 0.1535, 0.9881,
-    0.0098, 0.1535, 0.9881
+    -0.001, -0.138, 0.990,
+    0.010, 0.025, 1.000,
+    -0.010, -0.285, 0.959,
+    0.000, -0.125, 0.992
 ]);
 
 // prettier-ignore
-let texcoord_arr = Float32Array.from([
-    0, 0,
-    1, 1,
-    0, 1,
-    0, 0,
-    1, 0,
-    1, 1
-]);
+let texcoord_arr = Float32Array.from([]);
 
 // prettier-ignore
-let weights_arr = Float32Array.from([
-    // Weights must be assigned manually for now b/c OBJ doesn't support them.
-    // WARNING: Remaking the mesh file will overwrite your weights here.
-]);
+let weights_arr = Float32Array.from([]);
 
 // prettier-ignore
 let index_arr = Uint16Array.from([
-    5, 4, 3,
-    2, 1, 0
+    3, 1, 0,
+    2, 3, 0
 ]);

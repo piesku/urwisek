@@ -59,21 +59,31 @@ let normal_data = new Float32Array(
     normal_view.byteLength / 4
 );
 
-let joints_accessor = gltf.accessors[primitive.attributes.JOINTS_0];
-let joints_view = gltf.bufferViews[joints_accessor.bufferView];
-let joints_data = new Uint8Array(
-    buffer.buffer,
-    buffer.byteOffset + joints_view.byteOffset,
-    joints_view.byteLength
-);
+let joints_data;
+if (primitive.attributes.JOINTS_0) {
+    let joints_accessor = gltf.accessors[primitive.attributes.JOINTS_0];
+    let joints_view = gltf.bufferViews[joints_accessor.bufferView];
+    joints_data = new Uint8Array(
+        buffer.buffer,
+        buffer.byteOffset + joints_view.byteOffset,
+        joints_view.byteLength
+    );
+} else {
+    joints_data = new Uint8Array();
+}
 
-let weights_accessor = gltf.accessors[primitive.attributes.WEIGHTS_0];
-let weights_view = gltf.bufferViews[weights_accessor.bufferView];
-let weights_data = new Float32Array(
-    buffer.buffer,
-    buffer.byteOffset + weights_view.byteOffset,
-    weights_view.byteLength / 4
-);
+let weights_data;
+if (primitive.attributes.WEIGHTS_0) {
+    let weights_accessor = gltf.accessors[primitive.attributes.WEIGHTS_0];
+    let weights_view = gltf.bufferViews[weights_accessor.bufferView];
+    weights_data = new Float32Array(
+        buffer.buffer,
+        buffer.byteOffset + weights_view.byteOffset,
+        weights_view.byteLength / 4
+    );
+} else {
+    weights_data = new Float32Array();
+}
 
 let index_accessor = gltf.accessors[primitive.indices];
 let index_view = gltf.bufferViews[index_accessor.bufferView];
@@ -84,13 +94,15 @@ let index_data = new Uint16Array(
 );
 
 let weighted_joints = [];
-for (let i = 0; i < vertex_count; i++) {
-    weighted_joints.push(
-        joints_data[4 * i + 0],
-        weights_data[4 * i + 0],
-        joints_data[4 * i + 1],
-        weights_data[4 * i + 1]
-    );
+if (joints_data.length > 0 && weights_data.length > 0) {
+    for (let i = 0; i < vertex_count; i++) {
+        weighted_joints.push(
+            joints_data[4 * i + 0],
+            weights_data[4 * i + 0],
+            joints_data[4 * i + 1],
+            weights_data[4 * i + 1]
+        );
+    }
 }
 
 console.log(`\
@@ -162,18 +174,20 @@ let index_arr = Uint16Array.from([${break_every(
         .reverse()
 )}]);`);
 
-let skin = gltf.skins[0];
-let bind_poses_accessor = gltf.accessors[skin.inverseBindMatrices];
-let bind_poses_view = gltf.bufferViews[bind_poses_accessor.bufferView];
-let bind_poses_data = new Float32Array(
-    buffer.buffer,
-    buffer.byteOffset + bind_poses_view.byteOffset,
-    bind_poses_view.byteLength / 4
-);
+if (gltf.skins) {
+    let skin = gltf.skins[0];
+    let bind_poses_accessor = gltf.accessors[skin.inverseBindMatrices];
+    let bind_poses_view = gltf.bufferViews[bind_poses_accessor.bufferView];
+    let bind_poses_data = new Float32Array(
+        buffer.buffer,
+        buffer.byteOffset + bind_poses_view.byteOffset,
+        bind_poses_view.byteLength / 4
+    );
 
-console.log("\n/*");
-for (let j = 0; j < bind_poses_accessor.count; j++) {
-    let mat = bind_poses_data.subarray(j * 16, j * 16 + 16);
-    console.log(Array.from(mat, (x) => x.toFixed(3)).join(", "));
+    console.log("\n/*");
+    for (let j = 0; j < bind_poses_accessor.count; j++) {
+        let mat = bind_poses_data.subarray(j * 16, j * 16 + 16);
+        console.log(Array.from(mat, (x) => x.toFixed(3)).join(", "));
+    }
+    console.log("*/");
 }
-console.log("*/");

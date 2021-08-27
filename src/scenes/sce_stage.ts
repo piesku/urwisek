@@ -3,10 +3,7 @@ import {from_euler} from "../../common/quat.js";
 import {float, integer} from "../../common/random.js";
 import {blueprint_box} from "../blueprints/blu_box.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
-import {blueprint_car2} from "../blueprints/blu_car2.js";
-import {blueprint_house} from "../blueprints/blu_house.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
-import {blueprint_slup} from "../blueprints/blu_slup.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_bush, blueprint_tree} from "../blueprints/blu_tree.js";
 import {children} from "../components/com_children.js";
@@ -15,6 +12,9 @@ import {render_colored_shadows, render_instanced} from "../components/com_render
 import {RigidKind, rigid_body} from "../components/com_rigid_body.js";
 import {transform} from "../components/com_transform.js";
 import {Game, Layer} from "../game.js";
+import {prop_car2} from "../props/prop_car2.js";
+import {prop_house} from "../props/prop_house.js";
+import {prop_slup} from "../props/prop_slup.js";
 import {World} from "../world.js";
 
 export function scene_stage(game: Game) {
@@ -80,13 +80,13 @@ export function scene_stage(game: Game) {
                 [float(-ground_size / 2, ground_size / 2), 0, float(-3, 0)],
                 from_euler([0, 0, 0, 1], 0, float(-180, 180), 0)
             ),
-            ...blueprint_slup(game),
+            ...prop_slup(game),
         ]);
     }
 
     instantiate(game, [
         transform([-4, 0, -1], from_euler([0, 0, 0, 1], 0, -35 + 180, 0), [0.6, 0.6, 0.6]),
-        ...blueprint_car2(game),
+        ...prop_car2(game),
     ]);
 
     instantiate(game, [
@@ -102,7 +102,7 @@ export function scene_stage(game: Game) {
     instantiate(game, [
         transform([4.4, 0, -2], from_euler([0, 0, 0, 1], 0, 12, 0), [1, 1, 1]),
         children(
-            [transform(), ...blueprint_house(game)],
+            [transform(), ...prop_house(game)],
             [transform([0.5, 0, 1.5]), ...blueprint_bush(game)]
         ),
     ]);
