@@ -62,7 +62,7 @@ export function map_forest(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([15.5, -2, -6.026], undefined, undefined),
+        transform([15.5, -6, -3.026], undefined, undefined),
         ...blueprint_monster(game),
     ]);
 

@@ -1,5 +1,7 @@
 import {ease_in_out_quart, ease_out_quart} from "../../common/easing.js";
+import {Vec4} from "../../common/math.js";
 import {from_euler} from "../../common/quat.js";
+import {Action} from "../actions.js";
 import {animate, AnimationFlag} from "../components/com_animate.js";
 import {bone} from "../components/com_bone.js";
 import {children} from "../components/com_children.js";
@@ -16,9 +18,14 @@ const enum BoneIndex {
     HipR,
 }
 
-export function blueprint_lisek(game: Game, animation_step_length = 0.2) {
+export function blueprint_lisek(
+    game: Game,
+    animation_step_length = 0.2,
+    actionOnEachStep?: Action,
+    color: Vec4 = [1, 0.5, 0, 1]
+) {
     return [
-        render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshLisek, [1, 0.5, 0, 1], 0),
+        render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshLisek, color, 0),
         children([
             transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74]),
             bone(
@@ -136,10 +143,12 @@ export function blueprint_lisek(game: Game, animation_step_length = 0.2) {
                                 {
                                     Timestamp: 0,
                                     Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
+                                    ActionOnEnd: actionOnEachStep,
                                 },
                                 {
                                     Timestamp: animation_step_length,
                                     Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
+                                    ActionOnEnd: actionOnEachStep,
                                 },
                             ],
                         },

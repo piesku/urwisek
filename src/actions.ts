@@ -6,6 +6,7 @@ export const enum Action {
     ToggleFullscreen,
     CollectItem,
     ExpireItem,
+    MonsterStep,
 }
 
 export function dispatch(game: Game, action: Action, payload: unknown) {

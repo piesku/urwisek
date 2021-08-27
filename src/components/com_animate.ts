@@ -4,6 +4,7 @@
 
 import {Quat, Vec3} from "../../common/math.js";
 import {Entity} from "../../common/world.js";
+import {Action} from "../actions.js";
 import {Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -49,6 +50,7 @@ export interface AnimationKeyframe {
     Timestamp: number;
     /** Easing function used to transition to this keyframe. */
     readonly Ease?: (t: number) => number;
+    ActionOnEnd?: Action;
 }
 
 export const enum AnimationFlag {

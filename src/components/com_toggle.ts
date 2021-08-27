@@ -8,18 +8,20 @@ import {Has} from "../world.js";
 
 export interface Toggle {
     Mask: number;
-    Frequency: number;
+    Delay: number;
+    Duration: number;
     SinceLast: number;
     CurrentlyEnabled: boolean;
 }
 
-export function toggle(mask: number, frequency: number, init: boolean) {
+export function toggle(mask: number, delay: number, duration: number, init: boolean) {
     return (game: Game, entity: Entity) => {
         game.World.Signature[entity] |= Has.Toggle;
         game.World.Toggle[entity] = {
             Mask: mask,
-            Frequency: frequency,
-            SinceLast: frequency,
+            Duration: duration,
+            Delay: delay,
+            SinceLast: delay,
             CurrentlyEnabled: !init,
         };
     };

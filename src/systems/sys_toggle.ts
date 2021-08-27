@@ -21,14 +21,13 @@ function update(game: Game, entity: Entity, delta: number) {
 
     toggle.SinceLast += delta;
 
-    if (toggle.SinceLast > toggle.Frequency) {
+    if (toggle.CurrentlyEnabled && toggle.SinceLast > toggle.Duration) {
         toggle.SinceLast = 0;
-        if (toggle.CurrentlyEnabled) {
-            toggle.CurrentlyEnabled = false;
-            game.World.Signature[entity] &= ~toggle.Mask;
-        } else {
-            toggle.CurrentlyEnabled = true;
-            game.World.Signature[entity] |= toggle.Mask;
-        }
+        toggle.CurrentlyEnabled = false;
+        game.World.Signature[entity] &= ~toggle.Mask;
+    } else if (!toggle.CurrentlyEnabled && toggle.SinceLast > toggle.Delay) {
+        toggle.SinceLast = 0;
+        toggle.CurrentlyEnabled = true;
+        game.World.Signature[entity] |= toggle.Mask;
     }
 }

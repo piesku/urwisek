@@ -101,6 +101,9 @@ function update(game: Game, entity: Entity, delta: number) {
     } else {
         // The animation has completed; reset its timer.
         animate.Current.Time = 0;
+        if (current_keyframe?.ActionOnEnd) {
+            console.log("YUP!");
+        }
     }
 
     // 5. The animation has completed. Loop it or switch to idle.
