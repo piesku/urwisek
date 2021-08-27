@@ -1,29 +1,19 @@
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
-import {blueprint_barn} from "../blueprints/blu_barn.js";
-import {blueprint_camera} from "../blueprints/blu_camera.js";
-import {blueprint_car2} from "../blueprints/blu_car2.js";
-import {blueprint_fence} from "../blueprints/blu_fence.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
+import {blueprint_monster} from "../blueprints/blu_monster.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
-import {blueprint_silo} from "../blueprints/blu_silo.js";
-import {blueprint_slup} from "../blueprints/blu_slup.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_bush, blueprint_tree} from "../blueprints/blu_tree.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
-import {World} from "../world.js";
 
-export function scene_level_forest(game: Game) {
-    game.World = new World();
-    game.ViewportResized = true;
-
+export function map_forest(game: Game) {
     instantiate(game, [
         transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
         ...blueprint_sun(game),
     ]);
 
-    
     instantiate(game, [
         transform([-9, -0.498, 1.767], [0, 0.707, 0, 0.707], [4, 2.003, 8]),
         ...blueprint_ground(game),
@@ -65,11 +55,15 @@ export function scene_level_forest(game: Game) {
     ]);
 
     instantiate_player(game, [-6.258, 0.774, 0.343]);
-    
 
     instantiate(game, [
         transform([4.669, 0.547, -6.026], undefined, undefined),
         ...blueprint_bush(game),
+    ]);
+
+    instantiate(game, [
+        transform([-5.5, -2, -6.026], undefined, undefined),
+        ...blueprint_monster(game),
     ]);
 
     instantiate(game, [
@@ -230,11 +224,5 @@ export function scene_level_forest(game: Game) {
     instantiate(game, [
         transform([22.981, 0.191, -7.83], undefined, [20, 4, 20]),
         ...blueprint_tree(game),
-    ]);
-
-    // Camera.
-    instantiate(game, [
-        ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
-        transform([-6.258, 0.774, 0.343], from_euler([0, 0, 0, 1], -30, 0, 0)),
     ]);
 }
