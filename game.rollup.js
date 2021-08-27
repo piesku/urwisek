@@ -3562,6 +3562,7 @@
      * @module components/com_render
      */
     const colored_shaded_vaos = new WeakMap();
+    const colored_shadows_vaos = new WeakMap();
     const colored_skinned_vaos = new WeakMap();
     function render_colored_shaded(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
         return (game, entity) => {
@@ -3586,6 +3587,35 @@
                 Mesh: mesh,
                 FrontFace: front_face,
                 Vao: colored_shaded_vaos.get(mesh),
+                DiffuseColor: diffuse_color,
+                SpecularColor: specular_color,
+                Shininess: shininess,
+            };
+        };
+    }
+    function render_colored_shadows(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
+        return (game, entity) => {
+            if (!colored_shadows_vaos.has(mesh)) {
+                // We only need to create the VAO once.
+                let vao = game.Gl.createVertexArray();
+                game.Gl.bindVertexArray(vao);
+                game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+                game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+                game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+                game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
+                game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
+                game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
+                game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+                game.Gl.bindVertexArray(null);
+                colored_shadows_vaos.set(mesh, vao);
+            }
+            game.World.Signature[entity] |= 65536 /* Render */;
+            game.World.Render[entity] = {
+                Kind: 2 /* ColoredShadows */,
+                Material: material,
+                Mesh: mesh,
+                FrontFace: front_face,
+                Vao: colored_shadows_vaos.get(mesh),
                 DiffuseColor: diffuse_color,
                 SpecularColor: specular_color,
                 Shininess: shininess,
@@ -4890,7 +4920,7 @@
             rigid_body(0 /* Static */),
             children([
                 transform(),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.095, 0.095, 0.095, 1]),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
             ], [
                 transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
                 render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
