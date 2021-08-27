@@ -5,7 +5,7 @@ export function App(game: Game) {
     return html`
         <div
             style="
-                animation: 8s ease-out 4s forwards intro;
+                animation: 8s ease-out 5s forwards intro;
             "
         >
             <div

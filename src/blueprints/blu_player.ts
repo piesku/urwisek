@@ -2,6 +2,7 @@ import {instantiate} from "../../common/game.js";
 import {Vec3} from "../../common/math.js";
 import {from_euler} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
+import {audio_listener} from "../components/com_audio_listener.js";
 import {bone} from "../components/com_bone.js";
 import {callback} from "../components/com_callback.js";
 import {children} from "../components/com_children.js";
@@ -19,6 +20,7 @@ import {blueprint_lisek} from "./blu_lisek.js";
 
 function blueprint_player(game: Game) {
     return [
+        audio_listener(),
         control_player(true, false, false),
         move(1.5, 0),
         collide(true, Layer.Player, Layer.Terrain | Layer.Obstacle, [0.6, 0.8, 0.8]),
