@@ -16,7 +16,7 @@ const enum BoneIndex {
     HipR,
 }
 
-export function blueprint_lisek(game: Game) {
+export function blueprint_lisek(game: Game, animation_step_length = 0.2) {
     return [
         render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshLisek, [1, 0.5, 0, 1], 0),
         children([
@@ -43,12 +43,12 @@ export function blueprint_lisek(game: Game) {
                             Translation: [0, 0.63, 0],
                         },
                         {
-                            Timestamp: 0.2,
+                            Timestamp: animation_step_length,
                             Translation: [0, 1.13, 0],
                             Ease: ease_in_out_quart,
                         },
                         {
-                            Timestamp: 0.4,
+                            Timestamp: animation_step_length * 2,
                             Translation: [0, 0.63, 0],
                             Ease: ease_out_quart,
                         },
@@ -75,7 +75,7 @@ export function blueprint_lisek(game: Game) {
                                     Ease: ease_in_out_quart,
                                 },
                                 {
-                                    Timestamp: 1,
+                                    Timestamp: animation_step_length * 5,
                                     Rotation: from_euler([0, 0, 0, 1], -30, -15, 0),
                                     Ease: ease_in_out_quart,
                                 },
@@ -88,7 +88,7 @@ export function blueprint_lisek(game: Game) {
                                     Rotation: from_euler([0, 0, 0, 1], -30, 0, 5),
                                 },
                                 {
-                                    Timestamp: 0.2,
+                                    Timestamp: animation_step_length,
                                     Rotation: from_euler([0, 0, 0, 1], -30, 0, -5),
                                 },
                             ],
@@ -100,12 +100,12 @@ export function blueprint_lisek(game: Game) {
                                     Rotation: [0, 0, 0, 1],
                                 },
                                 {
-                                    Timestamp: 0.2,
+                                    Timestamp: animation_step_length,
                                     Rotation: from_euler([0, 0, 0, 1], -15, 0, 0),
                                     Ease: ease_in_out_quart,
                                 },
                                 {
-                                    Timestamp: 0.4,
+                                    Timestamp: animation_step_length * 2,
                                     Rotation: from_euler([0, 0, 0, 1], 0, 0, 0),
                                     Ease: ease_out_quart,
                                 },
@@ -138,7 +138,7 @@ export function blueprint_lisek(game: Game) {
                                     Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
                                 },
                                 {
-                                    Timestamp: 0.2,
+                                    Timestamp: animation_step_length,
                                     Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
                                 },
                             ],
@@ -150,12 +150,12 @@ export function blueprint_lisek(game: Game) {
                                     Rotation: [0, 0, 0, 1],
                                 },
                                 {
-                                    Timestamp: 0.2,
+                                    Timestamp: animation_step_length,
                                     Rotation: from_euler([0, 0, 0, 1], 0, 0, 135),
                                     Ease: ease_in_out_quart,
                                 },
                                 {
-                                    Timestamp: 0.4,
+                                    Timestamp: animation_step_length * 2,
                                     Rotation: [0, 0, 0, 1],
                                     Ease: ease_out_quart,
                                 },
@@ -188,7 +188,7 @@ export function blueprint_lisek(game: Game) {
                                     Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
                                 },
                                 {
-                                    Timestamp: 0.2,
+                                    Timestamp: animation_step_length,
                                     Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
                                 },
                             ],
@@ -200,12 +200,12 @@ export function blueprint_lisek(game: Game) {
                                     Rotation: [0, 0, 0, 1],
                                 },
                                 {
-                                    Timestamp: 0.2,
+                                    Timestamp: animation_step_length,
                                     Rotation: from_euler([0, 0, 0, 1], 0, 0, -135),
                                     Ease: ease_in_out_quart,
                                 },
                                 {
-                                    Timestamp: 0.4,
+                                    Timestamp: animation_step_length * 2,
                                     Rotation: [0, 0, 0, 1],
                                     Ease: ease_out_quart,
                                 },
@@ -238,7 +238,7 @@ export function blueprint_lisek(game: Game) {
                                     Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
                                 },
                                 {
-                                    Timestamp: 0.2,
+                                    Timestamp: animation_step_length,
                                     Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
                                 },
                             ],
@@ -250,12 +250,12 @@ export function blueprint_lisek(game: Game) {
                                     Rotation: [0, 0, 0, 1],
                                 },
                                 {
-                                    Timestamp: 0.2,
+                                    Timestamp: animation_step_length,
                                     Rotation: from_euler([0, 0, 0, 1], 0, 0, 45),
                                     Ease: ease_in_out_quart,
                                 },
                                 {
-                                    Timestamp: 0.4,
+                                    Timestamp: animation_step_length * 2,
                                     Rotation: [0, 0, 0, 1],
                                     Ease: ease_out_quart,
                                 },
@@ -288,7 +288,7 @@ export function blueprint_lisek(game: Game) {
                                     Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
                                 },
                                 {
-                                    Timestamp: 0.2,
+                                    Timestamp: animation_step_length,
                                     Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
                                 },
                             ],
@@ -300,12 +300,12 @@ export function blueprint_lisek(game: Game) {
                                     Rotation: [0, 0, 0, 1],
                                 },
                                 {
-                                    Timestamp: 0.2,
+                                    Timestamp: animation_step_length,
                                     Rotation: from_euler([0, 0, 0, 1], 0, 0, -45),
                                     Ease: ease_in_out_quart,
                                 },
                                 {
-                                    Timestamp: 0.4,
+                                    Timestamp: animation_step_length * 2,
                                     Rotation: [0, 0, 0, 1],
                                     Ease: ease_out_quart,
                                 },

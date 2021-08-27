@@ -78,10 +78,7 @@ export function map_city(game: Game) {
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
 
-    instantiate(game, [
-        transform([0, 0.5, -2.177], undefined, undefined),
-        ...prop_house(game),
-    ]);
+    instantiate(game, [transform([0, 0.5, -2.177], undefined, undefined), ...prop_house(game)]);
 
     instantiate(game, [
         transform([7.88, 0.5, -3.146], [0, -0.986, 0, 0.166], undefined),
