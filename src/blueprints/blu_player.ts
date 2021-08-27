@@ -8,7 +8,7 @@ import {callback} from "../components/com_callback.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {control_always} from "../components/com_control_always.js";
-import {control_player} from "../components/com_control_player.js";
+import {Control, control_player} from "../components/com_control_player.js";
 import {mimic} from "../components/com_mimic.js";
 import {move} from "../components/com_move.js";
 import {find_first, named} from "../components/com_named.js";
@@ -21,7 +21,7 @@ import {blueprint_lisek} from "./blu_lisek.js";
 function blueprint_player(game: Game) {
     return [
         audio_listener(),
-        control_player(true, false, false),
+        control_player(Control.Move),
         move(1.5, 0),
         collide(true, Layer.Player, Layer.Terrain | Layer.Obstacle, [0.6, 0.8, 0.8]),
         rigid_body(RigidKind.Dynamic, 0),
@@ -33,7 +33,13 @@ function blueprint_player(game: Game) {
             [
                 named("mesh anchor"),
                 transform([0, -0.42, 0], [0, 0.7, 0, 0.7]),
-                control_player(false, true, false),
+                control_player(Control.Rotate),
+                children([
+                    transform([0, 0.5, 1], undefined, [0.1, 0.1, 0.1]),
+                    collide(true, Layer.None, Layer.Obstacle),
+                    control_player(Control.Grab),
+                    //render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
+                ]),
             ],
             [named("camera anchor"), transform([0.5, -0.5, 0])],
             [
@@ -70,7 +76,7 @@ export function instantiate_player(game: Game, translation: Vec3) {
         mimic(find_first(game.World, "mesh anchor"), 0.2),
         children(
             // The mesh, animated by the player.
-            [...blueprint_lisek(game), transform(), control_player(false, false, true)],
+            [...blueprint_lisek(game), transform(), control_player(Control.Animate)],
             // The tail, animated procedurally.
             [
                 transform(),

@@ -1,5 +1,6 @@
 import {Vec3} from "../../common/math.js";
 import {Entity} from "../../common/world.js";
+import {Control} from "../components/com_control_player.js";
 import {Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -28,7 +29,7 @@ export function sys_control_xbox(game: Game, delta: number) {
 function update(game: Game, entity: Entity) {
     let control = game.World.ControlPlayer[entity];
 
-    if (control.Move) {
+    if (control.Flags & Control.Move) {
         let move = game.World.Move[entity];
         if (Math.abs(game.InputDelta["pad0_axis_1"]) > DEAD_ZONE) {
             // Strafe movement.
