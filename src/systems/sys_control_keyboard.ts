@@ -56,22 +56,6 @@ function update(game: Game, entity: Entity) {
         }
     }
 
-    if (control.Flags & Control.Animate) {
-        let anim_name: "walk" | "idle" = "idle";
-
-        if (game.InputState["ArrowLeft"]) {
-            anim_name = "walk";
-        }
-        if (game.InputState["ArrowRight"]) {
-            anim_name = "walk";
-        }
-
-        for (let ent of query_all(game.World, entity, Has.Animate)) {
-            let animate = game.World.Animate[ent];
-            animate.Trigger = anim_name;
-        }
-    }
-
     if (control.Flags & Control.Grab) {
         // Requires Has.Collide.
         let collide = game.World.Collide[entity];
@@ -97,6 +81,22 @@ function update(game: Game, entity: Entity) {
                 let control = game.World.ControlPlayer[ent];
                 control.IsGrabbingEntity = null;
             }
+        }
+    }
+
+    if (control.Flags & Control.Animate) {
+        let anim_name: "walk" | "idle" = "idle";
+
+        if (game.InputState["ArrowLeft"]) {
+            anim_name = "walk";
+        }
+        if (game.InputState["ArrowRight"]) {
+            anim_name = "walk";
+        }
+
+        for (let ent of query_all(game.World, entity, Has.Animate)) {
+            let animate = game.World.Animate[ent];
+            animate.Trigger = anim_name;
         }
     }
 }

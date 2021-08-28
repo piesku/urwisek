@@ -1,41 +1,51 @@
-import {Quat, Vec2, Vec3} from "../../common/math.js";
+import {Vec2} from "../../common/math.js";
 import {clamp} from "../../common/number.js";
 import {set} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
 import {Animate} from "../components/com_animate.js";
 import {query_all} from "../components/com_children.js";
 import {Control} from "../components/com_control_player.js";
+import {query_up} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.ControlPlayer;
-const AXIS_Y: Vec3 = [0, 1, 0];
-const AXIS_X: Vec3 = [1, 0, 0];
+const DOUBLE_TAP_INTERVAL = 0.2;
 const MOVEMENT_DEAD_ZONE = 0.01;
-const JUMPING_DEAD_ZONE = 0.1;
-const TOUCH_SENSITIVITY = 10;
+const JUMPING_DEAD_ZONE = 0.5;
 
-// The position of the joystick center, given by the initial Touch0's x and y.
-const joystick: Vec2 = [0, 0];
-const rotation: Quat = [0, 0, 0, 0];
+// The origin o fthe gesture from which to compute dx, dy.
+const touch_start: Vec2 = [0, 0];
+let time_between_taps = 0;
 
 export function sys_control_touch_move(game: Game, delta: number) {
+    if (game.InputDelta["Touch0"] === -1) {
+        time_between_taps = 0;
+    }
+
+    if (game.InputState["Touch0"] === 0) {
+        time_between_taps += delta;
+    }
+
     if (game.InputDelta["Touch0"] === 1) {
         // The center of the invisible joystick is given by the position of the
         // first touch of the first finger on the screen's surface.
-        joystick[0] = game.InputState["Touch0X"];
-        joystick[1] = game.InputState["Touch0Y"];
+        touch_start[0] = game.InputState["Touch0X"];
+        touch_start[1] = game.InputState["Touch0Y"];
     }
+
+    let dx = 0;
+    let dy = 0;
 
     if (game.InputState["Touch0"] === 1) {
         let divisor = Math.min(game.ViewportWidth, game.ViewportHeight) / 4;
-        let dx = (game.InputState["Touch0X"] - joystick[0]) / divisor;
-        let dy = (game.InputState["Touch0Y"] - joystick[1]) / divisor;
+        dx = (game.InputState["Touch0X"] - touch_start[0]) / divisor;
+        dy = (game.InputState["Touch0Y"] - touch_start[1]) / divisor;
+    }
 
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY) === QUERY) {
-                update(game, i, dx, dy);
-            }
+    for (let i = 0; i < game.World.Signature.length; i++) {
+        if ((game.World.Signature[i] & QUERY) === QUERY) {
+            update(game, i, dx, dy);
         }
     }
 }
@@ -70,6 +80,35 @@ function update(game: Game, entity: Entity, dx: number, dy: number) {
                 control.IsFacingRight = true;
                 set(transform.Rotation, 0, 0.7, 0.0, 0.7);
                 transform.Dirty = true;
+            }
+        }
+    }
+
+    if (control.Flags & Control.Grab) {
+        // Requires Has.Collide.
+        let collide = game.World.Collide[entity];
+        if (
+            game.InputDelta["Touch0"] === 1 &&
+            time_between_taps < DOUBLE_TAP_INTERVAL &&
+            !control.IsGrabbingEntity &&
+            collide.Collisions.length > 0
+        ) {
+            let obstacle_entity = collide.Collisions[0].Other;
+            for (let ent of query_up(game.World, entity, Has.ControlPlayer)) {
+                let control = game.World.ControlPlayer[ent];
+                control.IsGrabbingEntity = obstacle_entity;
+            }
+
+            game.World.Signature[obstacle_entity] |= Has.Mimic;
+            let obstacle_mimic = game.World.Mimic[obstacle_entity];
+            obstacle_mimic.Target = entity;
+        }
+
+        if (game.InputDelta["Touch0"] === -1 && control.IsGrabbingEntity) {
+            game.World.Signature[control.IsGrabbingEntity] &= ~Has.Mimic;
+            for (let ent of query_up(game.World, entity, Has.ControlPlayer)) {
+                let control = game.World.ControlPlayer[ent];
+                control.IsGrabbingEntity = null;
             }
         }
     }
