@@ -28,7 +28,7 @@ export function App(game: Game) {
                     color: #fff;
                 "
             >
-                A game by Piesku.
+                An adventure on a post-human Earth.
             </div>
         </div>
     `;
