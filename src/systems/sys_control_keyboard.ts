@@ -20,37 +20,22 @@ function update(game: Game, entity: Entity) {
     let control = game.World.ControlPlayer[entity];
 
     if (control.Flags & Control.Move) {
-        // Requires Has.Collide | Has.Move.
-        let collide = game.World.Collide[entity];
-        let move = game.World.Move[entity];
+        // Requires Has.Move | Has.RigidBody.
 
+        let move = game.World.Move[entity];
         if (game.InputState["ArrowLeft"]) {
             move.Directions.push([-1, 0, 0]);
         }
-
         if (game.InputState["ArrowRight"]) {
             move.Directions.push([1, 0, 0]);
         }
 
-        let has_collided_with_terrain = false;
-        for (let collision of collide.Collisions) {
-            if (collision.Hit[1] > 0) {
-                // It's a collision with something under the player.
-                has_collided_with_terrain = true;
-                break;
-            }
-        }
-
-        if (control.IsAirborne && has_collided_with_terrain) {
-            control.IsAirborne = false;
-        }
-
-        if (!control.IsAirborne) {
+        let rigid_body = game.World.RigidBody[entity];
+        if (rigid_body.VelocityResolved[1] === 0) {
+            // The entity is on the ground or on an object.
             if (game.InputState["ArrowUp"]) {
                 move.Directions.push([1, 0, 0]);
-                let rigid_body = game.World.RigidBody[entity];
                 rigid_body.Acceleration[1] += 500;
-                control.IsAirborne = true;
             }
         }
     }

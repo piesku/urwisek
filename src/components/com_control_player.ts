@@ -4,7 +4,6 @@ import {Has} from "../world.js";
 
 export interface ControlPlayer {
     Flags: number;
-    IsAirborne: boolean;
     IsFacingRight: boolean;
     IsGrabbingEntity: Entity | null;
 }
@@ -22,7 +21,6 @@ export function control_player(flags: number) {
         game.World.Signature[entity] |= Has.ControlPlayer;
         game.World.ControlPlayer[entity] = {
             Flags: flags,
-            IsAirborne: true,
             IsFacingRight: true,
             IsGrabbingEntity: null,
         };
