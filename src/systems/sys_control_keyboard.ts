@@ -31,7 +31,7 @@ function update(game: Game, entity: Entity) {
         }
 
         let rigid_body = game.World.RigidBody[entity];
-        if (rigid_body.VelocityResolved[1] === 0) {
+        if (!rigid_body.IsAirborne) {
             // The entity is on the ground or on an object.
             if (game.InputState["ArrowUp"]) {
                 rigid_body.Acceleration[1] += 500;

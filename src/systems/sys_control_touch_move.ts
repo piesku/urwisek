@@ -50,7 +50,7 @@ function update(game: Game, entity: Entity, dx: number, dy: number) {
         }
 
         let rigid_body = game.World.RigidBody[entity];
-        if (rigid_body.VelocityResolved[1] === 0) {
+        if (!rigid_body.IsAirborne) {
             // The entity is on the ground or on an object.
             if (Math.abs(dy) > JUMPING_DEAD_ZONE) {
                 rigid_body.Acceleration[1] += 500;

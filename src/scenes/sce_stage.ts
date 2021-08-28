@@ -74,7 +74,7 @@ export function scene_stage(game: Game) {
 
     instantiate_player(game, [-1, 1, 1]);
     instantiate(game, [...blueprint_box(game), transform([2.5, 5, 1])]);
-    instantiate(game, [...blueprint_box(game), transform([2.5, 8, 1])]);
+    instantiate(game, [...blueprint_box(game), transform([2.4, 8, 1])]);
 
     let slups = 2;
     for (let i = 0; i < slups; i++) {

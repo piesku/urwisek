@@ -74,12 +74,14 @@ function update(game: Game, entity: Entity) {
                 if (collision.Hit[1] > 0 && rigid_body.VelocityResolved[1] < 1) {
                     // Collision from the bottom stops the downward movement.
                     rigid_body.VelocityResolved[1] = 0;
+                    rigid_body.IsAirborne = false;
                 }
             }
         }
 
         if (!has_collision) {
             copy(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated);
+            rigid_body.IsAirborne = true;
         }
     }
 }
