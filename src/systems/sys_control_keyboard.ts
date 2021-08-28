@@ -2,6 +2,7 @@ import {set} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
 import {query_all} from "../components/com_children.js";
 import {Control} from "../components/com_control_player.js";
+import {query_up} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -55,13 +56,9 @@ function update(game: Game, entity: Entity) {
     }
 
     if (control.Flags & Control.Rotate) {
-        // Requires Has.Transform | Has.Children.
-        let children = game.World.Children[entity];
+        // Requires Has.Transform.
         let transform = game.World.Transform[entity];
-
-        let grabber_entity = children.Children[0];
-        let grabber_control = game.World.ControlPlayer[grabber_entity];
-        if (!grabber_control.IsGrabbingEntity) {
+        if (!control.IsGrabbingEntity) {
             if (game.InputState["ArrowLeft"] && control.IsFacingRight) {
                 control.IsFacingRight = false;
                 set(transform.Rotation, 0, -0.7, 0.0, 0.7);
@@ -100,7 +97,10 @@ function update(game: Game, entity: Entity) {
             collide.Collisions.length > 0
         ) {
             let obstacle_entity = collide.Collisions[0].Other;
-            control.IsGrabbingEntity = obstacle_entity;
+            for (let ent of query_up(game.World, entity, Has.ControlPlayer)) {
+                let control = game.World.ControlPlayer[ent];
+                control.IsGrabbingEntity = obstacle_entity;
+            }
 
             game.World.Signature[obstacle_entity] |= Has.Mimic;
             let obstacle_mimic = game.World.Mimic[obstacle_entity];
@@ -109,7 +109,10 @@ function update(game: Game, entity: Entity) {
 
         if (game.InputDelta["Space"] === -1 && control.IsGrabbingEntity) {
             game.World.Signature[control.IsGrabbingEntity] &= ~Has.Mimic;
-            control.IsGrabbingEntity = null;
+            for (let ent of query_up(game.World, entity, Has.ControlPlayer)) {
+                let control = game.World.ControlPlayer[ent];
+                control.IsGrabbingEntity = null;
+            }
         }
     }
 }
