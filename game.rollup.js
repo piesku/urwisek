@@ -2986,6 +2986,39 @@
         }
     }
 
+    /**
+     * @module components/com_transform
+     */
+    function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 8388608 /* Transform */;
+            game.World.Transform[entity] = {
+                World: create(),
+                Self: create(),
+                Translation: translation,
+                Rotation: rotation,
+                Scale: scale,
+                Dirty: true,
+            };
+        };
+    }
+    /**
+     * Yield ascendants matching a component mask. Test the current entity first.
+     *
+     * @param world World object which stores the component data.
+     * @param entity The first entity to traverse.
+     * @param mask Component mask to look for.
+     */
+    function* query_up(world, entity, mask) {
+        if ((world.Signature[entity] & mask) === mask) {
+            yield entity;
+        }
+        let parent = world.Transform[entity].Parent;
+        if (parent !== undefined) {
+            yield* query_up(world, parent, mask);
+        }
+    }
+
     const QUERY$j = 512 /* ControlPlayer */;
     function sys_control_keyboard(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
@@ -2997,8 +3030,7 @@
     function update$d(game, entity) {
         let control = game.World.ControlPlayer[entity];
         if (control.Flags & 1 /* Move */) {
-            // Requires Has.Collide | Has.Move.
-            let collide = game.World.Collide[entity];
+            // Requires Has.Move | Has.RigidBody.
             let move = game.World.Move[entity];
             if (game.InputState["ArrowLeft"]) {
                 move.Directions.push([-1, 0, 0]);
@@ -3006,33 +3038,19 @@
             if (game.InputState["ArrowRight"]) {
                 move.Directions.push([1, 0, 0]);
             }
-            let has_collided_with_terrain = false;
-            for (let collision of collide.Collisions) {
-                if (collision.Hit[1] > 0) {
-                    // It's a collision with something under the player.
-                    has_collided_with_terrain = true;
-                    break;
-                }
-            }
-            if (control.IsAirborne && has_collided_with_terrain) {
-                control.IsAirborne = false;
-            }
-            if (!control.IsAirborne) {
+            let rigid_body = game.World.RigidBody[entity];
+            if (rigid_body.VelocityResolved[1] === 0) {
+                // The entity is on the ground or on an object.
                 if (game.InputState["ArrowUp"]) {
                     move.Directions.push([1, 0, 0]);
-                    let rigid_body = game.World.RigidBody[entity];
                     rigid_body.Acceleration[1] += 500;
-                    control.IsAirborne = true;
                 }
             }
         }
         if (control.Flags & 2 /* Rotate */) {
-            // Requires Has.Transform | Has.Children.
-            let children = game.World.Children[entity];
+            // Requires Has.Transform.
             let transform = game.World.Transform[entity];
-            let grabber_entity = children.Children[0];
-            let grabber_control = game.World.ControlPlayer[grabber_entity];
-            if (!grabber_control.IsGrabbingEntity) {
+            if (!control.IsGrabbingEntity) {
                 if (game.InputState["ArrowLeft"] && control.IsFacingRight) {
                     control.IsFacingRight = false;
                     set(transform.Rotation, 0, -0.7, 0.0, 0.7);
@@ -3065,14 +3083,20 @@
                 !control.IsGrabbingEntity &&
                 collide.Collisions.length > 0) {
                 let obstacle_entity = collide.Collisions[0].Other;
-                control.IsGrabbingEntity = obstacle_entity;
+                for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
+                    let control = game.World.ControlPlayer[ent];
+                    control.IsGrabbingEntity = obstacle_entity;
+                }
                 game.World.Signature[obstacle_entity] |= 16384 /* Mimic */;
                 let obstacle_mimic = game.World.Mimic[obstacle_entity];
                 obstacle_mimic.Target = entity;
             }
             if (game.InputDelta["Space"] === -1 && control.IsGrabbingEntity) {
                 game.World.Signature[control.IsGrabbingEntity] &= ~16384 /* Mimic */;
-                control.IsGrabbingEntity = null;
+                for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
+                    let control = game.World.ControlPlayer[ent];
+                    control.IsGrabbingEntity = null;
+                }
             }
         }
     }
@@ -4216,23 +4240,6 @@
     }
 
     /**
-     * @module components/com_transform
-     */
-    function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 8388608 /* Transform */;
-            game.World.Transform[entity] = {
-                World: create(),
-                Self: create(),
-                Translation: translation,
-                Rotation: rotation,
-                Scale: scale,
-                Dirty: true,
-            };
-        };
-    }
-
-    /**
      * @module systems/sys_spawn
      */
     const QUERY$3 = 8388608 /* Transform */ | 1048576 /* Spawn */;
@@ -4725,7 +4732,6 @@
             game.World.Signature[entity] |= 512 /* ControlPlayer */;
             game.World.ControlPlayer[entity] = {
                 Flags: flags,
-                IsAirborne: true,
                 IsFacingRight: true,
                 IsGrabbingEntity: null,
             };
