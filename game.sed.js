@@ -3039,7 +3039,7 @@ if (game.InputState["ArrowRight"]) {
 move.Directions.push([1, 0, 0]);
 }
 let rigid_body = game.World.RigidBody[entity];
-if (rigid_body.VelocityResolved[1] === 0) {
+if (!rigid_body.IsAirborne) {
 
 if (game.InputState["ArrowUp"]) {
 rigid_body.Acceleration[1] += 500;
@@ -3131,7 +3131,7 @@ if (Math.abs(dx) > MOVEMENT_DEAD_ZONE) {
 move.Directions.push([clamp(-1, 1, dx), 0, 0]);
 }
 let rigid_body = game.World.RigidBody[entity];
-if (rigid_body.VelocityResolved[1] === 0) {
+if (!rigid_body.IsAirborne) {
 
 if (Math.abs(dy) > JUMPING_DEAD_ZONE) {
 rigid_body.Acceleration[1] += 500;
@@ -3682,11 +3682,13 @@ scale(rigid_body.VelocityResolved, rigid_body.VelocityResolved, rigid_body.Bounc
 if (collision.Hit[1] > 0 && rigid_body.VelocityResolved[1] < 1) {
 
 rigid_body.VelocityResolved[1] = 0;
+rigid_body.IsAirborne = false;
 }
 }
 }
 if (!has_collision) {
 copy(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated);
+rigid_body.IsAirborne = true;
 }
 }
 }
@@ -4725,6 +4727,7 @@ Acceleration: [0, 0, 0],
 VelocityIntegrated: [0, 0, 0],
 VelocityResolved: [0, 0, 0],
 LastPosition: [0, 0, 0],
+IsAirborne: false,
 };
 };
 }
@@ -5440,7 +5443,7 @@ render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.fr
 ]);
 instantiate_player(game, [-1, 1, 1]);
 instantiate(game, [...blueprint_box(game), transform([2.5, 5, 1])]);
-instantiate(game, [...blueprint_box(game), transform([2.5, 8, 1])]);
+instantiate(game, [...blueprint_box(game), transform([2.4, 8, 1])]);
 let slups = 2;
 for (let i = 0; i < slups; i++) {
 instantiate(game, [
