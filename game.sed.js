@@ -3062,19 +3062,6 @@ transform.Dirty = true;
 }
 }
 }
-if (control.Flags & 4 /* Animate */) {
-let anim_name = "idle";
-if (game.InputState["ArrowLeft"]) {
-anim_name = "walk";
-}
-if (game.InputState["ArrowRight"]) {
-anim_name = "walk";
-}
-for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
-let animate = game.World.Animate[ent];
-animate.Trigger = anim_name;
-}
-}
 if (control.Flags & 8 /* Grab */) {
 
 let collide = game.World.Collide[entity];
@@ -3098,28 +3085,51 @@ control.IsGrabbingEntity = null;
 }
 }
 }
+if (control.Flags & 4 /* Animate */) {
+let anim_name = "idle";
+if (game.InputState["ArrowLeft"]) {
+anim_name = "walk";
+}
+if (game.InputState["ArrowRight"]) {
+anim_name = "walk";
+}
+for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
+let animate = game.World.Animate[ent];
+animate.Trigger = anim_name;
+}
+}
 }
 
 const QUERY$i = 512 /* ControlPlayer */;
+const DOUBLE_TAP_INTERVAL = 0.2;
 const MOVEMENT_DEAD_ZONE = 0.01;
-const JUMPING_DEAD_ZONE = 0.1;
+const JUMPING_DEAD_ZONE = 0.5;
 
-const joystick = [0, 0];
+const touch_start = [0, 0];
+let time_between_taps = 0;
 function sys_control_touch_move(game, delta) {
+if (game.InputDelta["Touch0"] === -1) {
+time_between_taps = 0;
+}
+if (game.InputState["Touch0"] === 0) {
+time_between_taps += delta;
+}
 if (game.InputDelta["Touch0"] === 1) {
 
 
-joystick[0] = game.InputState["Touch0X"];
-joystick[1] = game.InputState["Touch0Y"];
+touch_start[0] = game.InputState["Touch0X"];
+touch_start[1] = game.InputState["Touch0Y"];
 }
+let dx = 0;
+let dy = 0;
 if (game.InputState["Touch0"] === 1) {
 let divisor = Math.min(game.ViewportWidth, game.ViewportHeight) / 4;
-let dx = (game.InputState["Touch0X"] - joystick[0]) / divisor;
-let dy = (game.InputState["Touch0Y"] - joystick[1]) / divisor;
+dx = (game.InputState["Touch0X"] - touch_start[0]) / divisor;
+dy = (game.InputState["Touch0Y"] - touch_start[1]) / divisor;
+}
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$i) === QUERY$i) {
 update$c(game, i, dx, dy);
-}
 }
 }
 }
@@ -3150,6 +3160,30 @@ if (dx > 0 && !control.IsFacingRight) {
 control.IsFacingRight = true;
 set(transform.Rotation, 0, 0.7, 0.0, 0.7);
 transform.Dirty = true;
+}
+}
+}
+if (control.Flags & 8 /* Grab */) {
+
+let collide = game.World.Collide[entity];
+if (game.InputDelta["Touch0"] === 1 &&
+time_between_taps < DOUBLE_TAP_INTERVAL &&
+!control.IsGrabbingEntity &&
+collide.Collisions.length > 0) {
+let obstacle_entity = collide.Collisions[0].Other;
+for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
+let control = game.World.ControlPlayer[ent];
+control.IsGrabbingEntity = obstacle_entity;
+}
+game.World.Signature[obstacle_entity] |= 16384 /* Mimic */;
+let obstacle_mimic = game.World.Mimic[obstacle_entity];
+obstacle_mimic.Target = entity;
+}
+if (game.InputDelta["Touch0"] === -1 && control.IsGrabbingEntity) {
+game.World.Signature[control.IsGrabbingEntity] &= ~16384 /* Mimic */;
+for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
+let control = game.World.ControlPlayer[ent];
+control.IsGrabbingEntity = null;
 }
 }
 }
@@ -4514,7 +4548,7 @@ FrameUpdate(delta) {
 sys_poll(this, delta);
 
 sys_control_keyboard(this);
-sys_control_touch_move(this);
+sys_control_touch_move(this, delta);
 sys_control_xbox(this);
 
 sys_control_ai(this);
