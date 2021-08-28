@@ -34,7 +34,6 @@ function update(game: Game, entity: Entity) {
         if (rigid_body.VelocityResolved[1] === 0) {
             // The entity is on the ground or on an object.
             if (game.InputState["ArrowUp"]) {
-                move.Directions.push([1, 0, 0]);
                 rigid_body.Acceleration[1] += 500;
             }
         }
