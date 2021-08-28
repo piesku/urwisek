@@ -2997,7 +2997,8 @@
     function update$d(game, entity) {
         let control = game.World.ControlPlayer[entity];
         if (control.Flags & 1 /* Move */) {
-            // Requires Has.Move.
+            // Requires Has.Collide | Has.Move.
+            let collide = game.World.Collide[entity];
             let move = game.World.Move[entity];
             if (game.InputState["ArrowLeft"]) {
                 move.Directions.push([-1, 0, 0]);
@@ -3005,10 +3006,24 @@
             if (game.InputState["ArrowRight"]) {
                 move.Directions.push([1, 0, 0]);
             }
-            if (game.InputDelta["ArrowUp"] === 1) {
-                move.Directions.push([1, 0, 0]);
-                let rigid_body = game.World.RigidBody[entity];
-                rigid_body.Acceleration[1] += 500;
+            let has_collided_with_terrain = false;
+            for (let collision of collide.Collisions) {
+                if (collision.Hit[1] > 0) {
+                    // It's a collision with something under the player.
+                    has_collided_with_terrain = true;
+                    break;
+                }
+            }
+            if (control.IsAirborne && has_collided_with_terrain) {
+                control.IsAirborne = false;
+            }
+            if (!control.IsAirborne) {
+                if (game.InputState["ArrowUp"]) {
+                    move.Directions.push([1, 0, 0]);
+                    let rigid_body = game.World.RigidBody[entity];
+                    rigid_body.Acceleration[1] += 500;
+                    control.IsAirborne = true;
+                }
             }
         }
         if (control.Flags & 2 /* Rotate */) {
@@ -4368,7 +4383,7 @@
                     color: #fff;
                 "
             >
-                A game by Piesku.
+                An adventure on a post-human Earth.
             </div>
         </div>
     `;
@@ -4710,6 +4725,7 @@
             game.World.Signature[entity] |= 512 /* ControlPlayer */;
             game.World.ControlPlayer[entity] = {
                 Flags: flags,
+                IsAirborne: true,
                 IsFacingRight: true,
                 IsGrabbingEntity: null,
             };
