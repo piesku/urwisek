@@ -151,21 +151,6 @@ const GL_TEXTURE_2D = 0x0de1;
 */
 const GL_TEXTURE0 = 0x84c0;
 /**
-* A texture unit.
-* @constant {number}
-*/
-const GL_TEXTURE1 = 0x84c1;
-/**
-* A texture unit.
-* @constant {number}
-*/
-const GL_TEXTURE2 = 0x84c2;
-/**
-* A texture unit.
-* @constant {number}
-*/
-const GL_TEXTURE3 = 0x84c3;
-/**
 * @constant {number}
 */
 const GL_CLAMP_TO_EDGE = 0x812f;
@@ -557,7 +542,7 @@ throw new Error(gl.getShaderInfoLog(shader));
 return shader;
 }
 
-let vertex$8 = `#version 300 es\n
+let vertex$7 = `#version 300 es\n
 
 uniform mat4 pv;
 uniform mat4 world;
@@ -575,7 +560,7 @@ vert_normal = (vec4(attr_normal, 1.0) * self).xyz;
 gl_Position = pv * vert_position;
 }
 `;
-let fragment$8 = `#version 300 es\n
+let fragment$7 = `#version 300 es\n
 precision mediump float;
 
 
@@ -659,7 +644,7 @@ frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
 }
 `;
 function mat_forward_colored_phong(gl) {
-let program = link(gl, vertex$8, fragment$8);
+let program = link(gl, vertex$7, fragment$7);
 return {
 Mode: GL_TRIANGLES,
 Program: program,
@@ -681,7 +666,7 @@ VertexNormal: gl.getAttribLocation(program, "attr_normal"),
 };
 }
 
-let vertex$7 = `#version 300 es\n
+let vertex$6 = `#version 300 es\n
 uniform mat4 pv;
 uniform mat4 world;
 uniform mat4 self;
@@ -705,7 +690,7 @@ vert_normal = normalize(mat3(bone_world) * attr_normal);
 gl_Position = pv * vert_position;
 }
 `;
-let fragment$7 = `#version 300 es\n
+let fragment$6 = `#version 300 es\n
 precision mediump float;
 
 
@@ -789,7 +774,7 @@ frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
 }
 `;
 function mat_forward_colored_phong_skinned(gl) {
-let program = link(gl, vertex$7, fragment$7);
+let program = link(gl, vertex$6, fragment$6);
 return {
 Mode: GL_TRIANGLES,
 Program: program,
@@ -813,7 +798,7 @@ VertexWeights: gl.getAttribLocation(program, "attr_weights"),
 };
 }
 
-let vertex$6 = `#version 300 es\n
+let vertex$5 = `#version 300 es\n
 
 uniform mat4 pv;
 uniform mat4 world;
@@ -831,7 +816,7 @@ vert_normal = (vec4(attr_normal, 1.0) * self).xyz;
 gl_Position = pv * vert_position;
 }
 `;
-let fragment$6 = `#version 300 es\n
+let fragment$5 = `#version 300 es\n
 precision mediump float;
 precision lowp sampler2DShadow;
 
@@ -928,7 +913,7 @@ frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
 }
 `;
 function mat_forward_colored_shadows(gl) {
-let program = link(gl, vertex$6, fragment$6);
+let program = link(gl, vertex$5, fragment$5);
 return {
 Mode: GL_TRIANGLES,
 Program: program,
@@ -952,7 +937,7 @@ VertexNormal: gl.getAttribLocation(program, "attr_normal"),
 };
 }
 
-let vertex$5 = `#version 300 es\n
+let vertex$4 = `#version 300 es\n
 uniform mat4 pv;
 uniform mat4 world;
 
@@ -962,7 +947,7 @@ void main() {
 gl_Position = pv * world * vec4(attr_position, 1.0);
 }
 `;
-let fragment$5 = `#version 300 es\n
+let fragment$4 = `#version 300 es\n
 precision mediump float;
 
 uniform vec4 color;
@@ -974,7 +959,7 @@ frag_color = color;
 }
 `;
 function mat_forward_colored_unlit(gl, mode = GL_TRIANGLES) {
-let program = link(gl, vertex$5, fragment$5);
+let program = link(gl, vertex$4, fragment$4);
 return {
 Mode: mode,
 Program: program,
@@ -990,7 +975,7 @@ function mat_forward_colored_wireframe(gl) {
 return mat_forward_colored_unlit(gl, GL_LINE_LOOP);
 }
 
-let vertex$4 = `#version 300 es\n
+let vertex$3 = `#version 300 es\n
 
 uniform mat4 pv;
 uniform mat4 world;
@@ -1001,7 +986,7 @@ void main() {
 gl_Position = pv * world * vec4(attr_position, 1.0);
 }
 `;
-let fragment$4 = `#version 300 es\n
+let fragment$3 = `#version 300 es\n
 precision mediump float;
 
 out vec4 frag_color;
@@ -1013,7 +998,7 @@ frag_color = vec4(z, z, z, 1.0);
 }
 `;
 function mat_forward_depth(gl) {
-let program = link(gl, vertex$4, fragment$4);
+let program = link(gl, vertex$3, fragment$3);
 return {
 Mode: GL_TRIANGLES,
 Program: program,
@@ -1025,7 +1010,7 @@ VertexPosition: gl.getAttribLocation(program, "attr_position"),
 };
 }
 
-let vertex$3 = `#version 300 es\n
+let vertex$2 = `#version 300 es\n
 
 uniform mat4 pv;
 uniform mat4 world;
@@ -1081,7 +1066,7 @@ vec4 world_position = world * rotation * vec4(attr_position + attr_offset.xyz, 1
 gl_Position = pv * world_position;
 }
 `;
-let fragment$3 = `#version 300 es\n
+let fragment$2 = `#version 300 es\n
 precision mediump float;
 
 out vec4 frag_color;
@@ -1093,7 +1078,7 @@ frag_color = vec4(z, z, z, 1.0);
 }
 `;
 function mat_forward_depth_instanced(gl) {
-let program = link(gl, vertex$3, fragment$3);
+let program = link(gl, vertex$2, fragment$2);
 return {
 Mode: GL_TRIANGLES,
 Program: program,
@@ -1107,7 +1092,7 @@ InstanceRotation: gl.getAttribLocation(program, "attr_rotation"),
 };
 }
 
-let vertex$2 = `#version 300 es\n
+let vertex$1 = `#version 300 es\n
 
 const int MAX_LIGHTS = 8;
 
@@ -1217,7 +1202,7 @@ vert_color = mix(vert_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
 }
 
 `;
-let fragment$2 = `#version 300 es\n
+let fragment$1 = `#version 300 es\n
 precision mediump float;
 in vec4 vert_color;
 out vec4 frag_color;
@@ -1228,7 +1213,7 @@ frag_color = vert_color;
 
 `;
 function mat_forward_instanced(gl) {
-let program = link(gl, vertex$2, fragment$2);
+let program = link(gl, vertex$1, fragment$1);
 return {
 Mode: GL_TRIANGLES,
 Program: program,
@@ -1250,7 +1235,7 @@ InstanceRotation: gl.getAttribLocation(program, "attr_rotation"),
 };
 }
 
-let vertex$1 = `#version 300 es\n
+let vertex = `#version 300 es\n
 uniform mat4 pv;
 uniform vec4 color_start;
 uniform vec4 color_end;
@@ -1274,7 +1259,7 @@ gl_PointSize = mix(details.z, details.w, t);
 vert_color = mix(color_start, color_end, t);
 }
 `;
-let fragment$1 = `#version 300 es\n
+let fragment = `#version 300 es\n
 precision mediump float;
 
 in vec4 vert_color;
@@ -1286,7 +1271,7 @@ frag_color = vert_color;
 }
 `;
 function mat_forward_particles_colored(gl) {
-let program = link(gl, vertex$1, fragment$1);
+let program = link(gl, vertex, fragment);
 return {
 Mode: GL_POINTS,
 Program: program,
@@ -1297,68 +1282,6 @@ ColorEnd: gl.getUniformLocation(program, "color_end"),
 Details: gl.getUniformLocation(program, "details"),
 OriginAge: gl.getAttribLocation(program, "attr_origin_age"),
 Direction: gl.getAttribLocation(program, "attr_direction"),
-},
-};
-}
-
-let vertex = `#version 300 es\n
-uniform mat4 pv;
-uniform vec4 color_start;
-uniform vec4 color_end;
-
-uniform vec4 details;
-
-
-in vec4 attr_origin_age;
-
-in vec4 attr_direction_seed;
-
-out vec4 vert_color;
-out float vert_rand;
-
-void main() {
-
-vec3 velocity = attr_direction_seed.xyz * details.y;
-gl_Position = pv * vec4(attr_origin_age.xyz + velocity * attr_origin_age.w, 1.0);
-
-
-float t = attr_origin_age.w / details.x;
-gl_PointSize = mix(details.z, details.w, t);
-vert_color = mix(color_start, color_end, t);
-
-
-vert_rand = 3.14 * t + attr_direction_seed.w;
-}
-`;
-let fragment = `#version 300 es\n
-precision mediump float;
-
-uniform sampler2D texture_map;
-
-in vec4 vert_color;
-in float vert_rand;
-
-out vec4 frag_color;
-
-void main() {
-
-vec2 uv = gl_PointCoord + floor(vec2(cos(vert_rand) + 0.5, sin(vert_rand) + 0.5));
-frag_color = vert_color * texture(texture_map, uv / 2.0);
-}
-`;
-function mat_forward_particles_textured(gl) {
-let program = link(gl, vertex, fragment);
-return {
-Mode: GL_POINTS,
-Program: program,
-Locations: {
-Pv: gl.getUniformLocation(program, "pv"),
-TextureMap: gl.getUniformLocation(program, "texture_map"),
-ColorStart: gl.getUniformLocation(program, "color_start"),
-ColorEnd: gl.getUniformLocation(program, "color_end"),
-Details: gl.getUniformLocation(program, "details"),
-OriginAge: gl.getAttribLocation(program, "attr_origin_age"),
-DirectionSeed: gl.getAttribLocation(program, "attr_direction_seed"),
 },
 };
 }
@@ -3427,7 +3350,7 @@ game.Gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
 game.Gl.bufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * DATA_PER_PARTICLE * 4, GL_DYNAMIC_DRAW);
 game.World.Signature[entity] |= 131072 /* Render */;
 game.World.Render[entity] = {
-Kind: 9 /* ParticlesColored */,
+Kind: 5 /* ParticlesColored */,
 Material: game.MaterialParticlesColored,
 Buffer: buffer,
 ColorStart: start_color,
@@ -3470,7 +3393,7 @@ game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.Gl.bindVertexArray(null);
 game.World.Signature[entity] |= 131072 /* Render */;
 game.World.Render[entity] = {
-Kind: 11 /* Instanced */,
+Kind: 6 /* Instanced */,
 Material: material,
 Mesh: mesh,
 FrontFace: GL_CW,
@@ -3920,11 +3843,10 @@ let render = game.World.Render[i];
 if (render.Material !== current_material) {
 current_material = render.Material;
 switch (render.Kind) {
-case 8 /* Vertices */:
-case 9 /* ParticlesColored */:
-case 10 /* ParticlesTextured */:
+case 4 /* Vertices */:
+case 5 /* ParticlesColored */:
 break;
-case 11 /* Instanced */:
+case 6 /* Instanced */:
 use_instanced_shading(game, camera);
 break;
 default:
@@ -3936,12 +3858,11 @@ current_front_face = render.FrontFace;
 game.Gl.frontFace(render.FrontFace);
 }
 switch (render.Kind) {
-case 8 /* Vertices */:
-case 9 /* ParticlesColored */:
-case 10 /* ParticlesTextured */:
+case 4 /* Vertices */:
+case 5 /* ParticlesColored */:
 
 break;
-case 11 /* Instanced */:
+case 6 /* Instanced */:
 draw_instanced_shading(game, transform, render);
 break;
 default:
@@ -4065,17 +3986,8 @@ break;
 case 1 /* ColoredShaded */:
 use_colored_shaded(game, render.Material, eye);
 break;
-case 5 /* TexturedUnlit */:
-use_textured_unlit(game, render.Material, eye);
-break;
-case 6 /* TexturedShaded */:
-use_textured_shaded(game, render.Material, eye);
-break;
-case 8 /* Vertices */:
+case 4 /* Vertices */:
 use_vertices(game, render.Material, eye);
-break;
-case 7 /* MappedShaded */:
-use_mapped(game, render.Material, eye);
 break;
 case 2 /* ColoredShadows */:
 use_colored_shadows(game, render.Material, eye);
@@ -4083,13 +3995,10 @@ break;
 case 3 /* ColoredSkinned */:
 use_colored_skinned(game, render.Material, eye);
 break;
-case 9 /* ParticlesColored */:
+case 5 /* ParticlesColored */:
 use_particles_colored(game, render.Material, eye);
 break;
-case 10 /* ParticlesTextured */:
-use_particles_textured(game, render.Material, eye);
-break;
-case 11 /* Instanced */:
+case 6 /* Instanced */:
 use_instanced(game, render.Material, eye);
 break;
 }
@@ -4105,25 +4014,8 @@ break;
 case 1 /* ColoredShaded */:
 draw_colored_shaded(game, transform, render);
 break;
-case 5 /* TexturedUnlit */:
-
-
-if (render.Texture !== current_target) {
-draw_textured_unlit(game, transform, render);
-}
-break;
-case 6 /* TexturedShaded */:
-
-
-if (render.Texture !== current_target) {
-draw_textured_shaded(game, transform, render);
-}
-break;
-case 8 /* Vertices */:
+case 4 /* Vertices */:
 draw_vertices(game, transform, render);
-break;
-case 7 /* MappedShaded */:
-draw_mapped(game, transform, render);
 break;
 case 2 /* ColoredShadows */:
 draw_colored_shadows(game, transform, render);
@@ -4131,21 +4023,14 @@ break;
 case 3 /* ColoredSkinned */:
 draw_colored_skinned(game, i, transform, render);
 break;
-case 9 /* ParticlesColored */: {
+case 5 /* ParticlesColored */: {
 let emitter = game.World.EmitParticles[i];
 if (emitter.Instances.length) {
 draw_particles_colored(game, render, emitter);
 }
 break;
 }
-case 10 /* ParticlesTextured */: {
-let emitter = game.World.EmitParticles[i];
-if (emitter.Instances.length) {
-draw_particles_textured(game, render, emitter);
-}
-break;
-}
-case 11 /* Instanced */:
+case 6 /* Instanced */:
 draw_instanced(game, transform, render);
 break;
 }
@@ -4182,40 +4067,6 @@ game.Gl.bindVertexArray(render.Vao);
 game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
 game.Gl.bindVertexArray(null);
 }
-function use_textured_unlit(game, material, eye) {
-game.Gl.useProgram(material.Program);
-game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-}
-function draw_textured_unlit(game, transform, render) {
-game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-game.Gl.activeTexture(GL_TEXTURE0);
-game.Gl.bindTexture(GL_TEXTURE_2D, render.Texture);
-game.Gl.uniform1i(render.Material.Locations.TextureMap, 0);
-game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
-game.Gl.bindVertexArray(render.Vao);
-game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-game.Gl.bindVertexArray(null);
-}
-function use_textured_shaded(game, material, eye) {
-game.Gl.useProgram(material.Program);
-game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
-game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
-}
-function draw_textured_shaded(game, transform, render) {
-game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
-game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
-game.Gl.activeTexture(GL_TEXTURE0);
-game.Gl.bindTexture(GL_TEXTURE_2D, render.Texture);
-game.Gl.uniform1i(render.Material.Locations.DiffuseMap, 0);
-game.Gl.bindVertexArray(render.Vao);
-game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-game.Gl.bindVertexArray(null);
-}
 function use_vertices(game, material, eye) {
 game.Gl.useProgram(material.Program);
 game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
@@ -4227,30 +4078,6 @@ game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.VertexBuffer);
 game.Gl.enableVertexAttribArray(render.Material.Locations.VertexPosition);
 game.Gl.vertexAttribPointer(render.Material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
 game.Gl.drawArrays(render.Material.Mode, 0, render.IndexCount);
-}
-function use_mapped(game, material, eye) {
-game.Gl.useProgram(material.Program);
-game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
-game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
-}
-function draw_mapped(game, transform, render) {
-game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
-game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-game.Gl.activeTexture(GL_TEXTURE1);
-game.Gl.bindTexture(GL_TEXTURE_2D, render.DiffuseMap);
-game.Gl.uniform1i(render.Material.Locations.DiffuseMap, 1);
-game.Gl.activeTexture(GL_TEXTURE2);
-game.Gl.bindTexture(GL_TEXTURE_2D, render.NormalMap);
-game.Gl.uniform1i(render.Material.Locations.NormalMap, 2);
-game.Gl.activeTexture(GL_TEXTURE3);
-game.Gl.bindTexture(GL_TEXTURE_2D, render.RoughnessMap);
-game.Gl.uniform1i(render.Material.Locations.RoughnessMap, 3);
-game.Gl.bindVertexArray(render.Vao);
-game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-game.Gl.bindVertexArray(null);
 }
 function use_colored_shadows(game, material, eye) {
 game.Gl.useProgram(material.Program);
@@ -4340,26 +4167,6 @@ game.Gl.enableVertexAttribArray(render.Material.Locations.OriginAge);
 game.Gl.vertexAttribPointer(render.Material.Locations.OriginAge, 4, GL_FLOAT, false, DATA_PER_PARTICLE * 4, 0);
 game.Gl.enableVertexAttribArray(render.Material.Locations.Direction);
 game.Gl.vertexAttribPointer(render.Material.Locations.Direction, 3, GL_FLOAT, false, DATA_PER_PARTICLE * 4, 4 * 4);
-game.Gl.drawArrays(render.Material.Mode, 0, emitter.Instances.length / DATA_PER_PARTICLE);
-}
-function use_particles_textured(game, material, eye) {
-game.Gl.useProgram(material.Program);
-game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-}
-function draw_particles_textured(game, render, emitter) {
-game.Gl.uniform4fv(render.Material.Locations.ColorStart, render.ColorStart);
-game.Gl.uniform4fv(render.Material.Locations.ColorEnd, render.ColorEnd);
-game.Gl.activeTexture(GL_TEXTURE0);
-game.Gl.bindTexture(GL_TEXTURE_2D, render.Texture);
-game.Gl.uniform1i(render.Material.Locations.TextureMap, 0);
-game.Gl.uniform4f(render.Material.Locations.Details, emitter.Lifespan, emitter.Speed, ...render.Size);
-let instances = Float32Array.from(emitter.Instances);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.Buffer);
-game.Gl.bufferSubData(GL_ARRAY_BUFFER, 0, instances);
-game.Gl.enableVertexAttribArray(render.Material.Locations.OriginAge);
-game.Gl.vertexAttribPointer(render.Material.Locations.OriginAge, 4, GL_FLOAT, false, DATA_PER_PARTICLE * 4, 0);
-game.Gl.enableVertexAttribArray(render.Material.Locations.DirectionSeed);
-game.Gl.vertexAttribPointer(render.Material.Locations.DirectionSeed, 4, GL_FLOAT, false, DATA_PER_PARTICLE * 4, 4 * 4);
 game.Gl.drawArrays(render.Material.Mode, 0, emitter.Instances.length / DATA_PER_PARTICLE);
 }
 function use_instanced(game, material, eye) {
@@ -4618,7 +4425,6 @@ this.MaterialColoredShaded = mat_forward_colored_phong(this.Gl);
 this.MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
 this.MaterialColoredPhongSkinned = mat_forward_colored_phong_skinned(this.Gl);
 this.MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
-this.MaterialParticlesTextured = mat_forward_particles_textured(this.Gl);
 this.MaterialDepth = mat_forward_depth(this.Gl);
 this.MaterialDepthInstanced = mat_forward_depth_instanced(this.Gl);
 this.MaterialInstanced = mat_forward_instanced(this.Gl);
