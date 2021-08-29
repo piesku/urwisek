@@ -4,6 +4,7 @@ import {Entity} from "../common/world.js";
 import {mat_forward_colored_phong} from "../materials/mat_forward_colored_phong.js";
 import {mat_forward_colored_phong_skinned} from "../materials/mat_forward_colored_phong_skinned.js";
 import {mat_forward_colored_shadows} from "../materials/mat_forward_colored_shadows.js";
+import {mat_forward_colored_wireframe} from "../materials/mat_forward_colored_unlit.js";
 import {mat_forward_depth} from "../materials/mat_forward_depth.js";
 import {mat_forward_depth_instanced} from "../materials/mat_forward_depth_instanced.js";
 import {mat_forward_instanced} from "../materials/mat_forward_instanced.js";
@@ -26,6 +27,7 @@ import {sys_control_always} from "./systems/sys_control_always.js";
 import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
 import {sys_control_touch_move} from "./systems/sys_control_touch_move.js";
 import {sys_control_xbox} from "./systems/sys_control_xbox.js";
+import {sys_debug} from "./systems/sys_debug.js";
 import {sys_draw} from "./systems/sys_draw.js";
 import {sys_lifespan} from "./systems/sys_lifespan.js";
 import {sys_light} from "./systems/sys_light.js";
@@ -50,6 +52,7 @@ import {World} from "./world.js";
 export class Game extends Game3D {
     World = new World();
 
+    MaterialColoredWireframe = mat_forward_colored_wireframe(this.Gl);
     MaterialColoredShaded = mat_forward_colored_phong(this.Gl);
     MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
     MaterialColoredPhongSkinned = mat_forward_colored_phong_skinned(this.Gl);
@@ -113,6 +116,10 @@ export class Game extends Game3D {
         sys_spawn(this, delta);
         sys_particles(this, delta);
         sys_transform(this, delta);
+
+        if (true) {
+            sys_debug(this, delta);
+        }
 
         // Rendering.
         sys_audio_listener(this, delta);
