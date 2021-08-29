@@ -28,8 +28,8 @@ let create_child = (mesh, translation, rotation, scale, color) => {
     return `
     [
         transform(${vec(translation)}, ${vec(rotation)}, ${vec(scale)}),
-        render_colored_shaded(
-            game.MaterialColoredShaded,
+        render_colored_shadows(
+            game.MaterialColoredShadows,
             game.Mesh${mesh},
             ${vec(color)}
         ),
@@ -52,7 +52,7 @@ let color_map = gltf.meshes.reduce((acc, curr, index) => {
 let result = `\
 import {Vec4} from "../../common/math.js";
 import {children} from "../components/com_children.js";
-import {render_colored_shaded} from "../components/com_render.js";
+import {render_colored_shadows} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
