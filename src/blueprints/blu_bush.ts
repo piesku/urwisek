@@ -1,7 +1,9 @@
 import {from_euler} from "../../common/quat.js";
 import {float, integer} from "../../common/random.js";
+import {cull} from "../components/com_cull.js";
 import {render_instanced} from "../components/com_render.js";
 import {Game} from "../game.js";
+import {Has} from "../world.js";
 import {leaft_colors} from "./blu_tree.js";
 
 export function blueprint_bush(game: Game) {
@@ -20,6 +22,7 @@ export function blueprint_bush(game: Game) {
     }
 
     return [
+        cull(Has.Render),
         render_instanced(
             game.MeshLeaf,
             Float32Array.from(offsets),

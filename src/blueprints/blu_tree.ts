@@ -1,9 +1,11 @@
 import {from_euler} from "../../common/quat.js";
 import {float, integer} from "../../common/random.js";
 import {children} from "../components/com_children.js";
+import {cull} from "../components/com_cull.js";
 import {render_colored_shaded, render_instanced} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
+import {Has} from "../world.js";
 
 // prettier-ignore
 export const leaft_colors = [
@@ -36,6 +38,7 @@ export function blueprint_tree(game: Game, min = 2, max = 4) {
         children(
             [
                 transform([0, height / 2, 0], undefined, [0.25, height, 0.25]),
+                cull(Has.Render),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCylinder,
@@ -44,6 +47,7 @@ export function blueprint_tree(game: Game, min = 2, max = 4) {
             ],
             [
                 transform([0, height, 0]),
+                cull(Has.Render),
                 render_instanced(
                     game.MeshLeaf,
                     Float32Array.from(offsets),
