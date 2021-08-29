@@ -43,7 +43,7 @@ function blueprint_player(game: Game) {
             ],
             [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))],
             [
-                named("guide anchor"),
+                named("pixie anchor"),
                 transform([4, 1, 0], [0, 0.7, 0, 0.7]),
                 // children([
                 //     transform(undefined, undefined, [0.1, 0.1, 0.1]),

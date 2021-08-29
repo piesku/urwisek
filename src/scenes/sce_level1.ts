@@ -1,6 +1,7 @@
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {blueprint_pixie} from "../blueprints/blu_pixie.js";
 import {blueprint_rocket} from "../blueprints/blu_rocket.js";
 import {children} from "../components/com_children.js";
 import {disable} from "../components/com_disable.js";
@@ -32,11 +33,18 @@ export function scene_level1(game: Game) {
 
     // Animate the camera during the intro.
     instantiate(game, [
-        children([
-            task_timeout(5, () => {
-                game.World.Signature[camera_entity] |= Has.Mimic;
-            }),
-        ]),
+        children(
+            [
+                task_timeout(5, () => {
+                    game.World.Signature[camera_entity] |= Has.Mimic;
+                }),
+            ],
+            [
+                task_timeout(7, () => {
+                    instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
+                }),
+            ]
+        ),
         task_timeout(9, () => {
             game.World.Mimic[camera_entity].Stiffness = 0.05;
         }),
