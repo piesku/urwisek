@@ -35,7 +35,7 @@ export function blueprint_tree(game: Game, min = 2, max = 4) {
     return [
         children(
             [
-                transform([0, height / 2, 0], undefined, [0.25, height * 2, 0.25]),
+                transform([0, height / 2, 0], undefined, [0.25, height, 0.25]),
                 render_colored_shaded(
                     game.MaterialColoredShaded,
                     game.MeshCylinder,
