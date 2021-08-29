@@ -86,11 +86,11 @@ function wireframe_collider(game: Game, entity: Entity) {
         wireframes.set(anchor_collide, wireframe);
     }
 
-    if (anchor_collide.Dynamic) {
-        wireframe.transform.Translation = anchor_collide.Center;
-        scale(wireframe.transform.Scale, anchor_collide.Half, 2);
-        wireframe.transform.Dirty = true;
-    }
+    // if (anchor_collide.Dynamic) {
+    wireframe.transform.Translation = anchor_collide.Center;
+    scale(wireframe.transform.Scale, anchor_collide.Half, 2);
+    wireframe.transform.Dirty = true;
+    // }
 
     let render = game.World.Render[wireframe.entity];
     if (render.Kind === RenderKind.ColoredUnlit) {
