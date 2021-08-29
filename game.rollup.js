@@ -2265,15 +2265,15 @@
     /**
      * @module systems/sys_animate
      */
-    const QUERY$p = 8388608 /* Transform */ | 1 /* Animate */;
+    const QUERY$q = 16777216 /* Transform */ | 1 /* Animate */;
     function sys_animate(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$p) === QUERY$p) {
-                update$i(game, i, delta);
+            if ((game.World.Signature[i] & QUERY$q) === QUERY$q) {
+                update$j(game, i, delta);
             }
         }
     }
-    function update$i(game, entity, delta) {
+    function update$j(game, entity, delta) {
         let transform = game.World.Transform[entity];
         let animate = game.World.Animate[entity];
         // 1. Switch to the trigger if the clip has completed or early exits are allowed.
@@ -2370,18 +2370,18 @@
     /**
      * @module systems/sys_audio_listener
      */
-    const QUERY$o = 2 /* AudioListener */ | 8388608 /* Transform */;
+    const QUERY$p = 2 /* AudioListener */ | 16777216 /* Transform */;
     function sys_audio_listener(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$o) === QUERY$o) {
-                update$h(game, i);
+            if ((game.World.Signature[i] & QUERY$p) === QUERY$p) {
+                update$i(game, i);
             }
         }
     }
     let position$1 = [0, 0, 0];
     let forward$2 = [0, 0, 0];
     let up = [0, 0, 0];
-    function update$h(game, entity) {
+    function update$i(game, entity) {
         let transform = game.World.Transform[entity];
         get_translation(position$1, transform.World);
         get_forward(forward$2, transform.World);
@@ -2546,15 +2546,15 @@
     /**
      * @module systems/sys_audio_source
      */
-    const QUERY$n = 4 /* AudioSource */ | 8388608 /* Transform */;
+    const QUERY$o = 4 /* AudioSource */ | 16777216 /* Transform */;
     function sys_audio_source(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$n) === QUERY$n) {
-                update$g(game, i, delta);
+            if ((game.World.Signature[i] & QUERY$o) === QUERY$o) {
+                update$h(game, i, delta);
             }
         }
     }
-    function update$g(game, entity, delta) {
+    function update$h(game, entity, delta) {
         let audio_source = game.World.AudioSource[entity];
         let transform = game.World.Transform[entity];
         if (audio_source.Current) {
@@ -2631,11 +2631,11 @@
     /**
      * @module systems/sys_camera
      */
-    const QUERY$m = 8388608 /* Transform */ | 16 /* Camera */;
+    const QUERY$n = 16777216 /* Transform */ | 16 /* Camera */;
     function sys_camera(game, delta) {
         game.Cameras = [];
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$m) === QUERY$m) {
+            if ((game.World.Signature[i] & QUERY$n) === QUERY$n) {
                 let camera = game.World.Camera[i];
                 let transform = game.World.Transform[i];
                 let projection = camera.Projection;
@@ -2744,13 +2744,13 @@
     /**
      * @module systems/sys_collide
      */
-    const QUERY$l = 8388608 /* Transform */ | 64 /* Collide */;
+    const QUERY$m = 16777216 /* Transform */ | 64 /* Collide */;
     function sys_collide(game, delta) {
         // Collect all colliders.
         let static_colliders = [];
         let dynamic_colliders = [];
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$l) === QUERY$l) {
+            if ((game.World.Signature[i] & QUERY$m) === QUERY$m) {
                 let transform = game.World.Transform[i];
                 let collider = game.World.Collide[i];
                 // Prepare the collider for this tick's detection.
@@ -2814,15 +2814,15 @@
     /**
      * @module systems/sys_control_ai
      */
-    const QUERY$k = 256 /* ControlAi */ | 8388608 /* Transform */;
+    const QUERY$l = 256 /* ControlAi */ | 16777216 /* Transform */;
     function sys_control_ai(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$k) === QUERY$k) {
-                update$f(game, i);
+            if ((game.World.Signature[i] & QUERY$l) === QUERY$l) {
+                update$g(game, i);
             }
         }
     }
-    function update$f(game, entity) {
+    function update$g(game, entity) {
         let control = game.World.ControlAi[entity];
         for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
             let animate = game.World.Animate[ent];
@@ -2833,15 +2833,15 @@
     /**
      * @module systems/sys_control_always
      */
-    const QUERY$j = 128 /* ControlAlways */ | 8388608 /* Transform */ | 32768 /* Move */;
+    const QUERY$k = 128 /* ControlAlways */ | 16777216 /* Transform */ | 65536 /* Move */;
     function sys_control_always(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
-                update$e(game, i);
+            if ((game.World.Signature[i] & QUERY$k) === QUERY$k) {
+                update$f(game, i);
             }
         }
     }
-    function update$e(game, entity) {
+    function update$f(game, entity) {
         let control = game.World.ControlAlways[entity];
         let move = game.World.Move[entity];
         if (control.Direction) {
@@ -2857,7 +2857,7 @@
      */
     function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
         return (game, entity) => {
-            game.World.Signature[entity] |= 8388608 /* Transform */;
+            game.World.Signature[entity] |= 16777216 /* Transform */;
             game.World.Transform[entity] = {
                 World: create(),
                 Self: create(),
@@ -2885,15 +2885,15 @@
         }
     }
 
-    const QUERY$i = 512 /* ControlPlayer */;
+    const QUERY$j = 512 /* ControlPlayer */;
     function sys_control_keyboard(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$i) === QUERY$i) {
-                update$d(game, i);
+            if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
+                update$e(game, i);
             }
         }
     }
-    function update$d(game, entity) {
+    function update$e(game, entity) {
         let control = game.World.ControlPlayer[entity];
         if (control.Flags & 1 /* Move */) {
             // Requires Has.Move | Has.RigidBody.
@@ -2941,14 +2941,14 @@
                         let control = game.World.ControlPlayer[ent];
                         control.IsGrabbingEntity = obstacle_entity;
                     }
-                    game.World.Signature[obstacle_entity] |= 16384 /* Mimic */;
+                    game.World.Signature[obstacle_entity] |= 32768 /* Mimic */;
                     if (obstacle_mimic) {
                         obstacle_mimic.Target = entity;
                     }
                 }
             }
             if (game.InputDelta["Space"] === -1 && control.IsGrabbingEntity) {
-                game.World.Signature[control.IsGrabbingEntity] &= ~16384 /* Mimic */;
+                game.World.Signature[control.IsGrabbingEntity] &= ~32768 /* Mimic */;
                 for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
                     let control = game.World.ControlPlayer[ent];
                     control.IsGrabbingEntity = null;
@@ -2979,7 +2979,7 @@
         }
     }
 
-    const QUERY$h = 512 /* ControlPlayer */;
+    const QUERY$i = 512 /* ControlPlayer */;
     const DOUBLE_TAP_INTERVAL = 0.2;
     const MOVEMENT_DEAD_ZONE = 0.01;
     const JUMPING_DEAD_ZONE = 0.5;
@@ -3007,12 +3007,12 @@
             dy = (game.InputState["Touch0Y"] - touch_start[1]) / divisor;
         }
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$h) === QUERY$h) {
-                update$c(game, i, dx, dy);
+            if ((game.World.Signature[i] & QUERY$i) === QUERY$i) {
+                update$d(game, i, dx, dy);
             }
         }
     }
-    function update$c(game, entity, dx, dy) {
+    function update$d(game, entity, dx, dy) {
         let control = game.World.ControlPlayer[entity];
         if (control.Flags & 1 /* Move */) {
             let move = game.World.Move[entity];
@@ -3054,12 +3054,12 @@
                     let control = game.World.ControlPlayer[ent];
                     control.IsGrabbingEntity = obstacle_entity;
                 }
-                game.World.Signature[obstacle_entity] |= 16384 /* Mimic */;
+                game.World.Signature[obstacle_entity] |= 32768 /* Mimic */;
                 let obstacle_mimic = game.World.Mimic[obstacle_entity];
                 obstacle_mimic.Target = entity;
             }
             if (game.InputDelta["Touch0"] === -1 && control.IsGrabbingEntity) {
-                game.World.Signature[control.IsGrabbingEntity] &= ~16384 /* Mimic */;
+                game.World.Signature[control.IsGrabbingEntity] &= ~32768 /* Mimic */;
                 for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
                     let control = game.World.ControlPlayer[ent];
                     control.IsGrabbingEntity = null;
@@ -3081,7 +3081,7 @@
         }
     }
 
-    const QUERY$g = 32768 /* Move */ | 512 /* ControlPlayer */;
+    const QUERY$h = 65536 /* Move */ | 512 /* ControlPlayer */;
     const DEAD_ZONE = 0.1;
     function sys_control_xbox(game, delta) {
         for (let pad of navigator.getGamepads()) {
@@ -3093,12 +3093,12 @@
             }
         }
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$g) === QUERY$g) {
-                update$b(game, i);
+            if ((game.World.Signature[i] & QUERY$h) === QUERY$h) {
+                update$c(game, i);
             }
         }
     }
-    function update$b(game, entity) {
+    function update$c(game, entity) {
         let control = game.World.ControlPlayer[entity];
         if (control.Flags & 1 /* Move */) {
             let move = game.World.Move[entity];
@@ -3110,6 +3110,30 @@
                 // Forward movement.
                 move.Directions.push([0, 0, -game.InputDelta["pad0_axis_2"]]);
             }
+        }
+    }
+
+    const QUERY$g = 16777216 /* Transform */ | 1024 /* Cull */;
+    function sys_cull(game, delta) {
+        // The main camera must be instantiated after the shadow source one.
+        let camera_entity = game.Cameras[1];
+        let transform = game.World.Transform[camera_entity];
+        let x = transform.World[12];
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$g) == QUERY$g) {
+                update$b(game, i, x);
+            }
+        }
+    }
+    function update$b(game, entity, camera_x) {
+        let cull = game.World.Cull[entity];
+        let transform = game.World.Transform[entity];
+        let x = transform.World[12];
+        if (Math.abs(x - camera_x) > 15) {
+            game.World.Signature[entity] &= ~cull.Mask;
+        }
+        else {
+            game.World.Signature[entity] |= cull.Mask;
         }
     }
 
@@ -3135,7 +3159,7 @@
                 game.Gl.bindVertexArray(null);
                 colored_shaded_vaos.set(mesh, vao);
             }
-            game.World.Signature[entity] |= 131072 /* Render */;
+            game.World.Signature[entity] |= 262144 /* Render */;
             game.World.Render[entity] = {
                 Kind: 1 /* ColoredShaded */,
                 Material: material,
@@ -3164,7 +3188,7 @@
                 game.Gl.bindVertexArray(null);
                 colored_shadows_vaos.set(mesh, vao);
             }
-            game.World.Signature[entity] |= 131072 /* Render */;
+            game.World.Signature[entity] |= 262144 /* Render */;
             game.World.Render[entity] = {
                 Kind: 2 /* ColoredShadows */,
                 Material: material,
@@ -3196,7 +3220,7 @@
                 game.Gl.bindVertexArray(null);
                 colored_skinned_vaos.set(mesh, vao);
             }
-            game.World.Signature[entity] |= 131072 /* Render */;
+            game.World.Signature[entity] |= 262144 /* Render */;
             game.World.Render[entity] = {
                 Kind: 3 /* ColoredSkinned */,
                 Material: material,
@@ -3216,7 +3240,7 @@
             let buffer = game.Gl.createBuffer();
             game.Gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
             game.Gl.bufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * DATA_PER_PARTICLE * 4, GL_DYNAMIC_DRAW);
-            game.World.Signature[entity] |= 131072 /* Render */;
+            game.World.Signature[entity] |= 262144 /* Render */;
             game.World.Render[entity] = {
                 Kind: 5 /* ParticlesColored */,
                 Material: game.MaterialParticlesColored,
@@ -3259,7 +3283,7 @@
             game.Gl.vertexAttribDivisor(material.Locations.InstanceRotation, 1);
             game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
             game.Gl.bindVertexArray(null);
-            game.World.Signature[entity] |= 131072 /* Render */;
+            game.World.Signature[entity] |= 262144 /* Render */;
             game.World.Render[entity] = {
                 Kind: 6 /* Instanced */,
                 Material: material,
@@ -3277,7 +3301,7 @@
     /**
      * @module systems/sys_draw
      */
-    const QUERY$f = 8388608 /* Transform */ | 1024 /* Draw */;
+    const QUERY$f = 16777216 /* Transform */ | 2048 /* Draw */;
     function sys_draw(game, delta) {
         game.Context2D.resetTransform();
         game.Context2D.clearRect(0, 0, game.ViewportWidth, game.ViewportHeight);
@@ -3328,7 +3352,7 @@
     /**
      * @module systems/sys_lifespan
      */
-    const QUERY$e = 4096 /* Lifespan */;
+    const QUERY$e = 8192 /* Lifespan */;
     function sys_lifespan(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$e) == QUERY$e) {
@@ -3350,7 +3374,7 @@
     /**
      * @module systems/sys_light
      */
-    const QUERY$d = 8388608 /* Transform */ | 8192 /* Light */;
+    const QUERY$d = 16777216 /* Transform */ | 16384 /* Light */;
     function sys_light(game, delta) {
         game.LightPositions.fill(0);
         game.LightDetails.fill(0);
@@ -3384,7 +3408,7 @@
     /**
      * @module systems/sys_mimic
      */
-    const QUERY$c = 8388608 /* Transform */ | 16384 /* Mimic */;
+    const QUERY$c = 16777216 /* Transform */ | 32768 /* Mimic */;
     function sys_mimic(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$c) === QUERY$c) {
@@ -3404,7 +3428,7 @@
     /**
      * @module systems/sys_move
      */
-    const QUERY$b = 8388608 /* Transform */ | 32768 /* Move */;
+    const QUERY$b = 16777216 /* Transform */ | 65536 /* Move */;
     const NO_ROTATION = [0, 0, 0, 1];
     function sys_move(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
@@ -3466,7 +3490,7 @@
         return multiply(acc, acc, cur);
     }
 
-    const QUERY$a = 8388608 /* Transform */ | 2048 /* EmitParticles */;
+    const QUERY$a = 16777216 /* Transform */ | 4096 /* EmitParticles */;
     function sys_particles(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$a) == QUERY$a) {
@@ -3505,7 +3529,7 @@
     /**
      * @module systems/sys_physics_integrate
      */
-    const QUERY$9 = 8388608 /* Transform */ | 262144 /* RigidBody */;
+    const QUERY$9 = 16777216 /* Transform */ | 524288 /* RigidBody */;
     const GRAVITY = -20;
     function sys_physics_integrate(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
@@ -3536,7 +3560,7 @@
     /**
      * @module systems/sys_physics_kinematic
      */
-    const QUERY$8 = 8388608 /* Transform */ | 262144 /* RigidBody */;
+    const QUERY$8 = 16777216 /* Transform */ | 524288 /* RigidBody */;
     function sys_physics_kinematic(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$8) === QUERY$8) {
@@ -3561,7 +3585,7 @@
     /**
      * @module systems/sys_physics_resolve
      */
-    const QUERY$7 = 8388608 /* Transform */ | 64 /* Collide */ | 262144 /* RigidBody */;
+    const QUERY$7 = 16777216 /* Transform */ | 64 /* Collide */ | 524288 /* RigidBody */;
     function sys_physics_resolve(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$7) === QUERY$7) {
@@ -3579,7 +3603,7 @@
             let has_collision = false;
             for (let i = 0; i < collide.Collisions.length; i++) {
                 let collision = collide.Collisions[i];
-                if (game.World.Signature[collision.Other] & 262144 /* RigidBody */) {
+                if (game.World.Signature[collision.Other] & 524288 /* RigidBody */) {
                     has_collision = true;
                     // Dynamic rigid bodies are only supported for top-level
                     // entities. Thus, no need to apply the world → self → local
@@ -3627,7 +3651,7 @@
     /**
      * @module systems/sys_poll
      */
-    const QUERY$6 = 2097152 /* Task */;
+    const QUERY$6 = 4194304 /* Task */;
     function sys_poll(game, delta) {
         // Collect all ready tasks first to avoid completing them while we stil
         // literate over ohter tasks. This guarantees that tasks blocked by other
@@ -3657,7 +3681,7 @@
             }
         }
         for (let entity of tasks_to_complete) {
-            game.World.Signature[entity] &= ~2097152 /* Task */;
+            game.World.Signature[entity] &= ~4194304 /* Task */;
             if (game.World.Signature[entity] === 0 /* None */) {
                 game.World.DestroyEntity(entity);
             }
@@ -3674,7 +3698,7 @@
         if (world.Signature[entity] & 32 /* Children */) {
             let children = world.Children[entity];
             for (let child of children.Children) {
-                if (world.Signature[child] & 2097152 /* Task */) {
+                if (world.Signature[child] & 4194304 /* Task */) {
                     // A pending child blocks the parent task.
                     return true;
                 }
@@ -3718,7 +3742,7 @@
     /**
      * @module systems/sys_render_forward
      */
-    const QUERY$5 = 8388608 /* Transform */ | 131072 /* Render */;
+    const QUERY$5 = 16777216 /* Transform */ | 262144 /* Render */;
     function sys_render_forward(game, delta) {
         for (let camera_entity of game.Cameras) {
             let camera = game.World.Camera[camera_entity];
@@ -3884,7 +3908,7 @@
             game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Sun.DepthTexture);
             game.Gl.uniform1i(material.Locations.ShadowMap, 0);
             // Only one shadow source is supported.
-            let light_entity = first_entity(game.World, 16 /* Camera */ | 8192 /* Light */);
+            let light_entity = first_entity(game.World, 16 /* Camera */ | 16384 /* Light */);
             if (light_entity) {
                 let light_camera = game.World.Camera[light_entity];
                 game.Gl.uniformMatrix4fv(material.Locations.ShadowSpace, false, light_camera.Pv);
@@ -3919,7 +3943,7 @@
         game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
         let bone_entities = [];
         if (game.World.Signature[entity] & 32 /* Children */) {
-            for (let bone_entity of query_all(game.World, entity, 8 /* Bone */ | 8388608 /* Transform */)) {
+            for (let bone_entity of query_all(game.World, entity, 8 /* Bone */ | 16777216 /* Transform */)) {
                 bone_entities.push(bone_entity);
             }
         }
@@ -3928,7 +3952,7 @@
             // need to find them in the world rather than the tail's children.
             let start_here = entity;
             for (let i = 0; i < 5; i++) {
-                let bone_entity = first_entity(game.World, 8 /* Bone */ | 8388608 /* Transform */, start_here);
+                let bone_entity = first_entity(game.World, 8 /* Bone */ | 16777216 /* Transform */, start_here);
                 if (bone_entity) {
                     bone_entities.push(bone_entity);
                     start_here = bone_entity + 1;
@@ -3997,7 +4021,7 @@
     /**
      * @module systems/sys_shake
      */
-    const QUERY$4 = 8388608 /* Transform */ | 524288 /* Shake */;
+    const QUERY$4 = 16777216 /* Transform */ | 1048576 /* Shake */;
     function sys_shake(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$4) == QUERY$4) {
@@ -4016,7 +4040,7 @@
     /**
      * @module systems/sys_spawn
      */
-    const QUERY$3 = 8388608 /* Transform */ | 1048576 /* Spawn */;
+    const QUERY$3 = 16777216 /* Transform */ | 2097152 /* Spawn */;
     function sys_spawn(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$3) == QUERY$3) {
@@ -4041,7 +4065,7 @@
     /**
      * @module systems/sys_toggle
      */
-    const QUERY$2 = 4194304 /* Toggle */;
+    const QUERY$2 = 8388608 /* Toggle */;
     function sys_toggle(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$2) == QUERY$2) {
@@ -4067,7 +4091,7 @@
     /**
      * @module systems/sys_transform
      */
-    const QUERY$1 = 8388608 /* Transform */;
+    const QUERY$1 = 16777216 /* Transform */;
     function sys_transform(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$1) === QUERY$1) {
@@ -4089,7 +4113,7 @@
         if (world.Signature[entity] & 32 /* Children */) {
             let children = world.Children[entity];
             for (let child of children.Children) {
-                if (world.Signature[child] & 8388608 /* Transform */) {
+                if (world.Signature[child] & 16777216 /* Transform */) {
                     let child_transform = world.Transform[child];
                     child_transform.Parent = entity;
                     update_transform(world, child, child_transform);
@@ -4101,7 +4125,7 @@
     /**
      * @module systems/sys_trigger
      */
-    const QUERY = 8388608 /* Transform */ | 64 /* Collide */ | 16777216 /* Trigger */;
+    const QUERY = 16777216 /* Transform */ | 64 /* Collide */ | 33554432 /* Trigger */;
     function sys_trigger(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY) === QUERY) {
@@ -4192,6 +4216,7 @@
             this.ControlAlways = [];
             this.ControlAi = [];
             this.ControlPlayer = [];
+            this.Cull = [];
             this.Draw = [];
             this.EmitParticles = [];
             this.Lifespan = [];
@@ -4273,6 +4298,7 @@
             sys_audio_source(this, delta);
             sys_resize(this);
             sys_camera(this);
+            sys_cull(this);
             sys_light(this);
             sys_render_forward(this);
             sys_draw(this);
@@ -4338,7 +4364,7 @@
      */
     function emit_particles(lifespan, frequency, speed) {
         return (game, entity) => {
-            game.World.Signature[entity] |= 2048 /* EmitParticles */;
+            game.World.Signature[entity] |= 4096 /* EmitParticles */;
             game.World.EmitParticles[entity] = {
                 Lifespan: lifespan,
                 Frequency: frequency,
@@ -4354,7 +4380,7 @@
      */
     function mimic(Target, Stiffness = 0.1) {
         return (game, entity) => {
-            game.World.Signature[entity] |= 16384 /* Mimic */;
+            game.World.Signature[entity] |= 32768 /* Mimic */;
             game.World.Mimic[entity] = {
                 Target,
                 Stiffness,
@@ -4367,13 +4393,13 @@
      */
     function named(Name) {
         return (game, entity) => {
-            game.World.Signature[entity] |= 65536 /* Named */;
+            game.World.Signature[entity] |= 131072 /* Named */;
             game.World.Named[entity] = { Name };
         };
     }
     function find_first(world, name) {
         for (let i = 0; i < world.Signature.length; i++) {
-            if (world.Signature[i] & 65536 /* Named */ && world.Named[i].Name === name) {
+            if (world.Signature[i] & 131072 /* Named */ && world.Named[i].Name === name) {
                 return i;
             }
         }
@@ -4388,7 +4414,7 @@
      */
     function shake(magnitude) {
         return (game, entity) => {
-            game.World.Signature[entity] |= 524288 /* Shake */;
+            game.World.Signature[entity] |= 1048576 /* Shake */;
             game.World.Shake[entity] = {
                 Magnitude: magnitude,
             };
@@ -4455,7 +4481,7 @@
      */
     function lifespan(remaining, action) {
         return (game, entity) => {
-            game.World.Signature[entity] |= 4096 /* Lifespan */;
+            game.World.Signature[entity] |= 8192 /* Lifespan */;
             game.World.Lifespan[entity] = {
                 Remaining: remaining,
                 Action: action,
@@ -4474,7 +4500,7 @@
      */
     function move(move_speed, rotation_speed) {
         return (game, entity) => {
-            game.World.Signature[entity] |= 32768 /* Move */;
+            game.World.Signature[entity] |= 65536 /* Move */;
             game.World.Move[entity] = {
                 MoveSpeed: move_speed,
                 RotationSpeed: rotation_speed,
@@ -4531,7 +4557,7 @@
     /** A task that completes after the specified duration (in seconds). */
     function task_timeout(duration, on_done) {
         return (game, entity) => {
-            game.World.Signature[entity] |= 2097152 /* Task */;
+            game.World.Signature[entity] |= 4194304 /* Task */;
             game.World.Task[entity] = {
                 Kind: 1 /* Timeout */,
                 Remaining: duration,
@@ -4545,7 +4571,7 @@
      */
     function light_directional(color = [1, 1, 1], range = 1) {
         return (game, entity) => {
-            game.World.Signature[entity] |= 8192 /* Light */;
+            game.World.Signature[entity] |= 16384 /* Light */;
             game.World.Light[entity] = {
                 Kind: 1 /* Directional */,
                 Color: color,
@@ -4621,7 +4647,7 @@
      */
     function rigid_body(kind, bounciness = 0.5) {
         return (game, entity) => {
-            game.World.Signature[entity] |= 262144 /* RigidBody */;
+            game.World.Signature[entity] |= 524288 /* RigidBody */;
             game.World.RigidBody[entity] = {
                 Kind: kind,
                 Bounciness: bounciness,
@@ -5315,19 +5341,32 @@
         return lisek_entity;
     }
 
+    function cull(mask) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 1024 /* Cull */;
+            game.World.Cull[entity] = {
+                Mask: mask,
+            };
+        };
+    }
+
     function prop_house(game) {
         return [
             children([
                 transform([0, 1.7, 0], undefined, [3, 3, 3]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
             ], [
                 transform([-2.25, 1.7, 0], undefined, [1.5, 0.1, 3]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.069, 0.154, 0.8, 1]),
             ], [
                 transform([-0.8, 0.1, 0], undefined, [4.9, 0.2, 3.4]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
             ], [
                 transform([-2.814, 0.95, 0], undefined, [0.1, 1.5, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
             ]),
         ];
@@ -5356,9 +5395,11 @@
         return [
             children([
                 transform([0, height / 2, 0], undefined, [0.25, height, 0.25]),
+                cull(262144 /* Render */),
                 render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.2, 0.2, 1]),
             ], [
                 transform([0, height, 0]),
+                cull(262144 /* Render */),
                 render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), leaft_colors),
             ]),
         ];
@@ -5374,6 +5415,7 @@
             rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
         }
         return [
+            cull(262144 /* Render */),
             render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), leaft_colors),
         ];
     }
@@ -5382,36 +5424,47 @@
         return [
             children([
                 transform([0, 4, 0], undefined, [0.5, 8, 0.5]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.119, 0.027, 0.012, 1]),
             ], [
                 transform([0, 7.41, -0.25], undefined, [3, 0.45, 0.2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
             ], [
                 transform([0, 7.41, 0.25], undefined, [3, 0.45, 0.2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
             ], [
                 transform([0, 6.329, -0.25], undefined, [3, 0.45, 0.2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
             ], [
                 transform([1.3, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
             ], [
                 transform([1, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
             ], [
                 transform([1.3, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
             ], [
                 transform([1, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
             ], [
                 transform([-0.34, 5.76, -0.24], [0, 0, -0.383, 0.924], [1.2, 0.2, 0.05]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.367, 0.367, 0.367, 1]),
             ], [
                 transform([-1, 7.75, 0.25], undefined, [0.2, 0.3, 0.2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
             ], [
                 transform([-1.3, 7.75, 0.25], undefined, [0.2, 0.3, 0.2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
             ]),
         ];
@@ -5439,39 +5492,51 @@
         return [
             children([
                 transform([0, 0.8, 0], undefined, [4, 1, 2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
             ], [
                 transform([1.276, 0.5, 0], [0.707, 0, 0, 0.707], [1, 2.2, 1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
             ], [
                 transform([-1.1, 0.5, 0], [0.707, 0, 0, 0.707], [1, 2.2, 1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
             ], [
                 transform([-0.5, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
             ], [
                 transform([-0.5, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
             ], [
                 transform([1.9, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
             ], [
                 transform([1.9, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
             ], [
                 transform([0.7, 2.8, 0], undefined, [2.6, 0.2, 2]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
             ], [
                 transform([-2, 1, -0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
             ], [
                 transform([-2, 1, 0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
             ], [
                 transform([0.264, 1.55, 0.55], undefined, [0.2, 0.5, 0.8]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
             ], [
                 transform([0.264, 1.55, -0.55], undefined, [0.2, 0.5, 0.8]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
             ]),
         ];
@@ -5491,12 +5556,15 @@
         return [
             children([
                 transform(undefined, undefined, undefined),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
             ], [
                 transform([0.171, 0.62, 0], [0, 0, 0.574, 0.819], [0.039, 0.7, 1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
             ], [
                 transform([-0.293, 0.536, 0], [0, 0, -0.643, 0.766], [0.039, 0.42, 1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
             ]),
         ];
@@ -5507,7 +5575,7 @@
             collide(true, 4 /* Obstacle */, 2 /* Terrain */ | 4 /* Obstacle */),
             rigid_body(1 /* Dynamic */),
             mimic(0),
-            disable(16384 /* Mimic */),
+            disable(32768 /* Mimic */),
             ...prop_box(game),
         ];
     }
@@ -6021,84 +6089,111 @@
         return [
             children([
                 transform([0, 1, 0], undefined, [3, 2, 3]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.406, 0, 0, 1]),
             ], [
                 transform([0, 2, 0.9], [0.707, 0, 0, 0.707], [3, 1.2, 2.99]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.406, 0, 0, 1]),
             ], [
                 transform([-1.5, 1, -1.5], undefined, [0.1, 2, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([-1.5, 1, 1.5], undefined, [0.1, 2, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([1.5, 1, -1.5], undefined, [0.1, 2, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
             ], [
                 transform([1.5, 1, 1.5], undefined, [0.1, 2, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 2, 1.49], undefined, [3.099, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 2, -1.5], undefined, [3.099, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([1.5, 2, -0.001], [0, 0.707, 0, 0.707], [3.099, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([-1.498, 2, -0.001], [0, 0.707, 0, 0.707], [3.099, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([-1.28, 2.524, 1.49], [0, 0, 0.547, 0.837], [1.159, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([-1.28, 2.524, -1.494], [0, 0, 0.547, 0.837], [1.159, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([1.273, 2.524, 1.49], [0, 0, -0.547, 0.837], [1.159, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([1.273, 2.524, -1.524], [0, 0, -0.547, 0.837], [1.159, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0.507, 3.274, -1.524], [0, 0, -0.191, 0.982], [1.159, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0.507, 3.274, 1.527], [0, 0, -0.191, 0.982], [1.159, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([-0.521, 3.274, 1.527], [0, 0, 0.191, 0.982], [1.159, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([-0.521, 3.274, -1.525], [0, 0, 0.191, 0.982], [1.159, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 1.5, 1.6], undefined, [1.8, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0.854, 0.7, 1.6], [0, 0, -0.707, 0.707], [1.5, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([-0.85, 0.7, 1.6], [0, 0, -0.707, 0.707], [1.5, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 0.7, 1.59], [0, 0, -0.383, 0.924], [2.2, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 0.7, 1.58], [0, 0, 0.383, 0.924], [2.2, 0.1, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([-1.247, 2.524, -0.011], [0, 0, 0.547, 0.837], [1.159, 0.1, 2.99]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
             ], [
                 transform([1.242, 2.524, -0.011], [0, 0, -0.547, 0.837], [1.159, 0.1, 2.99]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
             ], [
                 transform([0.508, 3.242, -0.011], [0, 0, -0.191, 0.982], [1.159, 0.1, 2.99]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
             ], [
                 transform([-0.515, 3.242, -0.011], [0, 0, 0.191, 0.982], [1.159, 0.1, 2.99]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
             ]),
         ];
@@ -6108,18 +6203,23 @@
         return [
             children([
                 transform([0, 0.6, 0], undefined, [0.1, 1.2, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 1.21, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 0.6, 1], undefined, [0.1, 1.2, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 0.8, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 0.4, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ]),
         ];
@@ -6129,24 +6229,31 @@
         return [
             children([
                 transform([0, 3, 0], undefined, [2.5, 6, 2.5]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.406, 0, 0, 1]),
             ], [
                 transform([0, 0.001, 0], undefined, [2.6, 0.2, 2.6]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 6, 0], undefined, [2.6, 0.2, 2.6]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 3, 0], undefined, [2.6, 0.2, 2.6]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 1.5, 0], undefined, [2.6, 0.2, 2.6]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 4.5, 0], undefined, [2.6, 0.2, 2.6]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0.527, 3, 1.595], undefined, [0.4, 6, 0.4]),
+                cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
             ]),
         ];
@@ -6669,7 +6776,7 @@
      */
     function toggle(mask, delay, duration, init) {
         return (game, entity) => {
-            game.World.Signature[entity] |= 4194304 /* Toggle */;
+            game.World.Signature[entity] |= 8388608 /* Toggle */;
             game.World.Toggle[entity] = {
                 Mask: mask,
                 Duration: duration,
@@ -6862,7 +6969,7 @@
                 transform(),
                 ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
                 shake(0.03),
-                toggle(524288 /* Shake */, 10, 0.3, true),
+                toggle(1048576 /* Shake */, 10, 0.3, true),
             ]),
         ]);
     }
