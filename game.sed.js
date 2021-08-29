@@ -4170,7 +4170,7 @@ animation: 8s ease-out 5s forwards intro;
 <div
 style="
 font-family: Arial;
-font-size: 40vmin;
+font-size: 25vw;
 font-weight: 600;
 color: #fff;
 line-height: .9;
@@ -4181,13 +4181,13 @@ LEFT BEHIND
 <div
 style="
 position: relative;
-left: 4vh;
+left: 2vw;
 font-family: Arial;
-font-size: 3vh;
+font-size: 3vw;
 color: #fff;
 "
 >
-An adventure on a post-human Earth.
+An adventure on the post-human Earth.
 </div>
 </div>
 `;
@@ -4511,6 +4511,45 @@ SelfRotations: [],
 };
 }
 
+function cull(mask) {
+return (game, entity) => {
+game.World.Signature[entity] |= 1024 /* Cull */;
+game.World.Cull[entity] = {
+Mask: mask,
+};
+};
+}
+
+function prop_rocket(game) {
+return [
+children([
+transform([0, 1.5, 0], [0, -0.707, 0, 0.707], [1, 3, 1]),
+cull(262144 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+], [
+transform([0, 3.8, 0], [0, -0.707, 0, 0.707], [0.8, 1.6, 0.8]),
+cull(262144 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+], [
+transform([0, 5.4, 0], [0, -0.707, 0, 0.707], [0.56, 1.6, 0.56]),
+cull(262144 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+], [
+transform([0, 6.2, 0], [-0.5, -0.5, 0.5, 0.5], [1.721, 0.509, 0.593]),
+cull(262144 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+], [
+transform([0, 4.6, 0], [-0.5, -0.5, 0.5, 0.5], [1.12, 0.438, 0.796]),
+cull(262144 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+], [
+transform([0, 3, 0], [-0.5, -0.5, 0.5, 0.5], [2.61, 0.771, 0.9]),
+cull(262144 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+]),
+];
+}
+
 let snd_rocket = {
 Kind: 1 /* Synth */,
 Tracks: [
@@ -4532,14 +4571,8 @@ disable(4 /* AudioSource */),
 children(
 
 [
-transform([0, 0, 0.5], [0.7, 0, 0, 0.7], [0.4, 1, 0.4]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [3, 3, 3, 1]),
-], [
-transform([0, 0, 0.8], [0.7, 0, 0, 0.7], [0.3, 1, 0.3]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [3, 3, 3, 1]),
-], [
-transform([0, 0, 1.1], [0.7, 0, 0, 0.7], [0.2, 1, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [3, 3, 3, 1]),
+transform([0, 0, 0.5], from_euler([0.7, 0, 0, 0.7], 0, -90, -90), [0.1, 0.1, 0.1]),
+...prop_rocket(game),
 ], 
 
 [
@@ -5341,15 +5374,6 @@ callback((game, entity) => (entity)),
 return lisek_entity;
 }
 
-function cull(mask) {
-return (game, entity) => {
-game.World.Signature[entity] |= 1024 /* Cull */;
-game.World.Cull[entity] = {
-Mask: mask,
-};
-};
-}
-
 function prop_house(game) {
 return [
 children([
@@ -6066,14 +6090,14 @@ let camera_entity = instantiate(game, [
 ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
 transform([-6.2, 10, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
 mimic(find_first(game.World, "camera anchor"), 0.01),
-
+disable(32768 /* Mimic */),
 ]);
 
 instantiate(game, [
 children([
-
-
-
+task_timeout(5, () => {
+game.World.Signature[camera_entity] |= 32768 /* Mimic */;
+}),
 ], [
 task_timeout(7, () => {
 instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
@@ -7046,7 +7070,7 @@ mimic(find_first(game.World, "camera anchor"), 0.05),
 }
 
 let game = new Game();
-scene_level2(game);
+scene_level1(game);
 game.Start();
 
 window.$ = dispatch.bind(null, game);
