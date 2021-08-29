@@ -17,7 +17,6 @@ import {
     RenderInstanced,
     RenderKind,
     RenderParticlesColored,
-    RenderParticlesTextured,
     RenderVertices,
 } from "../components/com_render.js";
 import {Transform} from "../components/com_transform.js";
@@ -56,7 +55,6 @@ function render_depth(game: Game, camera: CameraDepth) {
                 switch (render.Kind) {
                     case RenderKind.Vertices:
                     case RenderKind.ParticlesColored:
-                    case RenderKind.ParticlesTextured:
                         break;
                     case RenderKind.Instanced:
                         use_instanced_shading(game, camera);
@@ -74,7 +72,6 @@ function render_depth(game: Game, camera: CameraDepth) {
             switch (render.Kind) {
                 case RenderKind.Vertices:
                 case RenderKind.ParticlesColored:
-                case RenderKind.ParticlesTextured:
                     // Skip rendering, RenderVertices doesn't cast shadow for now.
                     break;
                 case RenderKind.Instanced:
@@ -95,7 +92,7 @@ function use_default_shading(game: Game, camera: CameraDepth) {
 function draw_default_shading(
     game: Game,
     transform: Transform,
-    render: Exclude<Render, RenderVertices | RenderParticlesColored | RenderParticlesTextured>
+    render: Exclude<Render, RenderVertices | RenderParticlesColored>
 ) {
     let material = game.MaterialDepth;
     game.Gl.uniformMatrix4fv(material.Locations.World, false, transform.World);

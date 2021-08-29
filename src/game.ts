@@ -9,7 +9,6 @@ import {mat_forward_depth} from "../materials/mat_forward_depth.js";
 import {mat_forward_depth_instanced} from "../materials/mat_forward_depth_instanced.js";
 import {mat_forward_instanced} from "../materials/mat_forward_instanced.js";
 import {mat_forward_particles_colored} from "../materials/mat_forward_particles_colored.js";
-import {mat_forward_particles_textured} from "../materials/mat_forward_particles_textured.js";
 import {mesh_cube} from "../meshes/cube.js";
 import {mesh_cylinder} from "../meshes/cylinder.js";
 import {mesh_grass} from "../meshes/grass.js";
@@ -57,7 +56,6 @@ export class Game extends Game3D {
     MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
     MaterialColoredPhongSkinned = mat_forward_colored_phong_skinned(this.Gl);
     MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
-    MaterialParticlesTextured = mat_forward_particles_textured(this.Gl);
     MaterialDepth = mat_forward_depth(this.Gl);
     MaterialDepthInstanced = mat_forward_depth_instanced(this.Gl);
     MaterialInstanced = mat_forward_instanced(this.Gl);
