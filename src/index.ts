@@ -6,8 +6,8 @@ import {scene_level3} from "./scenes/sce_level3.js";
 import {scene_stage} from "./scenes/sce_stage.js";
 
 let game = new Game();
-true && scene_level1(game);
-false && scene_level2(game);
+false && scene_level1(game);
+true && scene_level2(game);
 false && scene_level3(game);
 false && scene_stage(game);
 game.Start();

@@ -53,6 +53,8 @@ let create_instance = (name, translation, rotation, scale) => {
         case "box":
         case "obstacle_car":
         case "obstacle_house":
+        case "obstacle_slup":
+        case "obstacle_barn":
             imports.add(`import {blueprint_${name}} from "../blueprints/blu_${name}.js";`);
             return `
     instantiate(game, [
