@@ -1,0 +1,88 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.6.16",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Leaf"
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Plane.001",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1
+                    },
+                    "indices" : 2
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 4,
+            "max" : [
+                0.1300000101327896,
+                0.02200000174343586,
+                0.12000000476837158
+            ],
+            "min" : [
+                -0.12000000476837158,
+                0,
+                -0.1300000101327896
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 4,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5123,
+            "count" : 6,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 48,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 48,
+            "byteOffset" : 48
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 12,
+            "byteOffset" : 96
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 108,
+            "uri" : "data:application/octet-stream;base64,kML1vW8SgzyQwvU9CtcjPQAAAAAK1yM9zMxMvQAAAADMzEy9uR4FPlk5tDy5HgW+EOGHPf7dfj8Q4Ye9OgEdvAD4fz86AR08QAEgvAD4fz9AASA8WAGsvfwtfj9YAaw9AQACAAAAAQADAAIA"
+        }
+    ]
+}

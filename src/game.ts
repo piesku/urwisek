@@ -5,11 +5,8 @@ import {mat_forward_colored_phong} from "../materials/mat_forward_colored_phong.
 import {mat_forward_colored_phong_skinned} from "../materials/mat_forward_colored_phong_skinned.js";
 import {mat_forward_colored_shadows} from "../materials/mat_forward_colored_shadows.js";
 import {mat_forward_colored_wireframe} from "../materials/mat_forward_colored_unlit.js";
-import {mat_forward_depth} from "../materials/mat_forward_depth.js";
-import {mat_forward_depth_instanced} from "../materials/mat_forward_depth_instanced.js";
 import {mat_forward_instanced} from "../materials/mat_forward_instanced.js";
 import {mat_forward_particles_colored} from "../materials/mat_forward_particles_colored.js";
-import {mat_forward_particles_textured} from "../materials/mat_forward_particles_textured.js";
 import {mesh_cube} from "../meshes/cube.js";
 import {mesh_cylinder} from "../meshes/cylinder.js";
 import {mesh_grass} from "../meshes/grass.js";
@@ -38,7 +35,6 @@ import {sys_physics_integrate} from "./systems/sys_physics_integrate.js";
 import {sys_physics_kinematic} from "./systems/sys_physics_kinematic.js";
 import {sys_physics_resolve} from "./systems/sys_physics_resolve.js";
 import {sys_poll} from "./systems/sys_poll.js";
-import {sys_render_depth} from "./systems/sys_render_depth.js";
 import {sys_render_forward} from "./systems/sys_render_forward.js";
 import {sys_resize} from "./systems/sys_resize.js";
 import {sys_shake} from "./systems/sys_shake.js";
@@ -57,9 +53,6 @@ export class Game extends Game3D {
     MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
     MaterialColoredPhongSkinned = mat_forward_colored_phong_skinned(this.Gl);
     MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
-    MaterialParticlesTextured = mat_forward_particles_textured(this.Gl);
-    MaterialDepth = mat_forward_depth(this.Gl);
-    MaterialDepthInstanced = mat_forward_depth_instanced(this.Gl);
     MaterialInstanced = mat_forward_instanced(this.Gl);
 
     MeshLeaf = mesh_leaf(this.Gl);
@@ -76,6 +69,7 @@ export class Game extends Game3D {
     Cameras: Array<Entity> = [];
 
     Targets = {
+        Noop: create_depth_target(this.Gl, 2, 2),
         Sun: create_depth_target(this.Gl, 2048, 2048),
     };
 
@@ -127,7 +121,6 @@ export class Game extends Game3D {
         sys_resize(this, delta);
         sys_camera(this, delta);
         sys_light(this, delta);
-        sys_render_depth(this, delta);
         sys_render_forward(this, delta);
         sys_draw(this, delta);
         sys_ui(this, delta);

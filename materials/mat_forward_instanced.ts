@@ -11,7 +11,6 @@ let vertex = `#version 300 es\n
     uniform mat4 self;
     uniform vec3 palette[16];
 
-    uniform int light_count;
     uniform vec4 light_positions[MAX_LIGHTS];
     uniform vec4 light_details[MAX_LIGHTS];
 

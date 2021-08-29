@@ -154,6 +154,7 @@ export function camera_depth_ortho(
 
 // The subset of camera data passed into shaders.
 export interface CameraEye {
+    Kind: CameraKind;
     View: Mat4;
     Pv: Mat4;
     Position: Vec3;

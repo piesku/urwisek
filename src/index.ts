@@ -17,3 +17,7 @@ window.$ = dispatch.bind(null, game);
 
 // @ts-ignore
 window.game = game;
+
+// Bundle all scenes into the build.
+// @ts-ignore
+window.scenes = [scene_level1, scene_level2, scene_level3, scene_stage];
