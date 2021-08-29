@@ -64,7 +64,7 @@ let fragment = `#version 300 es\n
         vec3 view_normal = normalize(view_dir);
 
         // Ambient light.
-        vec3 light_acc = diffuse_color.rgb * 0.3;
+        vec3 light_acc = diffuse_color.rgb * 0.5;
 
         for (int i = 0; i < MAX_LIGHTS; i++) {
             if (light_positions[i].w == 0.0) {

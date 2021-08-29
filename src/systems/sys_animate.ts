@@ -2,8 +2,8 @@
  * @module systems/sys_animate
  */
 
-import {slerp} from "../../common/quat.js";
-import {lerp} from "../../common/vec3.js";
+import {copy as quat_copy, slerp} from "../../common/quat.js";
+import {copy as vec3_copy, lerp} from "../../common/vec3.js";
 import {Entity} from "../../common/world.js";
 import {AnimationFlag, AnimationKeyframe} from "../components/com_animate.js";
 import {Game} from "../game.js";
@@ -87,6 +87,21 @@ function update(game: Game, entity: Entity, delta: number) {
 
         if (current_keyframe.Scale && next_keyframe.Scale) {
             lerp(transform.Scale, current_keyframe.Scale, next_keyframe.Scale, interpolant);
+            transform.Dirty = true;
+        }
+    } else if (current_keyframe) {
+        if (current_keyframe.Translation) {
+            vec3_copy(transform.Translation, current_keyframe.Translation);
+            transform.Dirty = true;
+        }
+
+        if (current_keyframe.Rotation) {
+            quat_copy(transform.Rotation, current_keyframe.Rotation);
+            transform.Dirty = true;
+        }
+
+        if (current_keyframe.Scale) {
+            vec3_copy(transform.Scale, current_keyframe.Scale);
             transform.Dirty = true;
         }
     }

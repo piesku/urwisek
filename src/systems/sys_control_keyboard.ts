@@ -1,5 +1,6 @@
 import {set} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
+import {Animate} from "../components/com_animate.js";
 import {query_all} from "../components/com_children.js";
 import {Control} from "../components/com_control_player.js";
 import {query_up} from "../components/com_transform.js";
@@ -90,13 +91,23 @@ function update(game: Game, entity: Entity) {
     }
 
     if (control.Flags & Control.Animate) {
-        let anim_name: "walk" | "idle" = "idle";
+        let anim_name: Animate["Trigger"] = "idle";
 
-        if (game.InputState["ArrowLeft"]) {
+        if (game.InputState["ArrowLeft"] || game.InputState["ArrowRight"]) {
             anim_name = "walk";
         }
-        if (game.InputState["ArrowRight"]) {
-            anim_name = "walk";
+
+        let parent_entity = game.World.Transform[entity].Parent;
+        if (parent_entity !== undefined) {
+            let parent_mimic = game.World.Mimic[parent_entity];
+            let anchor_entity = parent_mimic.Target;
+            let anchor_parent = game.World.Transform[anchor_entity].Parent;
+            if (anchor_parent) {
+                let rigid_body = game.World.RigidBody[anchor_parent];
+                if (rigid_body.IsAirborne) {
+                    anim_name = "jump";
+                }
+            }
         }
 
         for (let ent of query_all(game.World, entity, Has.Animate)) {
