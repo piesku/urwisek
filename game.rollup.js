@@ -2039,7 +2039,7 @@
     function create() {
         return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     }
-    function copy$1(out, a) {
+    function copy$2(out, a) {
         out[0] = a[0];
         out[1] = a[1];
         out[2] = a[2];
@@ -2305,7 +2305,7 @@
         out[2] = z;
         return out;
     }
-    function copy(out, a) {
+    function copy$1(out, a) {
         out[0] = a[0];
         out[1] = a[1];
         out[2] = a[2];
@@ -2387,6 +2387,13 @@
         out[1] = y;
         out[2] = z;
         out[3] = w;
+        return out;
+    }
+    function copy(out, a) {
+        out[0] = a[0];
+        out[1] = a[1];
+        out[2] = a[2];
+        out[3] = a[3];
         return out;
     }
     function multiply(out, a, b) {
@@ -2526,6 +2533,20 @@
             }
             if (current_keyframe.Scale && next_keyframe.Scale) {
                 lerp(transform.Scale, current_keyframe.Scale, next_keyframe.Scale, interpolant);
+                transform.Dirty = true;
+            }
+        }
+        else if (current_keyframe) {
+            if (current_keyframe.Translation) {
+                copy$1(transform.Translation, current_keyframe.Translation);
+                transform.Dirty = true;
+            }
+            if (current_keyframe.Rotation) {
+                copy(transform.Rotation, current_keyframe.Rotation);
+                transform.Dirty = true;
+            }
+            if (current_keyframe.Scale) {
+                copy$1(transform.Scale, current_keyframe.Scale);
                 transform.Dirty = true;
             }
         }
@@ -2841,7 +2862,7 @@
                             break;
                     }
                 }
-                copy$1(camera.View, transform.Self);
+                copy$2(camera.View, transform.Self);
                 multiply$1(camera.Pv, projection.Projection, camera.View);
                 get_translation(camera.Position, transform.World);
                 game.Cameras.push(i);
@@ -3145,11 +3166,20 @@
         }
         if (control.Flags & 4 /* Animate */) {
             let anim_name = "idle";
-            if (game.InputState["ArrowLeft"]) {
+            if (game.InputState["ArrowLeft"] || game.InputState["ArrowRight"]) {
                 anim_name = "walk";
             }
-            if (game.InputState["ArrowRight"]) {
-                anim_name = "walk";
+            let parent_entity = game.World.Transform[entity].Parent;
+            if (parent_entity !== undefined) {
+                let parent_mimic = game.World.Mimic[parent_entity];
+                let anchor_entity = parent_mimic.Target;
+                let anchor_parent = game.World.Transform[anchor_entity].Parent;
+                if (anchor_parent) {
+                    let rigid_body = game.World.RigidBody[anchor_parent];
+                    if (rigid_body.IsAirborne) {
+                        anim_name = "jump";
+                    }
+                }
             }
             for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
                 let animate = game.World.Animate[ent];
@@ -3697,7 +3727,7 @@
         let transform = game.World.Transform[entity];
         let rigid_body = game.World.RigidBody[entity];
         if (rigid_body.Kind === 1 /* Dynamic */) {
-            copy(rigid_body.VelocityIntegrated, rigid_body.VelocityResolved);
+            copy$1(rigid_body.VelocityIntegrated, rigid_body.VelocityResolved);
             // Compute change to velocity, including the gravity.
             scale(rigid_body.Acceleration, rigid_body.Acceleration, delta);
             add(rigid_body.VelocityIntegrated, rigid_body.VelocityIntegrated, rigid_body.Acceleration);
@@ -3733,7 +3763,7 @@
             subtract(movement, current_position, rigid_body.LastPosition);
             // Compute velocity from this frame's movement.
             scale(rigid_body.VelocityIntegrated, movement, 1 / delta);
-            copy(rigid_body.LastPosition, current_position);
+            copy$1(rigid_body.LastPosition, current_position);
         }
     }
 
@@ -3784,7 +3814,7 @@
                             break;
                         case 1 /* Dynamic */:
                         case 2 /* Kinematic */:
-                            copy(rigid_body.VelocityResolved, other_body.VelocityIntegrated);
+                            copy$1(rigid_body.VelocityResolved, other_body.VelocityIntegrated);
                             break;
                     }
                     // When Bounciness = 1, collisions are 100% elastic.
@@ -3797,7 +3827,7 @@
                 }
             }
             if (!has_collision) {
-                copy(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated);
+                copy$1(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated);
                 rigid_body.IsAirborne = true;
             }
         }
@@ -5097,6 +5127,9 @@
         };
     }
 
+    const jump_keytime_1 = 0.2;
+    const jump_keytime_2 = 0.6;
+    const jump_keytime_3 = 1.0;
     function blueprint_lisek(game, animation_step_length = 0.2, actionOnEachStep, color = [1, 0.5, 0, 1]) {
         return [
             render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshLisek, color, 0),
@@ -5113,6 +5146,15 @@
                             Keyframes: [
                                 {
                                     Timestamp: 0,
+                                    Rotation: [0, 0, 0, 1],
+                                },
+                            ],
+                        },
+                        walk: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0,
+                                    Rotation: [0, 0, 0, 1],
                                 },
                             ],
                         },
@@ -5120,20 +5162,24 @@
                             Keyframes: [
                                 {
                                     Timestamp: 0.0,
-                                    Translation: [0, 0.63, 0],
+                                    Rotation: [0, 0, 0, 1],
                                 },
                                 {
-                                    Timestamp: animation_step_length,
-                                    Translation: [0, 1.13, 0],
-                                    Ease: ease_in_out_quart,
+                                    Timestamp: jump_keytime_1,
+                                    Rotation: [-0.131, 0, 0, 0.991],
+                                    Ease: ease_out_quart,
                                 },
                                 {
-                                    Timestamp: animation_step_length * 2,
-                                    Translation: [0, 0.63, 0],
+                                    Timestamp: jump_keytime_2,
+                                    Rotation: [0.087, 0, 0, 0.996],
+                                },
+                                {
+                                    Timestamp: jump_keytime_3,
+                                    Rotation: [0, 0, 0, 1],
                                     Ease: ease_out_quart,
                                 },
                             ],
-                            Flags: 0 /* None */,
+                            Flags: 1 /* EarlyExit */,
                         },
                     }),
                     children([
@@ -5178,17 +5224,21 @@
                                             Rotation: [0, 0, 0, 1],
                                         },
                                         {
-                                            Timestamp: animation_step_length,
-                                            Rotation: from_euler([0, 0, 0, 1], -15, 0, 0),
-                                            Ease: ease_in_out_quart,
+                                            Timestamp: jump_keytime_1,
+                                            Rotation: [0.216, 0, 0, 0.976],
+                                            Ease: ease_out_quart,
                                         },
                                         {
-                                            Timestamp: animation_step_length * 2,
-                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, 0),
+                                            Timestamp: jump_keytime_2,
+                                            Rotation: [0.216, 0, 0, 0.976],
+                                        },
+                                        {
+                                            Timestamp: jump_keytime_3,
+                                            Rotation: [0, 0, 0, 1],
                                             Ease: ease_out_quart,
                                         },
                                     ],
-                                    Flags: 0 /* None */,
+                                    Flags: 1 /* EarlyExit */,
                                 },
                             }),
                         ]),
@@ -5205,6 +5255,7 @@
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
+                                            Rotation: [0, 0, 0, 1],
                                         },
                                     ],
                                 },
@@ -5217,7 +5268,7 @@
                                         },
                                         {
                                             Timestamp: animation_step_length,
-                                            Rotation: [0.174, 0.0, 0.0, 0.985],
+                                            Rotation: [0.131, 0.0, 0.0, 0.991],
                                             ActionOnEnd: actionOnEachStep,
                                         },
                                     ],
@@ -5229,17 +5280,21 @@
                                             Rotation: [0, 0, 0, 1],
                                         },
                                         {
-                                            Timestamp: animation_step_length,
-                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, 135),
-                                            Ease: ease_in_out_quart,
+                                            Timestamp: jump_keytime_1,
+                                            Rotation: [-0.259, 0, 0, 0.966],
+                                            Ease: ease_out_quart,
                                         },
                                         {
-                                            Timestamp: animation_step_length * 2,
+                                            Timestamp: jump_keytime_2,
+                                            Rotation: [-0.259, 0, 0, 0.966],
+                                        },
+                                        {
+                                            Timestamp: jump_keytime_3,
                                             Rotation: [0, 0, 0, 1],
                                             Ease: ease_out_quart,
                                         },
                                     ],
-                                    Flags: 0 /* None */,
+                                    Flags: 1 /* EarlyExit */,
                                 },
                             }),
                         ]),
@@ -5256,6 +5311,7 @@
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
+                                            Rotation: [0, 0, 0, 1],
                                         },
                                     ],
                                 },
@@ -5263,7 +5319,7 @@
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
-                                            Rotation: [0.174, 0.0, 0.0, 0.985],
+                                            Rotation: [0.131, 0.0, 0.0, 0.991],
                                         },
                                         {
                                             Timestamp: animation_step_length,
@@ -5278,17 +5334,21 @@
                                             Rotation: [0, 0, 0, 1],
                                         },
                                         {
-                                            Timestamp: animation_step_length,
-                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, -135),
-                                            Ease: ease_in_out_quart,
+                                            Timestamp: jump_keytime_1,
+                                            Rotation: [-0.301, 0, 0, 0.954],
+                                            Ease: ease_out_quart,
                                         },
                                         {
-                                            Timestamp: animation_step_length * 2,
+                                            Timestamp: jump_keytime_2,
+                                            Rotation: [-0.301, 0, 0, 0.954],
+                                        },
+                                        {
+                                            Timestamp: jump_keytime_3,
                                             Rotation: [0, 0, 0, 1],
                                             Ease: ease_out_quart,
                                         },
                                     ],
-                                    Flags: 0 /* None */,
+                                    Flags: 1 /* EarlyExit */,
                                 },
                             }),
                         ]),
@@ -5305,6 +5365,7 @@
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
+                                            Rotation: [0, 0, 0, 1],
                                         },
                                     ],
                                 },
@@ -5327,17 +5388,21 @@
                                             Rotation: [0, 0, 0, 1],
                                         },
                                         {
-                                            Timestamp: animation_step_length,
-                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, 45),
-                                            Ease: ease_in_out_quart,
+                                            Timestamp: jump_keytime_1,
+                                            Rotation: [0.383, 0, 0, 0.924],
+                                            Ease: ease_out_quart,
                                         },
                                         {
-                                            Timestamp: animation_step_length * 2,
+                                            Timestamp: jump_keytime_2,
+                                            Rotation: [0.383, 0, 0, 0.924],
+                                        },
+                                        {
+                                            Timestamp: jump_keytime_3,
                                             Rotation: [0, 0, 0, 1],
                                             Ease: ease_out_quart,
                                         },
                                     ],
-                                    Flags: 0 /* None */,
+                                    Flags: 1 /* EarlyExit */,
                                 },
                             }),
                         ]),
@@ -5354,6 +5419,7 @@
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
+                                            Rotation: [0, 0, 0, 1],
                                         },
                                     ],
                                 },
@@ -5376,17 +5442,21 @@
                                             Rotation: [0, 0, 0, 1],
                                         },
                                         {
-                                            Timestamp: animation_step_length,
-                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, -45),
-                                            Ease: ease_in_out_quart,
+                                            Timestamp: jump_keytime_1,
+                                            Rotation: [0.301, 0, 0, 0.954],
+                                            Ease: ease_out_quart,
                                         },
                                         {
-                                            Timestamp: animation_step_length * 2,
+                                            Timestamp: jump_keytime_2,
+                                            Rotation: [0.301, 0, 0, 0.954],
+                                        },
+                                        {
+                                            Timestamp: jump_keytime_3,
                                             Rotation: [0, 0, 0, 1],
                                             Ease: ease_out_quart,
                                         },
                                     ],
-                                    Flags: 0 /* None */,
+                                    Flags: 1 /* EarlyExit */,
                                 },
                             }),
                         ]),
