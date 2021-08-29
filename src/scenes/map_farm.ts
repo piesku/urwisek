@@ -1,9 +1,9 @@
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
 import {Game} from "../game.js";
-import { transform } from "../components/com_transform.js";
-import { blueprint_sun } from "../blueprints/blu_sun.js";
-import { render_colored_shadows } from "../components/com_render.js";
+import {transform} from "../components/com_transform.js";
+import {blueprint_sun} from "../blueprints/blu_sun.js";
+import {render_colored_shadows} from "../components/com_render.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
 import {blueprint_tree} from "../blueprints/blu_tree.js";
