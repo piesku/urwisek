@@ -5128,8 +5128,12 @@ Current: States["idle"],
 }
 
 const jump_keytime_1 = 0.2;
-const jump_keytime_2 = 0.6;
-const jump_keytime_3 = 1.0;
+const jump_keytime_2 = jump_keytime_1 + 0.4;
+const jump_keytime_3 = jump_keytime_2 + 0.4;
+const sit_keytime_1 = 9;
+const sit_keytime_2 = sit_keytime_1 + 1;
+const sit_keytime_3 = sit_keytime_2 + 5;
+const sit_keytime_4 = sit_keytime_3 + 1;
 function blueprint_lisek(game, animation_step_length = 0.2, actionOnEachStep, color = [1, 0.5, 0, 1]) {
 return [
 render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshLisek, color, 0),
@@ -5137,6 +5141,7 @@ children([
 transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74]),
 children([
 transform(),
+named("tail anchor"),
 bone(0 /* Root */, [
 1.0, 0.0, 0.0, 0.0, 0.0, 0.096, -0.995, 0.0, 0.0, 0.995, 0.096, 0.0, 0.0,
 0.433, 0.395, 1.0,
@@ -5146,9 +5151,103 @@ idle: {
 Keyframes: [
 {
 Timestamp: 0,
+Translation: [0, 0, 0],
+Rotation: [0, 0, 0, 1],
+},
+{
+Timestamp: sit_keytime_1,
+Translation: [0, 0, 0],
+Rotation: [0, 0, 0, 1],
+},
+{
+Timestamp: sit_keytime_2,
+Translation: [0, -0.044, 0.289],
+Rotation: [-0.288, 0, 0, 0.958],
+Ease: ease_in_out_quart,
+},
+{
+Timestamp: sit_keytime_3,
+Translation: [0, -0.044, 0.289],
+Rotation: [-0.288, 0, 0, 0.958],
+},
+{
+Timestamp: sit_keytime_4,
+Translation: [0, 0, 0],
+Rotation: [0, 0, 0, 1],
+Ease: ease_in_out_quart,
+},
+],
+Flags: 2 /* Loop */ | 1 /* EarlyExit */,
+},
+walk: {
+Keyframes: [
+{
+Timestamp: 0,
+Translation: [0, 0, 0],
 Rotation: [0, 0, 0, 1],
 },
 ],
+},
+jump: {
+Keyframes: [
+{
+Timestamp: 0.0,
+Translation: [0, 0, 0],
+Rotation: [0, 0, 0, 1],
+},
+{
+Timestamp: jump_keytime_1,
+Translation: [0, 0, 0],
+Rotation: [-0.131, 0, 0, 0.991],
+Ease: ease_out_quart,
+},
+{
+Timestamp: jump_keytime_2,
+Translation: [0, 0, 0],
+Rotation: [0.087, 0, 0, 0.996],
+},
+{
+Timestamp: jump_keytime_3,
+Translation: [0, 0, 0],
+Rotation: [0, 0, 0, 1],
+Ease: ease_out_quart,
+},
+],
+Flags: 1 /* EarlyExit */,
+},
+}),
+children([
+transform([0, 0.46, 0], [-0.4, 0, 0, 0.92]),
+children([
+
+transform(),
+animate({
+idle: {
+Keyframes: [
+{
+Timestamp: 0,
+Rotation: [0, 0, 0, 1],
+},
+{
+Timestamp: sit_keytime_1,
+Rotation: [0, 0, 0, 1],
+},
+{
+Timestamp: sit_keytime_2,
+Rotation: [0.371, 0, 0, 0.929],
+Ease: ease_in_out_quart,
+},
+{
+Timestamp: sit_keytime_3,
+Rotation: [0.371, 0, 0, 0.929],
+},
+{
+Timestamp: sit_keytime_4,
+Rotation: [0, 0, 0, 1],
+Ease: ease_in_out_quart,
+},
+],
+Flags: 2 /* Loop */ | 1 /* EarlyExit */,
 },
 walk: {
 Keyframes: [
@@ -5161,34 +5260,17 @@ Rotation: [0, 0, 0, 1],
 jump: {
 Keyframes: [
 {
-Timestamp: 0.0,
+Timestamp: 0,
 Rotation: [0, 0, 0, 1],
-},
-{
-Timestamp: jump_keytime_1,
-Rotation: [-0.131, 0, 0, 0.991],
-Ease: ease_out_quart,
-},
-{
-Timestamp: jump_keytime_2,
-Rotation: [0.087, 0, 0, 0.996],
-},
-{
-Timestamp: jump_keytime_3,
-Rotation: [0, 0, 0, 1],
-Ease: ease_out_quart,
 },
 ],
-Flags: 1 /* EarlyExit */,
 },
 }),
 children([
-transform([0, 0.46, 0], [-0.4, 0, 0, 0.92]),
-children([
 transform(),
 bone(1 /* Head */, [
-1.0, 0.0, 0.0, 0.0, 0.0, 0.795, -0.606, 0.0, 0.0, 0.606, 0.795,
-0.0, 0.0, -0.306, 0.251, 1.0,
+1.0, 0.0, 0.0, 0.0, 0.0, 0.795, -0.606, 0.0, 0.0, 0.606,
+0.795, 0.0, 0.0, -0.306, 0.251, 1.0,
 ]),
 animate({
 idle: {
@@ -5241,6 +5323,7 @@ Ease: ease_out_quart,
 Flags: 1 /* EarlyExit */,
 },
 }),
+]),
 ]),
 ], [
 transform([0.07, 0.46, 0], [0.74, 0, 0, 0.672]),
@@ -5367,7 +5450,26 @@ Keyframes: [
 Timestamp: 0,
 Rotation: [0, 0, 0, 1],
 },
+{
+Timestamp: sit_keytime_1,
+Rotation: [0, 0, 0, 1],
+},
+{
+Timestamp: sit_keytime_2,
+Rotation: [-0.492, 0, 0, 0.87],
+Ease: ease_in_out_quart,
+},
+{
+Timestamp: sit_keytime_3,
+Rotation: [-0.492, 0, 0, 0.87],
+},
+{
+Timestamp: sit_keytime_4,
+Rotation: [0, 0, 0, 1],
+Ease: ease_in_out_quart,
+},
 ],
+Flags: 2 /* Loop */ | 1 /* EarlyExit */,
 },
 walk: {
 Keyframes: [
@@ -5421,7 +5523,26 @@ Keyframes: [
 Timestamp: 0,
 Rotation: [0, 0, 0, 1],
 },
+{
+Timestamp: sit_keytime_1,
+Rotation: [0, 0, 0, 1],
+},
+{
+Timestamp: sit_keytime_2,
+Rotation: [-0.468, 0, 0, 0.884],
+Ease: ease_in_out_quart,
+},
+{
+Timestamp: sit_keytime_3,
+Rotation: [-0.468, 0, 0, 0.884],
+},
+{
+Timestamp: sit_keytime_4,
+Rotation: [0, 0, 0, 1],
+Ease: ease_in_out_quart,
+},
 ],
+Flags: 2 /* Loop */ | 1 /* EarlyExit */,
 },
 walk: {
 Keyframes: [
@@ -5500,7 +5621,7 @@ transform([4, 1, 0], [0, 0.7, 0, 0.7]),
 }
 function instantiate_player(game, translation) {
 instantiate(game, [...blueprint_player(), transform(translation)]);
-let tail_attachment = 0;
+let tail_root = 0;
 let tail_bone1 = 0;
 let tail_bone2 = 0;
 let tail_bone3 = 0;
@@ -5514,29 +5635,29 @@ children(
 [
 transform(),
 render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
-], 
-
-[
-transform([0, 0.4, -0.7], from_euler([0, 0, 0, 0], -90, 0, 0)),
-children([
-transform(),
-control_always(null, [0, 1, 0, 0]),
-move(0, 1),
-callback((game, entity) => (tail_attachment = entity)),
-bone(0 /* Root */, [
-1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0,
--0.701, -0.428, 1.0,
-]),
-
-
-
-
-]),
 ]),
 ]);
 instantiate(game, [
 transform(),
-mimic(tail_attachment, 0.08),
+mimic(find_first(game.World, "tail anchor"), 1),
+children([
+transform([0, -0.2, -0.05], [1, 0, 0, 0]),
+control_always(null, [0, -1, 0, 0]),
+move(0, 1),
+callback((game, entity) => (tail_root = entity)),
+bone(0 /* Root */, [
+1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -0.701,
+-0.428, 1.0,
+]),
+
+
+
+
+]),
+]);
+instantiate(game, [
+transform(),
+mimic(tail_root, 0.08),
 bone(1 /* Bone1 */, [
 1.0, -0.0, -0.0, 0.0, 0.0, 0.132, 0.991, 0.0, 0.0, -0.991, 0.132, 0.0, -0.0, -1.1,
 -0.285, 1.0,
