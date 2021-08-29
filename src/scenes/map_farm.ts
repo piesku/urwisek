@@ -1,20 +1,21 @@
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
-import {blueprint_box} from "../blueprints/blu_box.js";
-import {blueprint_bush} from "../blueprints/blu_bush.js";
-import {blueprint_ground} from "../blueprints/blu_ground.js";
-import {blueprint_obstacle_barn} from "../blueprints/blu_obstacle_barn.js";
-import {blueprint_obstacle_slup} from "../blueprints/blu_obstacle_slup.js";
-import {instantiate_player} from "../blueprints/blu_player.js";
-import {blueprint_sun} from "../blueprints/blu_sun.js";
-import {blueprint_tree} from "../blueprints/blu_tree.js";
-import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
+import { transform } from "../components/com_transform.js";
+import { blueprint_sun } from "../blueprints/blu_sun.js";
+import { render_colored_shadows } from "../components/com_render.js";
+import {blueprint_ground} from "../blueprints/blu_ground.js";
+import {instantiate_player} from "../blueprints/blu_player.js";
+import {blueprint_tree} from "../blueprints/blu_tree.js";
+import {blueprint_bush} from "../blueprints/blu_bush.js";
 import {prop_barn} from "../props/prop_barn.js";
-import {prop_car2} from "../props/prop_car2.js";
 import {prop_fence} from "../props/prop_fence.js";
 import {prop_silo} from "../props/prop_silo.js";
 import {prop_slup} from "../props/prop_slup.js";
+import {prop_car2} from "../props/prop_car2.js";
+import {blueprint_obstacle_slup} from "../blueprints/blu_obstacle_slup.js";
+import {blueprint_box} from "../blueprints/blu_box.js";
+import {blueprint_obstacle_barn} from "../blueprints/blu_obstacle_barn.js";
 
 export function map_farm(game: Game) {
     instantiate(game, [
@@ -290,7 +291,7 @@ export function map_farm(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([25.372, 0.328, 0], [-0.673, 0.673, 0.216, 0.216], undefined),
+        transform([25.372, 0.328, 0], [-0.673, 0.673, 0.216, 0.216], [0.75, 0.75, 0.75]),
         ...blueprint_obstacle_slup(game),
     ]);
 
