@@ -32,6 +32,11 @@ const GL_COLOR_BUFFER_BIT = 0x00004000;
 */
 const GL_POINTS = 0x0000;
 /**
+* Passed to drawElements or drawArrays to draw lines. Each set of two vertices is treated as a separate line segment.
+* @constant {number}
+*/
+const GL_LINE_LOOP = 0x0002;
+/**
 * Passed to drawElements or drawArrays to draw triangles. Each set of three vertices creates a separate triangle.
 * @constant {number}
 */
@@ -552,7 +557,7 @@ throw new Error(gl.getShaderInfoLog(shader));
 return shader;
 }
 
-let vertex$7 = `#version 300 es\n
+let vertex$8 = `#version 300 es\n
 
 uniform mat4 pv;
 uniform mat4 world;
@@ -567,6 +572,136 @@ out vec3 vert_normal;
 void main() {
 vert_position = world * vec4(attr_position, 1.0);
 vert_normal = (vec4(attr_normal, 1.0) * self).xyz;
+gl_Position = pv * vert_position;
+}
+`;
+let fragment$8 = `#version 300 es\n
+precision mediump float;
+
+
+const int MAX_LIGHTS = 8;
+
+uniform vec3 eye;
+uniform vec4 diffuse_color;
+uniform vec4 specular_color;
+uniform float shininess;
+uniform vec4 light_positions[MAX_LIGHTS];
+uniform vec4 light_details[MAX_LIGHTS];
+uniform vec4 fog_color;
+uniform float fog_distance;
+
+in vec4 vert_position;
+in vec3 vert_normal;
+
+out vec4 frag_color;
+
+const float bands = 2.0;
+float posterize(float factor) {
+return floor(factor * bands) / bands;
+}
+
+void main() {
+vec3 world_normal = normalize(vert_normal);
+
+vec3 view_dir = eye - vert_position.xyz;
+vec3 view_normal = normalize(view_dir);
+
+
+vec3 light_acc = diffuse_color.rgb * 0.3;
+
+for (int i = 0; i < MAX_LIGHTS; i++) {
+if (light_positions[i].w == 0.0) {
+break;
+}
+
+vec3 light_color = light_details[i].rgb;
+float light_intensity = light_details[i].a;
+
+vec3 light_normal;
+if (light_positions[i].w == 1.0) {
+
+light_normal = light_positions[i].xyz;
+} else {
+vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
+float light_dist = length(light_dir);
+light_normal = light_dir / light_dist;
+
+light_intensity /= (light_dist * light_dist);
+}
+
+float diffuse_factor = dot(world_normal, light_normal);
+if (diffuse_factor > 0.0) {
+
+light_acc += diffuse_color.rgb * light_color * posterize(diffuse_factor * light_intensity);
+
+if (shininess > 0.0) {
+
+
+
+
+
+
+vec3 h = normalize(light_normal + view_normal);
+float specular_angle = max(dot(h, world_normal), 0.0);
+float specular_factor = pow(specular_angle, shininess);
+
+
+light_acc += specular_color.rgb * light_color * posterize(specular_factor * light_intensity);
+}
+}
+}
+
+frag_color = vec4(light_acc, 1.0);
+
+float eye_distance = length(view_dir);
+float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
+}
+`;
+function mat_forward_colored_phong(gl) {
+let program = link(gl, vertex$8, fragment$8);
+return {
+Mode: GL_TRIANGLES,
+Program: program,
+Locations: {
+Pv: gl.getUniformLocation(program, "pv"),
+World: gl.getUniformLocation(program, "world"),
+Self: gl.getUniformLocation(program, "self"),
+DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
+SpecularColor: gl.getUniformLocation(program, "specular_color"),
+Shininess: gl.getUniformLocation(program, "shininess"),
+Eye: gl.getUniformLocation(program, "eye"),
+LightPositions: gl.getUniformLocation(program, "light_positions"),
+LightDetails: gl.getUniformLocation(program, "light_details"),
+FogColor: gl.getUniformLocation(program, "fog_color"),
+FogDistance: gl.getUniformLocation(program, "fog_distance"),
+VertexPosition: gl.getAttribLocation(program, "attr_position"),
+VertexNormal: gl.getAttribLocation(program, "attr_normal"),
+},
+};
+}
+
+let vertex$7 = `#version 300 es\n
+uniform mat4 pv;
+uniform mat4 world;
+uniform mat4 self;
+uniform mat4 bones[6];
+
+in vec3 attr_position;
+in vec3 attr_normal;
+in vec4 attr_weights;
+
+out vec4 vert_position;
+out vec3 vert_normal;
+
+mat4 world_weighted(vec4 weights) {
+return weights[1] * bones[int(weights[0])] + weights[3] * bones[int(weights[2])];
+}
+
+void main() {
+mat4 bone_world = world_weighted(attr_weights);
+vert_position = bone_world * vec4(attr_position, 1.0);
+vert_normal = normalize(mat3(bone_world) * attr_normal);
 gl_Position = pv * vert_position;
 }
 `;
@@ -653,138 +788,8 @@ float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
 frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
 }
 `;
-function mat_forward_colored_phong(gl) {
-let program = link(gl, vertex$7, fragment$7);
-return {
-Mode: GL_TRIANGLES,
-Program: program,
-Locations: {
-Pv: gl.getUniformLocation(program, "pv"),
-World: gl.getUniformLocation(program, "world"),
-Self: gl.getUniformLocation(program, "self"),
-DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
-SpecularColor: gl.getUniformLocation(program, "specular_color"),
-Shininess: gl.getUniformLocation(program, "shininess"),
-Eye: gl.getUniformLocation(program, "eye"),
-LightPositions: gl.getUniformLocation(program, "light_positions"),
-LightDetails: gl.getUniformLocation(program, "light_details"),
-FogColor: gl.getUniformLocation(program, "fog_color"),
-FogDistance: gl.getUniformLocation(program, "fog_distance"),
-VertexPosition: gl.getAttribLocation(program, "attr_position"),
-VertexNormal: gl.getAttribLocation(program, "attr_normal"),
-},
-};
-}
-
-let vertex$6 = `#version 300 es\n
-uniform mat4 pv;
-uniform mat4 world;
-uniform mat4 self;
-uniform mat4 bones[6];
-
-in vec3 attr_position;
-in vec3 attr_normal;
-in vec4 attr_weights;
-
-out vec4 vert_position;
-out vec3 vert_normal;
-
-mat4 world_weighted(vec4 weights) {
-return weights[1] * bones[int(weights[0])] + weights[3] * bones[int(weights[2])];
-}
-
-void main() {
-mat4 bone_world = world_weighted(attr_weights);
-vert_position = bone_world * vec4(attr_position, 1.0);
-vert_normal = normalize(mat3(bone_world) * attr_normal);
-gl_Position = pv * vert_position;
-}
-`;
-let fragment$6 = `#version 300 es\n
-precision mediump float;
-
-
-const int MAX_LIGHTS = 8;
-
-uniform vec3 eye;
-uniform vec4 diffuse_color;
-uniform vec4 specular_color;
-uniform float shininess;
-uniform vec4 light_positions[MAX_LIGHTS];
-uniform vec4 light_details[MAX_LIGHTS];
-uniform vec4 fog_color;
-uniform float fog_distance;
-
-in vec4 vert_position;
-in vec3 vert_normal;
-
-out vec4 frag_color;
-
-const float bands = 2.0;
-float posterize(float factor) {
-return floor(factor * bands) / bands;
-}
-
-void main() {
-vec3 world_normal = normalize(vert_normal);
-
-vec3 view_dir = eye - vert_position.xyz;
-vec3 view_normal = normalize(view_dir);
-
-
-vec3 light_acc = diffuse_color.rgb * 0.3;
-
-for (int i = 0; i < MAX_LIGHTS; i++) {
-if (light_positions[i].w == 0.0) {
-break;
-}
-
-vec3 light_color = light_details[i].rgb;
-float light_intensity = light_details[i].a;
-
-vec3 light_normal;
-if (light_positions[i].w == 1.0) {
-
-light_normal = light_positions[i].xyz;
-} else {
-vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
-float light_dist = length(light_dir);
-light_normal = light_dir / light_dist;
-
-light_intensity /= (light_dist * light_dist);
-}
-
-float diffuse_factor = dot(world_normal, light_normal);
-if (diffuse_factor > 0.0) {
-
-light_acc += diffuse_color.rgb * light_color * posterize(diffuse_factor * light_intensity);
-
-if (shininess > 0.0) {
-
-
-
-
-
-
-vec3 h = normalize(light_normal + view_normal);
-float specular_angle = max(dot(h, world_normal), 0.0);
-float specular_factor = pow(specular_angle, shininess);
-
-
-light_acc += specular_color.rgb * light_color * posterize(specular_factor * light_intensity);
-}
-}
-}
-
-frag_color = vec4(light_acc, 1.0);
-
-float eye_distance = length(view_dir);
-float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
-frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
-}
-`;
 function mat_forward_colored_phong_skinned(gl) {
-let program = link(gl, vertex$6, fragment$6);
+let program = link(gl, vertex$7, fragment$7);
 return {
 Mode: GL_TRIANGLES,
 Program: program,
@@ -808,7 +813,7 @@ VertexWeights: gl.getAttribLocation(program, "attr_weights"),
 };
 }
 
-let vertex$5 = `#version 300 es\n
+let vertex$6 = `#version 300 es\n
 
 uniform mat4 pv;
 uniform mat4 world;
@@ -826,7 +831,7 @@ vert_normal = (vec4(attr_normal, 1.0) * self).xyz;
 gl_Position = pv * vert_position;
 }
 `;
-let fragment$5 = `#version 300 es\n
+let fragment$6 = `#version 300 es\n
 precision mediump float;
 precision lowp sampler2DShadow;
 
@@ -923,7 +928,7 @@ frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
 }
 `;
 function mat_forward_colored_shadows(gl) {
-let program = link(gl, vertex$5, fragment$5);
+let program = link(gl, vertex$6, fragment$6);
 return {
 Mode: GL_TRIANGLES,
 Program: program,
@@ -945,6 +950,44 @@ VertexPosition: gl.getAttribLocation(program, "attr_position"),
 VertexNormal: gl.getAttribLocation(program, "attr_normal"),
 },
 };
+}
+
+let vertex$5 = `#version 300 es\n
+uniform mat4 pv;
+uniform mat4 world;
+
+in vec3 attr_position;
+
+void main() {
+gl_Position = pv * world * vec4(attr_position, 1.0);
+}
+`;
+let fragment$5 = `#version 300 es\n
+precision mediump float;
+
+uniform vec4 color;
+
+out vec4 frag_color;
+
+void main() {
+frag_color = color;
+}
+`;
+function mat_forward_colored_unlit(gl, mode = GL_TRIANGLES) {
+let program = link(gl, vertex$5, fragment$5);
+return {
+Mode: mode,
+Program: program,
+Locations: {
+Pv: gl.getUniformLocation(program, "pv"),
+World: gl.getUniformLocation(program, "world"),
+Color: gl.getUniformLocation(program, "color"),
+VertexPosition: gl.getAttribLocation(program, "attr_position"),
+},
+};
+}
+function mat_forward_colored_wireframe(gl) {
+return mat_forward_colored_unlit(gl, GL_LINE_LOOP);
 }
 
 let vertex$4 = `#version 300 es\n
@@ -3250,6 +3293,251 @@ move.Directions.push([0, 0, -game.InputDelta["pad0_axis_2"]]);
 }
 
 /**
+* @module components/com_render
+*/
+const colored_unlit_vaos = new WeakMap();
+const colored_shaded_vaos = new WeakMap();
+const colored_shadows_vaos = new WeakMap();
+const colored_skinned_vaos = new WeakMap();
+function render_colored_unlit(material, mesh, color) {
+return (game, entity) => {
+if (!colored_unlit_vaos.has(mesh)) {
+
+let vao = game.Gl.createVertexArray();
+game.Gl.bindVertexArray(vao);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+game.Gl.bindVertexArray(null);
+colored_unlit_vaos.set(mesh, vao);
+}
+game.World.Signature[entity] |= 131072 /* Render */;
+game.World.Render[entity] = {
+Kind: 0 /* ColoredUnlit */,
+Material: material,
+Mesh: mesh,
+FrontFace: GL_CW,
+Vao: colored_unlit_vaos.get(mesh),
+Color: color,
+};
+};
+}
+function render_colored_shaded(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
+return (game, entity) => {
+if (!colored_shaded_vaos.has(mesh)) {
+
+let vao = game.Gl.createVertexArray();
+game.Gl.bindVertexArray(vao);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
+game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+game.Gl.bindVertexArray(null);
+colored_shaded_vaos.set(mesh, vao);
+}
+game.World.Signature[entity] |= 131072 /* Render */;
+game.World.Render[entity] = {
+Kind: 1 /* ColoredShaded */,
+Material: material,
+Mesh: mesh,
+FrontFace: front_face,
+Vao: colored_shaded_vaos.get(mesh),
+DiffuseColor: diffuse_color,
+SpecularColor: specular_color,
+Shininess: shininess,
+};
+};
+}
+function render_colored_shadows(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
+return (game, entity) => {
+if (!colored_shadows_vaos.has(mesh)) {
+
+let vao = game.Gl.createVertexArray();
+game.Gl.bindVertexArray(vao);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
+game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+game.Gl.bindVertexArray(null);
+colored_shadows_vaos.set(mesh, vao);
+}
+game.World.Signature[entity] |= 131072 /* Render */;
+game.World.Render[entity] = {
+Kind: 2 /* ColoredShadows */,
+Material: material,
+Mesh: mesh,
+FrontFace: front_face,
+Vao: colored_shadows_vaos.get(mesh),
+DiffuseColor: diffuse_color,
+SpecularColor: specular_color,
+Shininess: shininess,
+};
+};
+}
+function render_colored_skinned(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
+return (game, entity) => {
+if (!colored_skinned_vaos.has(mesh)) {
+
+let vao = game.Gl.createVertexArray();
+game.Gl.bindVertexArray(vao);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
+game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.WeightsBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexWeights);
+game.Gl.vertexAttribPointer(material.Locations.VertexWeights, 4, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+game.Gl.bindVertexArray(null);
+colored_skinned_vaos.set(mesh, vao);
+}
+game.World.Signature[entity] |= 131072 /* Render */;
+game.World.Render[entity] = {
+Kind: 3 /* ColoredSkinned */,
+Material: material,
+Mesh: mesh,
+FrontFace: front_face,
+Vao: colored_skinned_vaos.get(mesh),
+DiffuseColor: diffuse_color,
+SpecularColor: specular_color,
+Shininess: shininess,
+};
+};
+}
+const DATA_PER_PARTICLE = 8;
+const MAX_PARTICLES = 200;
+function render_particles_colored(start_color, start_size, end_color, end_size) {
+return (game, entity) => {
+let buffer = game.Gl.createBuffer();
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
+game.Gl.bufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * DATA_PER_PARTICLE * 4, GL_DYNAMIC_DRAW);
+game.World.Signature[entity] |= 131072 /* Render */;
+game.World.Render[entity] = {
+Kind: 9 /* ParticlesColored */,
+Material: game.MaterialParticlesColored,
+Buffer: buffer,
+ColorStart: start_color,
+ColorEnd: end_color,
+Size: [start_size, end_size],
+FrontFace: GL_CW,
+};
+};
+}
+function render_instanced(mesh, offsets, rotation_offsets, palette) {
+return (game, entity) => {
+let material = game.MaterialInstanced;
+
+
+
+
+
+
+let vao = game.Gl.createVertexArray();
+game.Gl.bindVertexArray(vao);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
+game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
+let instance_offset_buffer = game.Gl.createBuffer();
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_offset_buffer);
+game.Gl.bufferData(GL_ARRAY_BUFFER, offsets, GL_STATIC_DRAW);
+game.Gl.enableVertexAttribArray(material.Locations.InstanceOffset);
+game.Gl.vertexAttribPointer(material.Locations.InstanceOffset, 4, GL_FLOAT, false, 0, 0);
+game.Gl.vertexAttribDivisor(material.Locations.InstanceOffset, 1);
+let instance_rotation_buffer = game.Gl.createBuffer();
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_rotation_buffer);
+game.Gl.bufferData(GL_ARRAY_BUFFER, rotation_offsets, GL_STATIC_DRAW);
+game.Gl.enableVertexAttribArray(material.Locations.InstanceRotation);
+game.Gl.vertexAttribPointer(material.Locations.InstanceRotation, 4, GL_FLOAT, false, 0, 0);
+game.Gl.vertexAttribDivisor(material.Locations.InstanceRotation, 1);
+game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+game.Gl.bindVertexArray(null);
+game.World.Signature[entity] |= 131072 /* Render */;
+game.World.Render[entity] = {
+Kind: 11 /* Instanced */,
+Material: material,
+Mesh: mesh,
+FrontFace: GL_CW,
+Vao: vao,
+InstanceCount: offsets.length / 4,
+Palette: palette,
+InstanceOffsetBuffer: instance_offset_buffer,
+InstanceRotationBuffer: instance_rotation_buffer,
+};
+};
+}
+
+const wireframes = new Map();
+function sys_debug(game, delta) {
+
+for (let [key, wireframe] of wireframes) {
+if (
+
+!(game.World.Signature[wireframe.anchor_entity] & 8388608 /* Transform */) ||
+
+game.World.Transform[wireframe.anchor_entity] !== wireframe.anchor_transform) {
+game.World.DestroyEntity(wireframe.entity);
+wireframes.delete(key);
+}
+}
+for (let i = 0; i < game.World.Signature.length; i++) {
+if (game.World.Signature[i] & 8388608 /* Transform */) {
+
+
+
+if (game.World.Signature[i] & 64 /* Collide */) {
+wireframe_collider(game, i);
+}
+
+if (!(game.World.Signature[i] & 131072 /* Render */)) ;
+}
+}
+}
+function wireframe_collider(game, entity) {
+let anchor_transform = game.World.Transform[entity];
+let anchor_collide = game.World.Collide[entity];
+let wireframe = wireframes.get(anchor_collide);
+if (!wireframe) {
+let wireframe_entity = instantiate(game, [
+transform(anchor_collide.Center, undefined, scale([0, 0, 0], anchor_collide.Half, 2)),
+render_colored_unlit(game.MaterialColoredWireframe, game.MeshCube, [0, 1, 0, 1]),
+]);
+wireframe = {
+entity: wireframe_entity,
+transform: game.World.Transform[wireframe_entity],
+anchor_entity: entity,
+anchor_transform: anchor_transform,
+};
+wireframes.set(anchor_collide, wireframe);
+}
+if (anchor_collide.Dynamic) {
+wireframe.transform.Translation = anchor_collide.Center;
+scale(wireframe.transform.Scale, anchor_collide.Half, 2);
+wireframe.transform.Dirty = true;
+}
+let render = game.World.Render[wireframe.entity];
+if (render.Kind === 0 /* ColoredUnlit */) {
+if (anchor_collide.Collisions.length > 0) {
+render.Color[2] = 1;
+}
+else {
+render.Color[2] = 0;
+}
+}
+}
+
+/**
 * @module systems/sys_draw
 */
 const QUERY$g = 8388608 /* Transform */ | 1024 /* Draw */;
@@ -3439,167 +3727,6 @@ return add(acc, acc, cur);
 }
 function multiply_rotations(acc, cur) {
 return multiply(acc, acc, cur);
-}
-
-/**
-* @module components/com_render
-*/
-const colored_shaded_vaos = new WeakMap();
-const colored_shadows_vaos = new WeakMap();
-const colored_skinned_vaos = new WeakMap();
-function render_colored_shaded(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
-return (game, entity) => {
-if (!colored_shaded_vaos.has(mesh)) {
-
-let vao = game.Gl.createVertexArray();
-game.Gl.bindVertexArray(vao);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
-game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
-game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-game.Gl.bindVertexArray(null);
-colored_shaded_vaos.set(mesh, vao);
-}
-game.World.Signature[entity] |= 131072 /* Render */;
-game.World.Render[entity] = {
-Kind: 1 /* ColoredShaded */,
-Material: material,
-Mesh: mesh,
-FrontFace: front_face,
-Vao: colored_shaded_vaos.get(mesh),
-DiffuseColor: diffuse_color,
-SpecularColor: specular_color,
-Shininess: shininess,
-};
-};
-}
-function render_colored_shadows(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
-return (game, entity) => {
-if (!colored_shadows_vaos.has(mesh)) {
-
-let vao = game.Gl.createVertexArray();
-game.Gl.bindVertexArray(vao);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
-game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
-game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-game.Gl.bindVertexArray(null);
-colored_shadows_vaos.set(mesh, vao);
-}
-game.World.Signature[entity] |= 131072 /* Render */;
-game.World.Render[entity] = {
-Kind: 2 /* ColoredShadows */,
-Material: material,
-Mesh: mesh,
-FrontFace: front_face,
-Vao: colored_shadows_vaos.get(mesh),
-DiffuseColor: diffuse_color,
-SpecularColor: specular_color,
-Shininess: shininess,
-};
-};
-}
-function render_colored_skinned(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
-return (game, entity) => {
-if (!colored_skinned_vaos.has(mesh)) {
-
-let vao = game.Gl.createVertexArray();
-game.Gl.bindVertexArray(vao);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
-game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
-game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.WeightsBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexWeights);
-game.Gl.vertexAttribPointer(material.Locations.VertexWeights, 4, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-game.Gl.bindVertexArray(null);
-colored_skinned_vaos.set(mesh, vao);
-}
-game.World.Signature[entity] |= 131072 /* Render */;
-game.World.Render[entity] = {
-Kind: 3 /* ColoredSkinned */,
-Material: material,
-Mesh: mesh,
-FrontFace: front_face,
-Vao: colored_skinned_vaos.get(mesh),
-DiffuseColor: diffuse_color,
-SpecularColor: specular_color,
-Shininess: shininess,
-};
-};
-}
-const DATA_PER_PARTICLE = 8;
-const MAX_PARTICLES = 200;
-function render_particles_colored(start_color, start_size, end_color, end_size) {
-return (game, entity) => {
-let buffer = game.Gl.createBuffer();
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
-game.Gl.bufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * DATA_PER_PARTICLE * 4, GL_DYNAMIC_DRAW);
-game.World.Signature[entity] |= 131072 /* Render */;
-game.World.Render[entity] = {
-Kind: 9 /* ParticlesColored */,
-Material: game.MaterialParticlesColored,
-Buffer: buffer,
-ColorStart: start_color,
-ColorEnd: end_color,
-Size: [start_size, end_size],
-FrontFace: GL_CW,
-};
-};
-}
-function render_instanced(mesh, offsets, rotation_offsets, palette) {
-return (game, entity) => {
-let material = game.MaterialInstanced;
-
-
-
-
-
-
-let vao = game.Gl.createVertexArray();
-game.Gl.bindVertexArray(vao);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
-game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
-game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
-let instance_offset_buffer = game.Gl.createBuffer();
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_offset_buffer);
-game.Gl.bufferData(GL_ARRAY_BUFFER, offsets, GL_STATIC_DRAW);
-game.Gl.enableVertexAttribArray(material.Locations.InstanceOffset);
-game.Gl.vertexAttribPointer(material.Locations.InstanceOffset, 4, GL_FLOAT, false, 0, 0);
-game.Gl.vertexAttribDivisor(material.Locations.InstanceOffset, 1);
-let instance_rotation_buffer = game.Gl.createBuffer();
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_rotation_buffer);
-game.Gl.bufferData(GL_ARRAY_BUFFER, rotation_offsets, GL_STATIC_DRAW);
-game.Gl.enableVertexAttribArray(material.Locations.InstanceRotation);
-game.Gl.vertexAttribPointer(material.Locations.InstanceRotation, 4, GL_FLOAT, false, 0, 0);
-game.Gl.vertexAttribDivisor(material.Locations.InstanceRotation, 1);
-game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-game.Gl.bindVertexArray(null);
-game.World.Signature[entity] |= 131072 /* Render */;
-game.World.Render[entity] = {
-Kind: 11 /* Instanced */,
-Material: material,
-Mesh: mesh,
-FrontFace: GL_CW,
-Vao: vao,
-InstanceCount: offsets.length / 4,
-Palette: palette,
-InstanceOffsetBuffer: instance_offset_buffer,
-InstanceRotationBuffer: instance_rotation_buffer,
-};
-};
 }
 
 const QUERY$b = 8388608 /* Transform */ | 2048 /* EmitParticles */;
@@ -4540,6 +4667,7 @@ class Game extends Game3D {
 constructor() {
 super(...arguments);
 this.World = new World();
+this.MaterialColoredWireframe = mat_forward_colored_wireframe(this.Gl);
 this.MaterialColoredShaded = mat_forward_colored_phong(this.Gl);
 this.MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
 this.MaterialColoredPhongSkinned = mat_forward_colored_phong_skinned(this.Gl);
@@ -4595,6 +4723,9 @@ sys_toggle(this, delta);
 sys_spawn(this, delta);
 sys_particles(this, delta);
 sys_transform(this);
+{
+sys_debug(this);
+}
 
 sys_audio_listener(this);
 sys_audio_source(this, delta);
