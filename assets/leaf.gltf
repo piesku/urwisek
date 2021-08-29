@@ -1,0 +1,105 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.6.16",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Leaf"
+        }
+    ],
+    "materials" : [
+        {
+            "doubleSided" : true,
+            "name" : "Default OBJ",
+            "pbrMetallicRoughness" : {
+                "baseColorFactor" : [
+                    0.800000011920929,
+                    0.800000011920929,
+                    0.800000011920929,
+                    1
+                ],
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.5
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Plane",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1
+                    },
+                    "indices" : 2,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 6,
+            "max" : [
+                0.12554000318050385,
+                0.02168801985681057,
+                0.12619799375534058
+            ],
+            "min" : [
+                -0.1248830035328865,
+                -7.2832064823558085e-09,
+                -0.12619799375534058
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 6,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5123,
+            "count" : 6,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 72,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 72,
+            "byteOffset" : 72
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 12,
+            "byteOffset" : 144
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 156,
+            "uri" : "data:application/octet-stream;base64,C0MkPcM/+rGLGzc9C0MkPcM/+rGLGzc9Z3xfvSyuDTLeVU+9Z3xfvSyuDTLeVU+9qcL/vSqYhjwMOgE+j40APhOrsTwMOgG+B9esvcgufj+upas9+TmIPWXffj8nSYe9B9esvcgufj+upas9+TmIPWXffj8nSYe9+TmIPWXffj8nSYe9B9esvcgufj+upas9AQADAAQAAAAFAAIA"
+        }
+    ]
+}

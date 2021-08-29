@@ -39,42 +39,32 @@ export function mesh_leaf(gl: WebGLRenderingContext): Mesh {
 
 // prettier-ignore
 let vertex_arr = Float32Array.from([
-    0.040103, 0, 0.044704,
-    -0.054562, 0, -0.050619,
-    -0.124883, 0.01643, 0.126198,
-    0.040103, 0, 0.044704,
-    0.12554, 0.021688, -0.126198,
-    -0.054562, 0, -0.050619
+    0.040, -0.000, 0.045,
+    0.040, -0.000, 0.045,
+    -0.055, 0.000, -0.051,
+    -0.055, 0.000, -0.051,
+    -0.125, 0.016, 0.126,
+    0.126, 0.022, -0.126
 ]);
 
 // prettier-ignore
 let normal_arr = Float32Array.from([
-    0.0665, 0.9956, -0.0661,
-    0.0665, 0.9956, -0.0661,
-    0.0665, 0.9956, -0.0661,
-    -0.0844, 0.9929, 0.0838,
-    -0.0844, 0.9929, 0.0838,
-    -0.0844, 0.9929, 0.0838
+    -0.084, 0.993, 0.084,
+    0.067, 0.996, -0.066,
+    -0.084, 0.993, 0.084,
+    0.067, 0.996, -0.066,
+    0.067, 0.996, -0.066,
+    -0.084, 0.993, 0.084
 ]);
 
 // prettier-ignore
-let texcoord_arr = Float32Array.from([
-    1, 0,
-    0, 1,
-    0, 0,
-    1, 0,
-    1, 1,
-    0, 1
-]);
+let texcoord_arr = Float32Array.from([]);
 
 // prettier-ignore
-let weights_arr = Float32Array.from([
-    // Weights must be assigned manually for now b/c OBJ doesn't support them.
-    // WARNING: Remaking the mesh file will overwrite your weights here.
-]);
+let weights_arr = Float32Array.from([]);
 
 // prettier-ignore
 let index_arr = Uint16Array.from([
-    5, 4, 3,
-    2, 1, 0
+    2, 5, 0,
+    4, 3, 1
 ]);
