@@ -9,6 +9,8 @@ main {
     width: 100vw;
     height: 100vh;
     user-select: none;
+    overflow: hidden;
+    word-break: break-word;
 }
 
 @keyframes intro {
