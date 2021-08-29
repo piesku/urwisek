@@ -1,5 +1,6 @@
+import {Vec4} from "../../common/math.js";
 import {children} from "../components/com_children.js";
-import {render_colored_shaded} from "../components/com_render.js";
+import {render_colored_shadows} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
@@ -7,99 +8,99 @@ export function prop_slup(game: Game) {
     return [
         children(
             [
-                transform([0, 2, 0], undefined, [0.5, 8, 0.5]),
-                render_colored_shaded(
-                    game.MaterialColoredShaded,
+                transform([0, 4, 0], undefined, [0.5, 8, 0.5]),
+                render_colored_shadows(
+                    game.MaterialColoredShadows,
                     game.MeshCylinder,
                     [0.119, 0.027, 0.012, 1]
                 ),
             ],
 
             [
-                transform([0, 3.705, -0.125], undefined, [1.5, 0.225, 0.1]),
-                render_colored_shaded(
-                    game.MaterialColoredShaded,
+                transform([0, 7.41, -0.25], undefined, [3, 0.45, 0.2]),
+                render_colored_shadows(
+                    game.MaterialColoredShadows,
                     game.MeshCube,
                     [0.119, 0.027, 0.012, 1]
                 ),
             ],
 
             [
-                transform([0, 3.705, 0.125], undefined, [1.5, 0.225, 0.1]),
-                render_colored_shaded(
-                    game.MaterialColoredShaded,
+                transform([0, 7.41, 0.25], undefined, [3, 0.45, 0.2]),
+                render_colored_shadows(
+                    game.MaterialColoredShadows,
                     game.MeshCube,
                     [0.119, 0.027, 0.012, 1]
                 ),
             ],
 
             [
-                transform([0, 3.164, -0.125], undefined, [1.5, 0.225, 0.1]),
-                render_colored_shaded(
-                    game.MaterialColoredShaded,
+                transform([0, 6.329, -0.25], undefined, [3, 0.45, 0.2]),
+                render_colored_shadows(
+                    game.MaterialColoredShadows,
                     game.MeshCube,
                     [0.119, 0.027, 0.012, 1]
                 ),
             ],
 
             [
-                transform([0.65, 3.875, -0.125], undefined, [0.2, 0.3, 0.2]),
-                render_colored_shaded(
-                    game.MaterialColoredShaded,
+                transform([1.3, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
+                render_colored_shadows(
+                    game.MaterialColoredShadows,
                     game.MeshCylinder,
                     [0.367, 0.367, 0.367, 1]
                 ),
             ],
 
             [
-                transform([0.5, 3.875, -0.125], undefined, [0.2, 0.3, 0.2]),
-                render_colored_shaded(
-                    game.MaterialColoredShaded,
+                transform([1, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
+                render_colored_shadows(
+                    game.MaterialColoredShadows,
                     game.MeshCylinder,
                     [0.367, 0.367, 0.367, 1]
                 ),
             ],
 
             [
-                transform([0.65, 3.35, -0.125], undefined, [0.2, 0.3, 0.2]),
-                render_colored_shaded(
-                    game.MaterialColoredShaded,
+                transform([1.3, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
+                render_colored_shadows(
+                    game.MaterialColoredShadows,
                     game.MeshCylinder,
                     [0.367, 0.367, 0.367, 1]
                 ),
             ],
 
             [
-                transform([0.5, 3.35, -0.125], undefined, [0.2, 0.3, 0.2]),
-                render_colored_shaded(
-                    game.MaterialColoredShaded,
+                transform([1, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
+                render_colored_shadows(
+                    game.MaterialColoredShadows,
                     game.MeshCylinder,
                     [0.367, 0.367, 0.367, 1]
                 ),
             ],
 
             [
-                transform([-0.17, 2.88, -0.12], [0, 0, -0.383, 0.924], [0.6, 0.1, 0.025]),
-                render_colored_shaded(
-                    game.MaterialColoredShaded,
+                transform([-0.34, 5.76, -0.24], [0, 0, -0.383, 0.924], [1.2, 0.2, 0.05]),
+                render_colored_shadows(
+                    game.MaterialColoredShadows,
                     game.MeshCube,
                     [0.367, 0.367, 0.367, 1]
                 ),
             ],
 
             [
-                transform([-0.5, 3.875, 0.125], undefined, [0.2, 0.3, 0.2]),
-                render_colored_shaded(
-                    game.MaterialColoredShaded,
+                transform([-1, 7.75, 0.25], undefined, [0.2, 0.3, 0.2]),
+                render_colored_shadows(
+                    game.MaterialColoredShadows,
                     game.MeshCylinder,
                     [0.367, 0.367, 0.367, 1]
                 ),
             ],
 
             [
-                transform([-0.65, 3.875, 0.125], undefined, [0.2, 0.3, 0.2]),
-                render_colored_shaded(
-                    game.MaterialColoredShaded,
+                transform([-1.3, 7.75, 0.25], undefined, [0.2, 0.3, 0.2]),
+                render_colored_shadows(
+                    game.MaterialColoredShadows,
                     game.MeshCylinder,
                     [0.367, 0.367, 0.367, 1]
                 ),
