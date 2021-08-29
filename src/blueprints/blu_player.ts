@@ -65,7 +65,7 @@ export function instantiate_player(game: Game, translation: Vec3) {
         Bone4,
     }
 
-    let tail_attachment: Entity = 0;
+    let tail_root: Entity = 0;
     let tail_bone1: Entity = 0;
     let tail_bone2: Entity = 0;
     let tail_bone3: Entity = 0;
@@ -85,34 +85,35 @@ export function instantiate_player(game: Game, translation: Vec3) {
                     game.MeshOgon,
                     [1, 0.5, 0, 1]
                 ),
-            ],
-            // The tail attachment, animated procedurally.
-            [
-                transform([0, 0.4, -0.7], from_euler([0, 0, 0, 0], -90, 0, 0)),
-                children([
-                    transform(),
-                    control_always(null, [0, 1, 0, 0]),
-                    move(0, 1),
-                    callback((game, entity) => (tail_attachment = entity)),
-                    bone(
-                        TailBoneIndex.Root,
-                        [
-                            1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0,
-                            -0.701, -0.428, 1.0,
-                        ]
-                    ),
-                    // children([
-                    //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                    //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-                    // ]),
-                ]),
             ]
         ),
     ]);
 
     instantiate(game, [
         transform(),
-        mimic(tail_attachment, 0.08),
+        mimic(find_first(game.World, "tail anchor"), 1),
+        children([
+            transform([0, -0.2, -0.05], [1, 0, 0, 0]),
+            control_always(null, [0, -1, 0, 0]),
+            move(0, 1),
+            callback((game, entity) => (tail_root = entity)),
+            bone(
+                TailBoneIndex.Root,
+                [
+                    1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -0.701,
+                    -0.428, 1.0,
+                ]
+            ),
+            // children([
+            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
+            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
+            // ]),
+        ]),
+    ]);
+
+    instantiate(game, [
+        transform(),
+        mimic(tail_root, 0.08),
         bone(
             TailBoneIndex.Bone1,
             [
