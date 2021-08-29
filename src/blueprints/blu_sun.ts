@@ -1,20 +1,31 @@
 import {from_euler} from "../../common/quat.js";
 import {camera_depth_ortho} from "../components/com_camera.js";
 import {children} from "../components/com_children.js";
-import {control_always} from "../components/com_control_always.js";
 import {light_directional} from "../components/com_light.js";
-import {move} from "../components/com_move.js";
+import {mimic} from "../components/com_mimic.js";
+import {find_first} from "../components/com_named.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
-export function blueprint_sun(game: Game) {
+export function blueprint_sun_light(game: Game) {
     return [
-        control_always(null, [0, 1, 0, 0]),
-        move(0, 0.03),
+        children(
+            [
+                transform([10, 10, -10], from_euler([0, 0, 0, 1], -45, 135, 0)),
+                light_directional([1, 1, 1], 0.6),
+            ],
+            [transform([10, 10, 10]), light_directional([1, 1, 1], 0.9)]
+        ),
+    ];
+}
+
+export function blueprint_sun_shadow(game: Game) {
+    return [
+        mimic(find_first(game.World, "sun anchor"), 0.01),
         children([
-            transform([0, 10, 10], from_euler([0, 0, 0, 1], -45, 0, 0)),
-            light_directional([1, 1, 1], 0.9),
+            transform([10, 10, -10], from_euler([0, 0, 0, 1], -45, 135, 0)),
             camera_depth_ortho(game.Targets.Sun, 10, 1, 100),
+            light_directional([1, 1, 1], 0.6),
         ]),
     ];
 }

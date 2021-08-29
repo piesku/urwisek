@@ -2,7 +2,7 @@ import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
 import {Game} from "../game.js";
 import {transform} from "../components/com_transform.js";
-import {blueprint_sun} from "../blueprints/blu_sun.js";
+import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
 import {render_colored_shadows} from "../components/com_render.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
@@ -16,11 +16,6 @@ import {blueprint_box} from "../blueprints/blu_box.js";
 import {prop_car2} from "../props/prop_car2.js";
 
 export function map_city(game: Game) {
-    instantiate(game, [
-        transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
-        ...blueprint_sun(game),
-    ]);
-
     instantiate(game, [
         transform([7.532, -0.5, 1.453], [0, 0.707, 0, 0.707], [4, 2.003, 30]),
         ...blueprint_ground(game),
@@ -607,4 +602,8 @@ export function map_city(game: Game) {
         transform([56.401, 1, 0.298], [0.698, 0.155, 0.159, -0.681], undefined),
         ...blueprint_obstacle_car(game),
     ]);
+
+    instantiate(game, [...blueprint_sun_light(game), transform()]);
+
+    instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 }

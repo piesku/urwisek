@@ -29,9 +29,9 @@ let imports = new Set([
     'import {instantiate} from "../../common/game.js";',
     'import {from_euler} from "../../common/quat.js";',
     'import {Game} from "../game.js";',
-    'import { transform } from "../components/com_transform.js";',
-    'import { blueprint_sun } from "../blueprints/blu_sun.js";',
-    'import { render_colored_shadows } from "../components/com_render.js";',
+    'import {transform} from "../components/com_transform.js";',
+    'import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";',
+    'import {render_colored_shadows} from "../components/com_render.js";',
 ]);
 
 let create_instance = (name, translation, rotation, scale) => {
@@ -88,11 +88,17 @@ let result = `\
 ${Array.from(imports).join("\n")}
 
 export function map_${scene_name}(game: Game) {
-    instantiate(game, [
-        transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
-        ...blueprint_sun(game),
-    ]);
 ${nodes}
+
+    instantiate(game, [
+        ...blueprint_sun_light(game),
+        transform(),
+    ]);
+
+    instantiate(game, [
+        ...blueprint_sun_shadow(game),
+        transform(),
+    ]);
 }`;
 
 console.log(result);
