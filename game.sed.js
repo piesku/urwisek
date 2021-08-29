@@ -4554,14 +4554,21 @@ Intensity: range ** 2,
 };
 }
 
-function blueprint_sun(game) {
+function blueprint_sun_light(game) {
 return [
-control_always(null, [0, 1, 0, 0]),
-move(0, 0.03),
 children([
-transform([0, 10, 10], from_euler([0, 0, 0, 1], -45, 0, 0)),
-light_directional([1, 1, 1], 0.9),
+transform([10, 10, -10], from_euler([0, 0, 0, 1], -45, 135, 0)),
+light_directional([1, 1, 1], 0.6),
+], [transform([10, 10, 10]), light_directional([1, 1, 1], 0.9)]),
+];
+}
+function blueprint_sun_shadow(game) {
+return [
+mimic(find_first(game.World, "sun anchor"), 0.01),
+children([
+transform([10, 10, -10], from_euler([0, 0, 0, 1], -45, 135, 0)),
 camera_depth_ortho(game.Targets.Sun, 10, 1, 100),
+light_directional([1, 1, 1], 0.6),
 ]),
 ];
 }
@@ -5207,7 +5214,7 @@ collide(true, 0 /* None */, 4 /* Obstacle */),
 control_player(8 /* Grab */),
 //render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
 ]),
-], [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))], [
+], [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))], [named("sun anchor"), transform()], [
 named("pixie anchor"),
 transform([4, 1, 0], [0, 0.7, 0, 0.7]),
 
@@ -5506,10 +5513,6 @@ disable(16384 /* Mimic */),
 }
 
 function map_city(game) {
-instantiate(game, [
-transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
-...blueprint_sun(game),
-]);
 instantiate(game, [
 transform([7.532, -0.5, 1.453], [0, 0.707, 0, 0.707], [4, 2.003, 30]),
 ...blueprint_ground(game),
@@ -5979,6 +5982,8 @@ instantiate(game, [
 transform([56.401, 1, 0.298], [0.698, 0.155, 0.159, -0.681], undefined),
 ...blueprint_obstacle_car(game),
 ]);
+instantiate(game, [...blueprint_sun_light(), transform()]);
+instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 }
 
 function scene_level1(game) {
@@ -6178,10 +6183,6 @@ rigid_body(0 /* Static */),
 }
 
 function map_farm(game) {
-instantiate(game, [
-transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
-...blueprint_sun(game),
-]);
 instantiate(game, [
 transform([5.402, -0.5, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 15]),
 ...blueprint_ground(game),
@@ -6647,6 +6648,8 @@ instantiate(game, [
 transform([89.73, 1.638, 2.069], [0, 1, 0, 0], undefined),
 ...prop_fence(game),
 ]);
+instantiate(game, [...blueprint_sun_light(), transform()]);
+instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 }
 
 function scene_level2(game) {
@@ -6677,35 +6680,7 @@ CurrentlyEnabled: !init,
 };
 }
 
-/**
-* @module components/com_control_ai
-*/
-function control_ai(Animation) {
-return (game, entity) => {
-game.World.Signature[entity] |= 256 /* ControlAi */;
-game.World.ControlAi[entity] = {
-Animation,
-};
-};
-}
-
-function blueprint_monster(game) {
-return [
-children([
-transform([0, 0, 0], from_euler([0, 0, 0, 1], 0, -90, 0), [5, 60, 20]),
-control_always([0, 0, 1], null),
-control_ai("walk"),
-move(0.5, 0.5),
-...blueprint_lisek(game, 10, undefined, [0.8, 0.2, 0.2, 1]),
-]),
-];
-}
-
 function map_forest(game) {
-instantiate(game, [
-transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
-...blueprint_sun(game),
-]);
 instantiate(game, [
 transform([-9, -0.498, 1.767], [0, 0.707, 0, 0.707], [4, 2.003, 8]),
 ...blueprint_ground(game),
@@ -6742,10 +6717,6 @@ instantiate_player(game, [-6.258, 0.774, 0.343]);
 instantiate(game, [
 transform([4.669, 0.547, -6.026], undefined, undefined),
 ...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([15.5, -6, -3.026], undefined, undefined),
-...blueprint_monster(game),
 ]);
 instantiate(game, [
 transform([3.112, 0.769, 3.408], undefined, undefined),
@@ -6875,6 +6846,8 @@ instantiate(game, [
 transform([22.981, 0.191, -7.83], undefined, [20, 4, 20]),
 ...blueprint_tree(game),
 ]);
+instantiate(game, [...blueprint_sun_light(), transform()]);
+instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 }
 
 function scene_level3(game) {
@@ -6897,16 +6870,6 @@ toggle(524288 /* Shake */, 10, 0.3, true),
 function scene_stage(game) {
 game.World = new World();
 game.ViewportResized = true;
-
-instantiate(game, [
-transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
-...blueprint_sun(game),
-]);
-
-instantiate(game, [
-...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
-transform([0, 1, 6], from_euler([0, 0, 0, 1], -25, 180, 0)),
-]);
 
 let ground_size = 16;
 let ground_height = 50;
@@ -6964,6 +6927,9 @@ children([transform(), ...prop_house(game)], [transform([0.5, 0, 1.5]), ...bluep
 ]);
 instantiate(game, [transform([-4, -0.3, 0.5]), ...blueprint_bush(game)]);
 instantiate(game, [transform([2.5, 0.2, 3.5]), ...blueprint_bush(game)]);
+
+instantiate(game, [...blueprint_sun_light(), transform()]);
+instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 
 instantiate(game, [
 ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
