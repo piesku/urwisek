@@ -737,7 +737,7 @@
         vec3 view_normal = normalize(view_dir);
 
         // Ambient light.
-        vec3 light_acc = diffuse_color.rgb * 0.3;
+        vec3 light_acc = diffuse_color.rgb * 0.5;
 
         for (int i = 0; i < MAX_LIGHTS; i++) {
             if (light_positions[i].w == 0.0) {
@@ -3295,34 +3295,9 @@
     /**
      * @module components/com_render
      */
-    const colored_unlit_vaos = new WeakMap();
     const colored_shaded_vaos = new WeakMap();
     const colored_shadows_vaos = new WeakMap();
     const colored_skinned_vaos = new WeakMap();
-    function render_colored_unlit(material, mesh, color) {
-        return (game, entity) => {
-            if (!colored_unlit_vaos.has(mesh)) {
-                // We only need to create the VAO once.
-                let vao = game.Gl.createVertexArray();
-                game.Gl.bindVertexArray(vao);
-                game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
-                game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
-                game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-                game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-                game.Gl.bindVertexArray(null);
-                colored_unlit_vaos.set(mesh, vao);
-            }
-            game.World.Signature[entity] |= 131072 /* Render */;
-            game.World.Render[entity] = {
-                Kind: 0 /* ColoredUnlit */,
-                Material: material,
-                Mesh: mesh,
-                FrontFace: GL_CW,
-                Vao: colored_unlit_vaos.get(mesh),
-                Color: color,
-            };
-        };
-    }
     function render_colored_shaded(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
         return (game, entity) => {
             if (!colored_shaded_vaos.has(mesh)) {
@@ -3476,65 +3451,6 @@
                 InstanceRotationBuffer: instance_rotation_buffer,
             };
         };
-    }
-
-    const wireframes = new Map();
-    function sys_debug(game, delta) {
-        // Prune wireframes corresponding to destroyed entities.
-        for (let [key, wireframe] of wireframes) {
-            if (
-            // If the entity doesn't have TRANSFORM...
-            !(game.World.Signature[wireframe.anchor_entity] & 8388608 /* Transform */) ||
-                // ...or if it's not the same TRANSFORM.
-                game.World.Transform[wireframe.anchor_entity] !== wireframe.anchor_transform) {
-                game.World.DestroyEntity(wireframe.entity);
-                wireframes.delete(key);
-            }
-        }
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if (game.World.Signature[i] & 8388608 /* Transform */) {
-                // Draw colliders first. If the collider's wireframe overlaps
-                // exactly with the transform's wireframe, we want the collider to
-                // take priority.
-                if (game.World.Signature[i] & 64 /* Collide */) {
-                    wireframe_collider(game, i);
-                }
-                // Draw invisible entities.
-                if (!(game.World.Signature[i] & 131072 /* Render */)) ;
-            }
-        }
-    }
-    function wireframe_collider(game, entity) {
-        let anchor_transform = game.World.Transform[entity];
-        let anchor_collide = game.World.Collide[entity];
-        let wireframe = wireframes.get(anchor_collide);
-        if (!wireframe) {
-            let wireframe_entity = instantiate(game, [
-                transform(anchor_collide.Center, undefined, scale([0, 0, 0], anchor_collide.Half, 2)),
-                render_colored_unlit(game.MaterialColoredWireframe, game.MeshCube, [0, 1, 0, 1]),
-            ]);
-            wireframe = {
-                entity: wireframe_entity,
-                transform: game.World.Transform[wireframe_entity],
-                anchor_entity: entity,
-                anchor_transform: anchor_transform,
-            };
-            wireframes.set(anchor_collide, wireframe);
-        }
-        if (anchor_collide.Dynamic) {
-            wireframe.transform.Translation = anchor_collide.Center;
-            scale(wireframe.transform.Scale, anchor_collide.Half, 2);
-            wireframe.transform.Dirty = true;
-        }
-        let render = game.World.Render[wireframe.entity];
-        if (render.Kind === 0 /* ColoredUnlit */) {
-            if (anchor_collide.Collisions.length > 0) {
-                render.Color[2] = 1;
-            }
-            else {
-                render.Color[2] = 0;
-            }
-        }
     }
 
     /**
@@ -4723,9 +4639,6 @@
             sys_spawn(this, delta);
             sys_particles(this, delta);
             sys_transform(this);
-            {
-                sys_debug(this);
-            }
             // Rendering.
             sys_audio_listener(this);
             sys_audio_source(this, delta);
@@ -5189,96 +5102,11 @@
             render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshLisek, color, 0),
             children([
                 transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74]),
-                bone(0 /* Root */, [
-                    1.0, 0.0, 0.0, 0.0, 0.0, 0.096, -0.995, 0.0, 0.0, 0.995, 0.096, 0.0, 0.0, 0.433,
-                    0.395, 1.0,
-                ]),
-                animate({
-                    idle: {
-                        Keyframes: [
-                            {
-                                Timestamp: 0,
-                            },
-                        ],
-                    },
-                    jump: {
-                        Keyframes: [
-                            {
-                                Timestamp: 0.0,
-                                Translation: [0, 0.63, 0],
-                            },
-                            {
-                                Timestamp: animation_step_length,
-                                Translation: [0, 1.13, 0],
-                                Ease: ease_in_out_quart,
-                            },
-                            {
-                                Timestamp: animation_step_length * 2,
-                                Translation: [0, 0.63, 0],
-                                Ease: ease_out_quart,
-                            },
-                        ],
-                        Flags: 0 /* None */,
-                    },
-                }),
                 children([
-                    transform([0, 0.46, 0], [-0.4, 0, 0, 0.92]),
-                    bone(1 /* Head */, [
-                        1.0, 0.0, 0.0, 0.0, 0.0, 0.795, -0.606, 0.0, 0.0, 0.606, 0.795, 0.0,
-                        0.0, -0.306, 0.251, 1.0,
-                    ]),
-                    animate({
-                        idle: {
-                            Keyframes: [
-                                {
-                                    Timestamp: 0.0,
-                                    Rotation: from_euler([0, 0, 0, 1], -30, 15, 0),
-                                    Ease: ease_in_out_quart,
-                                },
-                                {
-                                    Timestamp: animation_step_length * 5,
-                                    Rotation: from_euler([0, 0, 0, 1], -30, -15, 0),
-                                    Ease: ease_in_out_quart,
-                                },
-                            ],
-                        },
-                        walk: {
-                            Keyframes: [
-                                {
-                                    Timestamp: 0.0,
-                                    Rotation: from_euler([0, 0, 0, 1], -30, 0, 5),
-                                },
-                                {
-                                    Timestamp: animation_step_length,
-                                    Rotation: from_euler([0, 0, 0, 1], -30, 0, -5),
-                                },
-                            ],
-                        },
-                        jump: {
-                            Keyframes: [
-                                {
-                                    Timestamp: 0.0,
-                                    Rotation: [0, 0, 0, 1],
-                                },
-                                {
-                                    Timestamp: animation_step_length,
-                                    Rotation: from_euler([0, 0, 0, 1], -15, 0, 0),
-                                    Ease: ease_in_out_quart,
-                                },
-                                {
-                                    Timestamp: animation_step_length * 2,
-                                    Rotation: from_euler([0, 0, 0, 1], 0, 0, 0),
-                                    Ease: ease_out_quart,
-                                },
-                            ],
-                            Flags: 0 /* None */,
-                        },
-                    }),
-                ], [
-                    transform([0.07, 0.46, 0], [0.74, 0, 0, 0.672]),
-                    bone(2 /* ArmL */, [
-                        1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -0.0, -1.0, 0.0, -0.073,
-                        0.395, -0.015, 1.0,
+                    transform(),
+                    bone(0 /* Root */, [
+                        1.0, 0.0, 0.0, 0.0, 0.0, 0.096, -0.995, 0.0, 0.0, 0.995, 0.096, 0.0, 0.0,
+                        0.433, 0.395, 1.0,
                     ]),
                     animate({
                         idle: {
@@ -5288,178 +5116,281 @@
                                 },
                             ],
                         },
-                        walk: {
-                            Keyframes: [
-                                {
-                                    Timestamp: 0,
-                                    Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
-                                    ActionOnEnd: actionOnEachStep,
-                                },
-                                {
-                                    Timestamp: animation_step_length,
-                                    Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
-                                    ActionOnEnd: actionOnEachStep,
-                                },
-                            ],
-                        },
                         jump: {
                             Keyframes: [
                                 {
                                     Timestamp: 0.0,
-                                    Rotation: [0, 0, 0, 1],
+                                    Translation: [0, 0.63, 0],
                                 },
                                 {
                                     Timestamp: animation_step_length,
-                                    Rotation: from_euler([0, 0, 0, 1], 0, 0, 135),
+                                    Translation: [0, 1.13, 0],
                                     Ease: ease_in_out_quart,
                                 },
                                 {
                                     Timestamp: animation_step_length * 2,
-                                    Rotation: [0, 0, 0, 1],
+                                    Translation: [0, 0.63, 0],
                                     Ease: ease_out_quart,
                                 },
                             ],
                             Flags: 0 /* None */,
                         },
                     }),
-                ], [
-                    transform([-0.07, 0.46, 0], [0.74, 0, 0, 0.672]),
-                    bone(3 /* ArmR */, [
-                        1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -0.0, -1.0, 0.0, 0.073,
-                        0.395, -0.015, 1.0,
+                    children([
+                        transform([0, 0.46, 0], [-0.4, 0, 0, 0.92]),
+                        children([
+                            transform(),
+                            bone(1 /* Head */, [
+                                1.0, 0.0, 0.0, 0.0, 0.0, 0.795, -0.606, 0.0, 0.0, 0.606, 0.795,
+                                0.0, 0.0, -0.306, 0.251, 1.0,
+                            ]),
+                            animate({
+                                idle: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0.0,
+                                            Rotation: [0, 0.088, 0.116, 0.989],
+                                            Ease: ease_in_out_quart,
+                                        },
+                                        {
+                                            Timestamp: animation_step_length * 5,
+                                            Rotation: [0, -0.088, -0.116, 0.989],
+                                            Ease: ease_in_out_quart,
+                                        },
+                                    ],
+                                },
+                                walk: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0.0,
+                                            Rotation: [0.087, 0.0, 0.0, 0.996],
+                                        },
+                                        {
+                                            Timestamp: animation_step_length,
+                                            Rotation: [0, 0.0, 0.0, 1],
+                                        },
+                                    ],
+                                },
+                                jump: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0.0,
+                                            Rotation: [0, 0, 0, 1],
+                                        },
+                                        {
+                                            Timestamp: animation_step_length,
+                                            Rotation: from_euler([0, 0, 0, 1], -15, 0, 0),
+                                            Ease: ease_in_out_quart,
+                                        },
+                                        {
+                                            Timestamp: animation_step_length * 2,
+                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, 0),
+                                            Ease: ease_out_quart,
+                                        },
+                                    ],
+                                    Flags: 0 /* None */,
+                                },
+                            }),
+                        ]),
+                    ], [
+                        transform([0.07, 0.46, 0], [0.74, 0, 0, 0.672]),
+                        children([
+                            transform(),
+                            bone(2 /* ArmL */, [
+                                1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -0.0, -1.0, 0.0,
+                                -0.073, 0.395, -0.015, 1.0,
+                            ]),
+                            animate({
+                                idle: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0,
+                                        },
+                                    ],
+                                },
+                                walk: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0,
+                                            Rotation: [-0.174, 0.0, 0.0, 0.985],
+                                            ActionOnEnd: actionOnEachStep,
+                                        },
+                                        {
+                                            Timestamp: animation_step_length,
+                                            Rotation: [0.174, 0.0, 0.0, 0.985],
+                                            ActionOnEnd: actionOnEachStep,
+                                        },
+                                    ],
+                                },
+                                jump: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0.0,
+                                            Rotation: [0, 0, 0, 1],
+                                        },
+                                        {
+                                            Timestamp: animation_step_length,
+                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, 135),
+                                            Ease: ease_in_out_quart,
+                                        },
+                                        {
+                                            Timestamp: animation_step_length * 2,
+                                            Rotation: [0, 0, 0, 1],
+                                            Ease: ease_out_quart,
+                                        },
+                                    ],
+                                    Flags: 0 /* None */,
+                                },
+                            }),
+                        ]),
+                    ], [
+                        transform([-0.07, 0.46, 0], [0.74, 0, 0, 0.672]),
+                        children([
+                            transform(),
+                            bone(3 /* ArmR */, [
+                                1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -0.0, -1.0, 0.0,
+                                0.073, 0.395, -0.015, 1.0,
+                            ]),
+                            animate({
+                                idle: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0,
+                                        },
+                                    ],
+                                },
+                                walk: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0,
+                                            Rotation: [0.174, 0.0, 0.0, 0.985],
+                                        },
+                                        {
+                                            Timestamp: animation_step_length,
+                                            Rotation: [-0.174, 0.0, 0.0, 0.985],
+                                        },
+                                    ],
+                                },
+                                jump: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0.0,
+                                            Rotation: [0, 0, 0, 1],
+                                        },
+                                        {
+                                            Timestamp: animation_step_length,
+                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, -135),
+                                            Ease: ease_in_out_quart,
+                                        },
+                                        {
+                                            Timestamp: animation_step_length * 2,
+                                            Rotation: [0, 0, 0, 1],
+                                            Ease: ease_out_quart,
+                                        },
+                                    ],
+                                    Flags: 0 /* None */,
+                                },
+                            }),
+                        ]),
+                    ], [
+                        transform([0.07, 0, 0], [0.753, 0, 0, 0.658]),
+                        children([
+                            transform(),
+                            bone(4 /* HipL */, [
+                                1.0, 0.0, 0.0, 0.0, 0.0, -0.992, 0.124, 0.0, 0.0, -0.124,
+                                -0.992, 0.0, -0.073, 0.291, -0.509, 1.0,
+                            ]),
+                            animate({
+                                idle: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0,
+                                        },
+                                    ],
+                                },
+                                walk: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0,
+                                            Rotation: [0.131, 0.0, 0.0, 0.991],
+                                        },
+                                        {
+                                            Timestamp: animation_step_length,
+                                            Rotation: [-0.131, 0.0, 0.0, 0.991],
+                                        },
+                                    ],
+                                },
+                                jump: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0.0,
+                                            Rotation: [0, 0, 0, 1],
+                                        },
+                                        {
+                                            Timestamp: animation_step_length,
+                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, 45),
+                                            Ease: ease_in_out_quart,
+                                        },
+                                        {
+                                            Timestamp: animation_step_length * 2,
+                                            Rotation: [0, 0, 0, 1],
+                                            Ease: ease_out_quart,
+                                        },
+                                    ],
+                                    Flags: 0 /* None */,
+                                },
+                            }),
+                        ]),
+                    ], [
+                        transform([-0.07, 0, 0], [0.753, 0, 0, 0.658]),
+                        children([
+                            transform(),
+                            bone(5 /* HipR */, [
+                                1.0, 0.0, 0.0, 0.0, 0.0, -0.992, 0.124, 0.0, 0.0, -0.124,
+                                -0.992, 0.0, 0.073, 0.291, -0.509, 1.0,
+                            ]),
+                            animate({
+                                idle: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0,
+                                        },
+                                    ],
+                                },
+                                walk: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0,
+                                            Rotation: [-0.131, 0.0, 0.0, 0.991],
+                                        },
+                                        {
+                                            Timestamp: animation_step_length,
+                                            Rotation: [0.131, 0.0, 0.0, 0.991],
+                                        },
+                                    ],
+                                },
+                                jump: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0.0,
+                                            Rotation: [0, 0, 0, 1],
+                                        },
+                                        {
+                                            Timestamp: animation_step_length,
+                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, -45),
+                                            Ease: ease_in_out_quart,
+                                        },
+                                        {
+                                            Timestamp: animation_step_length * 2,
+                                            Rotation: [0, 0, 0, 1],
+                                            Ease: ease_out_quart,
+                                        },
+                                    ],
+                                    Flags: 0 /* None */,
+                                },
+                            }),
+                        ]),
                     ]),
-                    animate({
-                        idle: {
-                            Keyframes: [
-                                {
-                                    Timestamp: 0,
-                                },
-                            ],
-                        },
-                        walk: {
-                            Keyframes: [
-                                {
-                                    Timestamp: 0,
-                                    Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
-                                },
-                                {
-                                    Timestamp: animation_step_length,
-                                    Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
-                                },
-                            ],
-                        },
-                        jump: {
-                            Keyframes: [
-                                {
-                                    Timestamp: 0.0,
-                                    Rotation: [0, 0, 0, 1],
-                                },
-                                {
-                                    Timestamp: animation_step_length,
-                                    Rotation: from_euler([0, 0, 0, 1], 0, 0, -135),
-                                    Ease: ease_in_out_quart,
-                                },
-                                {
-                                    Timestamp: animation_step_length * 2,
-                                    Rotation: [0, 0, 0, 1],
-                                    Ease: ease_out_quart,
-                                },
-                            ],
-                            Flags: 0 /* None */,
-                        },
-                    }),
-                ], [
-                    transform([0.07, 0, 0], [0.753, 0, 0, 0.658]),
-                    bone(4 /* HipL */, [
-                        1.0, 0.0, 0.0, 0.0, 0.0, -0.992, 0.124, 0.0, 0.0, -0.124, -0.992, 0.0,
-                        -0.073, 0.291, -0.509, 1.0,
-                    ]),
-                    animate({
-                        idle: {
-                            Keyframes: [
-                                {
-                                    Timestamp: 0,
-                                },
-                            ],
-                        },
-                        walk: {
-                            Keyframes: [
-                                {
-                                    Timestamp: 0,
-                                    Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
-                                },
-                                {
-                                    Timestamp: animation_step_length,
-                                    Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
-                                },
-                            ],
-                        },
-                        jump: {
-                            Keyframes: [
-                                {
-                                    Timestamp: 0.0,
-                                    Rotation: [0, 0, 0, 1],
-                                },
-                                {
-                                    Timestamp: animation_step_length,
-                                    Rotation: from_euler([0, 0, 0, 1], 0, 0, 45),
-                                    Ease: ease_in_out_quart,
-                                },
-                                {
-                                    Timestamp: animation_step_length * 2,
-                                    Rotation: [0, 0, 0, 1],
-                                    Ease: ease_out_quart,
-                                },
-                            ],
-                            Flags: 0 /* None */,
-                        },
-                    }),
-                ], [
-                    transform([-0.07, 0, 0], [0.753, 0, 0, 0.658]),
-                    bone(5 /* HipR */, [
-                        1.0, 0.0, 0.0, 0.0, 0.0, -0.992, 0.124, 0.0, 0.0, -0.124, -0.992, 0.0,
-                        0.073, 0.291, -0.509, 1.0,
-                    ]),
-                    animate({
-                        idle: {
-                            Keyframes: [
-                                {
-                                    Timestamp: 0,
-                                },
-                            ],
-                        },
-                        walk: {
-                            Keyframes: [
-                                {
-                                    Timestamp: 0,
-                                    Rotation: from_euler([0, 0, 0, 1], 80, 0, 0),
-                                },
-                                {
-                                    Timestamp: animation_step_length,
-                                    Rotation: from_euler([0, 0, 0, 1], 125, 0, 0),
-                                },
-                            ],
-                        },
-                        jump: {
-                            Keyframes: [
-                                {
-                                    Timestamp: 0.0,
-                                    Rotation: [0, 0, 0, 1],
-                                },
-                                {
-                                    Timestamp: animation_step_length,
-                                    Rotation: from_euler([0, 0, 0, 1], 0, 0, -45),
-                                    Ease: ease_in_out_quart,
-                                },
-                                {
-                                    Timestamp: animation_step_length * 2,
-                                    Rotation: [0, 0, 0, 1],
-                                    Ease: ease_out_quart,
-                                },
-                            ],
-                            Flags: 0 /* None */,
-                        },
-                    }),
                 ]),
             ]),
         ];
