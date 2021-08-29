@@ -6023,7 +6023,7 @@
                 transform([0, 1, 0], undefined, [3, 2, 3]),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.406, 0, 0, 1]),
             ], [
-                transform([0, 2, 0], [0.707, 0, 0, 0.707], [3, 3, 2.99]),
+                transform([0, 2, 0.9], [0.707, 0, 0, 0.707], [3, 1.2, 2.99]),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.406, 0, 0, 1]),
             ], [
                 transform([-1.5, 1, -1.5], undefined, [0.1, 2, 0.1]),
