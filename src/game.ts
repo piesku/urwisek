@@ -111,7 +111,7 @@ export class Game extends Game3D {
         sys_particles(this, delta);
         sys_transform(this, delta);
 
-        if (true) {
+        if (false) {
             sys_debug(this, delta);
         }
 
