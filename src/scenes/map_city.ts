@@ -1,9 +1,9 @@
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
 import {Game} from "../game.js";
-import { transform } from "../components/com_transform.js";
-import { blueprint_sun } from "../blueprints/blu_sun.js";
-import { render_colored_shadows } from "../components/com_render.js";
+import {transform} from "../components/com_transform.js";
+import {blueprint_sun} from "../blueprints/blu_sun.js";
+import {render_colored_shadows} from "../components/com_render.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
 import {prop_house} from "../props/prop_house.js";
@@ -63,10 +63,7 @@ export function map_city(game: Game) {
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
 
-    instantiate(game, [
-        transform([1.388, 0.5, -2.177], undefined, undefined),
-        ...prop_house(game),
-    ]);
+    instantiate(game, [transform([1.388, 0.5, -2.177], undefined, undefined), ...prop_house(game)]);
 
     instantiate(game, [
         transform([7.88, 0.5, -3.146], [0, -0.986, 0, 0.166], undefined),
@@ -273,10 +270,7 @@ export function map_city(game: Game) {
         ...blueprint_obstacle_car(game),
     ]);
 
-    instantiate(game, [
-        transform([4.012, 0.109, 3.49], undefined, undefined),
-        ...prop_slup(game),
-    ]);
+    instantiate(game, [transform([4.012, 0.109, 3.49], undefined, undefined), ...prop_slup(game)]);
 
     instantiate(game, [
         transform([6.179, 0.385, -0.591], undefined, undefined),
@@ -333,10 +327,7 @@ export function map_city(game: Game) {
         ...blueprint_tree(game),
     ]);
 
-    instantiate(game, [
-        transform([28.12, 1.185, 0.794], undefined, undefined),
-        ...prop_slup(game),
-    ]);
+    instantiate(game, [transform([28.12, 1.185, 0.794], undefined, undefined), ...prop_slup(game)]);
 
     instantiate(game, [
         transform([19.685, 4.091, 0.813], undefined, undefined),
