@@ -2,7 +2,7 @@ import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
 import {Game} from "../game.js";
 import {transform} from "../components/com_transform.js";
-import {blueprint_sun} from "../blueprints/blu_sun.js";
+import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
 import {render_colored_shadows} from "../components/com_render.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
@@ -19,11 +19,6 @@ import {blueprint_obstacle_barn} from "../blueprints/blu_obstacle_barn.js";
 import {blueprint_obstacle_fence} from "../blueprints/blu_obstacle_fence.js";
 
 export function map_farm(game: Game) {
-    instantiate(game, [
-        transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
-        ...blueprint_sun(game),
-    ]);
-
     instantiate(game, [
         transform([5.402, -0.5, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 15]),
         ...blueprint_ground(game),
@@ -605,4 +600,8 @@ export function map_farm(game: Game) {
         transform([89.73, 1.638, 2.069], [0, 1, 0, 0], undefined),
         ...prop_fence(game),
     ]);
+
+    instantiate(game, [...blueprint_sun_light(game), transform()]);
+
+    instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 }
