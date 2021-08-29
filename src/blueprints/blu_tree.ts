@@ -54,28 +54,3 @@ export function blueprint_tree(game: Game, min = 2, max = 4) {
         ),
     ];
 }
-
-export function blueprint_bush(game: Game) {
-    let radius = float(0.5, 0.9);
-    let leaf_count = integer(400, 600);
-    let offsets = [];
-    let rotations = [];
-    for (let i = 0; i < leaf_count; i++) {
-        offsets.push(
-            float(-radius, radius),
-            float(-radius, radius),
-            float(-radius, radius),
-            integer(0, 7)
-        );
-        rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
-    }
-
-    return [
-        render_instanced(
-            game.MeshLeaf,
-            Float32Array.from(offsets),
-            Float32Array.from(rotations),
-            leaft_colors
-        ),
-    ];
-}
