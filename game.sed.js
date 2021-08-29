@@ -1304,22 +1304,22 @@ IndexCount: index_arr$5.length,
 }
 
 let vertex_arr$5 = Float32Array.from([
-0.000, -0.250, -0.250,
-0.000, 0.250, -0.250,
-0.177, -0.250, -0.177,
-0.177, 0.250, -0.177,
-0.250, -0.250, 0.000,
-0.250, 0.250, 0.000,
-0.177, -0.250, 0.177,
-0.177, 0.250, 0.177,
--0.000, -0.250, 0.250,
--0.000, 0.250, 0.250,
--0.177, -0.250, 0.177,
--0.177, 0.250, 0.177,
--0.250, -0.250, -0.000,
--0.250, 0.250, -0.000,
--0.177, -0.250, -0.177,
--0.177, 0.250, -0.177
+0.000, -0.500, -0.500,
+0.000, 0.500, -0.500,
+0.354, -0.500, -0.354,
+0.354, 0.500, -0.354,
+0.500, -0.500, 0.000,
+0.500, 0.500, 0.000,
+0.354, -0.500, 0.354,
+0.354, 0.500, 0.354,
+-0.000, -0.500, 0.500,
+-0.000, 0.500, 0.500,
+-0.354, -0.500, 0.354,
+-0.354, 0.500, 0.354,
+-0.500, -0.500, -0.000,
+-0.500, 0.500, -0.000,
+-0.354, -0.500, -0.354,
+-0.354, 0.500, -0.354
 ]);
 
 let normal_arr$5 = Float32Array.from([
@@ -5312,16 +5312,16 @@ function prop_house(game) {
 return [
 children([
 transform([0, 1.7, 0], undefined, [3, 3, 3]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.095, 0.095, 0.095, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
 ], [
 transform([-2.25, 1.7, 0], undefined, [1.5, 0.1, 3]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.069, 0.154, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.069, 0.154, 0.8, 1]),
 ], [
 transform([-0.8, 0.1, 0], undefined, [4.9, 0.2, 3.4]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.095, 0.095, 0.095, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
 ], [
 transform([-2.814, 0.95, 0], undefined, [0.1, 1.5, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.095, 0.095, 0.095, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
 ]),
 ];
 }
@@ -5374,38 +5374,38 @@ render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(ro
 function prop_slup(game) {
 return [
 children([
-transform([0, 2, 0], undefined, [0.5, 8, 0.5]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.119, 0.027, 0.012, 1]),
+transform([0, 4, 0], undefined, [0.5, 8, 0.5]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.119, 0.027, 0.012, 1]),
 ], [
-transform([0, 3.705, -0.125], undefined, [1.5, 0.225, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.119, 0.027, 0.012, 1]),
+transform([0, 7.41, -0.25], undefined, [3, 0.45, 0.2]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
 ], [
-transform([0, 3.705, 0.125], undefined, [1.5, 0.225, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.119, 0.027, 0.012, 1]),
+transform([0, 7.41, 0.25], undefined, [3, 0.45, 0.2]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
 ], [
-transform([0, 3.164, -0.125], undefined, [1.5, 0.225, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.119, 0.027, 0.012, 1]),
+transform([0, 6.329, -0.25], undefined, [3, 0.45, 0.2]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
 ], [
-transform([0.65, 3.875, -0.125], undefined, [0.2, 0.3, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+transform([1.3, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
 ], [
-transform([0.5, 3.875, -0.125], undefined, [0.2, 0.3, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+transform([1, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
 ], [
-transform([0.65, 3.35, -0.125], undefined, [0.2, 0.3, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+transform([1.3, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
 ], [
-transform([0.5, 3.35, -0.125], undefined, [0.2, 0.3, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+transform([1, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
 ], [
-transform([-0.17, 2.88, -0.12], [0, 0, -0.383, 0.924], [0.6, 0.1, 0.025]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.367, 0.367, 0.367, 1]),
+transform([-0.34, 5.76, -0.24], [0, 0, -0.383, 0.924], [1.2, 0.2, 0.05]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.367, 0.367, 0.367, 1]),
 ], [
-transform([-0.5, 3.875, 0.125], undefined, [0.2, 0.3, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+transform([-1, 7.75, 0.25], undefined, [0.2, 0.3, 0.2]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
 ], [
-transform([-0.65, 3.875, 0.125], undefined, [0.2, 0.3, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+transform([-1.3, 7.75, 0.25], undefined, [0.2, 0.3, 0.2]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
 ]),
 ];
 }
@@ -5432,40 +5432,40 @@ function prop_car2(game) {
 return [
 children([
 transform([0, 0.8, 0], undefined, [4, 1, 2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
 ], [
-transform([1.276, 0.5, 0], [0.707, 0, 0, 0.707], [2, 4.4, 2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0, 0, 0, 1]),
+transform([1.276, 0.5, 0], [0.707, 0, 0, 0.707], [1, 2.2, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
 ], [
-transform([-1.1, 0.5, 0], [0.707, 0, 0, 0.707], [2, 4.4, 2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0, 0, 0, 1]),
+transform([-1.1, 0.5, 0], [0.707, 0, 0, 0.707], [1, 2.2, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
 ], [
 transform([-0.5, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
 ], [
 transform([-0.5, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
 ], [
 transform([1.9, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
 ], [
 transform([1.9, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
 ], [
 transform([0.7, 2.8, 0], undefined, [2.6, 0.2, 2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
 ], [
-transform([-2, 1, -0.6], [0.5, 0.5, -0.5, 0.5], [0.8, 0.4, 0.8]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
+transform([-2, 1, -0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
 ], [
-transform([-2, 1, 0.6], [0.5, 0.5, -0.5, 0.5], [0.8, 0.4, 0.8]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
+transform([-2, 1, 0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
 ], [
 transform([0.264, 1.55, 0.55], undefined, [0.2, 0.5, 0.8]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0, 0, 0, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
 ], [
 transform([0.264, 1.55, -0.55], undefined, [0.2, 0.5, 0.8]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0, 0, 0, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
 ]),
 ];
 }
@@ -5484,13 +5484,13 @@ function prop_box(game) {
 return [
 children([
 transform(undefined, undefined, undefined),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.342, 0.17, 0.035, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
 ], [
 transform([0.171, 0.62, 0], [0, 0, 0.574, 0.819], [0.039, 0.7, 1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.342, 0.17, 0.035, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
 ], [
 transform([-0.293, 0.536, 0], [0, 0, -0.643, 0.766], [0.039, 0.42, 1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.342, 0.17, 0.035, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
 ]),
 ];
 }
@@ -6016,85 +6016,85 @@ function prop_barn(game) {
 return [
 children([
 transform([0, 1, 0], undefined, [3, 2, 3]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.406, 0, 0, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.406, 0, 0, 1]),
 ], [
-transform([0, 2, 0], [0.707, 0, 0, 0.707], [6, 6, 5.98]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.406, 0, 0, 1]),
+transform([0, 2, 0], [0.707, 0, 0, 0.707], [3, 3, 2.99]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.406, 0, 0, 1]),
 ], [
 transform([-1.5, 1, -1.5], undefined, [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-1.5, 1, 1.5], undefined, [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([1.5, 1, -1.5], undefined, [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0, 0, 0, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
 ], [
 transform([1.5, 1, 1.5], undefined, [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 2, 1.49], undefined, [3.099, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 2, -1.5], undefined, [3.099, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([1.5, 2, -0.001], [0, 0.707, 0, 0.707], [3.099, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-1.498, 2, -0.001], [0, 0.707, 0, 0.707], [3.099, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-1.28, 2.524, 1.49], [0, 0, 0.547, 0.837], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-1.28, 2.524, -1.494], [0, 0, 0.547, 0.837], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([1.273, 2.524, 1.49], [0, 0, -0.547, 0.837], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([1.273, 2.524, -1.524], [0, 0, -0.547, 0.837], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0.507, 3.274, -1.524], [0, 0, -0.191, 0.982], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0.507, 3.274, 1.527], [0, 0, -0.191, 0.982], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-0.521, 3.274, 1.527], [0, 0, 0.191, 0.982], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-0.521, 3.274, -1.525], [0, 0, 0.191, 0.982], [1.159, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 1.5, 1.6], undefined, [1.8, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0.854, 0.7, 1.6], [0, 0, -0.707, 0.707], [1.5, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-0.85, 0.7, 1.6], [0, 0, -0.707, 0.707], [1.5, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 0.7, 1.59], [0, 0, -0.383, 0.924], [2.2, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 0.7, 1.58], [0, 0, 0.383, 0.924], [2.2, 0.1, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-1.247, 2.524, -0.011], [0, 0, 0.547, 0.837], [1.159, 0.1, 2.99]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.07, 0.07, 0.07, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
 ], [
 transform([1.242, 2.524, -0.011], [0, 0, -0.547, 0.837], [1.159, 0.1, 2.99]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.07, 0.07, 0.07, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
 ], [
 transform([0.508, 3.242, -0.011], [0, 0, -0.191, 0.982], [1.159, 0.1, 2.99]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.07, 0.07, 0.07, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
 ], [
 transform([-0.515, 3.242, -0.011], [0, 0, 0.191, 0.982], [1.159, 0.1, 2.99]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.07, 0.07, 0.07, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
 ]),
 ];
 }
@@ -6103,19 +6103,19 @@ function prop_fence(game) {
 return [
 children([
 transform([0, 0.6, 0], undefined, [0.1, 1.2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 1.21, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 0.6, 1], undefined, [0.1, 1.2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 0.8, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 0.4, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ]),
 ];
 }
@@ -6123,26 +6123,26 @@ render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [0.8, 0.8, 0.8,
 function prop_silo(game) {
 return [
 children([
-transform([0, 3, 0], undefined, [5, 12, 5]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.406, 0, 0, 1]),
+transform([0, 3, 0], undefined, [2.5, 6, 2.5]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.406, 0, 0, 1]),
 ], [
-transform([0, 0.001, 0], undefined, [5.2, 0.4, 5.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
+transform([0, 0.001, 0], undefined, [2.6, 0.2, 2.6]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
 ], [
-transform([0, 6, 0], undefined, [5.2, 0.4, 5.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
+transform([0, 6, 0], undefined, [2.6, 0.2, 2.6]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
 ], [
-transform([0, 3, 0], undefined, [5.2, 0.4, 5.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
+transform([0, 3, 0], undefined, [2.6, 0.2, 2.6]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
 ], [
-transform([0, 1.5, 0], undefined, [5.2, 0.4, 5.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
+transform([0, 1.5, 0], undefined, [2.6, 0.2, 2.6]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
 ], [
-transform([0, 4.5, 0], undefined, [5.2, 0.4, 5.2]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
+transform([0, 4.5, 0], undefined, [2.6, 0.2, 2.6]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
 ], [
-transform([0.527, 3, 1.595], undefined, [0.8, 12, 0.8]),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
+transform([0.527, 3, 1.595], undefined, [0.4, 6, 0.4]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
 ]),
 ];
 }
