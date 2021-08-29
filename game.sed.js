@@ -4576,8 +4576,8 @@ FrameUpdate(delta) {
 
 sys_poll(this, delta);
 
-sys_control_keyboard(this);
 sys_control_touch_move(this, delta);
+sys_control_keyboard(this);
 sys_control_xbox(this);
 
 sys_control_ai(this);

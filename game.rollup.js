@@ -4576,8 +4576,8 @@
             // Event loop.
             sys_poll(this, delta);
             // Player input.
-            sys_control_keyboard(this);
             sys_control_touch_move(this, delta);
+            sys_control_keyboard(this);
             sys_control_xbox(this);
             // AI.
             sys_control_ai(this);
