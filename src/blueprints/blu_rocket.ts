@@ -1,3 +1,4 @@
+import {from_euler} from "../../common/quat.js";
 import {audio_source} from "../components/com_audio_source.js";
 import {children} from "../components/com_children.js";
 import {control_always} from "../components/com_control_always.js";
@@ -5,10 +6,11 @@ import {disable} from "../components/com_disable.js";
 import {emit_particles} from "../components/com_emit_particles.js";
 import {lifespan} from "../components/com_lifespan.js";
 import {move} from "../components/com_move.js";
-import {render_colored_shaded, render_particles_colored} from "../components/com_render.js";
+import {render_particles_colored} from "../components/com_render.js";
 import {shake} from "../components/com_shake.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
+import {prop_rocket} from "../props/prop_rocket.js";
 import {snd_rocket} from "../sounds/snd_rocket.js";
 import {Has} from "../world.js";
 
@@ -22,16 +24,8 @@ export function blueprint_rocket(game: Game) {
         children(
             // Body 1.
             [
-                transform([0, 0, 0.5], [0.7, 0, 0, 0.7], [0.4, 1, 0.4]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [3, 3, 3, 1]),
-            ],
-            [
-                transform([0, 0, 0.8], [0.7, 0, 0, 0.7], [0.3, 1, 0.3]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [3, 3, 3, 1]),
-            ],
-            [
-                transform([0, 0, 1.1], [0.7, 0, 0, 0.7], [0.2, 1, 0.2]),
-                render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [3, 3, 3, 1]),
+                transform([0, 0, 0.5], from_euler([0.7, 0, 0, 0.7], 0, -90, -90), [0.1, 0.1, 0.1]),
+                ...prop_rocket(game),
             ],
             // Jet exhaust.
             [

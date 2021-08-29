@@ -11,7 +11,7 @@ export function App(game: Game) {
             <div
                 style="
                     font-family: Arial;
-                    font-size: 40vmin;
+                    font-size: 25vw;
                     font-weight: 600;
                     color: #fff;
                     line-height: .9;
@@ -22,13 +22,13 @@ export function App(game: Game) {
             <div
                 style="
                     position: relative;
-                    left: 4vh;
+                    left: 2vw;
                     font-family: Arial;
-                    font-size: 3vh;
+                    font-size: 3vw;
                     color: #fff;
                 "
             >
-                An adventure on a post-human Earth.
+                An adventure on the post-human Earth.
             </div>
         </div>
     `;
