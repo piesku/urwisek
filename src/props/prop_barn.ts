@@ -17,7 +17,7 @@ export function prop_barn(game: Game) {
             ],
 
             [
-                transform([0, 2, 0], [0.707, 0, 0, 0.707], [3, 3, 2.99]),
+                transform([0, 2, 0.9], [0.707, 0, 0, 0.707], [3, 1.2, 2.99]),
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCylinder,
