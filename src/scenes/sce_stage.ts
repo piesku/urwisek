@@ -5,7 +5,7 @@ import {blueprint_box} from "../blueprints/blu_box.js";
 import {blueprint_bush} from "../blueprints/blu_bush.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
-import {blueprint_sun} from "../blueprints/blu_sun.js";
+import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
 import {blueprint_tree} from "../blueprints/blu_tree.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
@@ -23,18 +23,6 @@ import {World} from "../world.js";
 export function scene_stage(game: Game) {
     game.World = new World();
     game.ViewportResized = true;
-
-    // Sun.
-    instantiate(game, [
-        transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
-        ...blueprint_sun(game),
-    ]);
-
-    // Camera.
-    instantiate(game, [
-        ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
-        transform([0, 1, 6], from_euler([0, 0, 0, 1], -25, 180, 0)),
-    ]);
 
     // Ground.
     let ground_size = 16;
@@ -120,6 +108,10 @@ export function scene_stage(game: Game) {
     instantiate(game, [transform([-4, -0.3, 0.5]), ...blueprint_bush(game)]);
 
     instantiate(game, [transform([2.5, 0.2, 3.5]), ...blueprint_bush(game)]);
+
+    // Sun.
+    instantiate(game, [...blueprint_sun_light(game), transform()]);
+    instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 
     // Camera.
     instantiate(game, [

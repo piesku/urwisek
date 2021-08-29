@@ -1,20 +1,15 @@
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
-import {blueprint_bush} from "../blueprints/blu_bush.js";
-import {blueprint_ground} from "../blueprints/blu_ground.js";
-import {blueprint_monster} from "../blueprints/blu_monster.js";
-import {instantiate_player} from "../blueprints/blu_player.js";
-import {blueprint_sun} from "../blueprints/blu_sun.js";
-import {blueprint_tree} from "../blueprints/blu_tree.js";
-import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
+import {transform} from "../components/com_transform.js";
+import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
+import {render_colored_shadows} from "../components/com_render.js";
+import {blueprint_ground} from "../blueprints/blu_ground.js";
+import {instantiate_player} from "../blueprints/blu_player.js";
+import {blueprint_bush} from "../blueprints/blu_bush.js";
+import {blueprint_tree} from "../blueprints/blu_tree.js";
 
 export function map_forest(game: Game) {
-    instantiate(game, [
-        transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 0)),
-        ...blueprint_sun(game),
-    ]);
-
     instantiate(game, [
         transform([-9, -0.498, 1.767], [0, 0.707, 0, 0.707], [4, 2.003, 8]),
         ...blueprint_ground(game),
@@ -60,11 +55,6 @@ export function map_forest(game: Game) {
     instantiate(game, [
         transform([4.669, 0.547, -6.026], undefined, undefined),
         ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([15.5, -6, -3.026], undefined, undefined),
-        ...blueprint_monster(game),
     ]);
 
     instantiate(game, [
@@ -226,4 +216,8 @@ export function map_forest(game: Game) {
         transform([22.981, 0.191, -7.83], undefined, [20, 4, 20]),
         ...blueprint_tree(game),
     ]);
+
+    instantiate(game, [...blueprint_sun_light(game), transform()]);
+
+    instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 }
