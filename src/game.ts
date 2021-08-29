@@ -95,8 +95,8 @@ export class Game extends Game3D {
         sys_poll(this, delta);
 
         // Player input.
-        sys_control_keyboard(this, delta);
         sys_control_touch_move(this, delta);
+        sys_control_keyboard(this, delta);
         sys_control_xbox(this, delta);
 
         // AI.
