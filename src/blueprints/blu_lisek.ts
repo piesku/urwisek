@@ -1,6 +1,5 @@
 import {ease_in_out_quart, ease_out_quart} from "../../common/easing.js";
 import {Vec4} from "../../common/math.js";
-import {from_euler} from "../../common/quat.js";
 import {Action} from "../actions.js";
 import {animate, AnimationFlag} from "../components/com_animate.js";
 import {bone} from "../components/com_bone.js";
@@ -17,6 +16,10 @@ const enum BoneIndex {
     HipL,
     HipR,
 }
+
+const jump_keytime_1 = 0.2;
+const jump_keytime_2 = 0.6;
+const jump_keytime_3 = 1.0;
 
 export function blueprint_lisek(
     game: Game,
@@ -42,6 +45,15 @@ export function blueprint_lisek(
                         Keyframes: [
                             {
                                 Timestamp: 0,
+                                Rotation: [0, 0, 0, 1],
+                            },
+                        ],
+                    },
+                    walk: {
+                        Keyframes: [
+                            {
+                                Timestamp: 0,
+                                Rotation: [0, 0, 0, 1],
                             },
                         ],
                     },
@@ -49,20 +61,24 @@ export function blueprint_lisek(
                         Keyframes: [
                             {
                                 Timestamp: 0.0,
-                                Translation: [0, 0.63, 0],
+                                Rotation: [0, 0, 0, 1],
                             },
                             {
-                                Timestamp: animation_step_length,
-                                Translation: [0, 1.13, 0],
-                                Ease: ease_in_out_quart,
+                                Timestamp: jump_keytime_1,
+                                Rotation: [-0.131, 0, 0, 0.991],
+                                Ease: ease_out_quart,
                             },
                             {
-                                Timestamp: animation_step_length * 2,
-                                Translation: [0, 0.63, 0],
+                                Timestamp: jump_keytime_2,
+                                Rotation: [0.087, 0, 0, 0.996],
+                            },
+                            {
+                                Timestamp: jump_keytime_3,
+                                Rotation: [0, 0, 0, 1],
                                 Ease: ease_out_quart,
                             },
                         ],
-                        Flags: AnimationFlag.None,
+                        Flags: AnimationFlag.EarlyExit,
                     },
                 }),
                 children(
@@ -111,17 +127,21 @@ export function blueprint_lisek(
                                             Rotation: [0, 0, 0, 1],
                                         },
                                         {
-                                            Timestamp: animation_step_length,
-                                            Rotation: from_euler([0, 0, 0, 1], -15, 0, 0),
-                                            Ease: ease_in_out_quart,
+                                            Timestamp: jump_keytime_1,
+                                            Rotation: [0.216, 0, 0, 0.976],
+                                            Ease: ease_out_quart,
                                         },
                                         {
-                                            Timestamp: animation_step_length * 2,
-                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, 0),
+                                            Timestamp: jump_keytime_2,
+                                            Rotation: [0.216, 0, 0, 0.976],
+                                        },
+                                        {
+                                            Timestamp: jump_keytime_3,
+                                            Rotation: [0, 0, 0, 1],
                                             Ease: ease_out_quart,
                                         },
                                     ],
-                                    Flags: AnimationFlag.None,
+                                    Flags: AnimationFlag.EarlyExit,
                                 },
                             }),
                         ]),
@@ -142,6 +162,7 @@ export function blueprint_lisek(
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
+                                            Rotation: [0, 0, 0, 1],
                                         },
                                     ],
                                 },
@@ -154,7 +175,7 @@ export function blueprint_lisek(
                                         },
                                         {
                                             Timestamp: animation_step_length,
-                                            Rotation: [0.174, 0.0, 0.0, 0.985],
+                                            Rotation: [0.131, 0.0, 0.0, 0.991],
                                             ActionOnEnd: actionOnEachStep,
                                         },
                                     ],
@@ -166,17 +187,21 @@ export function blueprint_lisek(
                                             Rotation: [0, 0, 0, 1],
                                         },
                                         {
-                                            Timestamp: animation_step_length,
-                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, 135),
-                                            Ease: ease_in_out_quart,
+                                            Timestamp: jump_keytime_1,
+                                            Rotation: [-0.259, 0, 0, 0.966],
+                                            Ease: ease_out_quart,
                                         },
                                         {
-                                            Timestamp: animation_step_length * 2,
+                                            Timestamp: jump_keytime_2,
+                                            Rotation: [-0.259, 0, 0, 0.966],
+                                        },
+                                        {
+                                            Timestamp: jump_keytime_3,
                                             Rotation: [0, 0, 0, 1],
                                             Ease: ease_out_quart,
                                         },
                                     ],
-                                    Flags: AnimationFlag.None,
+                                    Flags: AnimationFlag.EarlyExit,
                                 },
                             }),
                         ]),
@@ -197,6 +222,7 @@ export function blueprint_lisek(
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
+                                            Rotation: [0, 0, 0, 1],
                                         },
                                     ],
                                 },
@@ -204,7 +230,7 @@ export function blueprint_lisek(
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
-                                            Rotation: [0.174, 0.0, 0.0, 0.985],
+                                            Rotation: [0.131, 0.0, 0.0, 0.991],
                                         },
                                         {
                                             Timestamp: animation_step_length,
@@ -219,17 +245,21 @@ export function blueprint_lisek(
                                             Rotation: [0, 0, 0, 1],
                                         },
                                         {
-                                            Timestamp: animation_step_length,
-                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, -135),
-                                            Ease: ease_in_out_quart,
+                                            Timestamp: jump_keytime_1,
+                                            Rotation: [-0.301, 0, 0, 0.954],
+                                            Ease: ease_out_quart,
                                         },
                                         {
-                                            Timestamp: animation_step_length * 2,
+                                            Timestamp: jump_keytime_2,
+                                            Rotation: [-0.301, 0, 0, 0.954],
+                                        },
+                                        {
+                                            Timestamp: jump_keytime_3,
                                             Rotation: [0, 0, 0, 1],
                                             Ease: ease_out_quart,
                                         },
                                     ],
-                                    Flags: AnimationFlag.None,
+                                    Flags: AnimationFlag.EarlyExit,
                                 },
                             }),
                         ]),
@@ -250,6 +280,7 @@ export function blueprint_lisek(
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
+                                            Rotation: [0, 0, 0, 1],
                                         },
                                     ],
                                 },
@@ -272,17 +303,21 @@ export function blueprint_lisek(
                                             Rotation: [0, 0, 0, 1],
                                         },
                                         {
-                                            Timestamp: animation_step_length,
-                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, 45),
-                                            Ease: ease_in_out_quart,
+                                            Timestamp: jump_keytime_1,
+                                            Rotation: [0.383, 0, 0, 0.924],
+                                            Ease: ease_out_quart,
                                         },
                                         {
-                                            Timestamp: animation_step_length * 2,
+                                            Timestamp: jump_keytime_2,
+                                            Rotation: [0.383, 0, 0, 0.924],
+                                        },
+                                        {
+                                            Timestamp: jump_keytime_3,
                                             Rotation: [0, 0, 0, 1],
                                             Ease: ease_out_quart,
                                         },
                                     ],
-                                    Flags: AnimationFlag.None,
+                                    Flags: AnimationFlag.EarlyExit,
                                 },
                             }),
                         ]),
@@ -303,6 +338,7 @@ export function blueprint_lisek(
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
+                                            Rotation: [0, 0, 0, 1],
                                         },
                                     ],
                                 },
@@ -325,17 +361,21 @@ export function blueprint_lisek(
                                             Rotation: [0, 0, 0, 1],
                                         },
                                         {
-                                            Timestamp: animation_step_length,
-                                            Rotation: from_euler([0, 0, 0, 1], 0, 0, -45),
-                                            Ease: ease_in_out_quart,
+                                            Timestamp: jump_keytime_1,
+                                            Rotation: [0.301, 0, 0, 0.954],
+                                            Ease: ease_out_quart,
                                         },
                                         {
-                                            Timestamp: animation_step_length * 2,
+                                            Timestamp: jump_keytime_2,
+                                            Rotation: [0.301, 0, 0, 0.954],
+                                        },
+                                        {
+                                            Timestamp: jump_keytime_3,
                                             Rotation: [0, 0, 0, 1],
                                             Ease: ease_out_quart,
                                         },
                                     ],
-                                    Flags: AnimationFlag.None,
+                                    Flags: AnimationFlag.EarlyExit,
                                 },
                             }),
                         ]),
