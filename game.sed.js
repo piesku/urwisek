@@ -1101,7 +1101,6 @@ uniform mat4 world;
 uniform mat4 self;
 uniform vec3 palette[16];
 
-uniform int light_count;
 uniform vec4 light_positions[MAX_LIGHTS];
 uniform vec4 light_details[MAX_LIGHTS];
 
@@ -1580,20 +1579,16 @@ IndexCount: index_arr$3.length,
 }
 
 let vertex_arr$3 = Float32Array.from([
-0.040, -0.000, 0.045,
-0.040, -0.000, 0.045,
--0.055, 0.000, -0.051,
--0.055, 0.000, -0.051,
--0.125, 0.016, 0.126,
-0.126, 0.022, -0.126
+-0.120, 0.016, 0.120,
+0.040, 0.000, 0.040,
+-0.050, 0.000, -0.050,
+0.130, 0.022, -0.130
 ]);
 
 let normal_arr$3 = Float32Array.from([
--0.084, 0.993, 0.084,
-0.067, 0.996, -0.066,
--0.084, 0.993, 0.084,
-0.067, 0.996, -0.066,
-0.067, 0.996, -0.066,
+0.066, 0.996, -0.066,
+-0.010, 1.000, 0.010,
+-0.010, 1.000, 0.010,
 -0.084, 0.993, 0.084
 ]);
 
@@ -1602,8 +1597,8 @@ let texcoord_arr$3 = Float32Array.from([]);
 let weights_arr$3 = Float32Array.from([]);
 
 let index_arr$3 = Uint16Array.from([
-2, 5, 0,
-4, 3, 1
+2, 3, 1,
+0, 2, 1
 ]);
 
 function mesh_lisek(gl) {
