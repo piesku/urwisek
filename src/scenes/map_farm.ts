@@ -1,17 +1,15 @@
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
-import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {blueprint_bush} from "../blueprints/blu_bush.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
-import {blueprint_bush, blueprint_tree} from "../blueprints/blu_tree.js";
-import {render_colored_shadows} from "../components/com_render.js";
+import {blueprint_tree} from "../blueprints/blu_tree.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {prop_barn} from "../props/prop_barn.js";
 import {prop_car2} from "../props/prop_car2.js";
 import {prop_fence} from "../props/prop_fence.js";
-import {prop_house} from "../props/prop_house.js";
 import {prop_silo} from "../props/prop_silo.js";
 import {prop_slup} from "../props/prop_slup.js";
 

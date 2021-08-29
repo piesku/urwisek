@@ -1,10 +1,11 @@
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
+import {blueprint_bush} from "../blueprints/blu_bush.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
 import {blueprint_monster} from "../blueprints/blu_monster.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
-import {blueprint_bush, blueprint_tree} from "../blueprints/blu_tree.js";
+import {blueprint_tree} from "../blueprints/blu_tree.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
