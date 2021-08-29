@@ -251,7 +251,7 @@ export abstract class Game3D extends GameImpl {
     Context2D = this.Canvas2D.getContext("2d")!;
 
     Canvas3D = document.querySelector("#scene")! as HTMLCanvasElement;
-    Gl = this.Canvas3D.getContext("webgl2")!;
+    Gl = this.Canvas3D.getContext("webgl2", {antialias: false})!;
 
     Audio = new AudioContext();
 

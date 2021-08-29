@@ -168,6 +168,7 @@ export interface FogLayout {
 export interface PostprocessLayout {
     // Uniforms
     Sampler: WebGLUniformLocation;
+    ViewportSize: WebGLUniformLocation;
 
     // Attributes
     VertexPosition: GLint;

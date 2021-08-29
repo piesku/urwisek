@@ -32,6 +32,7 @@ export function sys_render_postprocess(game: Game, delta: number) {
     game.Gl.activeTexture(GL_TEXTURE0);
     game.Gl.bindTexture(GL_TEXTURE_2D, target.RenderTexture);
     game.Gl.uniform1i(material.Locations.Sampler, 0);
+    game.Gl.uniform2f(material.Locations.ViewportSize, game.ViewportWidth, game.ViewportHeight);
 
     game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
     game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
