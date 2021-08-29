@@ -25,9 +25,10 @@
                 {
                     "attributes" : {
                         "POSITION" : 0,
-                        "NORMAL" : 1
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
                     },
-                    "indices" : 2
+                    "indices" : 3
                 }
             ]
         }
@@ -57,6 +58,12 @@
         },
         {
             "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 4,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
             "componentType" : 5123,
             "count" : 6,
             "type" : "SCALAR"
@@ -75,14 +82,19 @@
         },
         {
             "buffer" : 0,
-            "byteLength" : 12,
+            "byteLength" : 32,
             "byteOffset" : 96
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 12,
+            "byteOffset" : 128
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 108,
-            "uri" : "data:application/octet-stream;base64,AACAvwAAgL8uvTuzAACAPwAAgL8uvTuzAACAvwAAgD8uvTszAACAPwAAgD8uvTszAAAAAC69O7MAAIA/AAAAAC69O7MAAIA/AAAAAC69O7MAAIA/AAAAAC69O7MAAIA/AAABAAMAAAADAAIA"
+            "byteLength" : 140,
+            "uri" : "data:application/octet-stream;base64,AACAvwAAgL8uvTuzAACAPwAAgL8uvTuzAACAvwAAgD8uvTszAACAPwAAgD8uvTszAAAAAC69O7MAAIA/AAAAAC69O7MAAIA/AAAAAC69O7MAAIA/AAAAAC69O7MAAIA/AAAAAAAAgD8AAIA/AACAPwAAAAAAAAAAAACAPwAAAAAAAAEAAwAAAAMAAgA="
         }
     ]
 }

@@ -59,6 +59,19 @@ let normal_data = new Float32Array(
     normal_view.byteLength / 4
 );
 
+let texcoord_data;
+if (primitive.attributes.TEXCOORD_0) {
+    let texcoord_accessor = gltf.accessors[primitive.attributes.TEXCOORD_0];
+    let texcoord_view = gltf.bufferViews[texcoord_accessor.bufferView];
+    texcoord_data = new Float32Array(
+        buffer.buffer,
+        buffer.byteOffset + texcoord_view.byteOffset,
+        texcoord_view.byteLength / 4
+    );
+} else {
+    texcoord_data = new Float32Array();
+}
+
 let joints_data;
 if (primitive.attributes.JOINTS_0) {
     let joints_accessor = gltf.accessors[primitive.attributes.JOINTS_0];
@@ -152,7 +165,7 @@ let vertex_arr = Float32Array.from([${break_every(3, position_data, 3)}]);
 let normal_arr = Float32Array.from([${break_every(3, normal_data, 3)}]);
 
 // prettier-ignore
-let texcoord_arr = Float32Array.from([${break_every(2, [], 3)}]);
+let texcoord_arr = Float32Array.from([${break_every(2, texcoord_data, 3)}]);
 
 // prettier-ignore
 let weights_arr = Float32Array.from([${break_every(4, weighted_joints, 3)}]);
