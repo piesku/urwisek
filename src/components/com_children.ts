@@ -11,6 +11,9 @@ export interface Children {
     Children: Array<Entity>;
 }
 
+/**
+ * Add one or more child blueprints to the entity. Can only be called once.
+ */
 export function children(...blueprints: Array<Blueprint<Game>>) {
     return (game: Game, entity: Entity) => {
         let child_entities = [];
@@ -22,6 +25,17 @@ export function children(...blueprints: Array<Blueprint<Game>>) {
         game.World.Children[entity] = {
             Children: child_entities,
         };
+    };
+}
+
+/**
+ * Add one more child blueprint to the entity. Must be used after children().
+ */
+export function child(blueprint: Blueprint<Game>) {
+    return (game: Game, entity: Entity) => {
+        let children = game.World.Children[entity];
+        let child = instantiate(game, blueprint);
+        children.Children.push(child);
     };
 }
 

@@ -41,7 +41,7 @@ function blueprint_player(game: Game) {
                     //render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
                 ]),
             ],
-            [named("camera anchor"), transform([0.5, -0.5, 0])],
+            [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))],
             [
                 named("guide anchor"),
                 transform([4, 1, 0], [0, 0.7, 0, 0.7]),
