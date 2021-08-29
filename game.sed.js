@@ -424,6 +424,9 @@ return entity;
 /**
 * @module components/com_children
 */
+/**
+* Add one or more child blueprints to the entity. Can only be called once.
+*/
 function children(...blueprints) {
 return (game, entity) => {
 let child_entities = [];
@@ -4651,10 +4654,83 @@ ClearColor: clear_color,
 }
 
 function blueprint_camera(game, clear_color) {
+return [children([transform([0, 0, 5]), camera_forward_perspective(1, 0.1, 15, clear_color)])];
+}
+
+/**
+* Add EmitParticles.
+*
+* @param lifespan How long particles live for.
+* @param frequency How often particles spawn.
+* @param speed How fast particles move.
+*/
+function emit_particles(lifespan, frequency, speed) {
+return (game, entity) => {
+game.World.Signature[entity] |= 2048 /* EmitParticles */;
+game.World.EmitParticles[entity] = {
+Lifespan: lifespan,
+Frequency: frequency,
+Speed: speed,
+Instances: [],
+SinceLast: 0,
+};
+};
+}
+
+/**
+* @module components/com_mimic
+*/
+function mimic(Target, Stiffness = 0.1) {
+return (game, entity) => {
+game.World.Signature[entity] |= 16384 /* Mimic */;
+game.World.Mimic[entity] = {
+Target,
+Stiffness,
+};
+};
+}
+
+/**
+* @module components/com_named
+*/
+function named(Name) {
+return (game, entity) => {
+game.World.Signature[entity] |= 65536 /* Named */;
+game.World.Named[entity] = { Name };
+};
+}
+function find_first(world, name) {
+for (let i = 0; i < world.Signature.length; i++) {
+if (world.Signature[i] & 65536 /* Named */ && world.Named[i].Name === name) {
+return i;
+}
+}
+throw `No entity named ${name}.`;
+}
+
+/**
+* @module components/com_shake
+*/
+/**
+* sys_shake modifies the transform of the entity. Add it to children only.
+*/
+function shake(magnitude) {
+return (game, entity) => {
+game.World.Signature[entity] |= 524288 /* Shake */;
+game.World.Shake[entity] = {
+Magnitude: magnitude,
+};
+};
+}
+
+function blueprint_pixie(game) {
 return [
+mimic(find_first(game.World, "pixie anchor"), 0.02),
 children([
-transform([0, 1, 5], from_euler([0, 0, 0, 1], 10, 0, 0)),
-camera_forward_perspective(1, 0.1, 15, clear_color),
+transform(),
+shake(0.1),
+emit_particles(1, 0.1, 0.1),
+render_particles_colored([1, 1, 1, 1], 4, [0.5, 0.5, 1, 1], 1),
 ]),
 ];
 }
@@ -4703,26 +4779,6 @@ game.World.Signature[entity] &= ~mask;
 }
 
 /**
-* Add EmitParticles.
-*
-* @param lifespan How long particles live for.
-* @param frequency How often particles spawn.
-* @param speed How fast particles move.
-*/
-function emit_particles(lifespan, frequency, speed) {
-return (game, entity) => {
-game.World.Signature[entity] |= 2048 /* EmitParticles */;
-game.World.EmitParticles[entity] = {
-Lifespan: lifespan,
-Frequency: frequency,
-Speed: speed,
-Instances: [],
-SinceLast: 0,
-};
-};
-}
-
-/**
 * @module components/com_lifespan
 */
 function lifespan(remaining, action) {
@@ -4753,21 +4809,6 @@ RotationSpeed: rotation_speed,
 Directions: [],
 LocalRotations: [],
 SelfRotations: [],
-};
-};
-}
-
-/**
-* @module components/com_shake
-*/
-/**
-* sys_shake modifies the transform of the entity. Add it to children only.
-*/
-function shake(magnitude) {
-return (game, entity) => {
-game.World.Signature[entity] |= 524288 /* Shake */;
-game.World.Shake[entity] = {
-Magnitude: magnitude,
 };
 };
 }
@@ -4813,34 +4854,18 @@ render_particles_colored([1, 0.5, 0, 1], 10, [0.56, 0.33, 0.24, 1], 2),
 }
 
 /**
-* @module components/com_mimic
+* @module components/com_task
 */
-function mimic(Target, Stiffness = 0.1) {
+/** A task that completes after the specified duration (in seconds). */
+function task_timeout(duration, on_done) {
 return (game, entity) => {
-game.World.Signature[entity] |= 16384 /* Mimic */;
-game.World.Mimic[entity] = {
-Target,
-Stiffness,
+game.World.Signature[entity] |= 2097152 /* Task */;
+game.World.Task[entity] = {
+Kind: 1 /* Timeout */,
+Remaining: duration,
+OnDone: on_done,
 };
 };
-}
-
-/**
-* @module components/com_named
-*/
-function named(Name) {
-return (game, entity) => {
-game.World.Signature[entity] |= 65536 /* Named */;
-game.World.Named[entity] = { Name };
-};
-}
-function find_first(world, name) {
-for (let i = 0; i < world.Signature.length; i++) {
-if (world.Signature[i] & 65536 /* Named */ && world.Named[i].Name === name) {
-return i;
-}
-}
-throw `No entity named ${name}.`;
 }
 
 /**
@@ -5331,8 +5356,8 @@ collide(true, 0 /* None */, 4 /* Obstacle */),
 control_player(8 /* Grab */),
 //render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
 ]),
-], [named("camera anchor"), transform([0.5, -0.5, 0])], [
-named("guide anchor"),
+], [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))], [
+named("pixie anchor"),
 transform([4, 1, 0], [0, 0.7, 0, 0.7]),
 
 
@@ -5888,26 +5913,28 @@ game.ViewportResized = true;
 map_city(game);
 instantiate(game, [
 ...blueprint_rocket(game),
-transform([-10, 9, -3], from_euler([0, 0, 0, 1], -45, 100, 0)),
+transform([-9, 7, -3], from_euler([0, 0, 0, 1], -45, 100, 0)),
+]);
+let camera_entity = instantiate(game, [
+...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
+transform([-6.2, 10, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
+mimic(find_first(game.World, "camera anchor"), 0.01),
+disable(16384 /* Mimic */),
 ]);
 
-
-
-
-
-
-
-
-
-
 instantiate(game, [
-...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
-transform([-6.2, 10, 0]),
-mimic(find_first(game.World, "camera anchor"), 0.01),
-
-
-
-
+children([
+task_timeout(5, () => {
+game.World.Signature[camera_entity] |= 16384 /* Mimic */;
+}),
+], [
+task_timeout(7, () => {
+instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
+}),
+]),
+task_timeout(9, () => {
+game.World.Mimic[camera_entity].Stiffness = 0.05;
+}),
 ]);
 }
 
