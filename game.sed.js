@@ -6083,7 +6083,7 @@ instantiate(game, [...blueprint_sun_light(), transform()]);
 instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 }
 
-function scene_level1(game) {
+function scene_intro(game) {
 game.World = new World();
 game.ViewportResized = true;
 map_city(game);
@@ -6111,6 +6111,17 @@ instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
 task_timeout(9, () => {
 game.World.Mimic[camera_entity].Stiffness = 0.05;
 }),
+]);
+}
+
+function scene_level1(game) {
+game.World = new World();
+game.ViewportResized = true;
+map_city(game);
+instantiate(game, [
+...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
+transform([0, 10, 10]),
+mimic(find_first(game.World, "camera anchor"), 0.05),
 ]);
 }
 
@@ -6795,7 +6806,7 @@ map_farm(game);
 
 instantiate(game, [
 ...blueprint_camera(game, [255 / 255, 208 / 255, 0 / 255, 1]),
-transform([0, 0, 0], from_euler([0, 0, 0, 1], -30, 0, 0)),
+transform([0, 10, 10]),
 mimic(find_first(game.World, "camera anchor"), 0.05),
 ]);
 }
@@ -6992,7 +7003,7 @@ game.ViewportResized = true;
 map_forest(game);
 
 instantiate(game, [
-transform([0, 0, 0], from_euler([0, 0, 0, 1], -30, 0, 0)),
+transform([0, 10, 10]),
 mimic(find_first(game.World, "camera anchor"), 0.05),
 children([
 transform(),
@@ -7077,9 +7088,9 @@ mimic(find_first(game.World, "camera anchor"), 0.05),
 let game = new Game();
 
 
-window.scenes = [scene_stage, scene_level1, scene_level2, scene_level3];
+window.scenes = [scene_intro, scene_level1, scene_level2, scene_level3, scene_stage];
 
-window.scenes[2](game);
+window.scenes[1](game);
 game.Start();
 
 window.$ = dispatch.bind(null, game);
