@@ -1,5 +1,4 @@
 import {instantiate} from "../../common/game.js";
-import {from_euler} from "../../common/quat.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {children} from "../components/com_children.js";
 import {mimic} from "../components/com_mimic.js";
@@ -19,7 +18,7 @@ export function scene_level3(game: Game) {
 
     // Camera.
     instantiate(game, [
-        transform([0, 0, 0], from_euler([0, 0, 0, 1], -30, 0, 0)),
+        transform([0, 10, 10]),
         mimic(find_first(game.World, "camera anchor"), 0.05),
         children([
             transform(),
