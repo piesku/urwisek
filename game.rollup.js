@@ -1,6 +1,22 @@
 (function () {
     'use strict';
 
+    function shift(values) {
+        let value = values.shift();
+        if (typeof value === "boolean" || value == undefined) {
+            return "";
+        }
+        else if (Array.isArray(value)) {
+            return value.join("");
+        }
+        else {
+            return value;
+        }
+    }
+    function html(strings, ...values) {
+        return strings.reduce((out, cur) => out + shift(values) + cur);
+    }
+
     // The following defined constants and descriptions are directly ported from
     // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Constants.
     // Any copyright is dedicated to the Public Domain.
@@ -410,1415 +426,6 @@
         }
         return entity;
     }
-
-    /**
-     * @module components/com_children
-     */
-    /**
-     * Add one or more child blueprints to the entity. Can only be called once.
-     */
-    function children(...blueprints) {
-        return (game, entity) => {
-            let child_entities = [];
-            for (let blueprint of blueprints) {
-                let child = instantiate(game, blueprint);
-                child_entities.push(child);
-            }
-            game.World.Signature[entity] |= 32 /* Children */;
-            game.World.Children[entity] = {
-                Children: child_entities,
-            };
-        };
-    }
-    /**
-     * Yield entities matching a component mask. The query is tested against the
-     * parent and all its descendants.
-     *
-     * @param world World object which stores the component data.
-     * @param parent Parent entity to traverse.
-     * @param mask Component mask to look for.
-     */
-    function* query_all(world, parent, mask) {
-        if ((world.Signature[parent] & mask) === mask) {
-            yield parent;
-        }
-        if (world.Signature[parent] & 32 /* Children */) {
-            for (let child of world.Children[parent].Children) {
-                yield* query_all(world, child, mask);
-            }
-        }
-    }
-    /**
-     * Delete the entity with all its descendants.
-     * @param world World object which stores the component data.
-     * @param entity The root entity to start removing at.
-     */
-    function destroy_all(world, entity) {
-        if (world.Signature[entity] & 32 /* Children */) {
-            for (let child of world.Children[entity].Children) {
-                destroy_all(world, child);
-            }
-        }
-        world.DestroyEntity(entity);
-    }
-
-    function dispatch(game, action, payload) {
-        switch (action) {
-            case 0 /* ToggleFullscreen */: {
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                }
-                else {
-                    document.body.requestFullscreen();
-                }
-                break;
-            }
-            case 1 /* CollectItem */: {
-                let [item_entity] = payload;
-                destroy_all(game.World, item_entity);
-                game.ItemsCollected++;
-                break;
-            }
-            case 2 /* ExpireItem */: {
-                game.ItemsMissed++;
-                break;
-            }
-        }
-    }
-
-    function resize_texture_rgba8(gl, texture, width, height) {
-        gl.bindTexture(GL_TEXTURE_2D, texture);
-        gl.texImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_DATA_UNSIGNED_BYTE, null);
-        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        return texture;
-    }
-    function resize_texture_depth24(gl, texture, width, height) {
-        gl.bindTexture(GL_TEXTURE_2D, texture);
-        gl.texImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_DATA_UNSIGNED_INT, null);
-        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        return texture;
-    }
-
-    function create_depth_target(gl, width, height) {
-        let target = {
-            Framebuffer: gl.createFramebuffer(),
-            Width: width,
-            Height: height,
-            ColorTexture: resize_texture_rgba8(gl, gl.createTexture(), width, height),
-            DepthTexture: resize_texture_depth24(gl, gl.createTexture(), width, height),
-        };
-        gl.bindFramebuffer(GL_FRAMEBUFFER, target.Framebuffer);
-        gl.framebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, target.DepthTexture, 0);
-        gl.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target.ColorTexture, 0);
-        let status = gl.checkFramebufferStatus(GL_FRAMEBUFFER);
-        if (status != GL_FRAMEBUFFER_COMPLETE) {
-            throw new Error(`Failed to set up the framebuffer (${status}).`);
-        }
-        return target;
-    }
-
-    function link(gl, vertex, fragment) {
-        let program = gl.createProgram();
-        gl.attachShader(program, compile(gl, GL_VERTEX_SHADER, vertex));
-        gl.attachShader(program, compile(gl, GL_FRAGMENT_SHADER, fragment));
-        gl.linkProgram(program);
-        if (!gl.getProgramParameter(program, GL_LINK_STATUS)) {
-            throw new Error(gl.getProgramInfoLog(program));
-        }
-        return program;
-    }
-    function compile(gl, type, source) {
-        let shader = gl.createShader(type);
-        gl.shaderSource(shader, source);
-        gl.compileShader(shader);
-        if (!gl.getShaderParameter(shader, GL_COMPILE_STATUS)) {
-            throw new Error(gl.getShaderInfoLog(shader));
-        }
-        return shader;
-    }
-
-    let vertex$5 = `#version 300 es\n
-
-    uniform mat4 pv;
-    uniform mat4 world;
-    uniform mat4 self;
-
-    in vec3 attr_position;
-    in vec3 attr_normal;
-
-    out vec4 vert_position;
-    out vec3 vert_normal;
-
-    void main() {
-        vert_position = world * vec4(attr_position, 1.0);
-        vert_normal = (vec4(attr_normal, 1.0) * self).xyz;
-        gl_Position = pv * vert_position;
-    }
-`;
-    let fragment$5 = `#version 300 es\n
-    precision mediump float;
-
-    // See Game.LightPositions and Game.LightDetails.
-    const int MAX_LIGHTS = 8;
-
-    uniform vec3 eye;
-    uniform vec4 diffuse_color;
-    uniform vec4 specular_color;
-    uniform float shininess;
-    uniform vec4 light_positions[MAX_LIGHTS];
-    uniform vec4 light_details[MAX_LIGHTS];
-    uniform vec4 fog_color;
-    uniform float fog_distance;
-
-    in vec4 vert_position;
-    in vec3 vert_normal;
-
-    out vec4 frag_color;
-
-    const float bands = 2.0;
-    float posterize(float factor) {
-        return floor(factor * bands) / bands;
-    }
-
-    void main() {
-        vec3 world_normal = normalize(vert_normal);
-
-        vec3 view_dir = eye - vert_position.xyz;
-        vec3 view_normal = normalize(view_dir);
-
-        // Ambient light.
-        vec3 light_acc = diffuse_color.rgb * 0.3;
-
-        for (int i = 0; i < MAX_LIGHTS; i++) {
-            if (light_positions[i].w == 0.0) {
-                break;
-            }
-
-            vec3 light_color = light_details[i].rgb;
-            float light_intensity = light_details[i].a;
-
-            vec3 light_normal;
-            if (light_positions[i].w == 1.0) {
-                // Directional light.
-                light_normal = light_positions[i].xyz;
-            } else {
-                vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
-                float light_dist = length(light_dir);
-                light_normal = light_dir / light_dist;
-                // Distance attenuation.
-                light_intensity /= (light_dist * light_dist);
-            }
-
-            float diffuse_factor = dot(world_normal, light_normal);
-            if (diffuse_factor > 0.0) {
-                // Diffuse color.
-                light_acc += diffuse_color.rgb * light_color * posterize(diffuse_factor * light_intensity);
-
-                if (shininess > 0.0) {
-                    // Phong reflection model.
-                    // vec3 r = reflect(-light_normal, world_normal);
-                    // float specular_angle = max(dot(r, view_normal), 0.0);
-                    // float specular_factor = pow(specular_angle, shininess);
-
-                    // Blinn-Phong reflection model.
-                    vec3 h = normalize(light_normal + view_normal);
-                    float specular_angle = max(dot(h, world_normal), 0.0);
-                    float specular_factor = pow(specular_angle, shininess);
-
-                    // Specular color.
-                    light_acc += specular_color.rgb * light_color * posterize(specular_factor * light_intensity);
-                }
-            }
-        }
-
-        frag_color = vec4(light_acc, 1.0);
-
-        float eye_distance = length(view_dir);
-        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
-        frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
-    }
-`;
-    function mat_forward_colored_phong(gl) {
-        let program = link(gl, vertex$5, fragment$5);
-        return {
-            Mode: GL_TRIANGLES,
-            Program: program,
-            Locations: {
-                Pv: gl.getUniformLocation(program, "pv"),
-                World: gl.getUniformLocation(program, "world"),
-                Self: gl.getUniformLocation(program, "self"),
-                DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
-                SpecularColor: gl.getUniformLocation(program, "specular_color"),
-                Shininess: gl.getUniformLocation(program, "shininess"),
-                Eye: gl.getUniformLocation(program, "eye"),
-                LightPositions: gl.getUniformLocation(program, "light_positions"),
-                LightDetails: gl.getUniformLocation(program, "light_details"),
-                FogColor: gl.getUniformLocation(program, "fog_color"),
-                FogDistance: gl.getUniformLocation(program, "fog_distance"),
-                VertexPosition: gl.getAttribLocation(program, "attr_position"),
-                VertexNormal: gl.getAttribLocation(program, "attr_normal"),
-            },
-        };
-    }
-
-    let vertex$4 = `#version 300 es\n
-    uniform mat4 pv;
-    uniform mat4 world;
-    uniform mat4 self;
-    uniform mat4 bones[6];
-
-    in vec3 attr_position;
-    in vec3 attr_normal;
-    in vec4 attr_weights;
-
-    out vec4 vert_position;
-    out vec3 vert_normal;
-
-    mat4 world_weighted(vec4 weights) {
-        return weights[1] * bones[int(weights[0])] + weights[3] * bones[int(weights[2])];
-    }
-
-    void main() {
-        mat4 bone_world = world_weighted(attr_weights);
-        vert_position = bone_world * vec4(attr_position, 1.0);
-        vert_normal = normalize(mat3(bone_world) * attr_normal);
-        gl_Position = pv * vert_position;
-    }
-`;
-    let fragment$4 = `#version 300 es\n
-    precision mediump float;
-
-    // See Game.LightPositions and Game.LightDetails.
-    const int MAX_LIGHTS = 8;
-
-    uniform vec3 eye;
-    uniform vec4 diffuse_color;
-    uniform vec4 specular_color;
-    uniform float shininess;
-    uniform vec4 light_positions[MAX_LIGHTS];
-    uniform vec4 light_details[MAX_LIGHTS];
-    uniform vec4 fog_color;
-    uniform float fog_distance;
-
-    in vec4 vert_position;
-    in vec3 vert_normal;
-
-    out vec4 frag_color;
-
-    const float bands = 2.0;
-    float posterize(float factor) {
-        return floor(factor * bands) / bands;
-    }
-
-    void main() {
-        vec3 world_normal = normalize(vert_normal);
-
-        vec3 view_dir = eye - vert_position.xyz;
-        vec3 view_normal = normalize(view_dir);
-
-        // Ambient light.
-        vec3 light_acc = diffuse_color.rgb * 0.5;
-
-        for (int i = 0; i < MAX_LIGHTS; i++) {
-            if (light_positions[i].w == 0.0) {
-                break;
-            }
-
-            vec3 light_color = light_details[i].rgb;
-            float light_intensity = light_details[i].a;
-
-            vec3 light_normal;
-            if (light_positions[i].w == 1.0) {
-                // Directional light.
-                light_normal = light_positions[i].xyz;
-            } else {
-                vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
-                float light_dist = length(light_dir);
-                light_normal = light_dir / light_dist;
-                // Distance attenuation.
-                light_intensity /= (light_dist * light_dist);
-            }
-
-            float diffuse_factor = dot(world_normal, light_normal);
-            if (diffuse_factor > 0.0) {
-                // Diffuse color.
-                light_acc += diffuse_color.rgb * light_color * posterize(diffuse_factor * light_intensity);
-
-                if (shininess > 0.0) {
-                    // Phong reflection model.
-                    // vec3 r = reflect(-light_normal, world_normal);
-                    // float specular_angle = max(dot(r, view_normal), 0.0);
-                    // float specular_factor = pow(specular_angle, shininess);
-
-                    // Blinn-Phong reflection model.
-                    vec3 h = normalize(light_normal + view_normal);
-                    float specular_angle = max(dot(h, world_normal), 0.0);
-                    float specular_factor = pow(specular_angle, shininess);
-
-                    // Specular color.
-                    light_acc += specular_color.rgb * light_color * posterize(specular_factor * light_intensity);
-                }
-            }
-        }
-
-        frag_color = vec4(light_acc, 1.0);
-
-        float eye_distance = length(view_dir);
-        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
-        frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
-    }
-`;
-    function mat_forward_colored_phong_skinned(gl) {
-        let program = link(gl, vertex$4, fragment$4);
-        return {
-            Mode: GL_TRIANGLES,
-            Program: program,
-            Locations: {
-                Pv: gl.getUniformLocation(program, "pv"),
-                World: gl.getUniformLocation(program, "world"),
-                Self: gl.getUniformLocation(program, "self"),
-                DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
-                SpecularColor: gl.getUniformLocation(program, "specular_color"),
-                Shininess: gl.getUniformLocation(program, "shininess"),
-                Eye: gl.getUniformLocation(program, "eye"),
-                LightPositions: gl.getUniformLocation(program, "light_positions"),
-                LightDetails: gl.getUniformLocation(program, "light_details"),
-                VertexPosition: gl.getAttribLocation(program, "attr_position"),
-                VertexNormal: gl.getAttribLocation(program, "attr_normal"),
-                FogColor: gl.getUniformLocation(program, "fog_color"),
-                FogDistance: gl.getUniformLocation(program, "fog_distance"),
-                Bones: gl.getUniformLocation(program, "bones"),
-                VertexWeights: gl.getAttribLocation(program, "attr_weights"),
-            },
-        };
-    }
-
-    let vertex$3 = `#version 300 es\n
-
-    uniform mat4 pv;
-    uniform mat4 world;
-    uniform mat4 self;
-
-    in vec3 attr_position;
-    in vec3 attr_normal;
-
-    out vec4 vert_position;
-    out vec3 vert_normal;
-
-    void main() {
-        vert_position = world * vec4(attr_position, 1.0);
-        vert_normal = (vec4(attr_normal, 1.0) * self).xyz;
-        gl_Position = pv * vert_position;
-    }
-`;
-    let fragment$3 = `#version 300 es\n
-    precision mediump float;
-    precision lowp sampler2DShadow;
-
-    // See Game.LightPositions and Game.LightDetails.
-    const int MAX_LIGHTS = 8;
-
-    uniform vec3 eye;
-    uniform vec4 diffuse_color;
-    uniform vec4 specular_color;
-    uniform float shininess;
-    uniform vec4 light_positions[MAX_LIGHTS];
-    uniform vec4 light_details[MAX_LIGHTS];
-    uniform mat4 shadow_space;
-    uniform sampler2DShadow shadow_map;
-    uniform vec4 fog_color;
-    uniform float fog_distance;
-
-    in vec4 vert_position;
-    in vec3 vert_normal;
-
-    out vec4 frag_color;
-
-    // How much shadow to apply at world_pos, expressed as [min, 1]:
-    // min = completely in shadow, 1 = completely not in shadow
-    float shadow_factor(vec4 world_pos, float min) {
-        vec4 shadow_space_pos = shadow_space * world_pos;
-        vec3 shadow_space_ndc = shadow_space_pos.xyz / shadow_space_pos.w;
-        // Transform the [-1, 1] NDC to [0, 1] to match the shadow texture data.
-        shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
-
-        // Add shadow bias to avoid shadow acne.
-        shadow_space_ndc.z -= 0.001;
-
-        return texture(shadow_map, shadow_space_ndc) * (1.0 - min) + min;
-    }
-
-    void main() {
-        vec3 world_normal = normalize(vert_normal);
-
-        vec3 view_dir = eye - vert_position.xyz;
-        vec3 view_normal = normalize(view_dir);
-
-        // Ambient light.
-        vec3 light_acc = diffuse_color.rgb * 0.1;
-
-        for (int i = 0; i < MAX_LIGHTS; i++) {
-            if (light_positions[i].w == 0.0) {
-                break;
-            }
-
-            vec3 light_color = light_details[i].rgb;
-            float light_intensity = light_details[i].a;
-
-            vec3 light_normal;
-            if (light_positions[i].w == 1.0) {
-                // Directional light.
-                light_normal = light_positions[i].xyz;
-            } else {
-                vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
-                float light_dist = length(light_dir);
-                light_normal = light_dir / light_dist;
-                // Distance attenuation.
-                light_intensity /= (light_dist * light_dist);
-            }
-
-            float diffuse_factor = dot(world_normal, light_normal);
-            if (diffuse_factor > 0.0) {
-                // Diffuse color.
-                light_acc += diffuse_color.rgb * diffuse_factor * light_color * light_intensity;
-
-                if (shininess > 0.0) {
-                    // Phong reflection model.
-                    // vec3 r = reflect(-light_normal, world_normal);
-                    // float specular_angle = max(dot(r, view_normal), 0.0);
-                    // float specular_factor = pow(specular_angle, shininess);
-
-                    // Blinn-Phong reflection model.
-                    vec3 h = normalize(light_normal + view_normal);
-                    float specular_angle = max(dot(h, world_normal), 0.0);
-                    float specular_factor = pow(specular_angle, shininess);
-
-                    // Specular color.
-                    light_acc += specular_color.rgb * specular_factor * light_color * light_intensity;
-                }
-            }
-        }
-
-        vec3 shaded_rgb = light_acc * shadow_factor(vert_position, 0.5);
-        frag_color= vec4(shaded_rgb, 1.0);
-
-        float eye_distance = length(view_dir);
-        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
-        frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
-    }
-`;
-    function mat_forward_colored_shadows(gl) {
-        let program = link(gl, vertex$3, fragment$3);
-        return {
-            Mode: GL_TRIANGLES,
-            Program: program,
-            Locations: {
-                Pv: gl.getUniformLocation(program, "pv"),
-                World: gl.getUniformLocation(program, "world"),
-                Self: gl.getUniformLocation(program, "self"),
-                DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
-                SpecularColor: gl.getUniformLocation(program, "specular_color"),
-                Shininess: gl.getUniformLocation(program, "shininess"),
-                Eye: gl.getUniformLocation(program, "eye"),
-                LightPositions: gl.getUniformLocation(program, "light_positions"),
-                LightDetails: gl.getUniformLocation(program, "light_details"),
-                ShadowSpace: gl.getUniformLocation(program, "shadow_space"),
-                ShadowMap: gl.getUniformLocation(program, "shadow_map"),
-                FogColor: gl.getUniformLocation(program, "fog_color"),
-                FogDistance: gl.getUniformLocation(program, "fog_distance"),
-                VertexPosition: gl.getAttribLocation(program, "attr_position"),
-                VertexNormal: gl.getAttribLocation(program, "attr_normal"),
-            },
-        };
-    }
-
-    let vertex$2 = `#version 300 es\n
-    uniform mat4 pv;
-    uniform mat4 world;
-
-    in vec3 attr_position;
-
-    void main() {
-        gl_Position = pv * world * vec4(attr_position, 1.0);
-    }
-`;
-    let fragment$2 = `#version 300 es\n
-    precision mediump float;
-
-    uniform vec4 color;
-
-    out vec4 frag_color;
-
-    void main() {
-        frag_color = color;
-    }
-`;
-    function mat_forward_colored_unlit(gl, mode = GL_TRIANGLES) {
-        let program = link(gl, vertex$2, fragment$2);
-        return {
-            Mode: mode,
-            Program: program,
-            Locations: {
-                Pv: gl.getUniformLocation(program, "pv"),
-                World: gl.getUniformLocation(program, "world"),
-                Color: gl.getUniformLocation(program, "color"),
-                VertexPosition: gl.getAttribLocation(program, "attr_position"),
-            },
-        };
-    }
-    function mat_forward_colored_wireframe(gl) {
-        return mat_forward_colored_unlit(gl, GL_LINE_LOOP);
-    }
-
-    let vertex$1 = `#version 300 es\n
-    // See Game.LightPositions and Game.LightDetails.
-    const int MAX_LIGHTS = 8;
-
-    uniform mat4 pv;
-    uniform mat4 world;
-    uniform mat4 self;
-    uniform vec3 palette[16];
-
-    uniform vec4 light_positions[MAX_LIGHTS];
-    uniform vec4 light_details[MAX_LIGHTS];
-
-    uniform vec3 eye;
-    uniform vec4 fog_color;
-    uniform float fog_distance;
-
-    in vec3 attr_position;
-    in vec3 attr_normal;
-    in vec4 attr_offset;
-    in vec4 attr_rotation;
-
-    out vec4 vert_color;
-
-    void main() {
-        float x = attr_rotation.x;
-        float y = attr_rotation.y;
-        float z = attr_rotation.z;
-        float w = attr_rotation.w;
-
-        float x2 = x + x;
-        float y2 = y + y;
-        float z2 = z + z;
-        float xx = x * x2;
-        float yx = y * x2;
-        float yy = y * y2;
-        float zx = z * x2;
-        float zy = z * y2;
-        float zz = z * z2;
-        float wx = w * x2;
-        float wy = w * y2;
-        float wz = w * z2;
-
-        float m0 = 1.0 - yy - zz;
-        float m1 = yx + wz;
-        float m2 = zx - wy;
-        float m3 = 0.0;
-        float m4 = yx - wz;
-        float m5 = 1.0 - xx - zz;
-        float m6 = zy + wx;
-        float m7 = 0.0;
-        float m8 = zx + wy;
-        float m9 = zy - wx;
-        float m10 = 1.0 - xx - yy;
-        float m11 = 0.0;
-        float m12 = 0.0;
-        float m13 = 0.0;
-        float m14 = 0.0;
-        float m15 = 1.0;
-
-        mat4 rotation = mat4(
-            m0, m1, m2, m3,
-            m4, m5, m6, m7,
-            m8, m9, m10, m11,
-            m12, m13, m14, m15
-        );
-
-        vec4 world_position = world * rotation * vec4(attr_position + attr_offset.xyz, 1.0);
-        vec3 world_normal = normalize((rotation * vec4(attr_normal, 0.0) * self).xyz);
-        gl_Position = pv * world_position;
-
-        // Ambient light.
-        vec3 color = palette[int(attr_offset[3])];
-        vec3 light_acc = color * 0.1;
-
-        for (int i = 0; i < MAX_LIGHTS; i++) {
-            if (light_positions[i].w == 0.0) {
-                break;
-            }
-
-            vec3 light_color = light_details[i].rgb;
-            float light_intensity = light_details[i].a;
-
-            vec3 light_normal;
-            if (light_positions[i].w == 1.0) {
-                // Directional light.
-                light_normal = light_positions[i].xyz;
-            } else {
-                vec3 light_dir = light_positions[i].xyz - world_position.xyz;
-                float light_dist = length(light_dir);
-                light_normal = light_dir / light_dist;
-                // Distance attenuation.
-                light_intensity /= (light_dist * light_dist);
-            }
-
-            float diffuse_factor = dot(world_normal, light_normal);
-            if (diffuse_factor > 0.0) {
-                // Diffuse color.
-                light_acc += color * diffuse_factor * light_color * light_intensity;
-            }
-        }
-
-        vert_color = vec4(light_acc, 1.0);
-
-        float eye_distance = length(eye - world_position.xyz);
-        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
-        vert_color = mix(vert_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
-    }
-
-`;
-    let fragment$1 = `#version 300 es\n
-    precision mediump float;
-    in vec4 vert_color;
-    out vec4 frag_color;
-
-    void main() {
-        frag_color = vert_color;
-    }
-
-`;
-    function mat_forward_instanced(gl) {
-        let program = link(gl, vertex$1, fragment$1);
-        return {
-            Mode: GL_TRIANGLES,
-            Program: program,
-            Locations: {
-                Pv: gl.getUniformLocation(program, "pv"),
-                World: gl.getUniformLocation(program, "world"),
-                Self: gl.getUniformLocation(program, "self"),
-                Palette: gl.getUniformLocation(program, "palette"),
-                Eye: gl.getUniformLocation(program, "eye"),
-                LightPositions: gl.getUniformLocation(program, "light_positions"),
-                LightDetails: gl.getUniformLocation(program, "light_details"),
-                FogColor: gl.getUniformLocation(program, "fog_color"),
-                FogDistance: gl.getUniformLocation(program, "fog_distance"),
-                VertexPosition: gl.getAttribLocation(program, "attr_position"),
-                VertexNormal: gl.getAttribLocation(program, "attr_normal"),
-                InstanceOffset: gl.getAttribLocation(program, "attr_offset"),
-                InstanceRotation: gl.getAttribLocation(program, "attr_rotation"),
-            },
-        };
-    }
-
-    let vertex = `#version 300 es\n
-    uniform mat4 pv;
-    uniform vec4 color_start;
-    uniform vec4 color_end;
-    // [x: lifespan, y: speed, z: size_start, w: size_end];
-    uniform vec4 details;
-
-    // [x, y, z, w: age]
-    in vec4 attr_origin_age;
-    in vec3 attr_direction;
-
-    out vec4 vert_color;
-
-    void main() {
-        // Move the particle along the direction axis.
-        vec3 velocity = attr_direction * details.y;
-        gl_Position = pv * vec4(attr_origin_age.xyz + velocity * attr_origin_age.w, 1.0);
-
-        // Interpolate color and size.
-        float t = attr_origin_age.w / details.x;
-        gl_PointSize = mix(details.z, details.w, t);
-        vert_color = mix(color_start, color_end, t);
-    }
-`;
-    let fragment = `#version 300 es\n
-    precision mediump float;
-
-    in vec4 vert_color;
-
-    out vec4 frag_color;
-
-    void main() {
-        frag_color = vert_color;
-    }
-`;
-    function mat_forward_particles_colored(gl) {
-        let program = link(gl, vertex, fragment);
-        return {
-            Mode: GL_POINTS,
-            Program: program,
-            Locations: {
-                Pv: gl.getUniformLocation(program, "pv"),
-                ColorStart: gl.getUniformLocation(program, "color_start"),
-                ColorEnd: gl.getUniformLocation(program, "color_end"),
-                Details: gl.getUniformLocation(program, "details"),
-                OriginAge: gl.getAttribLocation(program, "attr_origin_age"),
-                Direction: gl.getAttribLocation(program, "attr_direction"),
-            },
-        };
-    }
-
-    function mesh_cube(gl) {
-        let vertex_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$6, GL_STATIC_DRAW);
-        let normal_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$6, GL_STATIC_DRAW);
-        let texcoord_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$6, GL_STATIC_DRAW);
-        let weights_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$6, GL_STATIC_DRAW);
-        let index_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$6, GL_STATIC_DRAW);
-        return {
-            VertexBuffer: vertex_buf,
-            VertexArray: vertex_arr$6,
-            NormalBuffer: normal_buf,
-            NormalArray: normal_arr$6,
-            TexCoordBuffer: texcoord_buf,
-            TexCoordArray: texcoord_arr$6,
-            WeightsBuffer: weights_buf,
-            WeightsArray: weights_arr$6,
-            IndexBuffer: index_buf,
-            IndexArray: index_arr$6,
-            IndexCount: index_arr$6.length,
-        };
-    }
-    // prettier-ignore
-    let vertex_arr$6 = Float32Array.from([
-        -0.500, -0.500, 0.500,
-        -0.500, -0.500, 0.500,
-        -0.500, -0.500, 0.500,
-        -0.500, 0.500, 0.500,
-        -0.500, 0.500, 0.500,
-        -0.500, 0.500, 0.500,
-        -0.500, -0.500, -0.500,
-        -0.500, -0.500, -0.500,
-        -0.500, -0.500, -0.500,
-        -0.500, 0.500, -0.500,
-        -0.500, 0.500, -0.500,
-        -0.500, 0.500, -0.500,
-        0.500, -0.500, 0.500,
-        0.500, -0.500, 0.500,
-        0.500, -0.500, 0.500,
-        0.500, 0.500, 0.500,
-        0.500, 0.500, 0.500,
-        0.500, 0.500, 0.500,
-        0.500, -0.500, -0.500,
-        0.500, -0.500, -0.500,
-        0.500, -0.500, -0.500,
-        0.500, 0.500, -0.500,
-        0.500, 0.500, -0.500,
-        0.500, 0.500, -0.500
-    ]);
-    // prettier-ignore
-    let normal_arr$6 = Float32Array.from([
-        -1.000, 0.000, 0.000,
-        0.000, -1.000, 0.000,
-        0.000, 0.000, 1.000,
-        -1.000, 0.000, 0.000,
-        0.000, 0.000, 1.000,
-        0.000, 1.000, 0.000,
-        -1.000, 0.000, 0.000,
-        0.000, -1.000, 0.000,
-        0.000, 0.000, -1.000,
-        -1.000, 0.000, 0.000,
-        0.000, 0.000, -1.000,
-        0.000, 1.000, 0.000,
-        0.000, -1.000, 0.000,
-        0.000, 0.000, 1.000,
-        1.000, 0.000, 0.000,
-        0.000, 0.000, 1.000,
-        0.000, 1.000, 0.000,
-        1.000, 0.000, 0.000,
-        0.000, -1.000, 0.000,
-        0.000, 0.000, -1.000,
-        1.000, 0.000, 0.000,
-        0.000, 0.000, -1.000,
-        0.000, 1.000, 0.000,
-        1.000, 0.000, 0.000
-    ]);
-    // prettier-ignore
-    let texcoord_arr$6 = Float32Array.from([]);
-    // prettier-ignore
-    let weights_arr$6 = Float32Array.from([]);
-    // prettier-ignore
-    let index_arr$6 = Uint16Array.from([
-        16, 5, 22,
-        5, 11, 22,
-        1, 12, 7,
-        12, 18, 7,
-        2, 4, 13,
-        4, 15, 13,
-        14, 17, 20,
-        17, 23, 20,
-        19, 21, 8,
-        21, 10, 8,
-        6, 9, 0,
-        9, 3, 0
-    ]);
-
-    function mesh_cylinder(gl) {
-        let vertex_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$5, GL_STATIC_DRAW);
-        let normal_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$5, GL_STATIC_DRAW);
-        let texcoord_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$5, GL_STATIC_DRAW);
-        let weights_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$5, GL_STATIC_DRAW);
-        let index_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$5, GL_STATIC_DRAW);
-        return {
-            VertexBuffer: vertex_buf,
-            VertexArray: vertex_arr$5,
-            NormalBuffer: normal_buf,
-            NormalArray: normal_arr$5,
-            TexCoordBuffer: texcoord_buf,
-            TexCoordArray: texcoord_arr$5,
-            WeightsBuffer: weights_buf,
-            WeightsArray: weights_arr$5,
-            IndexBuffer: index_buf,
-            IndexArray: index_arr$5,
-            IndexCount: index_arr$5.length,
-        };
-    }
-    // prettier-ignore
-    let vertex_arr$5 = Float32Array.from([
-        0.000, -0.500, -0.500,
-        0.000, 0.500, -0.500,
-        0.354, -0.500, -0.354,
-        0.354, 0.500, -0.354,
-        0.500, -0.500, 0.000,
-        0.500, 0.500, 0.000,
-        0.354, -0.500, 0.354,
-        0.354, 0.500, 0.354,
-        -0.000, -0.500, 0.500,
-        -0.000, 0.500, 0.500,
-        -0.354, -0.500, 0.354,
-        -0.354, 0.500, 0.354,
-        -0.500, -0.500, -0.000,
-        -0.500, 0.500, -0.000,
-        -0.354, -0.500, -0.354,
-        -0.354, 0.500, -0.354
-    ]);
-    // prettier-ignore
-    let normal_arr$5 = Float32Array.from([
-        0.000, -0.630, -0.776,
-        0.000, 0.630, -0.776,
-        0.549, -0.630, -0.549,
-        0.549, 0.630, -0.549,
-        0.776, -0.630, 0.000,
-        0.776, 0.630, 0.000,
-        0.549, -0.630, 0.549,
-        0.549, 0.630, 0.549,
-        0.000, -0.630, 0.776,
-        0.000, 0.630, 0.776,
-        -0.549, -0.630, 0.549,
-        -0.549, 0.630, 0.549,
-        -0.776, -0.630, 0.000,
-        -0.776, 0.630, 0.000,
-        -0.549, -0.630, -0.549,
-        -0.549, 0.630, -0.549
-    ]);
-    // prettier-ignore
-    let texcoord_arr$5 = Float32Array.from([]);
-    // prettier-ignore
-    let weights_arr$5 = Float32Array.from([]);
-    // prettier-ignore
-    let index_arr$5 = Uint16Array.from([
-        14, 10, 6,
-        6, 2, 14,
-        14, 12, 10,
-        10, 8, 6,
-        6, 4, 2,
-        2, 0, 14,
-        0, 1, 14,
-        1, 15, 14,
-        14, 15, 12,
-        15, 13, 12,
-        5, 9, 13,
-        13, 1, 5,
-        5, 7, 9,
-        9, 11, 13,
-        13, 15, 1,
-        1, 3, 5,
-        12, 13, 10,
-        13, 11, 10,
-        10, 11, 8,
-        11, 9, 8,
-        8, 9, 6,
-        9, 7, 6,
-        6, 7, 4,
-        7, 5, 4,
-        4, 5, 2,
-        5, 3, 2,
-        2, 3, 0,
-        3, 1, 0
-    ]);
-
-    function mesh_grass(gl) {
-        let vertex_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$4, GL_STATIC_DRAW);
-        let normal_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$4, GL_STATIC_DRAW);
-        let texcoord_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$4, GL_STATIC_DRAW);
-        let weights_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$4, GL_STATIC_DRAW);
-        let index_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$4, GL_STATIC_DRAW);
-        return {
-            VertexBuffer: vertex_buf,
-            VertexArray: vertex_arr$4,
-            NormalBuffer: normal_buf,
-            NormalArray: normal_arr$4,
-            TexCoordBuffer: texcoord_buf,
-            TexCoordArray: texcoord_arr$4,
-            WeightsBuffer: weights_buf,
-            WeightsArray: weights_arr$4,
-            IndexBuffer: index_buf,
-            IndexArray: index_arr$4,
-            IndexCount: index_arr$4.length,
-        };
-    }
-    // prettier-ignore
-    let vertex_arr$4 = Float32Array.from([
-        -0.009, 0.009, 0.001,
-        0.000, -0.422, 0.012,
-        0.000, 0.405, 0.119,
-        0.008, 0.008, 0.001
-    ]);
-    // prettier-ignore
-    let normal_arr$4 = Float32Array.from([
-        -0.001, -0.138, 0.990,
-        0.010, 0.025, 1.000,
-        -0.010, -0.285, 0.959,
-        0.000, -0.125, 0.992
-    ]);
-    // prettier-ignore
-    let texcoord_arr$4 = Float32Array.from([]);
-    // prettier-ignore
-    let weights_arr$4 = Float32Array.from([]);
-    // prettier-ignore
-    let index_arr$4 = Uint16Array.from([
-        3, 1, 0,
-        2, 3, 0
-    ]);
-
-    function mesh_leaf(gl) {
-        let vertex_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$3, GL_STATIC_DRAW);
-        let normal_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$3, GL_STATIC_DRAW);
-        let texcoord_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$3, GL_STATIC_DRAW);
-        let weights_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$3, GL_STATIC_DRAW);
-        let index_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$3, GL_STATIC_DRAW);
-        return {
-            VertexBuffer: vertex_buf,
-            VertexArray: vertex_arr$3,
-            NormalBuffer: normal_buf,
-            NormalArray: normal_arr$3,
-            TexCoordBuffer: texcoord_buf,
-            TexCoordArray: texcoord_arr$3,
-            WeightsBuffer: weights_buf,
-            WeightsArray: weights_arr$3,
-            IndexBuffer: index_buf,
-            IndexArray: index_arr$3,
-            IndexCount: index_arr$3.length,
-        };
-    }
-    // prettier-ignore
-    let vertex_arr$3 = Float32Array.from([
-        -0.120, 0.016, 0.120,
-        0.040, 0.000, 0.040,
-        -0.050, 0.000, -0.050,
-        0.130, 0.022, -0.130
-    ]);
-    // prettier-ignore
-    let normal_arr$3 = Float32Array.from([
-        0.066, 0.996, -0.066,
-        -0.010, 1.000, 0.010,
-        -0.010, 1.000, 0.010,
-        -0.084, 0.993, 0.084
-    ]);
-    // prettier-ignore
-    let texcoord_arr$3 = Float32Array.from([]);
-    // prettier-ignore
-    let weights_arr$3 = Float32Array.from([]);
-    // prettier-ignore
-    let index_arr$3 = Uint16Array.from([
-        2, 3, 1,
-        0, 2, 1
-    ]);
-
-    function mesh_lisek(gl) {
-        let vertex_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$2, GL_STATIC_DRAW);
-        let normal_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$2, GL_STATIC_DRAW);
-        let texcoord_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$2, GL_STATIC_DRAW);
-        let weights_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$2, GL_STATIC_DRAW);
-        let index_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$2, GL_STATIC_DRAW);
-        return {
-            VertexBuffer: vertex_buf,
-            VertexArray: vertex_arr$2,
-            NormalBuffer: normal_buf,
-            NormalArray: normal_arr$2,
-            TexCoordBuffer: texcoord_buf,
-            TexCoordArray: texcoord_arr$2,
-            WeightsBuffer: weights_buf,
-            WeightsArray: weights_arr$2,
-            IndexBuffer: index_buf,
-            IndexArray: index_arr$2,
-            IndexCount: index_arr$2.length,
-        };
-    }
-    // prettier-ignore
-    let vertex_arr$2 = Float32Array.from([
-        0.147, 0.440, 0.021,
-        0.073, -0.000, -0.008,
-        0.132, 0.234, -0.280,
-        0.088, 0.409, -0.550,
-        0.073, -0.001, -0.521,
-        0.103, 0.688, 0.168,
-        0.176, 0.893, 0.080,
-        -0.147, 0.440, 0.021,
-        0.000, 0.482, -0.037,
-        0.000, 0.219, -0.012,
-        -0.073, -0.000, -0.008,
-        -0.132, 0.234, -0.280,
-        0.000, 0.219, -0.530,
-        -0.088, 0.409, -0.550,
-        0.000, 0.432, -0.585,
-        -0.073, -0.001, -0.521,
-        -0.103, 0.688, 0.168,
-        0.000, 0.571, 0.373,
-        -0.176, 0.893, 0.080,
-        0.000, 0.746, 0.168
-    ]);
-    // prettier-ignore
-    let normal_arr$2 = Float32Array.from([
-        0.997, 0.009, 0.083,
-        -0.007, -0.962, 0.275,
-        0.797, -0.599, -0.074,
-        0.688, 0.428, -0.586,
-        0.035, -0.971, -0.235,
-        0.726, 0.191, 0.661,
-        0.417, 0.903, -0.104,
-        -0.997, 0.009, 0.083,
-        0.000, 0.785, -0.620,
-        0.000, -0.590, 0.807,
-        0.007, -0.962, 0.275,
-        -0.797, -0.599, -0.074,
-        0.000, -0.472, -0.882,
-        -0.688, 0.428, -0.586,
-        0.000, 0.571, -0.821,
-        -0.035, -0.971, -0.235,
-        -0.726, 0.191, 0.661,
-        0.000, -0.039, 0.999,
-        -0.417, 0.903, -0.104,
-        0.000, 0.932, 0.363
-    ]);
-    // prettier-ignore
-    let texcoord_arr$2 = Float32Array.from([]);
-    // prettier-ignore
-    let weights_arr$2 = Float32Array.from([
-        2.000, 0.918, 1.000, 0.082,
-        2.000, 1.000, 0.000, 0.000,
-        4.000, 0.500, 2.000, 0.500,
-        4.000, 0.907, 0.000, 0.093,
-        4.000, 1.000, 0.000, 0.000,
-        1.000, 0.893, 2.000, 0.107,
-        1.000, 1.000, 0.000, 0.000,
-        3.000, 0.918, 1.000, 0.082,
-        1.000, 1.000, 0.000, 0.000,
-        2.000, 0.500, 3.000, 0.500,
-        3.000, 1.000, 0.000, 0.000,
-        5.000, 0.500, 3.000, 0.500,
-        0.000, 1.000, 0.000, 0.000,
-        5.000, 0.907, 0.000, 0.093,
-        0.000, 1.000, 0.000, 0.000,
-        5.000, 1.000, 0.000, 0.000,
-        1.000, 0.893, 3.000, 0.107,
-        1.000, 1.000, 0.000, 0.000,
-        1.000, 1.000, 0.000, 0.000,
-        1.000, 1.000, 0.000, 0.000
-    ]);
-    // prettier-ignore
-    let index_arr$2 = Uint16Array.from([
-        18, 19, 16,
-        19, 17, 16,
-        7, 13, 8,
-        16, 17, 7,
-        19, 18, 8,
-        8, 18, 7,
-        7, 17, 9,
-        7, 18, 16,
-        12, 11, 9,
-        11, 15, 13,
-        12, 15, 11,
-        12, 14, 13,
-        13, 15, 12,
-        11, 13, 7,
-        13, 14, 8,
-        9, 10, 7,
-        11, 10, 9,
-        7, 10, 11,
-        19, 6, 5,
-        17, 19, 5,
-        3, 0, 8,
-        17, 5, 0,
-        6, 19, 8,
-        6, 8, 0,
-        17, 0, 9,
-        6, 0, 5,
-        2, 12, 9,
-        4, 2, 3,
-        4, 12, 2,
-        14, 12, 3,
-        4, 3, 12,
-        3, 2, 0,
-        14, 3, 8,
-        1, 9, 0,
-        1, 2, 9,
-        1, 0, 2
-    ]);
-    /*
-    1.000, 0.000, 0.000, 0.000, 0.000, 0.096, -0.995, 0.000, 0.000, 0.995, 0.096, 0.000, 0.000, 0.433, 0.395, 1.000
-    1.000, 0.000, 0.000, 0.000, 0.000, 0.795, -0.606, 0.000, 0.000, 0.606, 0.795, 0.000, 0.000, -0.306, 0.251, 1.000
-    1.000, 0.000, 0.000, 0.000, 0.000, -1.000, 0.000, 0.000, 0.000, -0.000, -1.000, 0.000, -0.073, 0.395, -0.015, 1.000
-    1.000, 0.000, 0.000, 0.000, 0.000, -1.000, 0.000, 0.000, 0.000, -0.000, -1.000, 0.000, 0.073, 0.395, -0.015, 1.000
-    1.000, 0.000, 0.000, 0.000, 0.000, -0.992, 0.124, 0.000, 0.000, -0.124, -0.992, 0.000, -0.073, 0.291, -0.509, 1.000
-    1.000, 0.000, 0.000, 0.000, 0.000, -0.992, 0.124, 0.000, 0.000, -0.124, -0.992, 0.000, 0.073, 0.291, -0.509, 1.000
-    */
-
-    function mesh_ogon(gl) {
-        let vertex_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$1, GL_STATIC_DRAW);
-        let normal_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$1, GL_STATIC_DRAW);
-        let texcoord_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$1, GL_STATIC_DRAW);
-        let weights_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$1, GL_STATIC_DRAW);
-        let index_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$1, GL_STATIC_DRAW);
-        return {
-            VertexBuffer: vertex_buf,
-            VertexArray: vertex_arr$1,
-            NormalBuffer: normal_buf,
-            NormalArray: normal_arr$1,
-            TexCoordBuffer: texcoord_buf,
-            TexCoordArray: texcoord_arr$1,
-            WeightsBuffer: weights_buf,
-            WeightsArray: weights_arr$1,
-            IndexBuffer: index_buf,
-            IndexArray: index_arr$1,
-            IndexCount: index_arr$1.length,
-        };
-    }
-    // prettier-ignore
-    let vertex_arr$1 = Float32Array.from([
-        -0.111, 0.575, -0.859,
-        -0.000, 0.384, -0.481,
-        -0.000, 0.251, -0.862,
-        0.131, 0.518, -0.819,
-        -0.152, 0.634, -1.248,
-        -0.008, 0.196, -1.300,
-        0.216, 0.518, -1.191,
-        -0.247, 0.793, -1.762,
-        -0.000, 0.141, -1.608,
-        0.242, 0.549, -1.756,
-        -0.208, 0.738, -2.194,
-        -0.000, 0.234, -2.101,
-        0.167, 0.495, -2.202,
-        -0.076, 0.650, -2.622,
-        -0.000, 0.376, -2.482,
-        0.137, 0.502, -2.539,
-        -0.038, 0.426, -2.917
-    ]);
-    // prettier-ignore
-    let normal_arr$1 = Float32Array.from([
-        -0.701, 0.652, 0.289,
-        -0.030, -0.161, 0.986,
-        -0.097, -0.964, 0.248,
-        0.848, 0.425, 0.317,
-        -0.708, 0.678, 0.198,
-        -0.131, -0.980, 0.148,
-        0.940, 0.301, 0.159,
-        -0.662, 0.749, -0.020,
-        -0.089, -0.996, 0.005,
-        0.956, 0.294, -0.017,
-        -0.643, 0.705, -0.298,
-        -0.110, -0.970, -0.215,
-        0.976, 0.155, -0.154,
-        -0.456, 0.779, -0.431,
-        -0.203, -0.949, -0.242,
-        0.966, 0.102, -0.237,
-        -0.139, -0.245, -0.960
-    ]);
-    // prettier-ignore
-    let texcoord_arr$1 = Float32Array.from([]);
-    // prettier-ignore
-    let weights_arr$1 = Float32Array.from([
-        0.000, 0.933, 1.000, 0.067,
-        0.000, 1.000, 0.000, 0.000,
-        0.000, 0.946, 1.000, 0.054,
-        0.000, 0.953, 1.000, 0.047,
-        1.000, 0.942, 2.000, 0.058,
-        1.000, 0.877, 2.000, 0.123,
-        1.000, 0.970, 2.000, 0.030,
-        2.000, 0.858, 3.000, 0.142,
-        2.000, 0.911, 3.000, 0.089,
-        2.000, 0.932, 3.000, 0.068,
-        3.000, 0.917, 4.000, 0.083,
-        3.000, 0.937, 4.000, 0.063,
-        3.000, 0.945, 4.000, 0.055,
-        4.000, 0.983, 3.000, 0.017,
-        4.000, 0.917, 3.000, 0.083,
-        4.000, 0.956, 3.000, 0.044,
-        4.000, 1.000, 0.000, 0.000
-    ]);
-    // prettier-ignore
-    let index_arr$1 = Uint16Array.from([
-        16, 15, 13,
-        16, 14, 15,
-        16, 13, 14,
-        13, 15, 10,
-        15, 12, 10,
-        15, 14, 12,
-        14, 11, 12,
-        14, 13, 11,
-        13, 10, 11,
-        12, 11, 9,
-        11, 8, 9,
-        11, 10, 8,
-        10, 7, 8,
-        8, 7, 5,
-        7, 4, 5,
-        7, 9, 4,
-        9, 6, 4,
-        10, 12, 7,
-        12, 9, 7,
-        6, 5, 3,
-        5, 2, 3,
-        5, 4, 2,
-        4, 0, 2,
-        4, 6, 0,
-        6, 3, 0,
-        9, 8, 6,
-        8, 5, 6,
-        1, 0, 3,
-        1, 3, 2,
-        2, 0, 1
-    ]);
-    /*
-    1.000, -0.000, -0.000, 0.000, 0.000, 0.000, 1.000, 0.000, 0.000, -1.000, 0.000, 0.000, -0.000, -0.701, -0.428, 1.000
-    1.000, -0.000, -0.000, 0.000, 0.000, 0.132, 0.991, 0.000, 0.000, -0.991, 0.132, 0.000, -0.000, -1.100, -0.285, 1.000
-    1.000, -0.000, -0.000, 0.000, 0.000, 0.000, 1.000, 0.000, 0.000, -1.000, 0.000, 0.000, -0.000, -1.492, -0.487, 1.000
-    -1.000, -0.000, -0.000, 0.000, 0.000, 0.137, -0.991, 0.000, 0.000, -0.991, -0.137, 0.000, -0.000, -2.009, 0.214, 1.000
-    -1.000, 0.000, -0.000, 0.000, 0.000, -0.204, -0.979, 0.000, -0.000, -0.979, 0.204, 0.000, -0.000, -2.224, 1.021, 1.000
-    */
-
-    function mesh_plane(gl) {
-        let vertex_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr, GL_STATIC_DRAW);
-        let normal_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, normal_arr, GL_STATIC_DRAW);
-        let texcoord_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr, GL_STATIC_DRAW);
-        let weights_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, weights_arr, GL_STATIC_DRAW);
-        let index_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr, GL_STATIC_DRAW);
-        return {
-            VertexBuffer: vertex_buf,
-            VertexArray: vertex_arr,
-            NormalBuffer: normal_buf,
-            NormalArray: normal_arr,
-            TexCoordBuffer: texcoord_buf,
-            TexCoordArray: texcoord_arr,
-            WeightsBuffer: weights_buf,
-            WeightsArray: weights_arr,
-            IndexBuffer: index_buf,
-            IndexArray: index_arr,
-            IndexCount: index_arr.length,
-        };
-    }
-    // prettier-ignore
-    let vertex_arr = Float32Array.from([
-        -0.500, 0.000, 0.500,
-        0.500, 0.000, 0.500,
-        -0.500, 0.000, -0.500,
-        0.500, 0.000, -0.500
-    ]);
-    // prettier-ignore
-    let normal_arr = Float32Array.from([
-        0.000, 1.000, 0.000,
-        0.000, 1.000, 0.000,
-        0.000, 1.000, 0.000,
-        0.000, 1.000, 0.000
-    ]);
-    // prettier-ignore
-    let texcoord_arr = Float32Array.from([]);
-    // prettier-ignore
-    let weights_arr = Float32Array.from([]);
-    // prettier-ignore
-    let index_arr = Uint16Array.from([
-        2, 3, 0,
-        3, 1, 0
-    ]);
 
     const EPSILON = 0.000001;
     const DEG_TO_RAD = Math.PI / 180;
@@ -2263,593 +870,99 @@
     }
 
     /**
-     * @module systems/sys_animate
+     * @module components/com_camera
      */
-    const QUERY$q = 16777216 /* Transform */ | 1 /* Animate */;
-    function sys_animate(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$q) === QUERY$q) {
-                update$j(game, i, delta);
-            }
-        }
+    function camera_forward_perspective(fovy, near, far, clear_color = [0.9, 0.9, 0.9, 1]) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 16 /* Camera */;
+            game.World.Camera[entity] = {
+                Kind: 0 /* Forward */,
+                Projection: {
+                    Kind: 0 /* Perspective */,
+                    FovY: fovy,
+                    Near: near,
+                    Far: far,
+                    Projection: create(),
+                    Inverse: create(),
+                },
+                View: create(),
+                Pv: create(),
+                Position: [0, 0, 0],
+                ClearColor: clear_color,
+            };
+        };
     }
-    function update$j(game, entity, delta) {
-        let transform = game.World.Transform[entity];
-        let animate = game.World.Animate[entity];
-        // 1. Switch to the trigger if the clip has completed or early exits are allowed.
-        if (animate.Trigger) {
-            let next = animate.States[animate.Trigger];
-            if (next && next !== animate.Current) {
-                if (animate.Current.Time === 0) {
-                    // If the current clip has completed last frame, switch to the trigger.
-                    animate.Current = next;
-                }
-                else if (animate.Current.Flags & 1 /* EarlyExit */) {
-                    // If the current clip allows early exits, reset its timer so
-                    // that the next time it plays it starts from the beginning,
-                    // and then switch to the trigger.
-                    animate.Current.Time = 0;
-                    animate.Current = next;
-                }
-            }
-            animate.Trigger = undefined;
-        }
-        // 2. Find the current and the next keyframe.
-        let current_keyframe = null;
-        let next_keyframe = null;
-        for (let keyframe of animate.Current.Keyframes) {
-            if (animate.Current.Time < keyframe.Timestamp) {
-                next_keyframe = keyframe;
-                break;
-            }
-            else {
-                current_keyframe = keyframe;
-            }
-        }
-        // 3. Interpolate transform properties between keyframes.
-        if (current_keyframe && next_keyframe) {
-            let keyframe_duration = next_keyframe.Timestamp - current_keyframe.Timestamp;
-            let current_keyframe_time = animate.Current.Time - current_keyframe.Timestamp;
-            let interpolant = current_keyframe_time / keyframe_duration;
-            if (next_keyframe.Ease) {
-                interpolant = next_keyframe.Ease(interpolant);
-            }
-            if (current_keyframe.Translation && next_keyframe.Translation) {
-                lerp(transform.Translation, current_keyframe.Translation, next_keyframe.Translation, interpolant);
-                transform.Dirty = true;
-            }
-            if (current_keyframe.Rotation && next_keyframe.Rotation) {
-                slerp(transform.Rotation, current_keyframe.Rotation, next_keyframe.Rotation, interpolant);
-                transform.Dirty = true;
-            }
-            if (current_keyframe.Scale && next_keyframe.Scale) {
-                lerp(transform.Scale, current_keyframe.Scale, next_keyframe.Scale, interpolant);
-                transform.Dirty = true;
-            }
-        }
-        else if (current_keyframe) {
-            if (current_keyframe.Translation) {
-                copy$1(transform.Translation, current_keyframe.Translation);
-                transform.Dirty = true;
-            }
-            if (current_keyframe.Rotation) {
-                copy(transform.Rotation, current_keyframe.Rotation);
-                transform.Dirty = true;
-            }
-            if (current_keyframe.Scale) {
-                copy$1(transform.Scale, current_keyframe.Scale);
-                transform.Dirty = true;
-            }
-        }
-        // 4. Check if the animation is still running.
-        let new_time = animate.Current.Time + delta;
-        if (new_time < animate.Current.Duration) {
-            // The animation isn't done yet; continue.
-            animate.Current.Time = new_time;
-            return;
-        }
-        else {
-            // The animation has completed; reset its timer.
-            animate.Current.Time = 0;
-            if (current_keyframe === null || current_keyframe === void 0 ? void 0 : current_keyframe.ActionOnEnd) {
-                console.log("YUP!");
-            }
-        }
-        // 5. The animation has completed. Loop it or switch to idle.
-        if (animate.Current.Flags & 4 /* Alternate */) {
-            // Reverse the keyframes of the clip and recalculate their timestamps.
-            for (let keyframe of animate.Current.Keyframes.reverse()) {
-                keyframe.Timestamp = animate.Current.Duration - keyframe.Timestamp;
-            }
-        }
-        if (!(animate.Current.Flags & 2 /* Loop */)) {
-            animate.Current = animate.States["idle"];
-        }
+    function camera_depth_ortho(target, radius, near, far, clear_color = [0, 0, 0, 1]) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 16 /* Camera */;
+            game.World.Camera[entity] = {
+                Kind: 3 /* Depth */,
+                Target: target,
+                Projection: {
+                    Kind: 1 /* Ortho */,
+                    Radius: radius,
+                    Near: near,
+                    Far: far,
+                    Projection: create(),
+                    Inverse: create(),
+                },
+                View: create(),
+                Pv: create(),
+                Position: [0, 0, 0],
+                ClearColor: clear_color,
+            };
+        };
     }
 
     /**
-     * @module systems/sys_audio_listener
+     * @module components/com_children
      */
-    const QUERY$p = 2 /* AudioListener */ | 16777216 /* Transform */;
-    function sys_audio_listener(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$p) === QUERY$p) {
-                update$i(game, i);
-            }
-        }
-    }
-    let position$1 = [0, 0, 0];
-    let forward$2 = [0, 0, 0];
-    let up = [0, 0, 0];
-    function update$i(game, entity) {
-        let transform = game.World.Transform[entity];
-        get_translation(position$1, transform.World);
-        get_forward(forward$2, transform.World);
-        get_up(up, transform.World);
-        let listener = game.Audio.listener;
-        if (listener.positionX) {
-            // The new AudioListener API.
-            listener.positionX.value = position$1[0];
-            listener.positionY.value = position$1[1];
-            listener.positionZ.value = position$1[2];
-            listener.forwardX.value = forward$2[0];
-            listener.forwardY.value = forward$2[1];
-            listener.forwardZ.value = forward$2[2];
-            listener.upX.value = up[0];
-            listener.upY.value = up[1];
-            listener.upZ.value = up[2];
-        }
-        else {
-            // Firefox & Safari.
-            listener.setPosition(...position$1);
-            listener.setOrientation(...forward$2, ...up);
-        }
-    }
-
-    function play_note(audio, panner, instr, note, offset) {
-        let time = audio.currentTime + offset;
-        let total_duration = 0;
-        if (panner) {
-            panner.connect(audio.destination);
-        }
-        let master = audio.createGain();
-        master.gain.value = (instr[0 /* MasterGainAmount */] / 9) ** 3;
-        let lfa, lfo;
-        if (instr[5 /* LFOType */]) {
-            // Frequency is mapped to [0, 125].
-            lfo = audio.createOscillator();
-            lfo.type = instr[5 /* LFOType */];
-            lfo.frequency.value = (instr[7 /* LFOFreq */] / 3) ** 3;
-            // Amount is mapped to [27, 5832].
-            lfa = audio.createGain();
-            lfa.gain.value = (instr[6 /* LFOAmount */] + 3) ** 3;
-            lfo.connect(lfa);
-        }
-        if (instr[1 /* FilterType */]) {
-            let filter = audio.createBiquadFilter();
-            filter.type = instr[1 /* FilterType */];
-            filter.frequency.value = 2 ** instr[2 /* FilterFreq */];
-            filter.Q.value = instr[3 /* FilterQ */] ** 1.5;
-            if (lfa && instr[4 /* FilterDetuneLFO */]) {
-                lfa.connect(filter.detune);
-            }
-            master.connect(filter);
-            if (panner) {
-                filter.connect(panner);
-            }
-            else {
-                filter.connect(audio.destination);
-            }
-        }
-        else if (panner) {
-            master.connect(panner);
-        }
-        else {
-            master.connect(audio.destination);
-        }
-        for (let source of instr[8 /* Sources */]) {
-            let amp = audio.createGain();
-            amp.connect(master);
-            // Gain Envelope
-            let gain_amount = (source[1 /* GainAmount */] / 9) ** 3;
-            let gain_attack = (source[2 /* GainAttack */] / 9) ** 3;
-            let gain_sustain = (source[3 /* GainSustain */] / 9) ** 3;
-            let gain_release = (source[4 /* GainRelease */] / 6) ** 3;
-            let gain_duration = gain_attack + gain_sustain + gain_release;
-            amp.gain.setValueAtTime(0, time);
-            amp.gain.linearRampToValueAtTime(gain_amount, time + gain_attack);
-            amp.gain.setValueAtTime(gain_amount, time + gain_attack + gain_sustain);
-            amp.gain.exponentialRampToValueAtTime(0.00001, time + gain_duration);
-            // XXX TypeScript doesn't recognize source[SourceParam.SourceType] as the discriminant.
-            if (source[0]) {
-                let hfo = audio.createOscillator();
-                hfo.type = source[0 /* SourceType */];
-                hfo.connect(amp);
-                // Detune
-                // [-1265,1265] i.e. one octave down and one octave up.
-                hfo.detune.value = 3 * (source[5 /* DetuneAmount */] - 7.5) ** 3;
-                if (lfa && source[6 /* DetuneLFO */]) {
-                    lfa.connect(hfo.detune);
-                }
-                // Frequency Envelope
-                // Frequency from note number
-                let freq = 440 * 2 ** ((note - 69) / 12);
-                if (source[7 /* FreqEnabled */]) {
-                    let freq_attack = (source[8 /* FreqAttack */] / 9) ** 3;
-                    let freq_sustain = (source[9 /* FreqSustain */] / 9) ** 3;
-                    let freq_release = (source[10 /* FreqRelease */] / 6) ** 3;
-                    hfo.frequency.linearRampToValueAtTime(0, time);
-                    hfo.frequency.linearRampToValueAtTime(freq, time + freq_attack);
-                    hfo.frequency.setValueAtTime(freq, time + freq_attack + freq_sustain);
-                    hfo.frequency.exponentialRampToValueAtTime(0.00001, time + freq_attack + freq_sustain + freq_release);
-                }
-                else {
-                    hfo.frequency.setValueAtTime(freq, time);
-                }
-                hfo.start(time);
-                hfo.stop(time + gain_duration);
-            }
-            else {
-                let noise = audio.createBufferSource();
-                noise.buffer = lazy_noise_buffer(audio);
-                noise.loop = true;
-                noise.connect(amp);
-                noise.start(time);
-                noise.stop(time + gain_duration);
-            }
-            if (gain_duration > total_duration) {
-                total_duration = gain_duration;
-            }
-        }
-        if (lfo) {
-            lfo.start(time);
-            lfo.stop(time + total_duration);
-        }
-    }
-    let noise_buffer;
-    function lazy_noise_buffer(audio) {
-        if (!noise_buffer) {
-            noise_buffer = audio.createBuffer(1, audio.sampleRate * 2, audio.sampleRate);
-            let channel = noise_buffer.getChannelData(0);
-            for (let i = 0; i < channel.length; i++) {
-                channel[i] = Math.random() * 2 - 1;
-            }
-        }
-        return noise_buffer;
-    }
-    function play_synth_clip(audio, panner, clip) {
-        // Seconds per beat, corresponding to a quarter note.
-        let spb = 60 / (clip.BPM || 120);
-        // Track timing is based on sixteenth notes.
-        let interval = spb / 4;
-        for (let track of clip.Tracks) {
-            for (let i = 0; i < track.Notes.length; i++) {
-                if (track.Notes[i]) {
-                    play_note(audio, panner, track.Instrument, track.Notes[i], i * interval);
-                }
-            }
-        }
-    }
-    function play_buffer_clip(audio, panner, clip) {
-        let source = audio.createBufferSource();
-        source.buffer = clip.Buffer;
-        if (panner) {
-            source.connect(panner);
-            panner.connect(audio.destination);
-        }
-        else {
-            source.connect(audio.destination);
-        }
-        source.start();
-    }
-
     /**
-     * @module systems/sys_audio_source
+     * Add one or more child blueprints to the entity. Can only be called once.
      */
-    const QUERY$o = 4 /* AudioSource */ | 16777216 /* Transform */;
-    function sys_audio_source(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$o) === QUERY$o) {
-                update$h(game, i, delta);
+    function children(...blueprints) {
+        return (game, entity) => {
+            let child_entities = [];
+            for (let blueprint of blueprints) {
+                let child = instantiate(game, blueprint);
+                child_entities.push(child);
             }
-        }
-    }
-    function update$h(game, entity, delta) {
-        let audio_source = game.World.AudioSource[entity];
-        let transform = game.World.Transform[entity];
-        if (audio_source.Current) {
-            audio_source.Time += delta;
-            if (audio_source.Time > audio_source.Current.Exit) {
-                // This clip can now be exited from. Note: We might clear Current
-                // before the clip actually ends, if Exit < duration. That's OK, as
-                // we don't attempt to stop the current audio anyways.
-                // TODO Schedule notes from Current progressively rather than all at once.
-                audio_source.Current = undefined;
-            }
-            else if (audio_source.Panner) {
-                update_panner(audio_source.Panner, transform);
-            }
-        }
-        if (audio_source.Trigger && !audio_source.Current) {
-            switch (audio_source.Trigger.Kind) {
-                case 0 /* Buffer */:
-                    play_buffer_clip(game.Audio, audio_source.Panner, audio_source.Trigger);
-                    break;
-                case 1 /* Synth */:
-                    play_synth_clip(game.Audio, audio_source.Panner, audio_source.Trigger);
-                    break;
-            }
-            audio_source.Current = audio_source.Trigger;
-            audio_source.Time = 0;
-            if (audio_source.Panner) {
-                update_panner(audio_source.Panner, transform);
-            }
-        }
-        // Audio triggers are only valid in the frame they're set; they don't stack
-        // up. Otherwise sound effects would go out of sync with the game logic.
-        // Reset the trigger to the default or undefined, regardless of whether it
-        // triggered a new clip to play.
-        audio_source.Trigger = audio_source.Idle;
-    }
-    const position = [0, 0, 0];
-    const forward$1 = [0, 0, 0];
-    function update_panner(panner, transform) {
-        get_translation(position, transform.World);
-        get_forward(forward$1, transform.World);
-        if (panner.positionX) {
-            panner.positionX.value = position[0];
-            panner.positionY.value = position[1];
-            panner.positionZ.value = position[2];
-            panner.orientationX.value = forward$1[0];
-            panner.orientationY.value = forward$1[1];
-            panner.orientationZ.value = forward$1[2];
-        }
-        else {
-            // Firefox & Safari.
-            panner.setPosition(...position);
-            panner.setOrientation(...forward$1);
-        }
-    }
-
-    function resize_perspective(projection, aspect) {
-        if (aspect > 1) {
-            // Landscape orientation.
-            perspective(projection.Projection, projection.FovY, aspect, projection.Near, projection.Far);
-            invert(projection.Inverse, projection.Projection);
-        }
-        else {
-            // Portrait orientation.
-            perspective(projection.Projection, projection.FovY / aspect, aspect, projection.Near, projection.Far);
-            invert(projection.Inverse, projection.Projection);
-        }
-    }
-    function resize_ortho(projection) {
-        ortho(projection.Projection, projection.Radius, projection.Radius, -projection.Radius, -projection.Radius, projection.Near, projection.Far);
-        invert(projection.Inverse, projection.Projection);
-    }
-
-    /**
-     * @module systems/sys_camera
-     */
-    const QUERY$n = 16777216 /* Transform */ | 16 /* Camera */;
-    function sys_camera(game, delta) {
-        game.Cameras = [];
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$n) === QUERY$n) {
-                let camera = game.World.Camera[i];
-                let transform = game.World.Transform[i];
-                let projection = camera.Projection;
-                if (game.ViewportResized) {
-                    switch (projection.Kind) {
-                        case 0 /* Perspective */: {
-                            let aspect = camera.Kind === 0 /* Forward */
-                                ? game.ViewportWidth / game.ViewportHeight
-                                : camera.Target.Width / camera.Target.Height;
-                            resize_perspective(projection, aspect);
-                            break;
-                        }
-                        case 1 /* Ortho */:
-                            resize_ortho(projection);
-                            break;
-                    }
-                }
-                copy$2(camera.View, transform.Self);
-                multiply$1(camera.Pv, projection.Projection, camera.View);
-                get_translation(camera.Position, transform.World);
-                game.Cameras.push(i);
-            }
-        }
-    }
-
-    const BOX = [
-        [0.5, 0.5, 0.5],
-        [0.5, 0.5, -0.5],
-        [-0.5, 0.5, -0.5],
-        [-0.5, 0.5, 0.5],
-        [0.5, -0.5, 0.5],
-        [0.5, -0.5, -0.5],
-        [-0.5, -0.5, -0.5],
-        [-0.5, -0.5, 0.5],
-    ];
-    function compute_aabb(world, aabb) {
-        get_translation(aabb.Center, world);
-        // Start with the extents on each axis set to the position of the center.
-        let min_x, min_y, min_z, max_x, max_y, max_z;
-        min_x = max_x = aabb.Center[0];
-        min_y = max_y = aabb.Center[1];
-        min_z = max_z = aabb.Center[2];
-        // Expand the extents outwards from the center by finding the farthest
-        // vertex on each axis in both the negative and the positive direction.
-        let world_vertex = [0, 0, 0];
-        for (let i = 0; i < 8; i++) {
-            let bb_vertex = BOX[i];
-            // Scale the bounding box according to the size of the collider.
-            world_vertex[0] = bb_vertex[0] * aabb.Size[0];
-            world_vertex[1] = bb_vertex[1] * aabb.Size[1];
-            world_vertex[2] = bb_vertex[2] * aabb.Size[2];
-            transform_point(world_vertex, world_vertex, world);
-            if (world_vertex[0] < min_x) {
-                min_x = world_vertex[0];
-            }
-            if (world_vertex[0] > max_x) {
-                max_x = world_vertex[0];
-            }
-            if (world_vertex[1] < min_y) {
-                min_y = world_vertex[1];
-            }
-            if (world_vertex[1] > max_y) {
-                max_y = world_vertex[1];
-            }
-            if (world_vertex[2] < min_z) {
-                min_z = world_vertex[2];
-            }
-            if (world_vertex[2] > max_z) {
-                max_z = world_vertex[2];
-            }
-        }
-        // Save the min and max bounds.
-        aabb.Min = [min_x, min_y, min_z];
-        aabb.Max = [max_x, max_y, max_z];
-        // Calculate the half-extents.
-        aabb.Half[0] = (max_x - min_x) / 2;
-        aabb.Half[1] = (max_y - min_y) / 2;
-        aabb.Half[2] = (max_z - min_z) / 2;
-    }
-    function penetrate_aabb(a, b) {
-        let distance_x = a.Center[0] - b.Center[0];
-        let penetration_x = a.Half[0] + b.Half[0] - Math.abs(distance_x);
-        let distance_y = a.Center[1] - b.Center[1];
-        let penetration_y = a.Half[1] + b.Half[1] - Math.abs(distance_y);
-        let distance_z = a.Center[2] - b.Center[2];
-        let penetration_z = a.Half[2] + b.Half[2] - Math.abs(distance_z);
-        if (penetration_x < penetration_y && penetration_x < penetration_z) {
-            return [penetration_x * Math.sign(distance_x), 0, 0];
-        }
-        else if (penetration_y < penetration_z) {
-            return [0, penetration_y * Math.sign(distance_y), 0];
-        }
-        else {
-            return [0, 0, penetration_z * Math.sign(distance_z)];
-        }
-    }
-    function intersect_aabb(a, b) {
-        return (a.Min[0] < b.Max[0] &&
-            a.Max[0] > b.Min[0] &&
-            a.Min[1] < b.Max[1] &&
-            a.Max[1] > b.Min[1] &&
-            a.Min[2] < b.Max[2] &&
-            a.Max[2] > b.Min[2]);
-    }
-
-    /**
-     * @module systems/sys_collide
-     */
-    const QUERY$m = 16777216 /* Transform */ | 64 /* Collide */;
-    function sys_collide(game, delta) {
-        // Collect all colliders.
-        let static_colliders = [];
-        let dynamic_colliders = [];
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$m) === QUERY$m) {
-                let transform = game.World.Transform[i];
-                let collider = game.World.Collide[i];
-                // Prepare the collider for this tick's detection.
-                collider.Collisions = [];
-                if (collider.New) {
-                    collider.New = false;
-                    compute_aabb(transform.World, collider);
-                }
-                else if (collider.Dynamic) {
-                    compute_aabb(transform.World, collider);
-                    dynamic_colliders.push(collider);
-                }
-                else {
-                    static_colliders.push(collider);
-                }
-            }
-        }
-        for (let i = 0; i < dynamic_colliders.length; i++) {
-            check_collisions(dynamic_colliders[i], static_colliders, static_colliders.length);
-            check_collisions(dynamic_colliders[i], dynamic_colliders, i);
-        }
+            game.World.Signature[entity] |= 32 /* Children */;
+            game.World.Children[entity] = {
+                Children: child_entities,
+            };
+        };
     }
     /**
-     * Check for collisions between a dynamic collider and other colliders. Length
-     * is used to control how many colliders to check against. For collisions
-     * with static colliders, length should be equal to colliders.length, since
-     * we want to consider all static colliders in the scene. For collisions with
-     * other dynamic colliders, we only need to check a pair of colliders once.
-     * Varying length allows to skip half of the NxN checks matrix.
+     * Yield entities matching a component mask. The query is tested against the
+     * parent and all its descendants.
      *
-     * @param game The game instance.
-     * @param collider The current collider.
-     * @param colliders Other colliders to test against.
-     * @param length How many colliders to check.
+     * @param world World object which stores the component data.
+     * @param parent Parent entity to traverse.
+     * @param mask Component mask to look for.
      */
-    function check_collisions(collider, colliders, length) {
-        for (let i = 0; i < length; i++) {
-            let other = colliders[i];
-            let collider_can_intersect = collider.Signature & other.Layers;
-            let other_can_intersect = other.Signature & collider.Layers;
-            if (collider_can_intersect || other_can_intersect) {
-                if (intersect_aabb(collider, other)) {
-                    let hit = penetrate_aabb(collider, other);
-                    if (collider_can_intersect) {
-                        collider.Collisions.push({
-                            Other: other.Entity,
-                            Hit: hit,
-                        });
-                    }
-                    if (other_can_intersect) {
-                        other.Collisions.push({
-                            Other: collider.Entity,
-                            Hit: negate([0, 0, 0], hit),
-                        });
-                    }
-                }
+    function* query_all(world, parent, mask) {
+        if ((world.Signature[parent] & mask) === mask) {
+            yield parent;
+        }
+        if (world.Signature[parent] & 32 /* Children */) {
+            for (let child of world.Children[parent].Children) {
+                yield* query_all(world, child, mask);
             }
         }
     }
-
     /**
-     * @module systems/sys_control_ai
+     * Delete the entity with all its descendants.
+     * @param world World object which stores the component data.
+     * @param entity The root entity to start removing at.
      */
-    const QUERY$l = 256 /* ControlAi */ | 16777216 /* Transform */;
-    function sys_control_ai(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$l) === QUERY$l) {
-                update$g(game, i);
+    function destroy_all(world, entity) {
+        if (world.Signature[entity] & 32 /* Children */) {
+            for (let child of world.Children[entity].Children) {
+                destroy_all(world, child);
             }
         }
-    }
-    function update$g(game, entity) {
-        let control = game.World.ControlAi[entity];
-        for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
-            let animate = game.World.Animate[ent];
-            animate.Trigger = control.Animation;
-        }
-    }
-
-    /**
-     * @module systems/sys_control_always
-     */
-    const QUERY$k = 128 /* ControlAlways */ | 16777216 /* Transform */ | 65536 /* Move */;
-    function sys_control_always(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$k) === QUERY$k) {
-                update$f(game, i);
-            }
-        }
-    }
-    function update$f(game, entity) {
-        let control = game.World.ControlAlways[entity];
-        let move = game.World.Move[entity];
-        if (control.Direction) {
-            move.Directions.push(control.Direction.slice());
-        }
-        if (control.Rotation) {
-            move.LocalRotations.push(control.Rotation.slice());
-        }
+        world.DestroyEntity(entity);
     }
 
     /**
@@ -2885,256 +998,59 @@
         }
     }
 
-    const QUERY$j = 512 /* ControlPlayer */;
-    function sys_control_keyboard(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
-                update$e(game, i);
-            }
-        }
-    }
-    function update$e(game, entity) {
-        let control = game.World.ControlPlayer[entity];
-        if (control.Flags & 1 /* Move */) {
-            // Requires Has.Move | Has.RigidBody.
-            let move = game.World.Move[entity];
-            if (game.InputState["ArrowLeft"]) {
-                move.Directions.push([-1, 0, 0]);
-            }
-            if (game.InputState["ArrowRight"]) {
-                move.Directions.push([1, 0, 0]);
-            }
-            let rigid_body = game.World.RigidBody[entity];
-            if (!rigid_body.IsAirborne) {
-                // The entity is on the ground or on an object.
-                if (game.InputState["ArrowUp"]) {
-                    rigid_body.Acceleration[1] += 500;
-                }
-            }
-        }
-        if (control.Flags & 2 /* Rotate */) {
-            // Requires Has.Transform.
-            let transform = game.World.Transform[entity];
-            if (!control.IsGrabbingEntity) {
-                if (game.InputState["ArrowLeft"] && control.IsFacingRight) {
-                    control.IsFacingRight = false;
-                    set(transform.Rotation, 0, -0.7, 0.0, 0.7);
-                    transform.Dirty = true;
-                }
-                if (game.InputState["ArrowRight"] && !control.IsFacingRight) {
-                    control.IsFacingRight = true;
-                    set(transform.Rotation, 0, 0.7, 0.0, 0.7);
-                    transform.Dirty = true;
-                }
-            }
-        }
-        if (control.Flags & 8 /* Grab */) {
-            // Requires Has.Collide.
-            let collide = game.World.Collide[entity];
-            if (game.InputState["Space"] &&
-                !control.IsGrabbingEntity &&
-                collide.Collisions.length > 0) {
-                let obstacle_entity = collide.Collisions[0].Other;
-                let obstacle_mimic = game.World.Mimic[obstacle_entity];
-                if (obstacle_mimic) {
-                    for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
-                        let control = game.World.ControlPlayer[ent];
-                        control.IsGrabbingEntity = obstacle_entity;
-                    }
-                    game.World.Signature[obstacle_entity] |= 32768 /* Mimic */;
-                    if (obstacle_mimic) {
-                        obstacle_mimic.Target = entity;
-                    }
-                }
-            }
-            if (game.InputDelta["Space"] === -1 && control.IsGrabbingEntity) {
-                game.World.Signature[control.IsGrabbingEntity] &= ~32768 /* Mimic */;
-                for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
-                    let control = game.World.ControlPlayer[ent];
-                    control.IsGrabbingEntity = null;
-                }
-            }
-        }
-        if (control.Flags & 4 /* Animate */) {
-            let anim_name = "idle";
-            if (game.InputState["ArrowLeft"] || game.InputState["ArrowRight"]) {
-                anim_name = "walk";
-            }
-            let parent_entity = game.World.Transform[entity].Parent;
-            if (parent_entity !== undefined) {
-                let parent_mimic = game.World.Mimic[parent_entity];
-                let anchor_entity = parent_mimic.Target;
-                let anchor_parent = game.World.Transform[anchor_entity].Parent;
-                if (anchor_parent) {
-                    let rigid_body = game.World.RigidBody[anchor_parent];
-                    if (rigid_body.IsAirborne) {
-                        anim_name = "jump";
-                    }
-                }
-            }
-            for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
-                let animate = game.World.Animate[ent];
-                animate.Trigger = anim_name;
-            }
-        }
+    function blueprint_camera(game, clear_color) {
+        return [children([transform([0, 0, 5]), camera_forward_perspective(1, 0.1, 15, clear_color)])];
     }
 
-    const QUERY$i = 512 /* ControlPlayer */;
-    const DOUBLE_TAP_INTERVAL = 0.2;
-    const MOVEMENT_DEAD_ZONE = 0.01;
-    const JUMPING_DEAD_ZONE = 0.5;
-    // The origin o fthe gesture from which to compute dx, dy.
-    const touch_start = [0, 0];
-    let time_between_taps = 0;
-    function sys_control_touch_move(game, delta) {
-        if (game.InputDelta["Touch0"] === -1) {
-            time_between_taps = 0;
-        }
-        if (game.InputState["Touch0"] === 0) {
-            time_between_taps += delta;
-        }
-        if (game.InputDelta["Touch0"] === 1) {
-            // The center of the invisible joystick is given by the position of the
-            // first touch of the first finger on the screen's surface.
-            touch_start[0] = game.InputState["Touch0X"];
-            touch_start[1] = game.InputState["Touch0Y"];
-        }
-        let dx = 0;
-        let dy = 0;
-        if (game.InputState["Touch0"] === 1) {
-            let divisor = Math.min(game.ViewportWidth, game.ViewportHeight) / 4;
-            dx = (game.InputState["Touch0X"] - touch_start[0]) / divisor;
-            dy = (game.InputState["Touch0Y"] - touch_start[1]) / divisor;
-        }
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$i) === QUERY$i) {
-                update$d(game, i, dx, dy);
-            }
-        }
-    }
-    function update$d(game, entity, dx, dy) {
-        let control = game.World.ControlPlayer[entity];
-        if (control.Flags & 1 /* Move */) {
-            let move = game.World.Move[entity];
-            if (Math.abs(dx) > MOVEMENT_DEAD_ZONE) {
-                move.Directions.push([clamp(-1, 1, dx), 0, 0]);
-            }
-            let rigid_body = game.World.RigidBody[entity];
-            if (!rigid_body.IsAirborne) {
-                // The entity is on the ground or on an object.
-                if (Math.abs(dy) > JUMPING_DEAD_ZONE) {
-                    rigid_body.Acceleration[1] += 500;
-                }
-            }
-        }
-        if (control.Flags & 2 /* Rotate */) {
-            let transform = game.World.Transform[entity];
-            if (!control.IsGrabbingEntity) {
-                if (dx < 0 && control.IsFacingRight) {
-                    control.IsFacingRight = false;
-                    set(transform.Rotation, 0, -0.7, 0.0, 0.7);
-                    transform.Dirty = true;
-                }
-                if (dx > 0 && !control.IsFacingRight) {
-                    control.IsFacingRight = true;
-                    set(transform.Rotation, 0, 0.7, 0.0, 0.7);
-                    transform.Dirty = true;
-                }
-            }
-        }
-        if (control.Flags & 8 /* Grab */) {
-            // Requires Has.Collide.
-            let collide = game.World.Collide[entity];
-            if (game.InputDelta["Touch0"] === 1 &&
-                time_between_taps < DOUBLE_TAP_INTERVAL &&
-                !control.IsGrabbingEntity &&
-                collide.Collisions.length > 0) {
-                let obstacle_entity = collide.Collisions[0].Other;
-                for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
-                    let control = game.World.ControlPlayer[ent];
-                    control.IsGrabbingEntity = obstacle_entity;
-                }
-                game.World.Signature[obstacle_entity] |= 32768 /* Mimic */;
-                let obstacle_mimic = game.World.Mimic[obstacle_entity];
-                obstacle_mimic.Target = entity;
-            }
-            if (game.InputDelta["Touch0"] === -1 && control.IsGrabbingEntity) {
-                game.World.Signature[control.IsGrabbingEntity] &= ~32768 /* Mimic */;
-                for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
-                    let control = game.World.ControlPlayer[ent];
-                    control.IsGrabbingEntity = null;
-                }
-            }
-        }
-        if (control.Flags & 4 /* Animate */) {
-            let anim_name;
-            if (dx !== 0) {
-                anim_name = "walk";
-            }
-            else {
-                anim_name = "idle";
-            }
-            for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
-                let animate = game.World.Animate[ent];
-                animate.Trigger = anim_name;
-            }
-        }
+    /**
+     * Add EmitParticles.
+     *
+     * @param lifespan How long particles live for.
+     * @param frequency How often particles spawn.
+     * @param speed How fast particles move.
+     */
+    function emit_particles(lifespan, frequency, speed) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 4096 /* EmitParticles */;
+            game.World.EmitParticles[entity] = {
+                Lifespan: lifespan,
+                Frequency: frequency,
+                Speed: speed,
+                Instances: [],
+                SinceLast: 0,
+            };
+        };
     }
 
-    const QUERY$h = 65536 /* Move */ | 512 /* ControlPlayer */;
-    const DEAD_ZONE = 0.1;
-    function sys_control_xbox(game, delta) {
-        for (let pad of navigator.getGamepads()) {
-            if (pad) {
-                game.InputDelta[`pad${pad.index}_axis_1`] = pad.axes[0];
-                game.InputDelta[`pad${pad.index}_axis_2`] = pad.axes[1];
-                game.InputDelta[`pad${pad.index}_axis_3`] = pad.axes[2];
-                game.InputDelta[`pad${pad.index}_axis_4`] = pad.axes[3];
-            }
-        }
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$h) === QUERY$h) {
-                update$c(game, i);
-            }
-        }
-    }
-    function update$c(game, entity) {
-        let control = game.World.ControlPlayer[entity];
-        if (control.Flags & 1 /* Move */) {
-            let move = game.World.Move[entity];
-            if (Math.abs(game.InputDelta["pad0_axis_1"]) > DEAD_ZONE) {
-                // Strafe movement.
-                move.Directions.push([-game.InputDelta["pad0_axis_1"], 0, 0]);
-            }
-            if (Math.abs(game.InputDelta["pad0_axis_2"]) > DEAD_ZONE) {
-                // Forward movement.
-                move.Directions.push([0, 0, -game.InputDelta["pad0_axis_2"]]);
-            }
-        }
+    /**
+     * @module components/com_mimic
+     */
+    function mimic(Target, Stiffness = 0.1) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 32768 /* Mimic */;
+            game.World.Mimic[entity] = {
+                Target,
+                Stiffness,
+            };
+        };
     }
 
-    const QUERY$g = 16777216 /* Transform */ | 1024 /* Cull */;
-    function sys_cull(game, delta) {
-        // The main camera must be instantiated after the shadow source one.
-        let camera_entity = game.Cameras[1];
-        let transform = game.World.Transform[camera_entity];
-        let x = transform.World[12];
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$g) == QUERY$g) {
-                update$b(game, i, x);
+    /**
+     * @module components/com_named
+     */
+    function named(Name) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 131072 /* Named */;
+            game.World.Named[entity] = { Name };
+        };
+    }
+    function find_first(world, name) {
+        for (let i = 0; i < world.Signature.length; i++) {
+            if (world.Signature[i] & 131072 /* Named */ && world.Named[i].Name === name) {
+                return i;
             }
         }
-    }
-    function update$b(game, entity, camera_x) {
-        let cull = game.World.Cull[entity];
-        let transform = game.World.Transform[entity];
-        let x = transform.World[12];
-        if (Math.abs(x - camera_x) > 15) {
-            game.World.Signature[entity] &= ~cull.Mask;
-        }
-        else {
-            game.World.Signature[entity] |= cull.Mask;
-        }
+        throw `No entity named ${name}.`;
     }
 
     /**
@@ -3299,1114 +1215,6 @@
     }
 
     /**
-     * @module systems/sys_draw
-     */
-    const QUERY$f = 16777216 /* Transform */ | 2048 /* Draw */;
-    function sys_draw(game, delta) {
-        game.Context2D.resetTransform();
-        game.Context2D.clearRect(0, 0, game.ViewportWidth, game.ViewportHeight);
-        let position = [0, 0, 0];
-        let camera_entity = game.Cameras[0];
-        let main_camera = game.World.Camera[camera_entity];
-        if (!main_camera) {
-            return;
-        }
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$f) == QUERY$f) {
-                // World position.
-                get_translation(position, game.World.Transform[i].World);
-                // NDC position.
-                transform_point(position, position, main_camera.Pv);
-                if (position[2] < -1 || position[2] > 1) {
-                    // The entity is outside the frustum. Only consider the Z axis
-                    // which allows us to discard all positions in front of the near
-                    // plane (behind the camera) and behind the far plane. We still
-                    // draw the remaining XY positions outside NDC in case the
-                    // drawing is wide or tall enough to be visible.
-                    continue;
-                }
-                game.Context2D.setTransform(1, 0, 0, 1, 0.5 * (position[0] + 1) * game.ViewportWidth, 0.5 * (-position[1] + 1) * game.ViewportHeight);
-                let draw = game.World.Draw[i];
-                switch (draw.Kind) {
-                    case 0 /* Text */:
-                        draw_text(game, draw);
-                        break;
-                    case 2 /* Selection */:
-                        draw_selection(game, draw);
-                        break;
-                }
-            }
-        }
-    }
-    function draw_text(game, draw) {
-        game.Context2D.textAlign = "center";
-        game.Context2D.font = draw.Font;
-        game.Context2D.fillStyle = draw.FillStyle;
-        game.Context2D.fillText(draw.Text, 0, 0);
-    }
-    function draw_selection(game, draw) {
-        game.Context2D.strokeStyle = draw.Color;
-        game.Context2D.strokeRect(-draw.Size / 2, -draw.Size / 2, draw.Size, draw.Size);
-    }
-
-    /**
-     * @module systems/sys_lifespan
-     */
-    const QUERY$e = 8192 /* Lifespan */;
-    function sys_lifespan(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$e) == QUERY$e) {
-                update$a(game, i, delta);
-            }
-        }
-    }
-    function update$a(game, entity, delta) {
-        let lifespan = game.World.Lifespan[entity];
-        lifespan.Remaining -= delta;
-        if (lifespan.Remaining < 0) {
-            if (lifespan.Action) {
-                dispatch(game, lifespan.Action, entity);
-            }
-            destroy_all(game.World, entity);
-        }
-    }
-
-    /**
-     * @module systems/sys_light
-     */
-    const QUERY$d = 16777216 /* Transform */ | 16384 /* Light */;
-    function sys_light(game, delta) {
-        game.LightPositions.fill(0);
-        game.LightDetails.fill(0);
-        let counter = 0;
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$d) === QUERY$d) {
-                update$9(game, i, counter++);
-            }
-        }
-    }
-    let world_pos = [0, 0, 0];
-    function update$9(game, entity, idx) {
-        let light = game.World.Light[entity];
-        let transform = game.World.Transform[entity];
-        get_translation(world_pos, transform.World);
-        if (light.Kind === 1 /* Directional */) {
-            // For directional lights, their normalized position in the world
-            // describes the light's normal.
-            normalize(world_pos, world_pos);
-        }
-        game.LightPositions[4 * idx + 0] = world_pos[0];
-        game.LightPositions[4 * idx + 1] = world_pos[1];
-        game.LightPositions[4 * idx + 2] = world_pos[2];
-        game.LightPositions[4 * idx + 3] = light.Kind;
-        game.LightDetails[4 * idx + 0] = light.Color[0];
-        game.LightDetails[4 * idx + 1] = light.Color[1];
-        game.LightDetails[4 * idx + 2] = light.Color[2];
-        game.LightDetails[4 * idx + 3] = light.Intensity;
-    }
-
-    /**
-     * @module systems/sys_mimic
-     */
-    const QUERY$c = 16777216 /* Transform */ | 32768 /* Mimic */;
-    function sys_mimic(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$c) === QUERY$c) {
-                let follower_transform = game.World.Transform[i];
-                let follower_mimic = game.World.Mimic[i];
-                let target_transform = game.World.Transform[follower_mimic.Target];
-                let target_world_position = get_translation([0, 0, 0], target_transform.World);
-                let target_world_rotation = get_rotation([0, 0, 0, 0], target_transform.World);
-                // XXX Follower must be a top-level transform for this to work.
-                lerp(follower_transform.Translation, follower_transform.Translation, target_world_position, follower_mimic.Stiffness);
-                slerp(follower_transform.Rotation, follower_transform.Rotation, target_world_rotation, follower_mimic.Stiffness);
-                follower_transform.Dirty = true;
-            }
-        }
-    }
-
-    /**
-     * @module systems/sys_move
-     */
-    const QUERY$b = 16777216 /* Transform */ | 65536 /* Move */;
-    const NO_ROTATION = [0, 0, 0, 1];
-    function sys_move(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$b) === QUERY$b) {
-                update$8(game, i, delta);
-            }
-        }
-    }
-    function update$8(game, entity, delta) {
-        let transform = game.World.Transform[entity];
-        let move = game.World.Move[entity];
-        if (move.Directions.length) {
-            let direction = move.Directions.reduce(add_directions);
-            // Directions are not normalized to allow them to express slower
-            // movement from a gamepad input. They can also cancel each other out.
-            // They may not, however, intensify one another; hence max amount is 1.
-            let amount = Math.min(1, length(direction));
-            // Transform the direction into the world or the parent space. This will
-            // also scale the result by the scale encoded in the transform.
-            transform_direction(direction, direction, transform.World);
-            if (transform.Parent !== undefined) {
-                let parent = game.World.Transform[transform.Parent];
-                transform_direction(direction, direction, parent.Self);
-            }
-            // Normalize the direction to remove the transform's scale. The length
-            // of the orignal direction is now lost.
-            normalize(direction, direction);
-            // Scale by the amount and distance traveled in this tick.
-            scale(direction, direction, amount * move.MoveSpeed * delta);
-            add(transform.Translation, transform.Translation, direction);
-            transform.Dirty = true;
-            move.Directions = [];
-        }
-        // Rotations applied relative to the local space (parent's or world).
-        if (move.LocalRotations.length) {
-            let rotation = move.LocalRotations.reduce(multiply_rotations);
-            let t = Math.min(1, (move.RotationSpeed / Math.PI) * delta);
-            slerp(rotation, NO_ROTATION, rotation, t);
-            // Pre-multiply.
-            multiply(transform.Rotation, rotation, transform.Rotation);
-            transform.Dirty = true;
-            move.LocalRotations = [];
-        }
-        // Rotations applied relative to the self space.
-        if (move.SelfRotations.length) {
-            let rotation = move.SelfRotations.reduce(multiply_rotations);
-            let t = Math.min(1, (move.RotationSpeed / Math.PI) * delta);
-            slerp(rotation, NO_ROTATION, rotation, t);
-            // Post-multiply.
-            multiply(transform.Rotation, transform.Rotation, rotation);
-            transform.Dirty = true;
-            move.SelfRotations = [];
-        }
-    }
-    function add_directions(acc, cur) {
-        return add(acc, acc, cur);
-    }
-    function multiply_rotations(acc, cur) {
-        return multiply(acc, acc, cur);
-    }
-
-    const QUERY$a = 16777216 /* Transform */ | 4096 /* EmitParticles */;
-    function sys_particles(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$a) == QUERY$a) {
-                update$7(game, i, delta);
-            }
-        }
-    }
-    let origin = [0, 0, 0];
-    let forward = [0, 0, 0];
-    function update$7(game, entity, delta) {
-        let emitter = game.World.EmitParticles[entity];
-        let transform = game.World.Transform[entity];
-        emitter.SinceLast += delta;
-        if (emitter.SinceLast > emitter.Frequency) {
-            emitter.SinceLast = 0;
-            get_translation(origin, transform.World);
-            get_forward(forward, transform.World);
-            // Push [x, y, z, age].
-            emitter.Instances.push(...origin, 0);
-            // Push [x, y, z, seed].
-            emitter.Instances.push(...forward, Math.random());
-        }
-        // A flat continuous array of particle data, from which a Float32Array
-        // is created in sys_render and sent as a vertex attribute array.
-        for (let i = 0; i < emitter.Instances.length;) {
-            emitter.Instances[i + 3] += delta;
-            if (emitter.Instances[i + 3] > emitter.Lifespan) {
-                emitter.Instances.splice(i, DATA_PER_PARTICLE);
-            }
-            else {
-                i += DATA_PER_PARTICLE;
-            }
-        }
-    }
-
-    /**
-     * @module systems/sys_physics_integrate
-     */
-    const QUERY$9 = 16777216 /* Transform */ | 524288 /* RigidBody */;
-    const GRAVITY = -20;
-    function sys_physics_integrate(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$9) === QUERY$9) {
-                update$6(game, i, delta);
-            }
-        }
-    }
-    function update$6(game, entity, delta) {
-        let transform = game.World.Transform[entity];
-        let rigid_body = game.World.RigidBody[entity];
-        if (rigid_body.Kind === 1 /* Dynamic */) {
-            copy$1(rigid_body.VelocityIntegrated, rigid_body.VelocityResolved);
-            // Compute change to velocity, including the gravity.
-            scale(rigid_body.Acceleration, rigid_body.Acceleration, delta);
-            add(rigid_body.VelocityIntegrated, rigid_body.VelocityIntegrated, rigid_body.Acceleration);
-            rigid_body.VelocityIntegrated[1] += GRAVITY * delta;
-            // Apply velocity to position.
-            let vel_delta = [0, 0, 0];
-            scale(vel_delta, rigid_body.VelocityIntegrated, delta);
-            add(transform.Translation, transform.Translation, vel_delta);
-            transform.Dirty = true;
-            // Reset force/acceleration.
-            set$1(rigid_body.Acceleration, 0, 0, 0);
-        }
-    }
-
-    /**
-     * @module systems/sys_physics_kinematic
-     */
-    const QUERY$8 = 16777216 /* Transform */ | 524288 /* RigidBody */;
-    function sys_physics_kinematic(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$8) === QUERY$8) {
-                update$5(game, i, delta);
-            }
-        }
-    }
-    function update$5(game, entity, delta) {
-        let transform = game.World.Transform[entity];
-        let rigid_body = game.World.RigidBody[entity];
-        if (rigid_body.Kind === 2 /* Kinematic */) {
-            let current_position = [0, 0, 0];
-            get_translation(current_position, transform.World);
-            let movement = [0, 0, 0];
-            subtract(movement, current_position, rigid_body.LastPosition);
-            // Compute velocity from this frame's movement.
-            scale(rigid_body.VelocityIntegrated, movement, 1 / delta);
-            copy$1(rigid_body.LastPosition, current_position);
-        }
-    }
-
-    /**
-     * @module systems/sys_physics_resolve
-     */
-    const QUERY$7 = 16777216 /* Transform */ | 64 /* Collide */ | 524288 /* RigidBody */;
-    function sys_physics_resolve(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$7) === QUERY$7) {
-                update$4(game, i);
-            }
-        }
-    }
-    // Temp vector used to compute the reflection off of a static body.
-    let a = [0, 0, 0];
-    function update$4(game, entity) {
-        let transform = game.World.Transform[entity];
-        let collide = game.World.Collide[entity];
-        let rigid_body = game.World.RigidBody[entity];
-        if (rigid_body.Kind === 1 /* Dynamic */) {
-            let has_collision = false;
-            for (let i = 0; i < collide.Collisions.length; i++) {
-                let collision = collide.Collisions[i];
-                if (game.World.Signature[collision.Other] & 524288 /* RigidBody */) {
-                    has_collision = true;
-                    // Dynamic rigid bodies are only supported for top-level
-                    // entities. Thus, no need to apply the world → self → local
-                    // conversion to the collision response. Local space is world space.
-                    add(transform.Translation, transform.Translation, collision.Hit);
-                    transform.Dirty = true;
-                    // Assume mass = 1 for all rigid bodies. On collision,
-                    // velocities are swapped, unless the other body is a static
-                    // one (and behaves as if it had infinite mass).
-                    let other_body = game.World.RigidBody[collision.Other];
-                    switch (other_body.Kind) {
-                        case 0 /* Static */:
-                            // Compute the reflection vector as
-                            //   r = v - 2 * (v·n) * n
-                            // where
-                            //   v — the incident velocity vector
-                            //   n — the normal of the surface of reflection
-                            // Compute n.
-                            normalize(a, collision.Hit);
-                            // Compute - 2 * (v·n) * n.
-                            scale(a, a, -2 * dot(rigid_body.VelocityIntegrated, a));
-                            add(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated, a);
-                            break;
-                        case 1 /* Dynamic */:
-                        case 2 /* Kinematic */:
-                            copy$1(rigid_body.VelocityResolved, other_body.VelocityIntegrated);
-                            break;
-                    }
-                    // When Bounciness = 1, collisions are 100% elastic.
-                    scale(rigid_body.VelocityResolved, rigid_body.VelocityResolved, rigid_body.Bounciness);
-                    if (collision.Hit[1] > 0 && rigid_body.VelocityResolved[1] < 1) {
-                        // Collision from the bottom stops the downward movement.
-                        rigid_body.VelocityResolved[1] = 0;
-                        rigid_body.IsAirborne = false;
-                    }
-                }
-            }
-            if (!has_collision) {
-                copy$1(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated);
-                rigid_body.IsAirborne = true;
-            }
-        }
-    }
-
-    /**
-     * @module systems/sys_poll
-     */
-    const QUERY$6 = 4194304 /* Task */;
-    function sys_poll(game, delta) {
-        // Collect all ready tasks first to avoid completing them while we stil
-        // literate over ohter tasks. This guarantees that tasks blocked by other
-        // tasks will be completed during the next frame.
-        let tasks_to_complete = [];
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$6) === QUERY$6) {
-                if (has_blocking_dependencies(game.World, i)) {
-                    continue;
-                }
-                let task = game.World.Task[i];
-                switch (task.Kind) {
-                    case 0 /* Until */: {
-                        if (task.Predicate(i)) {
-                            tasks_to_complete.push(i);
-                        }
-                        break;
-                    }
-                    case 1 /* Timeout */: {
-                        task.Remaining -= delta;
-                        if (task.Remaining < 0) {
-                            tasks_to_complete.push(i);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        for (let entity of tasks_to_complete) {
-            game.World.Signature[entity] &= ~4194304 /* Task */;
-            if (game.World.Signature[entity] === 0 /* None */) {
-                game.World.DestroyEntity(entity);
-            }
-            let task = game.World.Task[entity];
-            if (task.OnDone) {
-                task.OnDone(entity);
-            }
-            // Explicitly delete the component data for this task to avoid memory
-            // leaks from closures.
-            delete game.World.Task[entity];
-        }
-    }
-    function has_blocking_dependencies(world, entity) {
-        if (world.Signature[entity] & 32 /* Children */) {
-            let children = world.Children[entity];
-            for (let child of children.Children) {
-                if (world.Signature[child] & 4194304 /* Task */) {
-                    // A pending child blocks the parent task.
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    class WorldImpl {
-        constructor() {
-            this.Signature = [];
-            this.Graveyard = [];
-        }
-        CreateEntity() {
-            if (this.Graveyard.length > 0) {
-                return this.Graveyard.pop();
-            }
-            if (DEBUG && this.Signature.length > 10000) {
-                throw new Error("No more entities available.");
-            }
-            // Push a new signature and return its index.
-            return this.Signature.push(0) - 1;
-        }
-        DestroyEntity(entity) {
-            this.Signature[entity] = 0;
-            if (DEBUG && this.Graveyard.includes(entity)) {
-                throw new Error("Entity already in graveyard.");
-            }
-            this.Graveyard.push(entity);
-        }
-    }
-    // Other methods are free functions for the sake of tree-shakability.
-    function first_entity(world, query, start_at = 0) {
-        for (let i = start_at; i < world.Signature.length; i++) {
-            if ((world.Signature[i] & query) === query) {
-                return i;
-            }
-        }
-    }
-
-    /**
-     * @module systems/sys_render_forward
-     */
-    const QUERY$5 = 16777216 /* Transform */ | 262144 /* Render */;
-    function sys_render_forward(game, delta) {
-        for (let camera_entity of game.Cameras) {
-            let camera = game.World.Camera[camera_entity];
-            switch (camera.Kind) {
-                case 0 /* Forward */:
-                    render_forward(game, camera);
-                    break;
-                case 2 /* Framebuffer */:
-                    render_framebuffer(game, camera);
-                    break;
-                case 3 /* Depth */:
-                    render_depth(game, camera);
-                    break;
-            }
-        }
-    }
-    function render_forward(game, camera) {
-        game.Gl.bindFramebuffer(GL_FRAMEBUFFER, null);
-        game.Gl.viewport(0, 0, game.ViewportWidth, game.ViewportHeight);
-        game.Gl.clearColor(...camera.ClearColor);
-        game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        render(game, camera);
-    }
-    function render_framebuffer(game, camera) {
-        game.Gl.bindFramebuffer(GL_FRAMEBUFFER, camera.Target.Framebuffer);
-        game.Gl.viewport(0, 0, camera.Target.Width, camera.Target.Height);
-        game.Gl.clearColor(...camera.ClearColor);
-        game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        render(game, camera, camera.Target.RenderTexture);
-    }
-    function render_depth(game, camera) {
-        game.Gl.bindFramebuffer(GL_FRAMEBUFFER, camera.Target.Framebuffer);
-        game.Gl.viewport(0, 0, camera.Target.Width, camera.Target.Height);
-        game.Gl.clearColor(...camera.ClearColor);
-        game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        render(game, camera);
-    }
-    function render(game, eye, current_target) {
-        // Keep track of the current material to minimize switching.
-        let current_material = null;
-        let current_front_face = null;
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$5) === QUERY$5) {
-                let transform = game.World.Transform[i];
-                let render = game.World.Render[i];
-                if (render.Material !== current_material) {
-                    current_material = render.Material;
-                    switch (render.Kind) {
-                        case 0 /* ColoredUnlit */:
-                            use_colored_unlit(game, render.Material, eye);
-                            break;
-                        case 1 /* ColoredShaded */:
-                            use_colored_shaded(game, render.Material, eye);
-                            break;
-                        case 4 /* Vertices */:
-                            use_vertices(game, render.Material, eye);
-                            break;
-                        case 2 /* ColoredShadows */:
-                            use_colored_shadows(game, render.Material, eye);
-                            break;
-                        case 3 /* ColoredSkinned */:
-                            use_colored_skinned(game, render.Material, eye);
-                            break;
-                        case 5 /* ParticlesColored */:
-                            use_particles_colored(game, render.Material, eye);
-                            break;
-                        case 6 /* Instanced */:
-                            use_instanced(game, render.Material, eye);
-                            break;
-                    }
-                }
-                if (render.FrontFace !== current_front_face) {
-                    current_front_face = render.FrontFace;
-                    game.Gl.frontFace(render.FrontFace);
-                }
-                switch (render.Kind) {
-                    case 0 /* ColoredUnlit */:
-                        draw_colored_unlit(game, transform, render);
-                        break;
-                    case 1 /* ColoredShaded */:
-                        draw_colored_shaded(game, transform, render);
-                        break;
-                    case 4 /* Vertices */:
-                        draw_vertices(game, transform, render);
-                        break;
-                    case 2 /* ColoredShadows */:
-                        draw_colored_shadows(game, transform, render);
-                        break;
-                    case 3 /* ColoredSkinned */:
-                        draw_colored_skinned(game, i, transform, render);
-                        break;
-                    case 5 /* ParticlesColored */: {
-                        let emitter = game.World.EmitParticles[i];
-                        if (emitter.Instances.length) {
-                            draw_particles_colored(game, render, emitter);
-                        }
-                        break;
-                    }
-                    case 6 /* Instanced */:
-                        draw_instanced(game, transform, render);
-                        break;
-                }
-            }
-        }
-    }
-    function use_colored_unlit(game, material, eye) {
-        game.Gl.useProgram(material.Program);
-        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-    }
-    function draw_colored_unlit(game, transform, render) {
-        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-        game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
-        game.Gl.bindVertexArray(render.Vao);
-        game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-        game.Gl.bindVertexArray(null);
-    }
-    function use_colored_shaded(game, material, eye) {
-        game.Gl.useProgram(material.Program);
-        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-        game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
-        game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-        game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
-        game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-        game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
-    }
-    function draw_colored_shaded(game, transform, render) {
-        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-        game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
-        game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-        game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-        game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
-        game.Gl.bindVertexArray(render.Vao);
-        game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-        game.Gl.bindVertexArray(null);
-    }
-    function use_vertices(game, material, eye) {
-        game.Gl.useProgram(material.Program);
-        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-    }
-    function draw_vertices(game, transform, render) {
-        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-        game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
-        game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.VertexBuffer);
-        game.Gl.enableVertexAttribArray(render.Material.Locations.VertexPosition);
-        game.Gl.vertexAttribPointer(render.Material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-        game.Gl.drawArrays(render.Material.Mode, 0, render.IndexCount);
-    }
-    function use_colored_shadows(game, material, eye) {
-        game.Gl.useProgram(material.Program);
-        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-        game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
-        game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-        game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
-        game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-        game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
-        if (eye.Kind === 3 /* Depth */) {
-            game.Gl.activeTexture(GL_TEXTURE0);
-            game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Noop.DepthTexture);
-            game.Gl.uniform1i(material.Locations.ShadowMap, 0);
-        }
-        else {
-            game.Gl.activeTexture(GL_TEXTURE0);
-            game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Sun.DepthTexture);
-            game.Gl.uniform1i(material.Locations.ShadowMap, 0);
-            // Only one shadow source is supported.
-            let light_entity = first_entity(game.World, 16 /* Camera */ | 16384 /* Light */);
-            if (light_entity) {
-                let light_camera = game.World.Camera[light_entity];
-                game.Gl.uniformMatrix4fv(material.Locations.ShadowSpace, false, light_camera.Pv);
-            }
-        }
-    }
-    function draw_colored_shadows(game, transform, render) {
-        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-        game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
-        game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-        game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-        game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
-        game.Gl.bindVertexArray(render.Vao);
-        game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-        game.Gl.bindVertexArray(null);
-    }
-    function use_colored_skinned(game, material, eye) {
-        game.Gl.useProgram(material.Program);
-        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-        game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
-        game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-        game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
-        game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-        game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
-    }
-    const bones = new Float32Array(16 * 6);
-    function draw_colored_skinned(game, entity, transform, render) {
-        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-        game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
-        game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-        game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-        game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
-        let bone_entities = [];
-        if (game.World.Signature[entity] & 32 /* Children */) {
-            for (let bone_entity of query_all(game.World, entity, 8 /* Bone */ | 16777216 /* Transform */)) {
-                bone_entities.push(bone_entity);
-            }
-        }
-        else {
-            // Find the 5 tail bones. They're top-level for mimic() to work, so we
-            // need to find them in the world rather than the tail's children.
-            let start_here = entity;
-            for (let i = 0; i < 5; i++) {
-                let bone_entity = first_entity(game.World, 8 /* Bone */ | 16777216 /* Transform */, start_here);
-                if (bone_entity) {
-                    bone_entities.push(bone_entity);
-                    start_here = bone_entity + 1;
-                }
-            }
-        }
-        for (let bone_entity of bone_entities) {
-            let bone_transform = game.World.Transform[bone_entity];
-            let bone = game.World.Bone[bone_entity];
-            let bone_view = bones.subarray(bone.Index * 16);
-            multiply$1(bone_view, bone_transform.World, bone.InverseBindPose);
-        }
-        game.Gl.uniformMatrix4fv(render.Material.Locations.Bones, false, bones);
-        game.Gl.bindVertexArray(render.Vao);
-        game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-        game.Gl.bindVertexArray(null);
-    }
-    function use_particles_colored(game, material, eye) {
-        game.Gl.useProgram(material.Program);
-        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-    }
-    function draw_particles_colored(game, render, emitter) {
-        game.Gl.uniform4fv(render.Material.Locations.ColorStart, render.ColorStart);
-        game.Gl.uniform4fv(render.Material.Locations.ColorEnd, render.ColorEnd);
-        game.Gl.uniform4f(render.Material.Locations.Details, emitter.Lifespan, emitter.Speed, ...render.Size);
-        let instances = Float32Array.from(emitter.Instances);
-        game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.Buffer);
-        game.Gl.bufferSubData(GL_ARRAY_BUFFER, 0, instances);
-        game.Gl.enableVertexAttribArray(render.Material.Locations.OriginAge);
-        game.Gl.vertexAttribPointer(render.Material.Locations.OriginAge, 4, GL_FLOAT, false, DATA_PER_PARTICLE * 4, 0);
-        game.Gl.enableVertexAttribArray(render.Material.Locations.Direction);
-        game.Gl.vertexAttribPointer(render.Material.Locations.Direction, 3, GL_FLOAT, false, DATA_PER_PARTICLE * 4, 4 * 4);
-        game.Gl.drawArrays(render.Material.Mode, 0, emitter.Instances.length / DATA_PER_PARTICLE);
-    }
-    function use_instanced(game, material, eye) {
-        game.Gl.useProgram(material.Program);
-        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-        game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
-        game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-        game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
-        game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-        game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
-    }
-    function draw_instanced(game, transform, render) {
-        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-        game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
-        game.Gl.uniform3fv(render.Material.Locations.Palette, render.Palette);
-        game.Gl.bindVertexArray(render.Vao);
-        game.Gl.drawElementsInstanced(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0, render.InstanceCount);
-        game.Gl.bindVertexArray(null);
-    }
-
-    /**
-     * @module systems/sys_resize
-     */
-    function sys_resize(game, delta) {
-        if (game.ViewportWidth != window.innerWidth || game.ViewportHeight != window.innerHeight) {
-            game.ViewportResized = true;
-        }
-        if (game.ViewportResized) {
-            game.ViewportWidth = game.Canvas3D.width = game.Canvas2D.width = window.innerWidth;
-            game.ViewportHeight = game.Canvas3D.height = game.Canvas2D.height = window.innerHeight;
-        }
-    }
-
-    /**
-     * @module systems/sys_shake
-     */
-    const QUERY$4 = 16777216 /* Transform */ | 1048576 /* Shake */;
-    function sys_shake(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$4) == QUERY$4) {
-                update$3(game, i);
-            }
-        }
-    }
-    function update$3(game, entity) {
-        let shake = game.World.Shake[entity];
-        let transform = game.World.Transform[entity];
-        transform.Translation = [Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5];
-        scale(transform.Translation, transform.Translation, shake.Magnitude * 2);
-        transform.Dirty = true;
-    }
-
-    /**
-     * @module systems/sys_spawn
-     */
-    const QUERY$3 = 16777216 /* Transform */ | 2097152 /* Spawn */;
-    function sys_spawn(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$3) == QUERY$3) {
-                update$2(game, i, delta);
-            }
-        }
-    }
-    function update$2(game, entity, delta) {
-        let spawn = game.World.Spawn[entity];
-        spawn.SinceLast += delta;
-        if (spawn.SinceLast > spawn.Interval) {
-            spawn.SinceLast = 0;
-            let entity_transform = game.World.Transform[entity];
-            let world_position = [0, 0, 0];
-            get_translation(world_position, entity_transform.World);
-            let world_rotation = [0, 0, 0, 0];
-            get_rotation(world_rotation, entity_transform.World);
-            instantiate(game, [...spawn.Creator(game), transform(world_position, world_rotation)]);
-        }
-    }
-
-    /**
-     * @module systems/sys_toggle
-     */
-    const QUERY$2 = 8388608 /* Toggle */;
-    function sys_toggle(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$2) == QUERY$2) {
-                update$1(game, i, delta);
-            }
-        }
-    }
-    function update$1(game, entity, delta) {
-        let toggle = game.World.Toggle[entity];
-        toggle.SinceLast += delta;
-        if (toggle.CurrentlyEnabled && toggle.SinceLast > toggle.Duration) {
-            toggle.SinceLast = 0;
-            toggle.CurrentlyEnabled = false;
-            game.World.Signature[entity] &= ~toggle.Mask;
-        }
-        else if (!toggle.CurrentlyEnabled && toggle.SinceLast > toggle.Delay) {
-            toggle.SinceLast = 0;
-            toggle.CurrentlyEnabled = true;
-            game.World.Signature[entity] |= toggle.Mask;
-        }
-    }
-
-    /**
-     * @module systems/sys_transform
-     */
-    const QUERY$1 = 16777216 /* Transform */;
-    function sys_transform(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$1) === QUERY$1) {
-                let transform = game.World.Transform[i];
-                if (transform.Dirty) {
-                    update_transform(game.World, i, transform);
-                }
-            }
-        }
-    }
-    function update_transform(world, entity, transform) {
-        transform.Dirty = false;
-        from_rotation_translation_scale(transform.World, transform.Rotation, transform.Translation, transform.Scale);
-        if (transform.Parent !== undefined) {
-            let parent_transform = world.Transform[transform.Parent];
-            multiply$1(transform.World, parent_transform.World, transform.World);
-        }
-        invert(transform.Self, transform.World);
-        if (world.Signature[entity] & 32 /* Children */) {
-            let children = world.Children[entity];
-            for (let child of children.Children) {
-                if (world.Signature[child] & 16777216 /* Transform */) {
-                    let child_transform = world.Transform[child];
-                    child_transform.Parent = entity;
-                    update_transform(world, child, child_transform);
-                }
-            }
-        }
-    }
-
-    /**
-     * @module systems/sys_trigger
-     */
-    const QUERY = 16777216 /* Transform */ | 64 /* Collide */ | 33554432 /* Trigger */;
-    function sys_trigger(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY) === QUERY) {
-                update(game, i);
-            }
-        }
-    }
-    function update(game, entity) {
-        let collide = game.World.Collide[entity];
-        let trigger = game.World.Trigger[entity];
-        for (let collision of collide.Collisions) {
-            let other_collide = game.World.Collide[collision.Other];
-            if (trigger.Mask & other_collide.Layers) {
-                dispatch(game, trigger.Action, [entity, collision.Other]);
-            }
-        }
-    }
-
-    function shift(values) {
-        let value = values.shift();
-        if (typeof value === "boolean" || value == undefined) {
-            return "";
-        }
-        else if (Array.isArray(value)) {
-            return value.join("");
-        }
-        else {
-            return value;
-        }
-    }
-    function html(strings, ...values) {
-        return strings.reduce((out, cur) => out + shift(values) + cur);
-    }
-
-    function App(game) {
-        return html `
-        <div
-            style="
-                animation: 8s ease-out 5s forwards intro;
-            "
-        >
-            <div
-                style="
-                    font-family: Arial;
-                    font-size: 25vw;
-                    font-weight: 600;
-                    color: #fff;
-                    line-height: .9;
-                "
-            >
-                LEFT BEHIND
-            </div>
-            <div
-                style="
-                    position: relative;
-                    left: 2vw;
-                    font-family: Arial;
-                    font-size: 3vw;
-                    color: #fff;
-                "
-            >
-                An adventure on the post-human Earth.
-            </div>
-        </div>
-    `;
-    }
-
-    /**
-     * @module systems/sys_ui
-     */
-    let prev;
-    function sys_ui(game, delta) {
-        let next = App();
-        if (next !== prev) {
-            game.Ui.innerHTML = prev = next;
-        }
-    }
-
-    class World extends WorldImpl {
-        constructor() {
-            super(...arguments);
-            this.Animate = [];
-            this.AudioSource = [];
-            this.Bone = [];
-            this.Camera = [];
-            this.Children = [];
-            this.Collide = [];
-            this.ControlAlways = [];
-            this.ControlAi = [];
-            this.ControlPlayer = [];
-            this.Cull = [];
-            this.Draw = [];
-            this.EmitParticles = [];
-            this.Lifespan = [];
-            this.Light = [];
-            this.Mimic = [];
-            this.Move = [];
-            this.Named = [];
-            this.Render = [];
-            this.RigidBody = [];
-            this.Shake = [];
-            this.Spawn = [];
-            this.Task = [];
-            this.Toggle = [];
-            this.Transform = [];
-            this.Trigger = [];
-        }
-    }
-
-    class Game extends Game3D {
-        constructor() {
-            super(...arguments);
-            this.World = new World();
-            this.MaterialColoredWireframe = mat_forward_colored_wireframe(this.Gl);
-            this.MaterialColoredShaded = mat_forward_colored_phong(this.Gl);
-            this.MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
-            this.MaterialColoredPhongSkinned = mat_forward_colored_phong_skinned(this.Gl);
-            this.MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
-            this.MaterialInstanced = mat_forward_instanced(this.Gl);
-            this.MeshLeaf = mesh_leaf(this.Gl);
-            this.MeshGrass = mesh_grass(this.Gl);
-            this.MeshPlane = mesh_plane(this.Gl);
-            this.MeshCube = mesh_cube(this.Gl);
-            this.MeshLisek = mesh_lisek(this.Gl);
-            this.MeshOgon = mesh_ogon(this.Gl);
-            this.MeshCylinder = mesh_cylinder(this.Gl);
-            // The rendering pipeline supports 8 lights.
-            this.LightPositions = new Float32Array(4 * 8);
-            this.LightDetails = new Float32Array(4 * 8);
-            this.Cameras = [];
-            this.Targets = {
-                Noop: create_depth_target(this.Gl, 2, 2),
-                Sun: create_depth_target(this.Gl, 2048, 2048),
-            };
-            this.ItemsCollected = 0;
-            this.ItemsMissed = 0;
-        }
-        FixedUpdate(delta) {
-            // Collisions and physics.
-            sys_physics_integrate(this, delta);
-            sys_transform(this);
-            sys_physics_kinematic(this, delta);
-            sys_collide(this);
-            sys_physics_resolve(this);
-            sys_transform(this);
-            sys_trigger(this);
-        }
-        FrameUpdate(delta) {
-            // Event loop.
-            sys_poll(this, delta);
-            // Player input.
-            sys_control_touch_move(this, delta);
-            sys_control_keyboard(this);
-            sys_control_xbox(this);
-            // AI.
-            sys_control_ai(this);
-            sys_control_always(this);
-            // Game logic.
-            sys_animate(this, delta);
-            sys_move(this, delta);
-            sys_mimic(this);
-            sys_lifespan(this, delta);
-            sys_shake(this);
-            sys_toggle(this, delta);
-            sys_spawn(this, delta);
-            sys_particles(this, delta);
-            sys_transform(this);
-            // Rendering.
-            sys_audio_listener(this);
-            sys_audio_source(this, delta);
-            sys_resize(this);
-            sys_camera(this);
-            sys_cull(this);
-            sys_light(this);
-            sys_render_forward(this);
-            sys_draw(this);
-            sys_ui(this);
-        }
-    }
-
-    /**
-     * @module components/com_camera
-     */
-    function camera_forward_perspective(fovy, near, far, clear_color = [0.9, 0.9, 0.9, 1]) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 16 /* Camera */;
-            game.World.Camera[entity] = {
-                Kind: 0 /* Forward */,
-                Projection: {
-                    Kind: 0 /* Perspective */,
-                    FovY: fovy,
-                    Near: near,
-                    Far: far,
-                    Projection: create(),
-                    Inverse: create(),
-                },
-                View: create(),
-                Pv: create(),
-                Position: [0, 0, 0],
-                ClearColor: clear_color,
-            };
-        };
-    }
-    function camera_depth_ortho(target, radius, near, far, clear_color = [0, 0, 0, 1]) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 16 /* Camera */;
-            game.World.Camera[entity] = {
-                Kind: 3 /* Depth */,
-                Target: target,
-                Projection: {
-                    Kind: 1 /* Ortho */,
-                    Radius: radius,
-                    Near: near,
-                    Far: far,
-                    Projection: create(),
-                    Inverse: create(),
-                },
-                View: create(),
-                Pv: create(),
-                Position: [0, 0, 0],
-                ClearColor: clear_color,
-            };
-        };
-    }
-
-    function blueprint_camera(game, clear_color) {
-        return [children([transform([0, 0, 5]), camera_forward_perspective(1, 0.1, 15, clear_color)])];
-    }
-
-    /**
-     * Add EmitParticles.
-     *
-     * @param lifespan How long particles live for.
-     * @param frequency How often particles spawn.
-     * @param speed How fast particles move.
-     */
-    function emit_particles(lifespan, frequency, speed) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 4096 /* EmitParticles */;
-            game.World.EmitParticles[entity] = {
-                Lifespan: lifespan,
-                Frequency: frequency,
-                Speed: speed,
-                Instances: [],
-                SinceLast: 0,
-            };
-        };
-    }
-
-    /**
-     * @module components/com_mimic
-     */
-    function mimic(Target, Stiffness = 0.1) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 32768 /* Mimic */;
-            game.World.Mimic[entity] = {
-                Target,
-                Stiffness,
-            };
-        };
-    }
-
-    /**
-     * @module components/com_named
-     */
-    function named(Name) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 131072 /* Named */;
-            game.World.Named[entity] = { Name };
-        };
-    }
-    function find_first(world, name) {
-        for (let i = 0; i < world.Signature.length; i++) {
-            if (world.Signature[i] & 131072 /* Named */ && world.Named[i].Name === name) {
-                return i;
-            }
-        }
-        throw `No entity named ${name}.`;
-    }
-
-    /**
      * @module components/com_shake
      */
     /**
@@ -4431,6 +1239,18 @@
                 render_particles_colored([1, 1, 1, 1], 4, [0.5, 0.5, 1, 1], 1),
             ]),
         ];
+    }
+
+    let seed = 1;
+    function rand() {
+        seed = (seed * 16807) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    function integer(min = 0, max = 1) {
+        return ~~(rand() * (max - min + 1) + min);
+    }
+    function float(min = 0, max = 1) {
+        return rand() * (max - min) + min;
     }
 
     /**
@@ -4564,14 +1384,14 @@
     function blueprint_rocket(game) {
         return [
             control_always([0, 0, 1], null),
-            move(2, 0),
-            lifespan(9),
+            move(float(1, 3), 0),
+            lifespan(25),
             audio_source(true, snd_rocket),
             disable(4 /* AudioSource */),
             children(
             // Body 1.
             [
-                transform([0, 0, 0.5], from_euler([0.7, 0, 0, 0.7], 0, -90, -90), [0.1, 0.1, 0.1]),
+                transform(undefined, from_euler([0.7, 0, 0, 0.7], 0, -90, -90), [0.1, 0.1, 0.1]),
                 ...prop_rocket(game),
             ], 
             // Jet exhaust.
@@ -4585,8 +1405,39 @@
     }
 
     /**
+     * @module components/com_spawn
+     */
+    /**
+     * Spawn blueprints with a given frequency.
+     *
+     * @param creator The function returning the blueprint to spawn.
+     * @param interval The frequency of spawning.
+     */
+    function spawn(creator, interval) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 2097152 /* Spawn */;
+            game.World.Spawn[entity] = {
+                Creator: creator,
+                Interval: interval,
+                SinceLast: interval,
+            };
+        };
+    }
+
+    /**
      * @module components/com_task
      */
+    /** A task that completes when the predicate returns true. */
+    function task_until(predicate, on_done) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 4194304 /* Task */;
+            game.World.Task[entity] = {
+                Kind: 0 /* Until */,
+                Predicate: predicate,
+                OnDone: on_done,
+            };
+        };
+    }
     /** A task that completes after the specified duration (in seconds). */
     function task_timeout(duration, on_done) {
         return (game, entity) => {
@@ -4597,6 +1448,69 @@
                 OnDone: on_done,
             };
         };
+    }
+
+    class WorldImpl {
+        constructor() {
+            this.Signature = [];
+            this.Graveyard = [];
+        }
+        CreateEntity() {
+            if (this.Graveyard.length > 0) {
+                return this.Graveyard.pop();
+            }
+            if (DEBUG && this.Signature.length > 10000) {
+                throw new Error("No more entities available.");
+            }
+            // Push a new signature and return its index.
+            return this.Signature.push(0) - 1;
+        }
+        DestroyEntity(entity) {
+            this.Signature[entity] = 0;
+            if (DEBUG && this.Graveyard.includes(entity)) {
+                throw new Error("Entity already in graveyard.");
+            }
+            this.Graveyard.push(entity);
+        }
+    }
+    // Other methods are free functions for the sake of tree-shakability.
+    function first_entity(world, query, start_at = 0) {
+        for (let i = start_at; i < world.Signature.length; i++) {
+            if ((world.Signature[i] & query) === query) {
+                return i;
+            }
+        }
+    }
+
+    class World extends WorldImpl {
+        constructor() {
+            super(...arguments);
+            this.Animate = [];
+            this.AudioSource = [];
+            this.Bone = [];
+            this.Camera = [];
+            this.Children = [];
+            this.Collide = [];
+            this.ControlAlways = [];
+            this.ControlAi = [];
+            this.ControlPlayer = [];
+            this.Cull = [];
+            this.Draw = [];
+            this.EmitParticles = [];
+            this.Lifespan = [];
+            this.Light = [];
+            this.Mimic = [];
+            this.Move = [];
+            this.Named = [];
+            this.Render = [];
+            this.RigidBody = [];
+            this.Shake = [];
+            this.Spawn = [];
+            this.Task = [];
+            this.Toggle = [];
+            this.Transform = [];
+            this.Trigger = [];
+        }
     }
 
     /**
@@ -4630,18 +1544,6 @@
                 light_directional([1, 1, 1], 0.6),
             ]),
         ];
-    }
-
-    let seed = 1;
-    function rand() {
-        seed = (seed * 16807) % 2147483647;
-        return (seed - 1) / 2147483646;
-    }
-    function integer(min = 0, max = 1) {
-        return ~~(rand() * (max - min + 1) + min);
-    }
-    function float(min = 0, max = 1) {
-        return rand() * (max - min) + min;
     }
 
     /**
@@ -6087,31 +2989,3190 @@
         game.World = new World();
         game.ViewportResized = true;
         map_city(game);
-        instantiate(game, [
-            ...blueprint_rocket(game),
-            transform([-9, 7, -3], from_euler([0, 0, 0, 1], -45, 100, 0)),
+        let starfield_entity = instantiate(game, [
+            transform([2, 17, -5]),
+            children([
+                transform(),
+                shake(5),
+                emit_particles(20, 0.1, 0),
+                render_particles_colored([1, 1, 1, 1], 2, [0.5, 0.5, 1, 1], 1),
+            ]),
+        ]);
+        let rocket_spawner_entity = instantiate(game, [
+            transform([-5, 10, -3], from_euler([0, 0, 0, 1], -45, 110, 0)),
+            children([transform(), shake(3), spawn(blueprint_rocket, 3)]),
         ]);
         let camera_entity = instantiate(game, [
             ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
-            transform([-6.2, 10, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
+            transform([0, 15, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
             mimic(find_first(game.World, "camera anchor"), 0.01),
             disable(32768 /* Mimic */),
         ]);
         // Animate the camera during the intro.
         instantiate(game, [
-            children([
-                task_timeout(5, () => {
-                    game.World.Signature[camera_entity] |= 32768 /* Mimic */;
-                }),
-            ], [
-                task_timeout(7, () => {
-                    instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
-                }),
-            ]),
-            task_timeout(9, () => {
-                game.World.Mimic[camera_entity].Stiffness = 0.05;
+            task_until(() => game.CurrentView === Intro, () => {
+                // No more rockets.
+                destroy_all(game.World, rocket_spawner_entity);
+                instantiate(game, [
+                    task_timeout(5, () => {
+                        game.World.Signature[camera_entity] |= 32768 /* Mimic */;
+                    }),
+                ]);
+                instantiate(game, [
+                    task_timeout(7, () => {
+                        instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
+                    }),
+                ]);
+                instantiate(game, [
+                    task_timeout(13, () => {
+                        game.World.Mimic[camera_entity].Stiffness = 0.05;
+                        destroy_all(game.World, starfield_entity);
+                    }),
+                ]);
             }),
         ]);
+    }
+
+    function App(game) {
+        if (game.CurrentScene === scene_intro) {
+            return game.CurrentView();
+        }
+        return "";
+    }
+    function Title() {
+        return html `
+        <div
+            style="
+                margin: 60vh 2vw 0;
+                font-size: 12vw;
+                font-weight: 600;
+                line-height: .9;
+            "
+        >
+            LEFT BEHIND
+        </div>
+        <div
+            onclick="$(${1 /* NewGame */})"
+            style="
+                position: absolute;
+                right: 2vw;
+                bottom: 2vw;
+                font-size: 1rem;
+                font-style: italic;
+                animation: 2s infinite blink;
+            "
+        >
+            New Game
+        </div>
+    `;
+    }
+    function Intro() {
+        return html `
+        <div
+            style="
+                animation: 8s ease-out 5s forwards intro;
+            "
+        >
+            <div
+                style="
+                    margin: 60vh 2vw 0;
+                    font-size: 4vw;
+                "
+            >
+                Mankind has found a new home in the stars.<br />Life on Earth continues.
+            </div>
+        </div>
+    `;
+    }
+
+    function dispatch(game, action, payload) {
+        switch (action) {
+            case 0 /* ToggleFullscreen */: {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                }
+                else {
+                    document.body.requestFullscreen();
+                }
+                break;
+            }
+            case 1 /* NewGame */: {
+                game.CurrentView = Intro;
+                break;
+            }
+        }
+    }
+
+    function resize_texture_rgba8(gl, texture, width, height) {
+        gl.bindTexture(GL_TEXTURE_2D, texture);
+        gl.texImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_DATA_UNSIGNED_BYTE, null);
+        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        return texture;
+    }
+    function resize_texture_depth24(gl, texture, width, height) {
+        gl.bindTexture(GL_TEXTURE_2D, texture);
+        gl.texImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_DATA_UNSIGNED_INT, null);
+        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        return texture;
+    }
+
+    function create_depth_target(gl, width, height) {
+        let target = {
+            Framebuffer: gl.createFramebuffer(),
+            Width: width,
+            Height: height,
+            ColorTexture: resize_texture_rgba8(gl, gl.createTexture(), width, height),
+            DepthTexture: resize_texture_depth24(gl, gl.createTexture(), width, height),
+        };
+        gl.bindFramebuffer(GL_FRAMEBUFFER, target.Framebuffer);
+        gl.framebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, target.DepthTexture, 0);
+        gl.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target.ColorTexture, 0);
+        let status = gl.checkFramebufferStatus(GL_FRAMEBUFFER);
+        if (status != GL_FRAMEBUFFER_COMPLETE) {
+            throw new Error(`Failed to set up the framebuffer (${status}).`);
+        }
+        return target;
+    }
+
+    function link(gl, vertex, fragment) {
+        let program = gl.createProgram();
+        gl.attachShader(program, compile(gl, GL_VERTEX_SHADER, vertex));
+        gl.attachShader(program, compile(gl, GL_FRAGMENT_SHADER, fragment));
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, GL_LINK_STATUS)) {
+            throw new Error(gl.getProgramInfoLog(program));
+        }
+        return program;
+    }
+    function compile(gl, type, source) {
+        let shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, GL_COMPILE_STATUS)) {
+            throw new Error(gl.getShaderInfoLog(shader));
+        }
+        return shader;
+    }
+
+    let vertex$5 = `#version 300 es\n
+
+    uniform mat4 pv;
+    uniform mat4 world;
+    uniform mat4 self;
+
+    in vec3 attr_position;
+    in vec3 attr_normal;
+
+    out vec4 vert_position;
+    out vec3 vert_normal;
+
+    void main() {
+        vert_position = world * vec4(attr_position, 1.0);
+        vert_normal = (vec4(attr_normal, 1.0) * self).xyz;
+        gl_Position = pv * vert_position;
+    }
+`;
+    let fragment$5 = `#version 300 es\n
+    precision mediump float;
+
+    // See Game.LightPositions and Game.LightDetails.
+    const int MAX_LIGHTS = 8;
+
+    uniform vec3 eye;
+    uniform vec4 diffuse_color;
+    uniform vec4 specular_color;
+    uniform float shininess;
+    uniform vec4 light_positions[MAX_LIGHTS];
+    uniform vec4 light_details[MAX_LIGHTS];
+    uniform vec4 fog_color;
+    uniform float fog_distance;
+
+    in vec4 vert_position;
+    in vec3 vert_normal;
+
+    out vec4 frag_color;
+
+    const float bands = 2.0;
+    float posterize(float factor) {
+        return floor(factor * bands) / bands;
+    }
+
+    void main() {
+        vec3 world_normal = normalize(vert_normal);
+
+        vec3 view_dir = eye - vert_position.xyz;
+        vec3 view_normal = normalize(view_dir);
+
+        // Ambient light.
+        vec3 light_acc = diffuse_color.rgb * 0.3;
+
+        for (int i = 0; i < MAX_LIGHTS; i++) {
+            if (light_positions[i].w == 0.0) {
+                break;
+            }
+
+            vec3 light_color = light_details[i].rgb;
+            float light_intensity = light_details[i].a;
+
+            vec3 light_normal;
+            if (light_positions[i].w == 1.0) {
+                // Directional light.
+                light_normal = light_positions[i].xyz;
+            } else {
+                vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
+                float light_dist = length(light_dir);
+                light_normal = light_dir / light_dist;
+                // Distance attenuation.
+                light_intensity /= (light_dist * light_dist);
+            }
+
+            float diffuse_factor = dot(world_normal, light_normal);
+            if (diffuse_factor > 0.0) {
+                // Diffuse color.
+                light_acc += diffuse_color.rgb * light_color * posterize(diffuse_factor * light_intensity);
+
+                if (shininess > 0.0) {
+                    // Phong reflection model.
+                    // vec3 r = reflect(-light_normal, world_normal);
+                    // float specular_angle = max(dot(r, view_normal), 0.0);
+                    // float specular_factor = pow(specular_angle, shininess);
+
+                    // Blinn-Phong reflection model.
+                    vec3 h = normalize(light_normal + view_normal);
+                    float specular_angle = max(dot(h, world_normal), 0.0);
+                    float specular_factor = pow(specular_angle, shininess);
+
+                    // Specular color.
+                    light_acc += specular_color.rgb * light_color * posterize(specular_factor * light_intensity);
+                }
+            }
+        }
+
+        frag_color = vec4(light_acc, 1.0);
+
+        float eye_distance = length(view_dir);
+        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+        frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
+    }
+`;
+    function mat_forward_colored_phong(gl) {
+        let program = link(gl, vertex$5, fragment$5);
+        return {
+            Mode: GL_TRIANGLES,
+            Program: program,
+            Locations: {
+                Pv: gl.getUniformLocation(program, "pv"),
+                World: gl.getUniformLocation(program, "world"),
+                Self: gl.getUniformLocation(program, "self"),
+                DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
+                SpecularColor: gl.getUniformLocation(program, "specular_color"),
+                Shininess: gl.getUniformLocation(program, "shininess"),
+                Eye: gl.getUniformLocation(program, "eye"),
+                LightPositions: gl.getUniformLocation(program, "light_positions"),
+                LightDetails: gl.getUniformLocation(program, "light_details"),
+                FogColor: gl.getUniformLocation(program, "fog_color"),
+                FogDistance: gl.getUniformLocation(program, "fog_distance"),
+                VertexPosition: gl.getAttribLocation(program, "attr_position"),
+                VertexNormal: gl.getAttribLocation(program, "attr_normal"),
+            },
+        };
+    }
+
+    let vertex$4 = `#version 300 es\n
+    uniform mat4 pv;
+    uniform mat4 world;
+    uniform mat4 self;
+    uniform mat4 bones[6];
+
+    in vec3 attr_position;
+    in vec3 attr_normal;
+    in vec4 attr_weights;
+
+    out vec4 vert_position;
+    out vec3 vert_normal;
+
+    mat4 world_weighted(vec4 weights) {
+        return weights[1] * bones[int(weights[0])] + weights[3] * bones[int(weights[2])];
+    }
+
+    void main() {
+        mat4 bone_world = world_weighted(attr_weights);
+        vert_position = bone_world * vec4(attr_position, 1.0);
+        vert_normal = normalize(mat3(bone_world) * attr_normal);
+        gl_Position = pv * vert_position;
+    }
+`;
+    let fragment$4 = `#version 300 es\n
+    precision mediump float;
+
+    // See Game.LightPositions and Game.LightDetails.
+    const int MAX_LIGHTS = 8;
+
+    uniform vec3 eye;
+    uniform vec4 diffuse_color;
+    uniform vec4 specular_color;
+    uniform float shininess;
+    uniform vec4 light_positions[MAX_LIGHTS];
+    uniform vec4 light_details[MAX_LIGHTS];
+    uniform vec4 fog_color;
+    uniform float fog_distance;
+
+    in vec4 vert_position;
+    in vec3 vert_normal;
+
+    out vec4 frag_color;
+
+    const float bands = 2.0;
+    float posterize(float factor) {
+        return floor(factor * bands) / bands;
+    }
+
+    void main() {
+        vec3 world_normal = normalize(vert_normal);
+
+        vec3 view_dir = eye - vert_position.xyz;
+        vec3 view_normal = normalize(view_dir);
+
+        // Ambient light.
+        vec3 light_acc = diffuse_color.rgb * 0.5;
+
+        for (int i = 0; i < MAX_LIGHTS; i++) {
+            if (light_positions[i].w == 0.0) {
+                break;
+            }
+
+            vec3 light_color = light_details[i].rgb;
+            float light_intensity = light_details[i].a;
+
+            vec3 light_normal;
+            if (light_positions[i].w == 1.0) {
+                // Directional light.
+                light_normal = light_positions[i].xyz;
+            } else {
+                vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
+                float light_dist = length(light_dir);
+                light_normal = light_dir / light_dist;
+                // Distance attenuation.
+                light_intensity /= (light_dist * light_dist);
+            }
+
+            float diffuse_factor = dot(world_normal, light_normal);
+            if (diffuse_factor > 0.0) {
+                // Diffuse color.
+                light_acc += diffuse_color.rgb * light_color * posterize(diffuse_factor * light_intensity);
+
+                if (shininess > 0.0) {
+                    // Phong reflection model.
+                    // vec3 r = reflect(-light_normal, world_normal);
+                    // float specular_angle = max(dot(r, view_normal), 0.0);
+                    // float specular_factor = pow(specular_angle, shininess);
+
+                    // Blinn-Phong reflection model.
+                    vec3 h = normalize(light_normal + view_normal);
+                    float specular_angle = max(dot(h, world_normal), 0.0);
+                    float specular_factor = pow(specular_angle, shininess);
+
+                    // Specular color.
+                    light_acc += specular_color.rgb * light_color * posterize(specular_factor * light_intensity);
+                }
+            }
+        }
+
+        frag_color = vec4(light_acc, 1.0);
+
+        float eye_distance = length(view_dir);
+        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+        frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
+    }
+`;
+    function mat_forward_colored_phong_skinned(gl) {
+        let program = link(gl, vertex$4, fragment$4);
+        return {
+            Mode: GL_TRIANGLES,
+            Program: program,
+            Locations: {
+                Pv: gl.getUniformLocation(program, "pv"),
+                World: gl.getUniformLocation(program, "world"),
+                Self: gl.getUniformLocation(program, "self"),
+                DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
+                SpecularColor: gl.getUniformLocation(program, "specular_color"),
+                Shininess: gl.getUniformLocation(program, "shininess"),
+                Eye: gl.getUniformLocation(program, "eye"),
+                LightPositions: gl.getUniformLocation(program, "light_positions"),
+                LightDetails: gl.getUniformLocation(program, "light_details"),
+                VertexPosition: gl.getAttribLocation(program, "attr_position"),
+                VertexNormal: gl.getAttribLocation(program, "attr_normal"),
+                FogColor: gl.getUniformLocation(program, "fog_color"),
+                FogDistance: gl.getUniformLocation(program, "fog_distance"),
+                Bones: gl.getUniformLocation(program, "bones"),
+                VertexWeights: gl.getAttribLocation(program, "attr_weights"),
+            },
+        };
+    }
+
+    let vertex$3 = `#version 300 es\n
+
+    uniform mat4 pv;
+    uniform mat4 world;
+    uniform mat4 self;
+
+    in vec3 attr_position;
+    in vec3 attr_normal;
+
+    out vec4 vert_position;
+    out vec3 vert_normal;
+
+    void main() {
+        vert_position = world * vec4(attr_position, 1.0);
+        vert_normal = (vec4(attr_normal, 1.0) * self).xyz;
+        gl_Position = pv * vert_position;
+    }
+`;
+    let fragment$3 = `#version 300 es\n
+    precision mediump float;
+    precision lowp sampler2DShadow;
+
+    // See Game.LightPositions and Game.LightDetails.
+    const int MAX_LIGHTS = 8;
+
+    uniform vec3 eye;
+    uniform vec4 diffuse_color;
+    uniform vec4 specular_color;
+    uniform float shininess;
+    uniform vec4 light_positions[MAX_LIGHTS];
+    uniform vec4 light_details[MAX_LIGHTS];
+    uniform mat4 shadow_space;
+    uniform sampler2DShadow shadow_map;
+    uniform vec4 fog_color;
+    uniform float fog_distance;
+
+    in vec4 vert_position;
+    in vec3 vert_normal;
+
+    out vec4 frag_color;
+
+    // How much shadow to apply at world_pos, expressed as [min, 1]:
+    // min = completely in shadow, 1 = completely not in shadow
+    float shadow_factor(vec4 world_pos, float min) {
+        vec4 shadow_space_pos = shadow_space * world_pos;
+        vec3 shadow_space_ndc = shadow_space_pos.xyz / shadow_space_pos.w;
+        // Transform the [-1, 1] NDC to [0, 1] to match the shadow texture data.
+        shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
+
+        // Add shadow bias to avoid shadow acne.
+        shadow_space_ndc.z -= 0.001;
+
+        return texture(shadow_map, shadow_space_ndc) * (1.0 - min) + min;
+    }
+
+    void main() {
+        vec3 world_normal = normalize(vert_normal);
+
+        vec3 view_dir = eye - vert_position.xyz;
+        vec3 view_normal = normalize(view_dir);
+
+        // Ambient light.
+        vec3 light_acc = diffuse_color.rgb * 0.1;
+
+        for (int i = 0; i < MAX_LIGHTS; i++) {
+            if (light_positions[i].w == 0.0) {
+                break;
+            }
+
+            vec3 light_color = light_details[i].rgb;
+            float light_intensity = light_details[i].a;
+
+            vec3 light_normal;
+            if (light_positions[i].w == 1.0) {
+                // Directional light.
+                light_normal = light_positions[i].xyz;
+            } else {
+                vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
+                float light_dist = length(light_dir);
+                light_normal = light_dir / light_dist;
+                // Distance attenuation.
+                light_intensity /= (light_dist * light_dist);
+            }
+
+            float diffuse_factor = dot(world_normal, light_normal);
+            if (diffuse_factor > 0.0) {
+                // Diffuse color.
+                light_acc += diffuse_color.rgb * diffuse_factor * light_color * light_intensity;
+
+                if (shininess > 0.0) {
+                    // Phong reflection model.
+                    // vec3 r = reflect(-light_normal, world_normal);
+                    // float specular_angle = max(dot(r, view_normal), 0.0);
+                    // float specular_factor = pow(specular_angle, shininess);
+
+                    // Blinn-Phong reflection model.
+                    vec3 h = normalize(light_normal + view_normal);
+                    float specular_angle = max(dot(h, world_normal), 0.0);
+                    float specular_factor = pow(specular_angle, shininess);
+
+                    // Specular color.
+                    light_acc += specular_color.rgb * specular_factor * light_color * light_intensity;
+                }
+            }
+        }
+
+        vec3 shaded_rgb = light_acc * shadow_factor(vert_position, 0.5);
+        frag_color= vec4(shaded_rgb, 1.0);
+
+        float eye_distance = length(view_dir);
+        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+        frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
+    }
+`;
+    function mat_forward_colored_shadows(gl) {
+        let program = link(gl, vertex$3, fragment$3);
+        return {
+            Mode: GL_TRIANGLES,
+            Program: program,
+            Locations: {
+                Pv: gl.getUniformLocation(program, "pv"),
+                World: gl.getUniformLocation(program, "world"),
+                Self: gl.getUniformLocation(program, "self"),
+                DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
+                SpecularColor: gl.getUniformLocation(program, "specular_color"),
+                Shininess: gl.getUniformLocation(program, "shininess"),
+                Eye: gl.getUniformLocation(program, "eye"),
+                LightPositions: gl.getUniformLocation(program, "light_positions"),
+                LightDetails: gl.getUniformLocation(program, "light_details"),
+                ShadowSpace: gl.getUniformLocation(program, "shadow_space"),
+                ShadowMap: gl.getUniformLocation(program, "shadow_map"),
+                FogColor: gl.getUniformLocation(program, "fog_color"),
+                FogDistance: gl.getUniformLocation(program, "fog_distance"),
+                VertexPosition: gl.getAttribLocation(program, "attr_position"),
+                VertexNormal: gl.getAttribLocation(program, "attr_normal"),
+            },
+        };
+    }
+
+    let vertex$2 = `#version 300 es\n
+    uniform mat4 pv;
+    uniform mat4 world;
+
+    in vec3 attr_position;
+
+    void main() {
+        gl_Position = pv * world * vec4(attr_position, 1.0);
+    }
+`;
+    let fragment$2 = `#version 300 es\n
+    precision mediump float;
+
+    uniform vec4 color;
+
+    out vec4 frag_color;
+
+    void main() {
+        frag_color = color;
+    }
+`;
+    function mat_forward_colored_unlit(gl, mode = GL_TRIANGLES) {
+        let program = link(gl, vertex$2, fragment$2);
+        return {
+            Mode: mode,
+            Program: program,
+            Locations: {
+                Pv: gl.getUniformLocation(program, "pv"),
+                World: gl.getUniformLocation(program, "world"),
+                Color: gl.getUniformLocation(program, "color"),
+                VertexPosition: gl.getAttribLocation(program, "attr_position"),
+            },
+        };
+    }
+    function mat_forward_colored_wireframe(gl) {
+        return mat_forward_colored_unlit(gl, GL_LINE_LOOP);
+    }
+
+    let vertex$1 = `#version 300 es\n
+    // See Game.LightPositions and Game.LightDetails.
+    const int MAX_LIGHTS = 8;
+
+    uniform mat4 pv;
+    uniform mat4 world;
+    uniform mat4 self;
+    uniform vec3 palette[16];
+
+    uniform vec4 light_positions[MAX_LIGHTS];
+    uniform vec4 light_details[MAX_LIGHTS];
+
+    uniform vec3 eye;
+    uniform vec4 fog_color;
+    uniform float fog_distance;
+
+    in vec3 attr_position;
+    in vec3 attr_normal;
+    in vec4 attr_offset;
+    in vec4 attr_rotation;
+
+    out vec4 vert_color;
+
+    void main() {
+        float x = attr_rotation.x;
+        float y = attr_rotation.y;
+        float z = attr_rotation.z;
+        float w = attr_rotation.w;
+
+        float x2 = x + x;
+        float y2 = y + y;
+        float z2 = z + z;
+        float xx = x * x2;
+        float yx = y * x2;
+        float yy = y * y2;
+        float zx = z * x2;
+        float zy = z * y2;
+        float zz = z * z2;
+        float wx = w * x2;
+        float wy = w * y2;
+        float wz = w * z2;
+
+        float m0 = 1.0 - yy - zz;
+        float m1 = yx + wz;
+        float m2 = zx - wy;
+        float m3 = 0.0;
+        float m4 = yx - wz;
+        float m5 = 1.0 - xx - zz;
+        float m6 = zy + wx;
+        float m7 = 0.0;
+        float m8 = zx + wy;
+        float m9 = zy - wx;
+        float m10 = 1.0 - xx - yy;
+        float m11 = 0.0;
+        float m12 = 0.0;
+        float m13 = 0.0;
+        float m14 = 0.0;
+        float m15 = 1.0;
+
+        mat4 rotation = mat4(
+            m0, m1, m2, m3,
+            m4, m5, m6, m7,
+            m8, m9, m10, m11,
+            m12, m13, m14, m15
+        );
+
+        vec4 world_position = world * rotation * vec4(attr_position + attr_offset.xyz, 1.0);
+        vec3 world_normal = normalize((rotation * vec4(attr_normal, 0.0) * self).xyz);
+        gl_Position = pv * world_position;
+
+        // Ambient light.
+        vec3 color = palette[int(attr_offset[3])];
+        vec3 light_acc = color * 0.1;
+
+        for (int i = 0; i < MAX_LIGHTS; i++) {
+            if (light_positions[i].w == 0.0) {
+                break;
+            }
+
+            vec3 light_color = light_details[i].rgb;
+            float light_intensity = light_details[i].a;
+
+            vec3 light_normal;
+            if (light_positions[i].w == 1.0) {
+                // Directional light.
+                light_normal = light_positions[i].xyz;
+            } else {
+                vec3 light_dir = light_positions[i].xyz - world_position.xyz;
+                float light_dist = length(light_dir);
+                light_normal = light_dir / light_dist;
+                // Distance attenuation.
+                light_intensity /= (light_dist * light_dist);
+            }
+
+            float diffuse_factor = dot(world_normal, light_normal);
+            if (diffuse_factor > 0.0) {
+                // Diffuse color.
+                light_acc += color * diffuse_factor * light_color * light_intensity;
+            }
+        }
+
+        vert_color = vec4(light_acc, 1.0);
+
+        float eye_distance = length(eye - world_position.xyz);
+        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+        vert_color = mix(vert_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
+    }
+
+`;
+    let fragment$1 = `#version 300 es\n
+    precision mediump float;
+    in vec4 vert_color;
+    out vec4 frag_color;
+
+    void main() {
+        frag_color = vert_color;
+    }
+
+`;
+    function mat_forward_instanced(gl) {
+        let program = link(gl, vertex$1, fragment$1);
+        return {
+            Mode: GL_TRIANGLES,
+            Program: program,
+            Locations: {
+                Pv: gl.getUniformLocation(program, "pv"),
+                World: gl.getUniformLocation(program, "world"),
+                Self: gl.getUniformLocation(program, "self"),
+                Palette: gl.getUniformLocation(program, "palette"),
+                Eye: gl.getUniformLocation(program, "eye"),
+                LightPositions: gl.getUniformLocation(program, "light_positions"),
+                LightDetails: gl.getUniformLocation(program, "light_details"),
+                FogColor: gl.getUniformLocation(program, "fog_color"),
+                FogDistance: gl.getUniformLocation(program, "fog_distance"),
+                VertexPosition: gl.getAttribLocation(program, "attr_position"),
+                VertexNormal: gl.getAttribLocation(program, "attr_normal"),
+                InstanceOffset: gl.getAttribLocation(program, "attr_offset"),
+                InstanceRotation: gl.getAttribLocation(program, "attr_rotation"),
+            },
+        };
+    }
+
+    let vertex = `#version 300 es\n
+    uniform mat4 pv;
+    uniform vec4 color_start;
+    uniform vec4 color_end;
+    // [x: lifespan, y: speed, z: size_start, w: size_end];
+    uniform vec4 details;
+
+    // [x, y, z, w: age]
+    in vec4 attr_origin_age;
+    in vec3 attr_direction;
+
+    out vec4 vert_color;
+
+    void main() {
+        // Move the particle along the direction axis.
+        vec3 velocity = attr_direction * details.y;
+        gl_Position = pv * vec4(attr_origin_age.xyz + velocity * attr_origin_age.w, 1.0);
+
+        // Interpolate color and size.
+        float t = attr_origin_age.w / details.x;
+        gl_PointSize = mix(details.z, details.w, t);
+        vert_color = mix(color_start, color_end, t);
+    }
+`;
+    let fragment = `#version 300 es\n
+    precision mediump float;
+
+    in vec4 vert_color;
+
+    out vec4 frag_color;
+
+    void main() {
+        frag_color = vert_color;
+    }
+`;
+    function mat_forward_particles_colored(gl) {
+        let program = link(gl, vertex, fragment);
+        return {
+            Mode: GL_POINTS,
+            Program: program,
+            Locations: {
+                Pv: gl.getUniformLocation(program, "pv"),
+                ColorStart: gl.getUniformLocation(program, "color_start"),
+                ColorEnd: gl.getUniformLocation(program, "color_end"),
+                Details: gl.getUniformLocation(program, "details"),
+                OriginAge: gl.getAttribLocation(program, "attr_origin_age"),
+                Direction: gl.getAttribLocation(program, "attr_direction"),
+            },
+        };
+    }
+
+    function mesh_cube(gl) {
+        let vertex_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$6, GL_STATIC_DRAW);
+        let normal_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$6, GL_STATIC_DRAW);
+        let texcoord_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$6, GL_STATIC_DRAW);
+        let weights_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$6, GL_STATIC_DRAW);
+        let index_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$6, GL_STATIC_DRAW);
+        return {
+            VertexBuffer: vertex_buf,
+            VertexArray: vertex_arr$6,
+            NormalBuffer: normal_buf,
+            NormalArray: normal_arr$6,
+            TexCoordBuffer: texcoord_buf,
+            TexCoordArray: texcoord_arr$6,
+            WeightsBuffer: weights_buf,
+            WeightsArray: weights_arr$6,
+            IndexBuffer: index_buf,
+            IndexArray: index_arr$6,
+            IndexCount: index_arr$6.length,
+        };
+    }
+    // prettier-ignore
+    let vertex_arr$6 = Float32Array.from([
+        -0.500, -0.500, 0.500,
+        -0.500, -0.500, 0.500,
+        -0.500, -0.500, 0.500,
+        -0.500, 0.500, 0.500,
+        -0.500, 0.500, 0.500,
+        -0.500, 0.500, 0.500,
+        -0.500, -0.500, -0.500,
+        -0.500, -0.500, -0.500,
+        -0.500, -0.500, -0.500,
+        -0.500, 0.500, -0.500,
+        -0.500, 0.500, -0.500,
+        -0.500, 0.500, -0.500,
+        0.500, -0.500, 0.500,
+        0.500, -0.500, 0.500,
+        0.500, -0.500, 0.500,
+        0.500, 0.500, 0.500,
+        0.500, 0.500, 0.500,
+        0.500, 0.500, 0.500,
+        0.500, -0.500, -0.500,
+        0.500, -0.500, -0.500,
+        0.500, -0.500, -0.500,
+        0.500, 0.500, -0.500,
+        0.500, 0.500, -0.500,
+        0.500, 0.500, -0.500
+    ]);
+    // prettier-ignore
+    let normal_arr$6 = Float32Array.from([
+        -1.000, 0.000, 0.000,
+        0.000, -1.000, 0.000,
+        0.000, 0.000, 1.000,
+        -1.000, 0.000, 0.000,
+        0.000, 0.000, 1.000,
+        0.000, 1.000, 0.000,
+        -1.000, 0.000, 0.000,
+        0.000, -1.000, 0.000,
+        0.000, 0.000, -1.000,
+        -1.000, 0.000, 0.000,
+        0.000, 0.000, -1.000,
+        0.000, 1.000, 0.000,
+        0.000, -1.000, 0.000,
+        0.000, 0.000, 1.000,
+        1.000, 0.000, 0.000,
+        0.000, 0.000, 1.000,
+        0.000, 1.000, 0.000,
+        1.000, 0.000, 0.000,
+        0.000, -1.000, 0.000,
+        0.000, 0.000, -1.000,
+        1.000, 0.000, 0.000,
+        0.000, 0.000, -1.000,
+        0.000, 1.000, 0.000,
+        1.000, 0.000, 0.000
+    ]);
+    // prettier-ignore
+    let texcoord_arr$6 = Float32Array.from([]);
+    // prettier-ignore
+    let weights_arr$6 = Float32Array.from([]);
+    // prettier-ignore
+    let index_arr$6 = Uint16Array.from([
+        16, 5, 22,
+        5, 11, 22,
+        1, 12, 7,
+        12, 18, 7,
+        2, 4, 13,
+        4, 15, 13,
+        14, 17, 20,
+        17, 23, 20,
+        19, 21, 8,
+        21, 10, 8,
+        6, 9, 0,
+        9, 3, 0
+    ]);
+
+    function mesh_cylinder(gl) {
+        let vertex_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$5, GL_STATIC_DRAW);
+        let normal_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$5, GL_STATIC_DRAW);
+        let texcoord_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$5, GL_STATIC_DRAW);
+        let weights_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$5, GL_STATIC_DRAW);
+        let index_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$5, GL_STATIC_DRAW);
+        return {
+            VertexBuffer: vertex_buf,
+            VertexArray: vertex_arr$5,
+            NormalBuffer: normal_buf,
+            NormalArray: normal_arr$5,
+            TexCoordBuffer: texcoord_buf,
+            TexCoordArray: texcoord_arr$5,
+            WeightsBuffer: weights_buf,
+            WeightsArray: weights_arr$5,
+            IndexBuffer: index_buf,
+            IndexArray: index_arr$5,
+            IndexCount: index_arr$5.length,
+        };
+    }
+    // prettier-ignore
+    let vertex_arr$5 = Float32Array.from([
+        0.000, -0.500, -0.500,
+        0.000, 0.500, -0.500,
+        0.354, -0.500, -0.354,
+        0.354, 0.500, -0.354,
+        0.500, -0.500, 0.000,
+        0.500, 0.500, 0.000,
+        0.354, -0.500, 0.354,
+        0.354, 0.500, 0.354,
+        -0.000, -0.500, 0.500,
+        -0.000, 0.500, 0.500,
+        -0.354, -0.500, 0.354,
+        -0.354, 0.500, 0.354,
+        -0.500, -0.500, -0.000,
+        -0.500, 0.500, -0.000,
+        -0.354, -0.500, -0.354,
+        -0.354, 0.500, -0.354
+    ]);
+    // prettier-ignore
+    let normal_arr$5 = Float32Array.from([
+        0.000, -0.630, -0.776,
+        0.000, 0.630, -0.776,
+        0.549, -0.630, -0.549,
+        0.549, 0.630, -0.549,
+        0.776, -0.630, 0.000,
+        0.776, 0.630, 0.000,
+        0.549, -0.630, 0.549,
+        0.549, 0.630, 0.549,
+        0.000, -0.630, 0.776,
+        0.000, 0.630, 0.776,
+        -0.549, -0.630, 0.549,
+        -0.549, 0.630, 0.549,
+        -0.776, -0.630, 0.000,
+        -0.776, 0.630, 0.000,
+        -0.549, -0.630, -0.549,
+        -0.549, 0.630, -0.549
+    ]);
+    // prettier-ignore
+    let texcoord_arr$5 = Float32Array.from([]);
+    // prettier-ignore
+    let weights_arr$5 = Float32Array.from([]);
+    // prettier-ignore
+    let index_arr$5 = Uint16Array.from([
+        14, 10, 6,
+        6, 2, 14,
+        14, 12, 10,
+        10, 8, 6,
+        6, 4, 2,
+        2, 0, 14,
+        0, 1, 14,
+        1, 15, 14,
+        14, 15, 12,
+        15, 13, 12,
+        5, 9, 13,
+        13, 1, 5,
+        5, 7, 9,
+        9, 11, 13,
+        13, 15, 1,
+        1, 3, 5,
+        12, 13, 10,
+        13, 11, 10,
+        10, 11, 8,
+        11, 9, 8,
+        8, 9, 6,
+        9, 7, 6,
+        6, 7, 4,
+        7, 5, 4,
+        4, 5, 2,
+        5, 3, 2,
+        2, 3, 0,
+        3, 1, 0
+    ]);
+
+    function mesh_grass(gl) {
+        let vertex_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$4, GL_STATIC_DRAW);
+        let normal_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$4, GL_STATIC_DRAW);
+        let texcoord_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$4, GL_STATIC_DRAW);
+        let weights_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$4, GL_STATIC_DRAW);
+        let index_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$4, GL_STATIC_DRAW);
+        return {
+            VertexBuffer: vertex_buf,
+            VertexArray: vertex_arr$4,
+            NormalBuffer: normal_buf,
+            NormalArray: normal_arr$4,
+            TexCoordBuffer: texcoord_buf,
+            TexCoordArray: texcoord_arr$4,
+            WeightsBuffer: weights_buf,
+            WeightsArray: weights_arr$4,
+            IndexBuffer: index_buf,
+            IndexArray: index_arr$4,
+            IndexCount: index_arr$4.length,
+        };
+    }
+    // prettier-ignore
+    let vertex_arr$4 = Float32Array.from([
+        -0.009, 0.009, 0.001,
+        0.000, -0.422, 0.012,
+        0.000, 0.405, 0.119,
+        0.008, 0.008, 0.001
+    ]);
+    // prettier-ignore
+    let normal_arr$4 = Float32Array.from([
+        -0.001, -0.138, 0.990,
+        0.010, 0.025, 1.000,
+        -0.010, -0.285, 0.959,
+        0.000, -0.125, 0.992
+    ]);
+    // prettier-ignore
+    let texcoord_arr$4 = Float32Array.from([]);
+    // prettier-ignore
+    let weights_arr$4 = Float32Array.from([]);
+    // prettier-ignore
+    let index_arr$4 = Uint16Array.from([
+        3, 1, 0,
+        2, 3, 0
+    ]);
+
+    function mesh_leaf(gl) {
+        let vertex_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$3, GL_STATIC_DRAW);
+        let normal_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$3, GL_STATIC_DRAW);
+        let texcoord_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$3, GL_STATIC_DRAW);
+        let weights_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$3, GL_STATIC_DRAW);
+        let index_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$3, GL_STATIC_DRAW);
+        return {
+            VertexBuffer: vertex_buf,
+            VertexArray: vertex_arr$3,
+            NormalBuffer: normal_buf,
+            NormalArray: normal_arr$3,
+            TexCoordBuffer: texcoord_buf,
+            TexCoordArray: texcoord_arr$3,
+            WeightsBuffer: weights_buf,
+            WeightsArray: weights_arr$3,
+            IndexBuffer: index_buf,
+            IndexArray: index_arr$3,
+            IndexCount: index_arr$3.length,
+        };
+    }
+    // prettier-ignore
+    let vertex_arr$3 = Float32Array.from([
+        -0.120, 0.016, 0.120,
+        0.040, 0.000, 0.040,
+        -0.050, 0.000, -0.050,
+        0.130, 0.022, -0.130
+    ]);
+    // prettier-ignore
+    let normal_arr$3 = Float32Array.from([
+        0.066, 0.996, -0.066,
+        -0.010, 1.000, 0.010,
+        -0.010, 1.000, 0.010,
+        -0.084, 0.993, 0.084
+    ]);
+    // prettier-ignore
+    let texcoord_arr$3 = Float32Array.from([]);
+    // prettier-ignore
+    let weights_arr$3 = Float32Array.from([]);
+    // prettier-ignore
+    let index_arr$3 = Uint16Array.from([
+        2, 3, 1,
+        0, 2, 1
+    ]);
+
+    function mesh_lisek(gl) {
+        let vertex_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$2, GL_STATIC_DRAW);
+        let normal_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$2, GL_STATIC_DRAW);
+        let texcoord_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$2, GL_STATIC_DRAW);
+        let weights_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$2, GL_STATIC_DRAW);
+        let index_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$2, GL_STATIC_DRAW);
+        return {
+            VertexBuffer: vertex_buf,
+            VertexArray: vertex_arr$2,
+            NormalBuffer: normal_buf,
+            NormalArray: normal_arr$2,
+            TexCoordBuffer: texcoord_buf,
+            TexCoordArray: texcoord_arr$2,
+            WeightsBuffer: weights_buf,
+            WeightsArray: weights_arr$2,
+            IndexBuffer: index_buf,
+            IndexArray: index_arr$2,
+            IndexCount: index_arr$2.length,
+        };
+    }
+    // prettier-ignore
+    let vertex_arr$2 = Float32Array.from([
+        0.147, 0.440, 0.021,
+        0.073, -0.000, -0.008,
+        0.132, 0.234, -0.280,
+        0.088, 0.409, -0.550,
+        0.073, -0.001, -0.521,
+        0.103, 0.688, 0.168,
+        0.176, 0.893, 0.080,
+        -0.147, 0.440, 0.021,
+        0.000, 0.482, -0.037,
+        0.000, 0.219, -0.012,
+        -0.073, -0.000, -0.008,
+        -0.132, 0.234, -0.280,
+        0.000, 0.219, -0.530,
+        -0.088, 0.409, -0.550,
+        0.000, 0.432, -0.585,
+        -0.073, -0.001, -0.521,
+        -0.103, 0.688, 0.168,
+        0.000, 0.571, 0.373,
+        -0.176, 0.893, 0.080,
+        0.000, 0.746, 0.168
+    ]);
+    // prettier-ignore
+    let normal_arr$2 = Float32Array.from([
+        0.997, 0.009, 0.083,
+        -0.007, -0.962, 0.275,
+        0.797, -0.599, -0.074,
+        0.688, 0.428, -0.586,
+        0.035, -0.971, -0.235,
+        0.726, 0.191, 0.661,
+        0.417, 0.903, -0.104,
+        -0.997, 0.009, 0.083,
+        0.000, 0.785, -0.620,
+        0.000, -0.590, 0.807,
+        0.007, -0.962, 0.275,
+        -0.797, -0.599, -0.074,
+        0.000, -0.472, -0.882,
+        -0.688, 0.428, -0.586,
+        0.000, 0.571, -0.821,
+        -0.035, -0.971, -0.235,
+        -0.726, 0.191, 0.661,
+        0.000, -0.039, 0.999,
+        -0.417, 0.903, -0.104,
+        0.000, 0.932, 0.363
+    ]);
+    // prettier-ignore
+    let texcoord_arr$2 = Float32Array.from([]);
+    // prettier-ignore
+    let weights_arr$2 = Float32Array.from([
+        2.000, 0.918, 1.000, 0.082,
+        2.000, 1.000, 0.000, 0.000,
+        4.000, 0.500, 2.000, 0.500,
+        4.000, 0.907, 0.000, 0.093,
+        4.000, 1.000, 0.000, 0.000,
+        1.000, 0.893, 2.000, 0.107,
+        1.000, 1.000, 0.000, 0.000,
+        3.000, 0.918, 1.000, 0.082,
+        1.000, 1.000, 0.000, 0.000,
+        2.000, 0.500, 3.000, 0.500,
+        3.000, 1.000, 0.000, 0.000,
+        5.000, 0.500, 3.000, 0.500,
+        0.000, 1.000, 0.000, 0.000,
+        5.000, 0.907, 0.000, 0.093,
+        0.000, 1.000, 0.000, 0.000,
+        5.000, 1.000, 0.000, 0.000,
+        1.000, 0.893, 3.000, 0.107,
+        1.000, 1.000, 0.000, 0.000,
+        1.000, 1.000, 0.000, 0.000,
+        1.000, 1.000, 0.000, 0.000
+    ]);
+    // prettier-ignore
+    let index_arr$2 = Uint16Array.from([
+        18, 19, 16,
+        19, 17, 16,
+        7, 13, 8,
+        16, 17, 7,
+        19, 18, 8,
+        8, 18, 7,
+        7, 17, 9,
+        7, 18, 16,
+        12, 11, 9,
+        11, 15, 13,
+        12, 15, 11,
+        12, 14, 13,
+        13, 15, 12,
+        11, 13, 7,
+        13, 14, 8,
+        9, 10, 7,
+        11, 10, 9,
+        7, 10, 11,
+        19, 6, 5,
+        17, 19, 5,
+        3, 0, 8,
+        17, 5, 0,
+        6, 19, 8,
+        6, 8, 0,
+        17, 0, 9,
+        6, 0, 5,
+        2, 12, 9,
+        4, 2, 3,
+        4, 12, 2,
+        14, 12, 3,
+        4, 3, 12,
+        3, 2, 0,
+        14, 3, 8,
+        1, 9, 0,
+        1, 2, 9,
+        1, 0, 2
+    ]);
+    /*
+    1.000, 0.000, 0.000, 0.000, 0.000, 0.096, -0.995, 0.000, 0.000, 0.995, 0.096, 0.000, 0.000, 0.433, 0.395, 1.000
+    1.000, 0.000, 0.000, 0.000, 0.000, 0.795, -0.606, 0.000, 0.000, 0.606, 0.795, 0.000, 0.000, -0.306, 0.251, 1.000
+    1.000, 0.000, 0.000, 0.000, 0.000, -1.000, 0.000, 0.000, 0.000, -0.000, -1.000, 0.000, -0.073, 0.395, -0.015, 1.000
+    1.000, 0.000, 0.000, 0.000, 0.000, -1.000, 0.000, 0.000, 0.000, -0.000, -1.000, 0.000, 0.073, 0.395, -0.015, 1.000
+    1.000, 0.000, 0.000, 0.000, 0.000, -0.992, 0.124, 0.000, 0.000, -0.124, -0.992, 0.000, -0.073, 0.291, -0.509, 1.000
+    1.000, 0.000, 0.000, 0.000, 0.000, -0.992, 0.124, 0.000, 0.000, -0.124, -0.992, 0.000, 0.073, 0.291, -0.509, 1.000
+    */
+
+    function mesh_ogon(gl) {
+        let vertex_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$1, GL_STATIC_DRAW);
+        let normal_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$1, GL_STATIC_DRAW);
+        let texcoord_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$1, GL_STATIC_DRAW);
+        let weights_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$1, GL_STATIC_DRAW);
+        let index_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$1, GL_STATIC_DRAW);
+        return {
+            VertexBuffer: vertex_buf,
+            VertexArray: vertex_arr$1,
+            NormalBuffer: normal_buf,
+            NormalArray: normal_arr$1,
+            TexCoordBuffer: texcoord_buf,
+            TexCoordArray: texcoord_arr$1,
+            WeightsBuffer: weights_buf,
+            WeightsArray: weights_arr$1,
+            IndexBuffer: index_buf,
+            IndexArray: index_arr$1,
+            IndexCount: index_arr$1.length,
+        };
+    }
+    // prettier-ignore
+    let vertex_arr$1 = Float32Array.from([
+        -0.111, 0.575, -0.859,
+        -0.000, 0.384, -0.481,
+        -0.000, 0.251, -0.862,
+        0.131, 0.518, -0.819,
+        -0.152, 0.634, -1.248,
+        -0.008, 0.196, -1.300,
+        0.216, 0.518, -1.191,
+        -0.247, 0.793, -1.762,
+        -0.000, 0.141, -1.608,
+        0.242, 0.549, -1.756,
+        -0.208, 0.738, -2.194,
+        -0.000, 0.234, -2.101,
+        0.167, 0.495, -2.202,
+        -0.076, 0.650, -2.622,
+        -0.000, 0.376, -2.482,
+        0.137, 0.502, -2.539,
+        -0.038, 0.426, -2.917
+    ]);
+    // prettier-ignore
+    let normal_arr$1 = Float32Array.from([
+        -0.701, 0.652, 0.289,
+        -0.030, -0.161, 0.986,
+        -0.097, -0.964, 0.248,
+        0.848, 0.425, 0.317,
+        -0.708, 0.678, 0.198,
+        -0.131, -0.980, 0.148,
+        0.940, 0.301, 0.159,
+        -0.662, 0.749, -0.020,
+        -0.089, -0.996, 0.005,
+        0.956, 0.294, -0.017,
+        -0.643, 0.705, -0.298,
+        -0.110, -0.970, -0.215,
+        0.976, 0.155, -0.154,
+        -0.456, 0.779, -0.431,
+        -0.203, -0.949, -0.242,
+        0.966, 0.102, -0.237,
+        -0.139, -0.245, -0.960
+    ]);
+    // prettier-ignore
+    let texcoord_arr$1 = Float32Array.from([]);
+    // prettier-ignore
+    let weights_arr$1 = Float32Array.from([
+        0.000, 0.933, 1.000, 0.067,
+        0.000, 1.000, 0.000, 0.000,
+        0.000, 0.946, 1.000, 0.054,
+        0.000, 0.953, 1.000, 0.047,
+        1.000, 0.942, 2.000, 0.058,
+        1.000, 0.877, 2.000, 0.123,
+        1.000, 0.970, 2.000, 0.030,
+        2.000, 0.858, 3.000, 0.142,
+        2.000, 0.911, 3.000, 0.089,
+        2.000, 0.932, 3.000, 0.068,
+        3.000, 0.917, 4.000, 0.083,
+        3.000, 0.937, 4.000, 0.063,
+        3.000, 0.945, 4.000, 0.055,
+        4.000, 0.983, 3.000, 0.017,
+        4.000, 0.917, 3.000, 0.083,
+        4.000, 0.956, 3.000, 0.044,
+        4.000, 1.000, 0.000, 0.000
+    ]);
+    // prettier-ignore
+    let index_arr$1 = Uint16Array.from([
+        16, 15, 13,
+        16, 14, 15,
+        16, 13, 14,
+        13, 15, 10,
+        15, 12, 10,
+        15, 14, 12,
+        14, 11, 12,
+        14, 13, 11,
+        13, 10, 11,
+        12, 11, 9,
+        11, 8, 9,
+        11, 10, 8,
+        10, 7, 8,
+        8, 7, 5,
+        7, 4, 5,
+        7, 9, 4,
+        9, 6, 4,
+        10, 12, 7,
+        12, 9, 7,
+        6, 5, 3,
+        5, 2, 3,
+        5, 4, 2,
+        4, 0, 2,
+        4, 6, 0,
+        6, 3, 0,
+        9, 8, 6,
+        8, 5, 6,
+        1, 0, 3,
+        1, 3, 2,
+        2, 0, 1
+    ]);
+    /*
+    1.000, -0.000, -0.000, 0.000, 0.000, 0.000, 1.000, 0.000, 0.000, -1.000, 0.000, 0.000, -0.000, -0.701, -0.428, 1.000
+    1.000, -0.000, -0.000, 0.000, 0.000, 0.132, 0.991, 0.000, 0.000, -0.991, 0.132, 0.000, -0.000, -1.100, -0.285, 1.000
+    1.000, -0.000, -0.000, 0.000, 0.000, 0.000, 1.000, 0.000, 0.000, -1.000, 0.000, 0.000, -0.000, -1.492, -0.487, 1.000
+    -1.000, -0.000, -0.000, 0.000, 0.000, 0.137, -0.991, 0.000, 0.000, -0.991, -0.137, 0.000, -0.000, -2.009, 0.214, 1.000
+    -1.000, 0.000, -0.000, 0.000, 0.000, -0.204, -0.979, 0.000, -0.000, -0.979, 0.204, 0.000, -0.000, -2.224, 1.021, 1.000
+    */
+
+    function mesh_plane(gl) {
+        let vertex_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr, GL_STATIC_DRAW);
+        let normal_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, normal_arr, GL_STATIC_DRAW);
+        let texcoord_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr, GL_STATIC_DRAW);
+        let weights_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+        gl.bufferData(GL_ARRAY_BUFFER, weights_arr, GL_STATIC_DRAW);
+        let index_buf = gl.createBuffer();
+        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr, GL_STATIC_DRAW);
+        return {
+            VertexBuffer: vertex_buf,
+            VertexArray: vertex_arr,
+            NormalBuffer: normal_buf,
+            NormalArray: normal_arr,
+            TexCoordBuffer: texcoord_buf,
+            TexCoordArray: texcoord_arr,
+            WeightsBuffer: weights_buf,
+            WeightsArray: weights_arr,
+            IndexBuffer: index_buf,
+            IndexArray: index_arr,
+            IndexCount: index_arr.length,
+        };
+    }
+    // prettier-ignore
+    let vertex_arr = Float32Array.from([
+        -0.500, 0.000, 0.500,
+        0.500, 0.000, 0.500,
+        -0.500, 0.000, -0.500,
+        0.500, 0.000, -0.500
+    ]);
+    // prettier-ignore
+    let normal_arr = Float32Array.from([
+        0.000, 1.000, 0.000,
+        0.000, 1.000, 0.000,
+        0.000, 1.000, 0.000,
+        0.000, 1.000, 0.000
+    ]);
+    // prettier-ignore
+    let texcoord_arr = Float32Array.from([]);
+    // prettier-ignore
+    let weights_arr = Float32Array.from([]);
+    // prettier-ignore
+    let index_arr = Uint16Array.from([
+        2, 3, 0,
+        3, 1, 0
+    ]);
+
+    /**
+     * @module systems/sys_animate
+     */
+    const QUERY$q = 16777216 /* Transform */ | 1 /* Animate */;
+    function sys_animate(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$q) === QUERY$q) {
+                update$j(game, i, delta);
+            }
+        }
+    }
+    function update$j(game, entity, delta) {
+        let transform = game.World.Transform[entity];
+        let animate = game.World.Animate[entity];
+        // 1. Switch to the trigger if the clip has completed or early exits are allowed.
+        if (animate.Trigger) {
+            let next = animate.States[animate.Trigger];
+            if (next && next !== animate.Current) {
+                if (animate.Current.Time === 0) {
+                    // If the current clip has completed last frame, switch to the trigger.
+                    animate.Current = next;
+                }
+                else if (animate.Current.Flags & 1 /* EarlyExit */) {
+                    // If the current clip allows early exits, reset its timer so
+                    // that the next time it plays it starts from the beginning,
+                    // and then switch to the trigger.
+                    animate.Current.Time = 0;
+                    animate.Current = next;
+                }
+            }
+            animate.Trigger = undefined;
+        }
+        // 2. Find the current and the next keyframe.
+        let current_keyframe = null;
+        let next_keyframe = null;
+        for (let keyframe of animate.Current.Keyframes) {
+            if (animate.Current.Time < keyframe.Timestamp) {
+                next_keyframe = keyframe;
+                break;
+            }
+            else {
+                current_keyframe = keyframe;
+            }
+        }
+        // 3. Interpolate transform properties between keyframes.
+        if (current_keyframe && next_keyframe) {
+            let keyframe_duration = next_keyframe.Timestamp - current_keyframe.Timestamp;
+            let current_keyframe_time = animate.Current.Time - current_keyframe.Timestamp;
+            let interpolant = current_keyframe_time / keyframe_duration;
+            if (next_keyframe.Ease) {
+                interpolant = next_keyframe.Ease(interpolant);
+            }
+            if (current_keyframe.Translation && next_keyframe.Translation) {
+                lerp(transform.Translation, current_keyframe.Translation, next_keyframe.Translation, interpolant);
+                transform.Dirty = true;
+            }
+            if (current_keyframe.Rotation && next_keyframe.Rotation) {
+                slerp(transform.Rotation, current_keyframe.Rotation, next_keyframe.Rotation, interpolant);
+                transform.Dirty = true;
+            }
+            if (current_keyframe.Scale && next_keyframe.Scale) {
+                lerp(transform.Scale, current_keyframe.Scale, next_keyframe.Scale, interpolant);
+                transform.Dirty = true;
+            }
+        }
+        else if (current_keyframe) {
+            if (current_keyframe.Translation) {
+                copy$1(transform.Translation, current_keyframe.Translation);
+                transform.Dirty = true;
+            }
+            if (current_keyframe.Rotation) {
+                copy(transform.Rotation, current_keyframe.Rotation);
+                transform.Dirty = true;
+            }
+            if (current_keyframe.Scale) {
+                copy$1(transform.Scale, current_keyframe.Scale);
+                transform.Dirty = true;
+            }
+        }
+        // 4. Check if the animation is still running.
+        let new_time = animate.Current.Time + delta;
+        if (new_time < animate.Current.Duration) {
+            // The animation isn't done yet; continue.
+            animate.Current.Time = new_time;
+            return;
+        }
+        else {
+            // The animation has completed; reset its timer.
+            animate.Current.Time = 0;
+            if (current_keyframe === null || current_keyframe === void 0 ? void 0 : current_keyframe.ActionOnEnd) {
+                console.log("YUP!");
+            }
+        }
+        // 5. The animation has completed. Loop it or switch to idle.
+        if (animate.Current.Flags & 4 /* Alternate */) {
+            // Reverse the keyframes of the clip and recalculate their timestamps.
+            for (let keyframe of animate.Current.Keyframes.reverse()) {
+                keyframe.Timestamp = animate.Current.Duration - keyframe.Timestamp;
+            }
+        }
+        if (!(animate.Current.Flags & 2 /* Loop */)) {
+            animate.Current = animate.States["idle"];
+        }
+    }
+
+    /**
+     * @module systems/sys_audio_listener
+     */
+    const QUERY$p = 2 /* AudioListener */ | 16777216 /* Transform */;
+    function sys_audio_listener(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$p) === QUERY$p) {
+                update$i(game, i);
+            }
+        }
+    }
+    let position$1 = [0, 0, 0];
+    let forward$2 = [0, 0, 0];
+    let up = [0, 0, 0];
+    function update$i(game, entity) {
+        let transform = game.World.Transform[entity];
+        get_translation(position$1, transform.World);
+        get_forward(forward$2, transform.World);
+        get_up(up, transform.World);
+        let listener = game.Audio.listener;
+        if (listener.positionX) {
+            // The new AudioListener API.
+            listener.positionX.value = position$1[0];
+            listener.positionY.value = position$1[1];
+            listener.positionZ.value = position$1[2];
+            listener.forwardX.value = forward$2[0];
+            listener.forwardY.value = forward$2[1];
+            listener.forwardZ.value = forward$2[2];
+            listener.upX.value = up[0];
+            listener.upY.value = up[1];
+            listener.upZ.value = up[2];
+        }
+        else {
+            // Firefox & Safari.
+            listener.setPosition(...position$1);
+            listener.setOrientation(...forward$2, ...up);
+        }
+    }
+
+    function play_note(audio, panner, instr, note, offset) {
+        let time = audio.currentTime + offset;
+        let total_duration = 0;
+        if (panner) {
+            panner.connect(audio.destination);
+        }
+        let master = audio.createGain();
+        master.gain.value = (instr[0 /* MasterGainAmount */] / 9) ** 3;
+        let lfa, lfo;
+        if (instr[5 /* LFOType */]) {
+            // Frequency is mapped to [0, 125].
+            lfo = audio.createOscillator();
+            lfo.type = instr[5 /* LFOType */];
+            lfo.frequency.value = (instr[7 /* LFOFreq */] / 3) ** 3;
+            // Amount is mapped to [27, 5832].
+            lfa = audio.createGain();
+            lfa.gain.value = (instr[6 /* LFOAmount */] + 3) ** 3;
+            lfo.connect(lfa);
+        }
+        if (instr[1 /* FilterType */]) {
+            let filter = audio.createBiquadFilter();
+            filter.type = instr[1 /* FilterType */];
+            filter.frequency.value = 2 ** instr[2 /* FilterFreq */];
+            filter.Q.value = instr[3 /* FilterQ */] ** 1.5;
+            if (lfa && instr[4 /* FilterDetuneLFO */]) {
+                lfa.connect(filter.detune);
+            }
+            master.connect(filter);
+            if (panner) {
+                filter.connect(panner);
+            }
+            else {
+                filter.connect(audio.destination);
+            }
+        }
+        else if (panner) {
+            master.connect(panner);
+        }
+        else {
+            master.connect(audio.destination);
+        }
+        for (let source of instr[8 /* Sources */]) {
+            let amp = audio.createGain();
+            amp.connect(master);
+            // Gain Envelope
+            let gain_amount = (source[1 /* GainAmount */] / 9) ** 3;
+            let gain_attack = (source[2 /* GainAttack */] / 9) ** 3;
+            let gain_sustain = (source[3 /* GainSustain */] / 9) ** 3;
+            let gain_release = (source[4 /* GainRelease */] / 6) ** 3;
+            let gain_duration = gain_attack + gain_sustain + gain_release;
+            amp.gain.setValueAtTime(0, time);
+            amp.gain.linearRampToValueAtTime(gain_amount, time + gain_attack);
+            amp.gain.setValueAtTime(gain_amount, time + gain_attack + gain_sustain);
+            amp.gain.exponentialRampToValueAtTime(0.00001, time + gain_duration);
+            // XXX TypeScript doesn't recognize source[SourceParam.SourceType] as the discriminant.
+            if (source[0]) {
+                let hfo = audio.createOscillator();
+                hfo.type = source[0 /* SourceType */];
+                hfo.connect(amp);
+                // Detune
+                // [-1265,1265] i.e. one octave down and one octave up.
+                hfo.detune.value = 3 * (source[5 /* DetuneAmount */] - 7.5) ** 3;
+                if (lfa && source[6 /* DetuneLFO */]) {
+                    lfa.connect(hfo.detune);
+                }
+                // Frequency Envelope
+                // Frequency from note number
+                let freq = 440 * 2 ** ((note - 69) / 12);
+                if (source[7 /* FreqEnabled */]) {
+                    let freq_attack = (source[8 /* FreqAttack */] / 9) ** 3;
+                    let freq_sustain = (source[9 /* FreqSustain */] / 9) ** 3;
+                    let freq_release = (source[10 /* FreqRelease */] / 6) ** 3;
+                    hfo.frequency.linearRampToValueAtTime(0, time);
+                    hfo.frequency.linearRampToValueAtTime(freq, time + freq_attack);
+                    hfo.frequency.setValueAtTime(freq, time + freq_attack + freq_sustain);
+                    hfo.frequency.exponentialRampToValueAtTime(0.00001, time + freq_attack + freq_sustain + freq_release);
+                }
+                else {
+                    hfo.frequency.setValueAtTime(freq, time);
+                }
+                hfo.start(time);
+                hfo.stop(time + gain_duration);
+            }
+            else {
+                let noise = audio.createBufferSource();
+                noise.buffer = lazy_noise_buffer(audio);
+                noise.loop = true;
+                noise.connect(amp);
+                noise.start(time);
+                noise.stop(time + gain_duration);
+            }
+            if (gain_duration > total_duration) {
+                total_duration = gain_duration;
+            }
+        }
+        if (lfo) {
+            lfo.start(time);
+            lfo.stop(time + total_duration);
+        }
+    }
+    let noise_buffer;
+    function lazy_noise_buffer(audio) {
+        if (!noise_buffer) {
+            noise_buffer = audio.createBuffer(1, audio.sampleRate * 2, audio.sampleRate);
+            let channel = noise_buffer.getChannelData(0);
+            for (let i = 0; i < channel.length; i++) {
+                channel[i] = Math.random() * 2 - 1;
+            }
+        }
+        return noise_buffer;
+    }
+    function play_synth_clip(audio, panner, clip) {
+        // Seconds per beat, corresponding to a quarter note.
+        let spb = 60 / (clip.BPM || 120);
+        // Track timing is based on sixteenth notes.
+        let interval = spb / 4;
+        for (let track of clip.Tracks) {
+            for (let i = 0; i < track.Notes.length; i++) {
+                if (track.Notes[i]) {
+                    play_note(audio, panner, track.Instrument, track.Notes[i], i * interval);
+                }
+            }
+        }
+    }
+    function play_buffer_clip(audio, panner, clip) {
+        let source = audio.createBufferSource();
+        source.buffer = clip.Buffer;
+        if (panner) {
+            source.connect(panner);
+            panner.connect(audio.destination);
+        }
+        else {
+            source.connect(audio.destination);
+        }
+        source.start();
+    }
+
+    /**
+     * @module systems/sys_audio_source
+     */
+    const QUERY$o = 4 /* AudioSource */ | 16777216 /* Transform */;
+    function sys_audio_source(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$o) === QUERY$o) {
+                update$h(game, i, delta);
+            }
+        }
+    }
+    function update$h(game, entity, delta) {
+        let audio_source = game.World.AudioSource[entity];
+        let transform = game.World.Transform[entity];
+        if (audio_source.Current) {
+            audio_source.Time += delta;
+            if (audio_source.Time > audio_source.Current.Exit) {
+                // This clip can now be exited from. Note: We might clear Current
+                // before the clip actually ends, if Exit < duration. That's OK, as
+                // we don't attempt to stop the current audio anyways.
+                // TODO Schedule notes from Current progressively rather than all at once.
+                audio_source.Current = undefined;
+            }
+            else if (audio_source.Panner) {
+                update_panner(audio_source.Panner, transform);
+            }
+        }
+        if (audio_source.Trigger && !audio_source.Current) {
+            switch (audio_source.Trigger.Kind) {
+                case 0 /* Buffer */:
+                    play_buffer_clip(game.Audio, audio_source.Panner, audio_source.Trigger);
+                    break;
+                case 1 /* Synth */:
+                    play_synth_clip(game.Audio, audio_source.Panner, audio_source.Trigger);
+                    break;
+            }
+            audio_source.Current = audio_source.Trigger;
+            audio_source.Time = 0;
+            if (audio_source.Panner) {
+                update_panner(audio_source.Panner, transform);
+            }
+        }
+        // Audio triggers are only valid in the frame they're set; they don't stack
+        // up. Otherwise sound effects would go out of sync with the game logic.
+        // Reset the trigger to the default or undefined, regardless of whether it
+        // triggered a new clip to play.
+        audio_source.Trigger = audio_source.Idle;
+    }
+    const position = [0, 0, 0];
+    const forward$1 = [0, 0, 0];
+    function update_panner(panner, transform) {
+        get_translation(position, transform.World);
+        get_forward(forward$1, transform.World);
+        if (panner.positionX) {
+            panner.positionX.value = position[0];
+            panner.positionY.value = position[1];
+            panner.positionZ.value = position[2];
+            panner.orientationX.value = forward$1[0];
+            panner.orientationY.value = forward$1[1];
+            panner.orientationZ.value = forward$1[2];
+        }
+        else {
+            // Firefox & Safari.
+            panner.setPosition(...position);
+            panner.setOrientation(...forward$1);
+        }
+    }
+
+    function resize_perspective(projection, aspect) {
+        if (aspect > 1) {
+            // Landscape orientation.
+            perspective(projection.Projection, projection.FovY, aspect, projection.Near, projection.Far);
+            invert(projection.Inverse, projection.Projection);
+        }
+        else {
+            // Portrait orientation.
+            perspective(projection.Projection, projection.FovY / aspect, aspect, projection.Near, projection.Far);
+            invert(projection.Inverse, projection.Projection);
+        }
+    }
+    function resize_ortho(projection) {
+        ortho(projection.Projection, projection.Radius, projection.Radius, -projection.Radius, -projection.Radius, projection.Near, projection.Far);
+        invert(projection.Inverse, projection.Projection);
+    }
+
+    /**
+     * @module systems/sys_camera
+     */
+    const QUERY$n = 16777216 /* Transform */ | 16 /* Camera */;
+    function sys_camera(game, delta) {
+        game.Cameras = [];
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$n) === QUERY$n) {
+                let camera = game.World.Camera[i];
+                let transform = game.World.Transform[i];
+                let projection = camera.Projection;
+                if (game.ViewportResized) {
+                    switch (projection.Kind) {
+                        case 0 /* Perspective */: {
+                            let aspect = camera.Kind === 0 /* Forward */
+                                ? game.ViewportWidth / game.ViewportHeight
+                                : camera.Target.Width / camera.Target.Height;
+                            resize_perspective(projection, aspect);
+                            break;
+                        }
+                        case 1 /* Ortho */:
+                            resize_ortho(projection);
+                            break;
+                    }
+                }
+                copy$2(camera.View, transform.Self);
+                multiply$1(camera.Pv, projection.Projection, camera.View);
+                get_translation(camera.Position, transform.World);
+                game.Cameras.push(i);
+            }
+        }
+    }
+
+    const BOX = [
+        [0.5, 0.5, 0.5],
+        [0.5, 0.5, -0.5],
+        [-0.5, 0.5, -0.5],
+        [-0.5, 0.5, 0.5],
+        [0.5, -0.5, 0.5],
+        [0.5, -0.5, -0.5],
+        [-0.5, -0.5, -0.5],
+        [-0.5, -0.5, 0.5],
+    ];
+    function compute_aabb(world, aabb) {
+        get_translation(aabb.Center, world);
+        // Start with the extents on each axis set to the position of the center.
+        let min_x, min_y, min_z, max_x, max_y, max_z;
+        min_x = max_x = aabb.Center[0];
+        min_y = max_y = aabb.Center[1];
+        min_z = max_z = aabb.Center[2];
+        // Expand the extents outwards from the center by finding the farthest
+        // vertex on each axis in both the negative and the positive direction.
+        let world_vertex = [0, 0, 0];
+        for (let i = 0; i < 8; i++) {
+            let bb_vertex = BOX[i];
+            // Scale the bounding box according to the size of the collider.
+            world_vertex[0] = bb_vertex[0] * aabb.Size[0];
+            world_vertex[1] = bb_vertex[1] * aabb.Size[1];
+            world_vertex[2] = bb_vertex[2] * aabb.Size[2];
+            transform_point(world_vertex, world_vertex, world);
+            if (world_vertex[0] < min_x) {
+                min_x = world_vertex[0];
+            }
+            if (world_vertex[0] > max_x) {
+                max_x = world_vertex[0];
+            }
+            if (world_vertex[1] < min_y) {
+                min_y = world_vertex[1];
+            }
+            if (world_vertex[1] > max_y) {
+                max_y = world_vertex[1];
+            }
+            if (world_vertex[2] < min_z) {
+                min_z = world_vertex[2];
+            }
+            if (world_vertex[2] > max_z) {
+                max_z = world_vertex[2];
+            }
+        }
+        // Save the min and max bounds.
+        aabb.Min = [min_x, min_y, min_z];
+        aabb.Max = [max_x, max_y, max_z];
+        // Calculate the half-extents.
+        aabb.Half[0] = (max_x - min_x) / 2;
+        aabb.Half[1] = (max_y - min_y) / 2;
+        aabb.Half[2] = (max_z - min_z) / 2;
+    }
+    function penetrate_aabb(a, b) {
+        let distance_x = a.Center[0] - b.Center[0];
+        let penetration_x = a.Half[0] + b.Half[0] - Math.abs(distance_x);
+        let distance_y = a.Center[1] - b.Center[1];
+        let penetration_y = a.Half[1] + b.Half[1] - Math.abs(distance_y);
+        let distance_z = a.Center[2] - b.Center[2];
+        let penetration_z = a.Half[2] + b.Half[2] - Math.abs(distance_z);
+        if (penetration_x < penetration_y && penetration_x < penetration_z) {
+            return [penetration_x * Math.sign(distance_x), 0, 0];
+        }
+        else if (penetration_y < penetration_z) {
+            return [0, penetration_y * Math.sign(distance_y), 0];
+        }
+        else {
+            return [0, 0, penetration_z * Math.sign(distance_z)];
+        }
+    }
+    function intersect_aabb(a, b) {
+        return (a.Min[0] < b.Max[0] &&
+            a.Max[0] > b.Min[0] &&
+            a.Min[1] < b.Max[1] &&
+            a.Max[1] > b.Min[1] &&
+            a.Min[2] < b.Max[2] &&
+            a.Max[2] > b.Min[2]);
+    }
+
+    /**
+     * @module systems/sys_collide
+     */
+    const QUERY$m = 16777216 /* Transform */ | 64 /* Collide */;
+    function sys_collide(game, delta) {
+        // Collect all colliders.
+        let static_colliders = [];
+        let dynamic_colliders = [];
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$m) === QUERY$m) {
+                let transform = game.World.Transform[i];
+                let collider = game.World.Collide[i];
+                // Prepare the collider for this tick's detection.
+                collider.Collisions = [];
+                if (collider.New) {
+                    collider.New = false;
+                    compute_aabb(transform.World, collider);
+                }
+                else if (collider.Dynamic) {
+                    compute_aabb(transform.World, collider);
+                    dynamic_colliders.push(collider);
+                }
+                else {
+                    static_colliders.push(collider);
+                }
+            }
+        }
+        for (let i = 0; i < dynamic_colliders.length; i++) {
+            check_collisions(dynamic_colliders[i], static_colliders, static_colliders.length);
+            check_collisions(dynamic_colliders[i], dynamic_colliders, i);
+        }
+    }
+    /**
+     * Check for collisions between a dynamic collider and other colliders. Length
+     * is used to control how many colliders to check against. For collisions
+     * with static colliders, length should be equal to colliders.length, since
+     * we want to consider all static colliders in the scene. For collisions with
+     * other dynamic colliders, we only need to check a pair of colliders once.
+     * Varying length allows to skip half of the NxN checks matrix.
+     *
+     * @param game The game instance.
+     * @param collider The current collider.
+     * @param colliders Other colliders to test against.
+     * @param length How many colliders to check.
+     */
+    function check_collisions(collider, colliders, length) {
+        for (let i = 0; i < length; i++) {
+            let other = colliders[i];
+            let collider_can_intersect = collider.Signature & other.Layers;
+            let other_can_intersect = other.Signature & collider.Layers;
+            if (collider_can_intersect || other_can_intersect) {
+                if (intersect_aabb(collider, other)) {
+                    let hit = penetrate_aabb(collider, other);
+                    if (collider_can_intersect) {
+                        collider.Collisions.push({
+                            Other: other.Entity,
+                            Hit: hit,
+                        });
+                    }
+                    if (other_can_intersect) {
+                        other.Collisions.push({
+                            Other: collider.Entity,
+                            Hit: negate([0, 0, 0], hit),
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @module systems/sys_control_ai
+     */
+    const QUERY$l = 256 /* ControlAi */ | 16777216 /* Transform */;
+    function sys_control_ai(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$l) === QUERY$l) {
+                update$g(game, i);
+            }
+        }
+    }
+    function update$g(game, entity) {
+        let control = game.World.ControlAi[entity];
+        for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
+            let animate = game.World.Animate[ent];
+            animate.Trigger = control.Animation;
+        }
+    }
+
+    /**
+     * @module systems/sys_control_always
+     */
+    const QUERY$k = 128 /* ControlAlways */ | 16777216 /* Transform */ | 65536 /* Move */;
+    function sys_control_always(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$k) === QUERY$k) {
+                update$f(game, i);
+            }
+        }
+    }
+    function update$f(game, entity) {
+        let control = game.World.ControlAlways[entity];
+        let move = game.World.Move[entity];
+        if (control.Direction) {
+            move.Directions.push(control.Direction.slice());
+        }
+        if (control.Rotation) {
+            move.LocalRotations.push(control.Rotation.slice());
+        }
+    }
+
+    const QUERY$j = 512 /* ControlPlayer */;
+    function sys_control_keyboard(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
+                update$e(game, i);
+            }
+        }
+    }
+    function update$e(game, entity) {
+        let control = game.World.ControlPlayer[entity];
+        if (control.Flags & 1 /* Move */) {
+            // Requires Has.Move | Has.RigidBody.
+            let move = game.World.Move[entity];
+            if (game.InputState["ArrowLeft"]) {
+                move.Directions.push([-1, 0, 0]);
+            }
+            if (game.InputState["ArrowRight"]) {
+                move.Directions.push([1, 0, 0]);
+            }
+            let rigid_body = game.World.RigidBody[entity];
+            if (!rigid_body.IsAirborne) {
+                // The entity is on the ground or on an object.
+                if (game.InputState["ArrowUp"]) {
+                    rigid_body.Acceleration[1] += 500;
+                }
+            }
+        }
+        if (control.Flags & 2 /* Rotate */) {
+            // Requires Has.Transform.
+            let transform = game.World.Transform[entity];
+            if (!control.IsGrabbingEntity) {
+                if (game.InputState["ArrowLeft"] && control.IsFacingRight) {
+                    control.IsFacingRight = false;
+                    set(transform.Rotation, 0, -0.7, 0.0, 0.7);
+                    transform.Dirty = true;
+                }
+                if (game.InputState["ArrowRight"] && !control.IsFacingRight) {
+                    control.IsFacingRight = true;
+                    set(transform.Rotation, 0, 0.7, 0.0, 0.7);
+                    transform.Dirty = true;
+                }
+            }
+        }
+        if (control.Flags & 8 /* Grab */) {
+            // Requires Has.Collide.
+            let collide = game.World.Collide[entity];
+            if (game.InputState["Space"] &&
+                !control.IsGrabbingEntity &&
+                collide.Collisions.length > 0) {
+                let obstacle_entity = collide.Collisions[0].Other;
+                let obstacle_mimic = game.World.Mimic[obstacle_entity];
+                if (obstacle_mimic) {
+                    for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
+                        let control = game.World.ControlPlayer[ent];
+                        control.IsGrabbingEntity = obstacle_entity;
+                    }
+                    game.World.Signature[obstacle_entity] |= 32768 /* Mimic */;
+                    if (obstacle_mimic) {
+                        obstacle_mimic.Target = entity;
+                    }
+                }
+            }
+            if (game.InputDelta["Space"] === -1 && control.IsGrabbingEntity) {
+                game.World.Signature[control.IsGrabbingEntity] &= ~32768 /* Mimic */;
+                for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
+                    let control = game.World.ControlPlayer[ent];
+                    control.IsGrabbingEntity = null;
+                }
+            }
+        }
+        if (control.Flags & 4 /* Animate */) {
+            let anim_name = "idle";
+            if (game.InputState["ArrowLeft"] || game.InputState["ArrowRight"]) {
+                anim_name = "walk";
+            }
+            let parent_entity = game.World.Transform[entity].Parent;
+            if (parent_entity !== undefined) {
+                let parent_mimic = game.World.Mimic[parent_entity];
+                let anchor_entity = parent_mimic.Target;
+                let anchor_parent = game.World.Transform[anchor_entity].Parent;
+                if (anchor_parent) {
+                    let rigid_body = game.World.RigidBody[anchor_parent];
+                    if (rigid_body.IsAirborne) {
+                        anim_name = "jump";
+                    }
+                }
+            }
+            for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
+                let animate = game.World.Animate[ent];
+                animate.Trigger = anim_name;
+            }
+        }
+    }
+
+    const QUERY$i = 512 /* ControlPlayer */;
+    const DOUBLE_TAP_INTERVAL = 0.2;
+    const MOVEMENT_DEAD_ZONE = 0.01;
+    const JUMPING_DEAD_ZONE = 0.5;
+    // The origin o fthe gesture from which to compute dx, dy.
+    const touch_start = [0, 0];
+    let time_between_taps = 0;
+    function sys_control_touch_move(game, delta) {
+        if (game.InputDelta["Touch0"] === -1) {
+            time_between_taps = 0;
+        }
+        if (game.InputState["Touch0"] === 0) {
+            time_between_taps += delta;
+        }
+        if (game.InputDelta["Touch0"] === 1) {
+            // The center of the invisible joystick is given by the position of the
+            // first touch of the first finger on the screen's surface.
+            touch_start[0] = game.InputState["Touch0X"];
+            touch_start[1] = game.InputState["Touch0Y"];
+        }
+        let dx = 0;
+        let dy = 0;
+        if (game.InputState["Touch0"] === 1) {
+            let divisor = Math.min(game.ViewportWidth, game.ViewportHeight) / 4;
+            dx = (game.InputState["Touch0X"] - touch_start[0]) / divisor;
+            dy = (game.InputState["Touch0Y"] - touch_start[1]) / divisor;
+        }
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$i) === QUERY$i) {
+                update$d(game, i, dx, dy);
+            }
+        }
+    }
+    function update$d(game, entity, dx, dy) {
+        let control = game.World.ControlPlayer[entity];
+        if (control.Flags & 1 /* Move */) {
+            let move = game.World.Move[entity];
+            if (Math.abs(dx) > MOVEMENT_DEAD_ZONE) {
+                move.Directions.push([clamp(-1, 1, dx), 0, 0]);
+            }
+            let rigid_body = game.World.RigidBody[entity];
+            if (!rigid_body.IsAirborne) {
+                // The entity is on the ground or on an object.
+                if (Math.abs(dy) > JUMPING_DEAD_ZONE) {
+                    rigid_body.Acceleration[1] += 500;
+                }
+            }
+        }
+        if (control.Flags & 2 /* Rotate */) {
+            let transform = game.World.Transform[entity];
+            if (!control.IsGrabbingEntity) {
+                if (dx < 0 && control.IsFacingRight) {
+                    control.IsFacingRight = false;
+                    set(transform.Rotation, 0, -0.7, 0.0, 0.7);
+                    transform.Dirty = true;
+                }
+                if (dx > 0 && !control.IsFacingRight) {
+                    control.IsFacingRight = true;
+                    set(transform.Rotation, 0, 0.7, 0.0, 0.7);
+                    transform.Dirty = true;
+                }
+            }
+        }
+        if (control.Flags & 8 /* Grab */) {
+            // Requires Has.Collide.
+            let collide = game.World.Collide[entity];
+            if (game.InputDelta["Touch0"] === 1 &&
+                time_between_taps < DOUBLE_TAP_INTERVAL &&
+                !control.IsGrabbingEntity &&
+                collide.Collisions.length > 0) {
+                let obstacle_entity = collide.Collisions[0].Other;
+                for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
+                    let control = game.World.ControlPlayer[ent];
+                    control.IsGrabbingEntity = obstacle_entity;
+                }
+                game.World.Signature[obstacle_entity] |= 32768 /* Mimic */;
+                let obstacle_mimic = game.World.Mimic[obstacle_entity];
+                obstacle_mimic.Target = entity;
+            }
+            if (game.InputDelta["Touch0"] === -1 && control.IsGrabbingEntity) {
+                game.World.Signature[control.IsGrabbingEntity] &= ~32768 /* Mimic */;
+                for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
+                    let control = game.World.ControlPlayer[ent];
+                    control.IsGrabbingEntity = null;
+                }
+            }
+        }
+        if (control.Flags & 4 /* Animate */) {
+            let anim_name;
+            if (dx !== 0) {
+                anim_name = "walk";
+            }
+            else {
+                anim_name = "idle";
+            }
+            for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
+                let animate = game.World.Animate[ent];
+                animate.Trigger = anim_name;
+            }
+        }
+    }
+
+    const QUERY$h = 65536 /* Move */ | 512 /* ControlPlayer */;
+    const DEAD_ZONE = 0.1;
+    function sys_control_xbox(game, delta) {
+        for (let pad of navigator.getGamepads()) {
+            if (pad) {
+                game.InputDelta[`pad${pad.index}_axis_1`] = pad.axes[0];
+                game.InputDelta[`pad${pad.index}_axis_2`] = pad.axes[1];
+                game.InputDelta[`pad${pad.index}_axis_3`] = pad.axes[2];
+                game.InputDelta[`pad${pad.index}_axis_4`] = pad.axes[3];
+            }
+        }
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$h) === QUERY$h) {
+                update$c(game, i);
+            }
+        }
+    }
+    function update$c(game, entity) {
+        let control = game.World.ControlPlayer[entity];
+        if (control.Flags & 1 /* Move */) {
+            let move = game.World.Move[entity];
+            if (Math.abs(game.InputDelta["pad0_axis_1"]) > DEAD_ZONE) {
+                // Strafe movement.
+                move.Directions.push([-game.InputDelta["pad0_axis_1"], 0, 0]);
+            }
+            if (Math.abs(game.InputDelta["pad0_axis_2"]) > DEAD_ZONE) {
+                // Forward movement.
+                move.Directions.push([0, 0, -game.InputDelta["pad0_axis_2"]]);
+            }
+        }
+    }
+
+    const QUERY$g = 16777216 /* Transform */ | 1024 /* Cull */;
+    function sys_cull(game, delta) {
+        // The main camera must be instantiated after the shadow source one.
+        let camera_entity = game.Cameras[1];
+        let transform = game.World.Transform[camera_entity];
+        let x = transform.World[12];
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$g) == QUERY$g) {
+                update$b(game, i, x);
+            }
+        }
+    }
+    function update$b(game, entity, camera_x) {
+        let cull = game.World.Cull[entity];
+        let transform = game.World.Transform[entity];
+        let x = transform.World[12];
+        if (Math.abs(x - camera_x) > 15) {
+            game.World.Signature[entity] &= ~cull.Mask;
+        }
+        else {
+            game.World.Signature[entity] |= cull.Mask;
+        }
+    }
+
+    /**
+     * @module systems/sys_draw
+     */
+    const QUERY$f = 16777216 /* Transform */ | 2048 /* Draw */;
+    function sys_draw(game, delta) {
+        game.Context2D.resetTransform();
+        game.Context2D.clearRect(0, 0, game.ViewportWidth, game.ViewportHeight);
+        let position = [0, 0, 0];
+        let camera_entity = game.Cameras[0];
+        let main_camera = game.World.Camera[camera_entity];
+        if (!main_camera) {
+            return;
+        }
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$f) == QUERY$f) {
+                // World position.
+                get_translation(position, game.World.Transform[i].World);
+                // NDC position.
+                transform_point(position, position, main_camera.Pv);
+                if (position[2] < -1 || position[2] > 1) {
+                    // The entity is outside the frustum. Only consider the Z axis
+                    // which allows us to discard all positions in front of the near
+                    // plane (behind the camera) and behind the far plane. We still
+                    // draw the remaining XY positions outside NDC in case the
+                    // drawing is wide or tall enough to be visible.
+                    continue;
+                }
+                game.Context2D.setTransform(1, 0, 0, 1, 0.5 * (position[0] + 1) * game.ViewportWidth, 0.5 * (-position[1] + 1) * game.ViewportHeight);
+                let draw = game.World.Draw[i];
+                switch (draw.Kind) {
+                    case 0 /* Text */:
+                        draw_text(game, draw);
+                        break;
+                    case 2 /* Selection */:
+                        draw_selection(game, draw);
+                        break;
+                }
+            }
+        }
+    }
+    function draw_text(game, draw) {
+        game.Context2D.textAlign = "center";
+        game.Context2D.font = draw.Font;
+        game.Context2D.fillStyle = draw.FillStyle;
+        game.Context2D.fillText(draw.Text, 0, 0);
+    }
+    function draw_selection(game, draw) {
+        game.Context2D.strokeStyle = draw.Color;
+        game.Context2D.strokeRect(-draw.Size / 2, -draw.Size / 2, draw.Size, draw.Size);
+    }
+
+    /**
+     * @module systems/sys_lifespan
+     */
+    const QUERY$e = 8192 /* Lifespan */;
+    function sys_lifespan(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$e) == QUERY$e) {
+                update$a(game, i, delta);
+            }
+        }
+    }
+    function update$a(game, entity, delta) {
+        let lifespan = game.World.Lifespan[entity];
+        lifespan.Remaining -= delta;
+        if (lifespan.Remaining < 0) {
+            if (lifespan.Action) {
+                dispatch(game, lifespan.Action);
+            }
+            destroy_all(game.World, entity);
+        }
+    }
+
+    /**
+     * @module systems/sys_light
+     */
+    const QUERY$d = 16777216 /* Transform */ | 16384 /* Light */;
+    function sys_light(game, delta) {
+        game.LightPositions.fill(0);
+        game.LightDetails.fill(0);
+        let counter = 0;
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$d) === QUERY$d) {
+                update$9(game, i, counter++);
+            }
+        }
+    }
+    let world_pos = [0, 0, 0];
+    function update$9(game, entity, idx) {
+        let light = game.World.Light[entity];
+        let transform = game.World.Transform[entity];
+        get_translation(world_pos, transform.World);
+        if (light.Kind === 1 /* Directional */) {
+            // For directional lights, their normalized position in the world
+            // describes the light's normal.
+            normalize(world_pos, world_pos);
+        }
+        game.LightPositions[4 * idx + 0] = world_pos[0];
+        game.LightPositions[4 * idx + 1] = world_pos[1];
+        game.LightPositions[4 * idx + 2] = world_pos[2];
+        game.LightPositions[4 * idx + 3] = light.Kind;
+        game.LightDetails[4 * idx + 0] = light.Color[0];
+        game.LightDetails[4 * idx + 1] = light.Color[1];
+        game.LightDetails[4 * idx + 2] = light.Color[2];
+        game.LightDetails[4 * idx + 3] = light.Intensity;
+    }
+
+    /**
+     * @module systems/sys_mimic
+     */
+    const QUERY$c = 16777216 /* Transform */ | 32768 /* Mimic */;
+    function sys_mimic(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$c) === QUERY$c) {
+                let follower_transform = game.World.Transform[i];
+                let follower_mimic = game.World.Mimic[i];
+                let target_transform = game.World.Transform[follower_mimic.Target];
+                let target_world_position = get_translation([0, 0, 0], target_transform.World);
+                let target_world_rotation = get_rotation([0, 0, 0, 0], target_transform.World);
+                // XXX Follower must be a top-level transform for this to work.
+                lerp(follower_transform.Translation, follower_transform.Translation, target_world_position, follower_mimic.Stiffness);
+                slerp(follower_transform.Rotation, follower_transform.Rotation, target_world_rotation, follower_mimic.Stiffness);
+                follower_transform.Dirty = true;
+            }
+        }
+    }
+
+    /**
+     * @module systems/sys_move
+     */
+    const QUERY$b = 16777216 /* Transform */ | 65536 /* Move */;
+    const NO_ROTATION = [0, 0, 0, 1];
+    function sys_move(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$b) === QUERY$b) {
+                update$8(game, i, delta);
+            }
+        }
+    }
+    function update$8(game, entity, delta) {
+        let transform = game.World.Transform[entity];
+        let move = game.World.Move[entity];
+        if (move.Directions.length) {
+            let direction = move.Directions.reduce(add_directions);
+            // Directions are not normalized to allow them to express slower
+            // movement from a gamepad input. They can also cancel each other out.
+            // They may not, however, intensify one another; hence max amount is 1.
+            let amount = Math.min(1, length(direction));
+            // Transform the direction into the world or the parent space. This will
+            // also scale the result by the scale encoded in the transform.
+            transform_direction(direction, direction, transform.World);
+            if (transform.Parent !== undefined) {
+                let parent = game.World.Transform[transform.Parent];
+                transform_direction(direction, direction, parent.Self);
+            }
+            // Normalize the direction to remove the transform's scale. The length
+            // of the orignal direction is now lost.
+            normalize(direction, direction);
+            // Scale by the amount and distance traveled in this tick.
+            scale(direction, direction, amount * move.MoveSpeed * delta);
+            add(transform.Translation, transform.Translation, direction);
+            transform.Dirty = true;
+            move.Directions = [];
+        }
+        // Rotations applied relative to the local space (parent's or world).
+        if (move.LocalRotations.length) {
+            let rotation = move.LocalRotations.reduce(multiply_rotations);
+            let t = Math.min(1, (move.RotationSpeed / Math.PI) * delta);
+            slerp(rotation, NO_ROTATION, rotation, t);
+            // Pre-multiply.
+            multiply(transform.Rotation, rotation, transform.Rotation);
+            transform.Dirty = true;
+            move.LocalRotations = [];
+        }
+        // Rotations applied relative to the self space.
+        if (move.SelfRotations.length) {
+            let rotation = move.SelfRotations.reduce(multiply_rotations);
+            let t = Math.min(1, (move.RotationSpeed / Math.PI) * delta);
+            slerp(rotation, NO_ROTATION, rotation, t);
+            // Post-multiply.
+            multiply(transform.Rotation, transform.Rotation, rotation);
+            transform.Dirty = true;
+            move.SelfRotations = [];
+        }
+    }
+    function add_directions(acc, cur) {
+        return add(acc, acc, cur);
+    }
+    function multiply_rotations(acc, cur) {
+        return multiply(acc, acc, cur);
+    }
+
+    const QUERY$a = 16777216 /* Transform */ | 4096 /* EmitParticles */;
+    function sys_particles(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$a) == QUERY$a) {
+                update$7(game, i, delta);
+            }
+        }
+    }
+    let origin = [0, 0, 0];
+    let forward = [0, 0, 0];
+    function update$7(game, entity, delta) {
+        let emitter = game.World.EmitParticles[entity];
+        let transform = game.World.Transform[entity];
+        emitter.SinceLast += delta;
+        if (emitter.SinceLast > emitter.Frequency) {
+            emitter.SinceLast = 0;
+            get_translation(origin, transform.World);
+            get_forward(forward, transform.World);
+            // Push [x, y, z, age].
+            emitter.Instances.push(...origin, 0);
+            // Push [x, y, z, seed].
+            emitter.Instances.push(...forward, Math.random());
+        }
+        // A flat continuous array of particle data, from which a Float32Array
+        // is created in sys_render and sent as a vertex attribute array.
+        for (let i = 0; i < emitter.Instances.length;) {
+            emitter.Instances[i + 3] += delta;
+            if (emitter.Instances[i + 3] > emitter.Lifespan) {
+                emitter.Instances.splice(i, DATA_PER_PARTICLE);
+            }
+            else {
+                i += DATA_PER_PARTICLE;
+            }
+        }
+    }
+
+    /**
+     * @module systems/sys_physics_integrate
+     */
+    const QUERY$9 = 16777216 /* Transform */ | 524288 /* RigidBody */;
+    const GRAVITY = -20;
+    function sys_physics_integrate(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$9) === QUERY$9) {
+                update$6(game, i, delta);
+            }
+        }
+    }
+    function update$6(game, entity, delta) {
+        let transform = game.World.Transform[entity];
+        let rigid_body = game.World.RigidBody[entity];
+        if (rigid_body.Kind === 1 /* Dynamic */) {
+            copy$1(rigid_body.VelocityIntegrated, rigid_body.VelocityResolved);
+            // Compute change to velocity, including the gravity.
+            scale(rigid_body.Acceleration, rigid_body.Acceleration, delta);
+            add(rigid_body.VelocityIntegrated, rigid_body.VelocityIntegrated, rigid_body.Acceleration);
+            rigid_body.VelocityIntegrated[1] += GRAVITY * delta;
+            // Apply velocity to position.
+            let vel_delta = [0, 0, 0];
+            scale(vel_delta, rigid_body.VelocityIntegrated, delta);
+            add(transform.Translation, transform.Translation, vel_delta);
+            transform.Dirty = true;
+            // Reset force/acceleration.
+            set$1(rigid_body.Acceleration, 0, 0, 0);
+        }
+    }
+
+    /**
+     * @module systems/sys_physics_kinematic
+     */
+    const QUERY$8 = 16777216 /* Transform */ | 524288 /* RigidBody */;
+    function sys_physics_kinematic(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$8) === QUERY$8) {
+                update$5(game, i, delta);
+            }
+        }
+    }
+    function update$5(game, entity, delta) {
+        let transform = game.World.Transform[entity];
+        let rigid_body = game.World.RigidBody[entity];
+        if (rigid_body.Kind === 2 /* Kinematic */) {
+            let current_position = [0, 0, 0];
+            get_translation(current_position, transform.World);
+            let movement = [0, 0, 0];
+            subtract(movement, current_position, rigid_body.LastPosition);
+            // Compute velocity from this frame's movement.
+            scale(rigid_body.VelocityIntegrated, movement, 1 / delta);
+            copy$1(rigid_body.LastPosition, current_position);
+        }
+    }
+
+    /**
+     * @module systems/sys_physics_resolve
+     */
+    const QUERY$7 = 16777216 /* Transform */ | 64 /* Collide */ | 524288 /* RigidBody */;
+    function sys_physics_resolve(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$7) === QUERY$7) {
+                update$4(game, i);
+            }
+        }
+    }
+    // Temp vector used to compute the reflection off of a static body.
+    let a = [0, 0, 0];
+    function update$4(game, entity) {
+        let transform = game.World.Transform[entity];
+        let collide = game.World.Collide[entity];
+        let rigid_body = game.World.RigidBody[entity];
+        if (rigid_body.Kind === 1 /* Dynamic */) {
+            let has_collision = false;
+            for (let i = 0; i < collide.Collisions.length; i++) {
+                let collision = collide.Collisions[i];
+                if (game.World.Signature[collision.Other] & 524288 /* RigidBody */) {
+                    has_collision = true;
+                    // Dynamic rigid bodies are only supported for top-level
+                    // entities. Thus, no need to apply the world → self → local
+                    // conversion to the collision response. Local space is world space.
+                    add(transform.Translation, transform.Translation, collision.Hit);
+                    transform.Dirty = true;
+                    // Assume mass = 1 for all rigid bodies. On collision,
+                    // velocities are swapped, unless the other body is a static
+                    // one (and behaves as if it had infinite mass).
+                    let other_body = game.World.RigidBody[collision.Other];
+                    switch (other_body.Kind) {
+                        case 0 /* Static */:
+                            // Compute the reflection vector as
+                            //   r = v - 2 * (v·n) * n
+                            // where
+                            //   v — the incident velocity vector
+                            //   n — the normal of the surface of reflection
+                            // Compute n.
+                            normalize(a, collision.Hit);
+                            // Compute - 2 * (v·n) * n.
+                            scale(a, a, -2 * dot(rigid_body.VelocityIntegrated, a));
+                            add(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated, a);
+                            break;
+                        case 1 /* Dynamic */:
+                        case 2 /* Kinematic */:
+                            copy$1(rigid_body.VelocityResolved, other_body.VelocityIntegrated);
+                            break;
+                    }
+                    // When Bounciness = 1, collisions are 100% elastic.
+                    scale(rigid_body.VelocityResolved, rigid_body.VelocityResolved, rigid_body.Bounciness);
+                    if (collision.Hit[1] > 0 && rigid_body.VelocityResolved[1] < 1) {
+                        // Collision from the bottom stops the downward movement.
+                        rigid_body.VelocityResolved[1] = 0;
+                        rigid_body.IsAirborne = false;
+                    }
+                }
+            }
+            if (!has_collision) {
+                copy$1(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated);
+                rigid_body.IsAirborne = true;
+            }
+        }
+    }
+
+    /**
+     * @module systems/sys_poll
+     */
+    const QUERY$6 = 4194304 /* Task */;
+    function sys_poll(game, delta) {
+        // Collect all ready tasks first to avoid completing them while we stil
+        // literate over ohter tasks. This guarantees that tasks blocked by other
+        // tasks will be completed during the next frame.
+        let tasks_to_complete = [];
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$6) === QUERY$6) {
+                if (has_blocking_dependencies(game.World, i)) {
+                    continue;
+                }
+                let task = game.World.Task[i];
+                switch (task.Kind) {
+                    case 0 /* Until */: {
+                        if (task.Predicate(i)) {
+                            tasks_to_complete.push(i);
+                        }
+                        break;
+                    }
+                    case 1 /* Timeout */: {
+                        task.Remaining -= delta;
+                        if (task.Remaining < 0) {
+                            tasks_to_complete.push(i);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        for (let entity of tasks_to_complete) {
+            let task = game.World.Task[entity];
+            if (task.OnDone) {
+                task.OnDone(entity);
+            }
+            game.World.Signature[entity] &= ~4194304 /* Task */;
+            if (game.World.Signature[entity] === 0 /* None */) {
+                game.World.DestroyEntity(entity);
+            }
+            // Explicitly delete the component data for this task to avoid memory
+            // leaks from closures.
+            delete game.World.Task[entity];
+        }
+    }
+    function has_blocking_dependencies(world, entity) {
+        if (world.Signature[entity] & 32 /* Children */) {
+            let children = world.Children[entity];
+            for (let child of children.Children) {
+                if (world.Signature[child] & 4194304 /* Task */) {
+                    // A pending child blocks the parent task.
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @module systems/sys_render_forward
+     */
+    const QUERY$5 = 16777216 /* Transform */ | 262144 /* Render */;
+    function sys_render_forward(game, delta) {
+        for (let camera_entity of game.Cameras) {
+            let camera = game.World.Camera[camera_entity];
+            switch (camera.Kind) {
+                case 0 /* Forward */:
+                    render_forward(game, camera);
+                    break;
+                case 2 /* Framebuffer */:
+                    render_framebuffer(game, camera);
+                    break;
+                case 3 /* Depth */:
+                    render_depth(game, camera);
+                    break;
+            }
+        }
+    }
+    function render_forward(game, camera) {
+        game.Gl.bindFramebuffer(GL_FRAMEBUFFER, null);
+        game.Gl.viewport(0, 0, game.ViewportWidth, game.ViewportHeight);
+        game.Gl.clearColor(...camera.ClearColor);
+        game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        render(game, camera);
+    }
+    function render_framebuffer(game, camera) {
+        game.Gl.bindFramebuffer(GL_FRAMEBUFFER, camera.Target.Framebuffer);
+        game.Gl.viewport(0, 0, camera.Target.Width, camera.Target.Height);
+        game.Gl.clearColor(...camera.ClearColor);
+        game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        render(game, camera, camera.Target.RenderTexture);
+    }
+    function render_depth(game, camera) {
+        game.Gl.bindFramebuffer(GL_FRAMEBUFFER, camera.Target.Framebuffer);
+        game.Gl.viewport(0, 0, camera.Target.Width, camera.Target.Height);
+        game.Gl.clearColor(...camera.ClearColor);
+        game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        render(game, camera);
+    }
+    function render(game, eye, current_target) {
+        // Keep track of the current material to minimize switching.
+        let current_material = null;
+        let current_front_face = null;
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$5) === QUERY$5) {
+                let transform = game.World.Transform[i];
+                let render = game.World.Render[i];
+                if (render.Material !== current_material) {
+                    current_material = render.Material;
+                    switch (render.Kind) {
+                        case 0 /* ColoredUnlit */:
+                            use_colored_unlit(game, render.Material, eye);
+                            break;
+                        case 1 /* ColoredShaded */:
+                            use_colored_shaded(game, render.Material, eye);
+                            break;
+                        case 4 /* Vertices */:
+                            use_vertices(game, render.Material, eye);
+                            break;
+                        case 2 /* ColoredShadows */:
+                            use_colored_shadows(game, render.Material, eye);
+                            break;
+                        case 3 /* ColoredSkinned */:
+                            use_colored_skinned(game, render.Material, eye);
+                            break;
+                        case 5 /* ParticlesColored */:
+                            use_particles_colored(game, render.Material, eye);
+                            break;
+                        case 6 /* Instanced */:
+                            use_instanced(game, render.Material, eye);
+                            break;
+                    }
+                }
+                if (render.FrontFace !== current_front_face) {
+                    current_front_face = render.FrontFace;
+                    game.Gl.frontFace(render.FrontFace);
+                }
+                switch (render.Kind) {
+                    case 0 /* ColoredUnlit */:
+                        draw_colored_unlit(game, transform, render);
+                        break;
+                    case 1 /* ColoredShaded */:
+                        draw_colored_shaded(game, transform, render);
+                        break;
+                    case 4 /* Vertices */:
+                        draw_vertices(game, transform, render);
+                        break;
+                    case 2 /* ColoredShadows */:
+                        draw_colored_shadows(game, transform, render);
+                        break;
+                    case 3 /* ColoredSkinned */:
+                        draw_colored_skinned(game, i, transform, render);
+                        break;
+                    case 5 /* ParticlesColored */: {
+                        let emitter = game.World.EmitParticles[i];
+                        if (emitter.Instances.length) {
+                            draw_particles_colored(game, render, emitter);
+                        }
+                        break;
+                    }
+                    case 6 /* Instanced */:
+                        draw_instanced(game, transform, render);
+                        break;
+                }
+            }
+        }
+    }
+    function use_colored_unlit(game, material, eye) {
+        game.Gl.useProgram(material.Program);
+        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+    }
+    function draw_colored_unlit(game, transform, render) {
+        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
+        game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
+        game.Gl.bindVertexArray(render.Vao);
+        game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
+        game.Gl.bindVertexArray(null);
+    }
+    function use_colored_shaded(game, material, eye) {
+        game.Gl.useProgram(material.Program);
+        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+        game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
+        game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
+        game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+        game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
+        game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
+    }
+    function draw_colored_shaded(game, transform, render) {
+        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
+        game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
+        game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
+        game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
+        game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
+        game.Gl.bindVertexArray(render.Vao);
+        game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
+        game.Gl.bindVertexArray(null);
+    }
+    function use_vertices(game, material, eye) {
+        game.Gl.useProgram(material.Program);
+        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+    }
+    function draw_vertices(game, transform, render) {
+        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
+        game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.VertexBuffer);
+        game.Gl.enableVertexAttribArray(render.Material.Locations.VertexPosition);
+        game.Gl.vertexAttribPointer(render.Material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+        game.Gl.drawArrays(render.Material.Mode, 0, render.IndexCount);
+    }
+    function use_colored_shadows(game, material, eye) {
+        game.Gl.useProgram(material.Program);
+        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+        game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
+        game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
+        game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+        game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
+        game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
+        if (eye.Kind === 3 /* Depth */) {
+            game.Gl.activeTexture(GL_TEXTURE0);
+            game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Noop.DepthTexture);
+            game.Gl.uniform1i(material.Locations.ShadowMap, 0);
+        }
+        else {
+            game.Gl.activeTexture(GL_TEXTURE0);
+            game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Sun.DepthTexture);
+            game.Gl.uniform1i(material.Locations.ShadowMap, 0);
+            // Only one shadow source is supported.
+            let light_entity = first_entity(game.World, 16 /* Camera */ | 16384 /* Light */);
+            if (light_entity) {
+                let light_camera = game.World.Camera[light_entity];
+                game.Gl.uniformMatrix4fv(material.Locations.ShadowSpace, false, light_camera.Pv);
+            }
+        }
+    }
+    function draw_colored_shadows(game, transform, render) {
+        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
+        game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
+        game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
+        game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
+        game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
+        game.Gl.bindVertexArray(render.Vao);
+        game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
+        game.Gl.bindVertexArray(null);
+    }
+    function use_colored_skinned(game, material, eye) {
+        game.Gl.useProgram(material.Program);
+        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+        game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
+        game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
+        game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+        game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
+        game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
+    }
+    const bones = new Float32Array(16 * 6);
+    function draw_colored_skinned(game, entity, transform, render) {
+        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
+        game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
+        game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
+        game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
+        game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
+        let bone_entities = [];
+        if (game.World.Signature[entity] & 32 /* Children */) {
+            for (let bone_entity of query_all(game.World, entity, 8 /* Bone */ | 16777216 /* Transform */)) {
+                bone_entities.push(bone_entity);
+            }
+        }
+        else {
+            // Find the 5 tail bones. They're top-level for mimic() to work, so we
+            // need to find them in the world rather than the tail's children.
+            let start_here = entity;
+            for (let i = 0; i < 5; i++) {
+                let bone_entity = first_entity(game.World, 8 /* Bone */ | 16777216 /* Transform */, start_here);
+                if (bone_entity) {
+                    bone_entities.push(bone_entity);
+                    start_here = bone_entity + 1;
+                }
+            }
+        }
+        for (let bone_entity of bone_entities) {
+            let bone_transform = game.World.Transform[bone_entity];
+            let bone = game.World.Bone[bone_entity];
+            let bone_view = bones.subarray(bone.Index * 16);
+            multiply$1(bone_view, bone_transform.World, bone.InverseBindPose);
+        }
+        game.Gl.uniformMatrix4fv(render.Material.Locations.Bones, false, bones);
+        game.Gl.bindVertexArray(render.Vao);
+        game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
+        game.Gl.bindVertexArray(null);
+    }
+    function use_particles_colored(game, material, eye) {
+        game.Gl.useProgram(material.Program);
+        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+    }
+    function draw_particles_colored(game, render, emitter) {
+        game.Gl.uniform4fv(render.Material.Locations.ColorStart, render.ColorStart);
+        game.Gl.uniform4fv(render.Material.Locations.ColorEnd, render.ColorEnd);
+        game.Gl.uniform4f(render.Material.Locations.Details, emitter.Lifespan, emitter.Speed, ...render.Size);
+        let instances = Float32Array.from(emitter.Instances);
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.Buffer);
+        game.Gl.bufferSubData(GL_ARRAY_BUFFER, 0, instances);
+        game.Gl.enableVertexAttribArray(render.Material.Locations.OriginAge);
+        game.Gl.vertexAttribPointer(render.Material.Locations.OriginAge, 4, GL_FLOAT, false, DATA_PER_PARTICLE * 4, 0);
+        game.Gl.enableVertexAttribArray(render.Material.Locations.Direction);
+        game.Gl.vertexAttribPointer(render.Material.Locations.Direction, 3, GL_FLOAT, false, DATA_PER_PARTICLE * 4, 4 * 4);
+        game.Gl.drawArrays(render.Material.Mode, 0, emitter.Instances.length / DATA_PER_PARTICLE);
+    }
+    function use_instanced(game, material, eye) {
+        game.Gl.useProgram(material.Program);
+        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+        game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
+        game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
+        game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+        game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
+        game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
+    }
+    function draw_instanced(game, transform, render) {
+        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
+        game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
+        game.Gl.uniform3fv(render.Material.Locations.Palette, render.Palette);
+        game.Gl.bindVertexArray(render.Vao);
+        game.Gl.drawElementsInstanced(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0, render.InstanceCount);
+        game.Gl.bindVertexArray(null);
+    }
+
+    /**
+     * @module systems/sys_resize
+     */
+    function sys_resize(game, delta) {
+        if (game.ViewportWidth != window.innerWidth || game.ViewportHeight != window.innerHeight) {
+            game.ViewportResized = true;
+        }
+        if (game.ViewportResized) {
+            game.ViewportWidth = game.Canvas3D.width = game.Canvas2D.width = window.innerWidth;
+            game.ViewportHeight = game.Canvas3D.height = game.Canvas2D.height = window.innerHeight;
+        }
+    }
+
+    /**
+     * @module systems/sys_shake
+     */
+    const QUERY$4 = 16777216 /* Transform */ | 1048576 /* Shake */;
+    function sys_shake(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$4) == QUERY$4) {
+                update$3(game, i);
+            }
+        }
+    }
+    function update$3(game, entity) {
+        let shake = game.World.Shake[entity];
+        let transform = game.World.Transform[entity];
+        transform.Translation = [Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5];
+        scale(transform.Translation, transform.Translation, shake.Magnitude * 2);
+        transform.Dirty = true;
+    }
+
+    /**
+     * @module systems/sys_spawn
+     */
+    const QUERY$3 = 16777216 /* Transform */ | 2097152 /* Spawn */;
+    function sys_spawn(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$3) == QUERY$3) {
+                update$2(game, i, delta);
+            }
+        }
+    }
+    function update$2(game, entity, delta) {
+        let spawn = game.World.Spawn[entity];
+        spawn.SinceLast += delta;
+        if (spawn.SinceLast > spawn.Interval) {
+            spawn.SinceLast = 0;
+            let entity_transform = game.World.Transform[entity];
+            let world_position = [0, 0, 0];
+            get_translation(world_position, entity_transform.World);
+            let world_rotation = [0, 0, 0, 0];
+            get_rotation(world_rotation, entity_transform.World);
+            instantiate(game, [...spawn.Creator(game), transform(world_position, world_rotation)]);
+        }
+    }
+
+    /**
+     * @module systems/sys_toggle
+     */
+    const QUERY$2 = 8388608 /* Toggle */;
+    function sys_toggle(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$2) == QUERY$2) {
+                update$1(game, i, delta);
+            }
+        }
+    }
+    function update$1(game, entity, delta) {
+        let toggle = game.World.Toggle[entity];
+        toggle.SinceLast += delta;
+        if (toggle.CurrentlyEnabled && toggle.SinceLast > toggle.Duration) {
+            toggle.SinceLast = 0;
+            toggle.CurrentlyEnabled = false;
+            game.World.Signature[entity] &= ~toggle.Mask;
+        }
+        else if (!toggle.CurrentlyEnabled && toggle.SinceLast > toggle.Delay) {
+            toggle.SinceLast = 0;
+            toggle.CurrentlyEnabled = true;
+            game.World.Signature[entity] |= toggle.Mask;
+        }
+    }
+
+    /**
+     * @module systems/sys_transform
+     */
+    const QUERY$1 = 16777216 /* Transform */;
+    function sys_transform(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$1) === QUERY$1) {
+                let transform = game.World.Transform[i];
+                if (transform.Dirty) {
+                    update_transform(game.World, i, transform);
+                }
+            }
+        }
+    }
+    function update_transform(world, entity, transform) {
+        transform.Dirty = false;
+        from_rotation_translation_scale(transform.World, transform.Rotation, transform.Translation, transform.Scale);
+        if (transform.Parent !== undefined) {
+            let parent_transform = world.Transform[transform.Parent];
+            multiply$1(transform.World, parent_transform.World, transform.World);
+        }
+        invert(transform.Self, transform.World);
+        if (world.Signature[entity] & 32 /* Children */) {
+            let children = world.Children[entity];
+            for (let child of children.Children) {
+                if (world.Signature[child] & 16777216 /* Transform */) {
+                    let child_transform = world.Transform[child];
+                    child_transform.Parent = entity;
+                    update_transform(world, child, child_transform);
+                }
+            }
+        }
+    }
+
+    /**
+     * @module systems/sys_trigger
+     */
+    const QUERY = 16777216 /* Transform */ | 64 /* Collide */ | 33554432 /* Trigger */;
+    function sys_trigger(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY) === QUERY) {
+                update(game, i);
+            }
+        }
+    }
+    function update(game, entity) {
+        let collide = game.World.Collide[entity];
+        let trigger = game.World.Trigger[entity];
+        for (let collision of collide.Collisions) {
+            let other_collide = game.World.Collide[collision.Other];
+            if (trigger.Mask & other_collide.Layers) {
+                dispatch(game, trigger.Action, [entity, collision.Other]);
+            }
+        }
+    }
+
+    /**
+     * @module systems/sys_ui
+     */
+    let prev;
+    function sys_ui(game, delta) {
+        let next = App(game);
+        if (next !== prev) {
+            game.Ui.innerHTML = prev = next;
+        }
+    }
+
+    class Game extends Game3D {
+        constructor() {
+            super(...arguments);
+            this.World = new World();
+            this.MaterialColoredWireframe = mat_forward_colored_wireframe(this.Gl);
+            this.MaterialColoredShaded = mat_forward_colored_phong(this.Gl);
+            this.MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
+            this.MaterialColoredPhongSkinned = mat_forward_colored_phong_skinned(this.Gl);
+            this.MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
+            this.MaterialInstanced = mat_forward_instanced(this.Gl);
+            this.MeshLeaf = mesh_leaf(this.Gl);
+            this.MeshGrass = mesh_grass(this.Gl);
+            this.MeshPlane = mesh_plane(this.Gl);
+            this.MeshCube = mesh_cube(this.Gl);
+            this.MeshLisek = mesh_lisek(this.Gl);
+            this.MeshOgon = mesh_ogon(this.Gl);
+            this.MeshCylinder = mesh_cylinder(this.Gl);
+            // The rendering pipeline supports 8 lights.
+            this.LightPositions = new Float32Array(4 * 8);
+            this.LightDetails = new Float32Array(4 * 8);
+            this.Cameras = [];
+            this.Targets = {
+                Noop: create_depth_target(this.Gl, 2, 2),
+                Sun: create_depth_target(this.Gl, 2048, 2048),
+            };
+            this.CurrentScene = scene_intro;
+            this.CurrentView = Title;
+        }
+        FixedUpdate(delta) {
+            // Collisions and physics.
+            sys_physics_integrate(this, delta);
+            sys_transform(this);
+            sys_physics_kinematic(this, delta);
+            sys_collide(this);
+            sys_physics_resolve(this);
+            sys_transform(this);
+            sys_trigger(this);
+        }
+        FrameUpdate(delta) {
+            // Event loop.
+            sys_poll(this, delta);
+            // Player input.
+            sys_control_touch_move(this, delta);
+            sys_control_keyboard(this);
+            sys_control_xbox(this);
+            // AI.
+            sys_control_ai(this);
+            sys_control_always(this);
+            // Game logic.
+            sys_animate(this, delta);
+            sys_move(this, delta);
+            sys_mimic(this);
+            sys_lifespan(this, delta);
+            sys_shake(this);
+            sys_toggle(this, delta);
+            sys_spawn(this, delta);
+            sys_particles(this, delta);
+            sys_transform(this);
+            // Rendering.
+            sys_audio_listener(this);
+            sys_audio_source(this, delta);
+            sys_resize(this);
+            sys_camera(this);
+            sys_cull(this);
+            sys_light(this);
+            sys_render_forward(this);
+            sys_draw(this);
+            sys_ui(this);
+        }
     }
 
     function scene_level1(game) {
@@ -7090,7 +7151,7 @@
     // @ts-ignore
     window.scenes = [scene_intro, scene_level1, scene_level2, scene_level3, scene_stage];
     // @ts-ignore ⮮ CHANGE ME HERE.
-    window.scenes[1](game);
+    window.scenes[0](game);
     game.Start();
     // @ts-ignore
     window.$ = dispatch.bind(null, game);
