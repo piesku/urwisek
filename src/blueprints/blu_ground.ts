@@ -28,11 +28,12 @@ export function blueprint_ground(game: Game) {
         children(
             [
                 transform(),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCube,
-                    [0.095, 0.095, 0.095, 1]
-                ),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [
+                    82 / 255,
+                    39 / 255,
+                    5 / 255,
+                    1,
+                ]),
             ],
             [
                 transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
