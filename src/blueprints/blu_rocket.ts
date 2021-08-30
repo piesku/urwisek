@@ -1,4 +1,5 @@
 import {from_euler} from "../../common/quat.js";
+import {float} from "../../common/random.js";
 import {audio_source} from "../components/com_audio_source.js";
 import {children} from "../components/com_children.js";
 import {control_always} from "../components/com_control_always.js";
@@ -17,14 +18,14 @@ import {Has} from "../world.js";
 export function blueprint_rocket(game: Game) {
     return [
         control_always([0, 0, 1], null),
-        move(2, 0),
-        lifespan(9),
+        move(float(1, 3), 0),
+        lifespan(25),
         audio_source(true, snd_rocket),
         disable(Has.AudioSource),
         children(
             // Body 1.
             [
-                transform([0, 0, 0.5], from_euler([0.7, 0, 0, 0.7], 0, -90, -90), [0.1, 0.1, 0.1]),
+                transform(undefined, from_euler([0.7, 0, 0, 0.7], 0, -90, -90), [0.1, 0.1, 0.1]),
                 ...prop_rocket(game),
             ],
             // Jet exhaust.

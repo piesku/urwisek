@@ -14,6 +14,7 @@ import {mesh_leaf} from "../meshes/leaf.js";
 import {mesh_lisek} from "../meshes/lisek.js";
 import {mesh_ogon} from "../meshes/ogon.js";
 import {mesh_plane} from "../meshes/plane.js";
+import {scene_intro} from "./scenes/sce_intro.js";
 import {sys_animate} from "./systems/sys_animate.js";
 import {sys_audio_listener} from "./systems/sys_audio_listener.js";
 import {sys_audio_source} from "./systems/sys_audio_source.js";
@@ -44,6 +45,7 @@ import {sys_toggle} from "./systems/sys_toggle.js";
 import {sys_transform} from "./systems/sys_transform.js";
 import {sys_trigger} from "./systems/sys_trigger.js";
 import {sys_ui} from "./systems/sys_ui.js";
+import {Title} from "./ui/App.js";
 import {World} from "./world.js";
 
 export class Game extends Game3D {
@@ -74,8 +76,8 @@ export class Game extends Game3D {
         Sun: create_depth_target(this.Gl, 2048, 2048),
     };
 
-    ItemsCollected = 0;
-    ItemsMissed = 0;
+    CurrentScene = scene_intro;
+    CurrentView = Title;
 
     override FixedUpdate(delta: number) {
         // Collisions and physics.

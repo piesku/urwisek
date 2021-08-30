@@ -1,11 +1,9 @@
-import {Entity} from "../common/world.js";
-import {destroy_all} from "./components/com_children.js";
 import {Game} from "./game.js";
+import {Intro} from "./ui/App.js";
 
 export const enum Action {
     ToggleFullscreen,
-    CollectItem,
-    ExpireItem,
+    NewGame,
     MonsterStep,
 }
 
@@ -19,14 +17,8 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             }
             break;
         }
-        case Action.CollectItem: {
-            let [item_entity] = payload as [Entity, Entity];
-            destroy_all(game.World, item_entity);
-            game.ItemsCollected++;
-            break;
-        }
-        case Action.ExpireItem: {
-            game.ItemsMissed++;
+        case Action.NewGame: {
+            game.CurrentView = Intro;
             break;
         }
     }

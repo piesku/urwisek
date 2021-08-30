@@ -40,7 +40,7 @@ export function sys_debug(game: Game, delta: number) {
 
             // Draw invisible entities.
             if (!(game.World.Signature[i] & Has.Render)) {
-                // wireframe_invisible(game, i);
+                wireframe_invisible(game, i);
             }
         }
     }

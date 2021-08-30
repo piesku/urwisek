@@ -2,6 +2,8 @@ html,
 body {
     overflow: hidden;
     margin: 0;
+    font-family: Arial;
+    color: #fff;
 }
 canvas,
 main {
@@ -13,11 +15,21 @@ main {
     word-break: break-word;
 }
 
+[onclick] {
+    cursor: pointer;
+}
+
 @keyframes intro {
     from {
         transform: translateY(0);
     }
     to {
         transform: translateY(-100vh);
+    }
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.5;
     }
 }
