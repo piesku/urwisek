@@ -6,10 +6,11 @@ import {scene_level3} from "./scenes/sce_level3.js";
 import {scene_stage} from "./scenes/sce_stage.js";
 
 let game = new Game();
-true && scene_level1(game);
-false && scene_level2(game);
-false && scene_level3(game);
-false && scene_stage(game);
+// Bundle all scenes into the build.
+// @ts-ignore
+window.scenes = [scene_stage, scene_level1, scene_level2, scene_level3];
+// @ts-ignore ⮮ CHANGE ME HERE.
+window.scenes[2](game);
 game.Start();
 
 // @ts-ignore
@@ -17,7 +18,3 @@ window.$ = dispatch.bind(null, game);
 
 // @ts-ignore
 window.game = game;
-
-// Bundle all scenes into the build.
-// @ts-ignore
-window.scenes = [scene_level1, scene_level2, scene_level3, scene_stage];
