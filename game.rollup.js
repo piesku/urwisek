@@ -4707,7 +4707,12 @@
             rigid_body(0 /* Static */),
             children([
                 transform(),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [
+                    82 / 255,
+                    39 / 255,
+                    5 / 255,
+                    1,
+                ]),
             ], [
                 transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
                 render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
@@ -7070,14 +7075,15 @@
     }
 
     let game = new Game();
-    scene_level1(game);
+    // Bundle all scenes into the build.
+    // @ts-ignore
+    window.scenes = [scene_stage, scene_level1, scene_level2, scene_level3];
+    // @ts-ignore ⮮ CHANGE ME HERE.
+    window.scenes[2](game);
     game.Start();
     // @ts-ignore
     window.$ = dispatch.bind(null, game);
     // @ts-ignore
     window.game = game;
-    // Bundle all scenes into the build.
-    // @ts-ignore
-    window.scenes = [scene_level1, scene_level2, scene_level3, scene_stage];
 
 }());
