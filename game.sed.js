@@ -2990,10 +2990,10 @@ game.World = new World();
 game.ViewportResized = true;
 map_city(game);
 let starfield_entity = instantiate(game, [
-transform([2, 17, -5]),
+transform([0, 16, -5], from_euler([0, 0, 0, 1], 10, 0, 0), [17, 10, 1]),
 children([
 transform(),
-shake(5),
+shake(0.5),
 emit_particles(20, 0.1, 0),
 render_particles_colored([1, 1, 1, 1], 2, [0.5, 0.5, 1, 1], 1),
 ]),
