@@ -320,8 +320,8 @@
                 accumulator += delta;
                 while (accumulator >= step) {
                     accumulator -= step;
-                    // TODO Adjust InputDelta and InputDistance.
                     this.FixedUpdate(step);
+                    this.InputReset();
                 }
                 this.FrameUpdate(delta);
                 this.FrameReset(delta);
@@ -359,8 +359,7 @@
         }
         FixedUpdate(step) { }
         FrameUpdate(delta) { }
-        FrameReset(delta) {
-            this.ViewportResized = false;
+        InputReset() {
             if (this.InputDelta["Mouse0"] === -1) {
                 this.InputDistance["Mouse0"] = 0;
             }
@@ -379,6 +378,9 @@
             for (let name in this.InputDelta) {
                 this.InputDelta[name] = 0;
             }
+        }
+        FrameReset(delta) {
+            this.ViewportResized = false;
             let update = performance.now() - this.Now;
             if (update_span) {
                 update_span.textContent = update.toFixed(1);
@@ -1475,9 +1477,7 @@
         <div
             onclick="$(${1 /* NewGame */})"
             style="
-                position: absolute;
-                right: 2vw;
-                bottom: 2vw;
+                margin: 2vh 3vw;
                 font-size: 1rem;
                 font-style: italic;
                 animation: 2s infinite blink;
@@ -1491,7 +1491,7 @@
         return html `
         <div
             style="
-                animation: 8s ease-out 5s forwards intro;
+                animation: 8s ease-out 1s forwards intro;
             "
         >
             <div
@@ -3092,17 +3092,17 @@
                 // No more rockets.
                 destroy_all(game.World, rocket_spawner_entity);
                 instantiate(game, [
-                    task_timeout(5, () => {
+                    task_timeout(1, () => {
                         game.World.Signature[camera_entity] |= 32768 /* Mimic */;
                     }),
                 ]);
                 instantiate(game, [
-                    task_timeout(7, () => {
+                    task_timeout(3, () => {
                         instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
                     }),
                 ]);
                 instantiate(game, [
-                    task_timeout(13, () => {
+                    task_timeout(9, () => {
                         game.World.Mimic[camera_entity].Stiffness = 0.05;
                         destroy_all(game.World, starfield_entity);
                     }),
@@ -6879,6 +6879,10 @@
             this.CurrentView = Title;
         }
         FixedUpdate(delta) {
+            // Player input.
+            sys_control_touch_move(this, delta);
+            sys_control_keyboard(this);
+            sys_control_xbox(this);
             // Collisions and physics.
             sys_physics_integrate(this, delta);
             sys_transform(this);
@@ -6891,10 +6895,6 @@
         FrameUpdate(delta) {
             // Event loop.
             sys_poll(this, delta);
-            // Player input.
-            sys_control_touch_move(this, delta);
-            sys_control_keyboard(this);
-            sys_control_xbox(this);
             // AI.
             sys_control_ai(this);
             sys_control_always(this);
