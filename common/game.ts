@@ -70,7 +70,6 @@ export abstract class GameImpl {
         });
 
         this.Ui.addEventListener("touchstart", (evt) => {
-            evt.preventDefault();
             if (evt.touches.length === 1) {
                 // It's a new gesture.
                 this.InputTouches = {};
@@ -91,7 +90,6 @@ export abstract class GameImpl {
             }
         });
         this.Ui.addEventListener("touchmove", (evt) => {
-            evt.preventDefault();
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 let touch = evt.changedTouches[i];
                 let index = this.InputTouches[touch.identifier];
@@ -104,7 +102,6 @@ export abstract class GameImpl {
             }
         });
         this.Ui.addEventListener("touchend", (evt) => {
-            evt.preventDefault();
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 let touch = evt.changedTouches[i];
                 let index = this.InputTouches[touch.identifier];
@@ -113,7 +110,6 @@ export abstract class GameImpl {
             }
         });
         this.Ui.addEventListener("touchcancel", (evt) => {
-            evt.preventDefault();
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 let touch = evt.changedTouches[i];
                 let index = this.InputTouches[touch.identifier];
