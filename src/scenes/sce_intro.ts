@@ -54,17 +54,17 @@ export function scene_intro(game: Game) {
                 // No more rockets.
                 destroy_all(game.World, rocket_spawner_entity);
                 instantiate(game, [
-                    task_timeout(5, () => {
+                    task_timeout(1, () => {
                         game.World.Signature[camera_entity] |= Has.Mimic;
                     }),
                 ]);
                 instantiate(game, [
-                    task_timeout(7, () => {
+                    task_timeout(3, () => {
                         instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
                     }),
                 ]);
                 instantiate(game, [
-                    task_timeout(13, () => {
+                    task_timeout(9, () => {
                         game.World.Mimic[camera_entity].Stiffness = 0.05;
                         destroy_all(game.World, starfield_entity);
                     }),

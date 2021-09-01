@@ -43,7 +43,7 @@ export function Intro() {
     return html`
         <div
             style="
-                animation: 8s ease-out 5s forwards intro;
+                animation: 8s ease-out 1s forwards intro;
             "
         >
             <div
