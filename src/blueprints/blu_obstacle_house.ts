@@ -10,13 +10,13 @@ export function blueprint_obstacle_house(game: Game) {
         children(
             [transform(), ...prop_house(game)],
             [
-                transform([0, 1.7, 0], undefined, [3, 3, 3]),
+                transform([0, 1.5, 0], undefined, [3, 3, 3]),
                 collide(false, Layer.Terrain, Layer.None),
                 rigid_body(RigidKind.Static),
             ],
 
             [
-                transform([-2.25, 1.7, 0], undefined, [1.5, 0.1, 3]),
+                transform([-2.25, 2, 0], undefined, [1.5, 0.1, 3]),
                 collide(false, Layer.Terrain, Layer.None),
                 rigid_body(RigidKind.Static),
             ],

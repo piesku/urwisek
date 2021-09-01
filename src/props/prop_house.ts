@@ -10,7 +10,7 @@ export function prop_house(game: Game) {
     return [
         children(
             [
-                transform([0, 1.7, 0], undefined, [3, 3, 3]),
+                transform([0, 1.5, 0], undefined, [3, 3, 3]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,
@@ -20,7 +20,7 @@ export function prop_house(game: Game) {
             ],
 
             [
-                transform([-2.25, 1.7, 0], undefined, [1.5, 0.1, 3]),
+                transform([-2.25, 2, 0], undefined, [1.5, 0.1, 3]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,
@@ -40,7 +40,7 @@ export function prop_house(game: Game) {
             ],
 
             [
-                transform([-2.814, 0.95, 0], undefined, [0.1, 1.5, 0.1]),
+                transform([-2.8, 1, 0], undefined, [0.1, 2, 0.1]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,
