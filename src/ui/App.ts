@@ -26,9 +26,7 @@ export function Title() {
         <div
             onclick="$(${Action.NewGame})"
             style="
-                position: absolute;
-                right: 2vw;
-                bottom: 2vw;
+                margin: 2vh 3vw;
                 font-size: 1rem;
                 font-style: italic;
                 animation: 2s infinite blink;
