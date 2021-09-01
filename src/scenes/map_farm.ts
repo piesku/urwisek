@@ -17,6 +17,7 @@ import {blueprint_obstacle_slup} from "../blueprints/blu_obstacle_slup.js";
 import {blueprint_box} from "../blueprints/blu_box.js";
 import {blueprint_obstacle_barn} from "../blueprints/blu_obstacle_barn.js";
 import {blueprint_obstacle_fence} from "../blueprints/blu_obstacle_fence.js";
+import {blueprint_exit} from "../blueprints/blu_exit.js";
 
 export function map_farm(game: Game) {
     instantiate(game, [
@@ -287,7 +288,7 @@ export function map_farm(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([25.372, 0.328, 0], [-0.673, 0.673, 0.216, 0.216], [0.75, 0.75, 0.75]),
+        transform([25.372, 0.228, 0], [-0.673, 0.673, 0.216, 0.216], [0.75, 0.75, 0.75]),
         ...blueprint_obstacle_slup(game),
     ]);
 
@@ -457,7 +458,7 @@ export function map_farm(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([78.626, -0.498, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 35]),
+        transform([82.626, -0.498, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 35]),
         ...blueprint_ground(game),
     ]);
 
@@ -599,6 +600,16 @@ export function map_farm(game: Game) {
     instantiate(game, [
         transform([89.73, 1.638, 2.069], [0, 1, 0, 0], undefined),
         ...prop_fence(game),
+    ]);
+
+    instantiate(game, [
+        transform([93, 1, 0], from_euler([0, 0, 0, 1], 0, 90, 0), [1, 10, 1]),
+        ...blueprint_exit(game),
+    ]);
+
+    instantiate(game, [
+        transform([62.526, -0.798, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 5.75]),
+        ...blueprint_ground(game),
     ]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
