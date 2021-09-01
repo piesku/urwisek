@@ -51,6 +51,10 @@ let create_instance = (name, translation, rotation, scale) => {
         case "bush":
         case "tree":
         case "box":
+        case "monster":
+        case "branch":
+        case "pushable_branch":
+        case "obstacle_branch":
         case "obstacle_car":
         case "obstacle_house":
         case "obstacle_slup":

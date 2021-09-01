@@ -47,6 +47,7 @@ export function sys_debug(game: Game, delta: number) {
 }
 
 function wireframe_invisible(game: Game, entity: Entity) {
+    return;
     let anchor_transform = game.World.Transform[entity];
     let wireframe = wireframes.get(anchor_transform);
 
