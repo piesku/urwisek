@@ -1,5 +1,6 @@
 import {instantiate} from "../../common/game.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {blueprint_pixie} from "../blueprints/blu_pixie.js";
 import {mimic} from "../components/com_mimic.js";
 import {find_first} from "../components/com_named.js";
 import {transform} from "../components/com_transform.js";
@@ -12,6 +13,8 @@ export function scene_level2(game: Game) {
     game.ViewportResized = true;
 
     map_farm(game);
+
+    instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
 
     // Camera.
     instantiate(game, [
