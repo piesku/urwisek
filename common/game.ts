@@ -145,9 +145,10 @@ export abstract class GameImpl {
             accumulator += delta;
             while (accumulator >= step) {
                 accumulator -= step;
-                // TODO Adjust InputDelta and InputDistance.
                 this.FixedUpdate(step);
+                this.InputReset();
             }
+
             this.FrameUpdate(delta);
             this.FrameReset(delta);
 
@@ -194,9 +195,7 @@ export abstract class GameImpl {
     FixedUpdate(step: number) {}
     FrameUpdate(delta: number) {}
 
-    FrameReset(delta: number) {
-        this.ViewportResized = false;
-
+    InputReset() {
         if (this.InputDelta["Mouse0"] === -1) {
             this.InputDistance["Mouse0"] = 0;
         }
@@ -217,6 +216,10 @@ export abstract class GameImpl {
         for (let name in this.InputDelta) {
             this.InputDelta[name] = 0;
         }
+    }
+
+    FrameReset(delta: number) {
+        this.ViewportResized = false;
 
         let update = performance.now() - this.Now;
         if (update_span) {

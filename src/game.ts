@@ -80,6 +80,11 @@ export class Game extends Game3D {
     CurrentView = Title;
 
     override FixedUpdate(delta: number) {
+        // Player input.
+        sys_control_touch_move(this, delta);
+        sys_control_keyboard(this, delta);
+        sys_control_xbox(this, delta);
+
         // Collisions and physics.
         sys_physics_integrate(this, delta);
         sys_transform(this, delta);
@@ -93,11 +98,6 @@ export class Game extends Game3D {
     override FrameUpdate(delta: number) {
         // Event loop.
         sys_poll(this, delta);
-
-        // Player input.
-        sys_control_touch_move(this, delta);
-        sys_control_keyboard(this, delta);
-        sys_control_xbox(this, delta);
 
         // AI.
         sys_control_ai(this, delta);
