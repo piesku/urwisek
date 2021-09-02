@@ -269,6 +269,8 @@ this.InputDelta[`Touch${index}Y`] = 0;
 }
 });
 this.Ui.addEventListener("touchmove", (evt) => {
+
+evt.preventDefault();
 for (let i = 0; i < evt.changedTouches.length; i++) {
 let touch = evt.changedTouches[i];
 let index = this.InputTouches[touch.identifier];
