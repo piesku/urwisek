@@ -1449,13 +1449,45 @@
         return strings.reduce((out, cur) => out + shift(values) + cur);
     }
 
+    function Settings(game) {
+        return html `
+        Quality:
+        <select onchange="$(${1 /* ChangeSettings */}, this)">
+            <option
+                value="${512 /* Low */}"
+                ${game.Quality === 512 /* Low */ && "selected"}
+            >
+                Low
+            </option>
+            <option
+                value="${1024 /* Medium */}"
+                ${game.Quality === 1024 /* Medium */ && "selected"}
+            >
+                Medium
+            </option>
+            <option
+                value="${2048 /* High */}"
+                ${game.Quality === 2048 /* High */ && "selected"}
+            >
+                High
+            </option>
+            <option
+                value="${4096 /* Ultra */}"
+                ${game.Quality === 4096 /* Ultra */ && "selected"}
+            >
+                Ultra
+            </option>
+        </select>
+    `;
+    }
+
     function App(game) {
         if (game.CurrentScene === scene_intro) {
-            return game.CurrentView();
+            return game.CurrentView(game);
         }
         return "";
     }
-    function Title() {
+    function Title(game) {
         return html `
         <div
             style="
@@ -1467,20 +1499,20 @@
         >
             LEFT BEHIND
         </div>
-        <div
-            onclick="$(${1 /* NewGame */})"
+        <nav
             style="
                 margin: 2vh 3vw;
                 font-size: 1rem;
                 font-style: italic;
-                animation: 2s infinite blink;
+                line-height: 2;
             "
         >
-            New Game
-        </div>
+            <div onclick="$(${2 /* NewGame */})">New Game</div>
+            <div>${Settings(game)}</div>
+        </nav>
     `;
     }
-    function Intro() {
+    function Intro(game) {
         return html `
         <div
             style="
@@ -2572,7 +2604,7 @@
         return [
             named("exit"),
             collide(false, 2 /* Terrain */, 1 /* Player */),
-            trigger(1 /* Player */, 2 /* NextScene */),
+            trigger(1 /* Player */, 3 /* NextScene */),
         ];
     }
 
@@ -3816,11 +3848,16 @@
                 }
                 break;
             }
-            case 1 /* NewGame */: {
+            case 1 /* ChangeSettings */: {
+                let select = payload;
+                game.Quality = parseInt(select.value);
+                break;
+            }
+            case 2 /* NewGame */: {
                 game.CurrentView = Intro;
                 break;
             }
-            case 2 /* NextScene */: {
+            case 3 /* NextScene */: {
                 switch (game.CurrentScene) {
                     case scene_intro:
                     case scene_level1:
@@ -3871,6 +3908,12 @@
             throw new Error(`Failed to set up the framebuffer (${status}).`);
         }
         return target;
+    }
+    function resize_depth_target(gl, target, width, height) {
+        target.Width = width;
+        target.Height = height;
+        resize_texture_rgba8(gl, target.ColorTexture, target.Width, target.Height);
+        resize_texture_depth24(gl, target.DepthTexture, target.Width, target.Height);
     }
 
     function link(gl, vertex, fragment) {
@@ -6040,7 +6083,7 @@
         lifespan.Remaining -= delta;
         if (lifespan.Remaining < 0) {
             if (lifespan.Action) {
-                dispatch(game, lifespan.Action);
+                dispatch(game, lifespan.Action, entity);
             }
             destroy_all(game.World, entity);
         }
@@ -6387,6 +6430,9 @@
      */
     const QUERY$5 = 16777216 /* Transform */ | 262144 /* Render */;
     function sys_render_forward(game, delta) {
+        if (game.Quality !== game.Targets.Sun.Width) {
+            resize_depth_target(game.Gl, game.Targets.Sun, game.Quality, game.Quality);
+        }
         for (let camera_entity of game.Cameras) {
             let camera = game.World.Camera[camera_entity];
             switch (camera.Kind) {
@@ -6816,9 +6862,10 @@
             this.LightPositions = new Float32Array(4 * 8);
             this.LightDetails = new Float32Array(4 * 8);
             this.Cameras = [];
+            this.Quality = 2048 /* High */;
             this.Targets = {
                 Noop: create_depth_target(this.Gl, 2, 2),
-                Sun: create_depth_target(this.Gl, 2048, 2048),
+                Sun: create_depth_target(this.Gl, this.Quality, this.Quality),
             };
             this.CurrentScene = scene_intro;
             this.CurrentView = Title;
