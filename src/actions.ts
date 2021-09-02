@@ -6,6 +6,7 @@ import {Intro} from "./ui/App.js";
 
 export const enum Action {
     ToggleFullscreen,
+    ChangeSettings,
     NewGame,
     NextScene,
     MonsterStep,
@@ -19,6 +20,12 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             } else {
                 document.body.requestFullscreen();
             }
+            break;
+        }
+
+        case Action.ChangeSettings: {
+            let select = payload as HTMLSelectElement;
+            game.Quality = parseInt(select.value);
             break;
         }
 

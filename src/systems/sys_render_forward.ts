@@ -2,6 +2,7 @@
  * @module systems/sys_render_forward
  */
 
+import {resize_depth_target} from "../../common/framebuffer.js";
 import {multiply} from "../../common/mat4.js";
 import {Material} from "../../common/material.js";
 import {
@@ -52,6 +53,10 @@ import {Has} from "../world.js";
 const QUERY = Has.Transform | Has.Render;
 
 export function sys_render_forward(game: Game, delta: number) {
+    if (game.Quality !== game.Targets.Sun.Width) {
+        resize_depth_target(game.Gl, game.Targets.Sun, game.Quality, game.Quality);
+    }
+
     for (let camera_entity of game.Cameras) {
         let camera = game.World.Camera[camera_entity];
         switch (camera.Kind) {
