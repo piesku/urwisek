@@ -370,21 +370,18 @@ function draw_particles_colored(
 
 function use_instanced(
     game: Game,
-    material: Material<PaletteShadedLayout & InstancedLayout & ForwardShadingLayout & FogLayout>,
+    material: Material<PaletteShadedLayout & InstancedLayout & FogLayout>,
     eye: CameraEye
 ) {
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
-    game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-    game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
     game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
     game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
 
 function draw_instanced(game: Game, transform: Transform, render: RenderInstanced) {
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-    game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
     game.Gl.uniform3fv(render.Material.Locations.Palette, render.Palette);
     game.Gl.bindVertexArray(render.Vao);
     game.Gl.drawElementsInstanced(

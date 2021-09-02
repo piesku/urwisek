@@ -357,9 +357,7 @@ export function render_particles_colored(
 
 export interface RenderInstanced {
     readonly Kind: RenderKind.Instanced;
-    readonly Material: Material<
-        PaletteShadedLayout & InstancedLayout & ForwardShadingLayout & FogLayout
-    >;
+    readonly Material: Material<PaletteShadedLayout & InstancedLayout & FogLayout>;
     readonly Mesh: Mesh;
     readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;
@@ -392,10 +390,6 @@ export function render_instanced(
         game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
         game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
         game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-
-        game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
-        game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
-        game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
 
         let instance_offset_buffer = game.Gl.createBuffer()!;
         game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_offset_buffer);
