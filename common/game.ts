@@ -90,6 +90,8 @@ export abstract class GameImpl {
             }
         });
         this.Ui.addEventListener("touchmove", (evt) => {
+            // Prevent browsers from interpreting touch gestures as navigation input.
+            evt.preventDefault();
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 let touch = evt.changedTouches[i];
                 let index = this.InputTouches[touch.identifier];
