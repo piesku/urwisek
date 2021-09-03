@@ -29,7 +29,7 @@ export function scene_stage(game: Game) {
     let ground_height = 50;
     instantiate(game, [
         transform([0, -ground_height / 2, 0], undefined, [ground_size, ground_height, ground_size]),
-        collide(false, Layer.Terrain, Layer.None),
+        collide(false, Layer.Terrain | Layer.SurfaceGround, Layer.None),
         rigid_body(RigidKind.Static),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.5, 0.5, 1]),
     ]);

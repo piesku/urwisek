@@ -23,7 +23,7 @@ export function blueprint_ground(game: Game) {
     }
 
     return [
-        collide(false, Layer.Terrain, Layer.None),
+        collide(false, Layer.Terrain | Layer.SurfaceGround, Layer.None),
         rigid_body(RigidKind.Static),
         children(
             [

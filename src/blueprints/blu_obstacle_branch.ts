@@ -11,7 +11,7 @@ export function blueprint_obstacle_branch(game: Game) {
             [transform(), ...blueprint_branch(game)],
             [
                 transform(undefined, undefined, [0.5, 1, 0.25]),
-                collide(false, Layer.Terrain, Layer.None),
+                collide(false, Layer.Terrain | Layer.SurfaceWood, Layer.None),
                 rigid_body(RigidKind.Static),
             ]
         ),
