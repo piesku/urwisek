@@ -48,6 +48,7 @@ let create_instance = (name, translation, rotation, scale) => {
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);`;
         case "exit":
+        case "end":
             imports.add(`import {blueprint_${name}} from "../blueprints/blu_${name}.js";`);
             return `
     instantiate(game, [
@@ -59,6 +60,7 @@ let create_instance = (name, translation, rotation, scale) => {
         case "tree":
         case "rock":
         case "box":
+        case "crib":
         case "monster":
         case "branch":
         case "pushable_branch":

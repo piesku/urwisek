@@ -13,6 +13,8 @@ import {blueprint_box} from "../blueprints/blu_box.js";
 import {blueprint_branch} from "../blueprints/blu_branch.js";
 import {blueprint_monster} from "../blueprints/blu_monster.js";
 import {blueprint_pushable_branch} from "../blueprints/blu_pushable_branch.js";
+import {blueprint_end} from "../blueprints/blu_end.js";
+import {blueprint_crib} from "../blueprints/blu_crib.js";
 
 export function map_forest(game: Game) {
     instantiate(game, [
@@ -440,6 +442,16 @@ export function map_forest(game: Game) {
     instantiate(game, [
         transform([82.065, 1.241, 2.496], undefined, [2, 2, 2]),
         ...blueprint_bush(game),
+    ]);
+
+    instantiate(game, [
+        transform([120, 3, 0], from_euler([0, 0, 0, 1], 0, 90, 0), [1, 10, 1]),
+        ...blueprint_end(game),
+    ]);
+
+    instantiate(game, [
+        transform([122.6, 0.2, 0.4], [0, 0.383, 0, -0.924], undefined),
+        ...blueprint_crib(game),
     ]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);

@@ -11,7 +11,7 @@ let game = new Game();
 // @ts-ignore
 window.scenes = [scene_intro, scene_level1, scene_level2, scene_level3, scene_stage];
 // @ts-ignore ⮮ CHANGE ME HERE.
-window.scenes[4](game);
+window.scenes[0](game);
 game.Start();
 
 // @ts-ignore

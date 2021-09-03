@@ -88,6 +88,7 @@ export function blueprint_lisek(
                                 Rotation: [0, 0, 0, 1],
                             },
                         ],
+                        Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                     },
                     jump: {
                         Keyframes: [
@@ -158,6 +159,7 @@ export function blueprint_lisek(
                                             Rotation: [0, 0, 0, 1],
                                         },
                                     ],
+                                    Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                                 },
                                 jump: {
                                     Keyframes: [
@@ -166,6 +168,7 @@ export function blueprint_lisek(
                                             Rotation: [0, 0, 0, 1],
                                         },
                                     ],
+                                    Flags: AnimationFlag.EarlyExit,
                                 },
                             }),
                             children([
@@ -203,6 +206,7 @@ export function blueprint_lisek(
                                                 Rotation: [0, 0.0, 0.0, 1],
                                             },
                                         ],
+                                        Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                                     },
                                     jump: {
                                         Keyframes: [
@@ -264,6 +268,7 @@ export function blueprint_lisek(
                                             ActionOnEnd: actionOnEachStep,
                                         },
                                     ],
+                                    Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                                 },
                                 jump: {
                                     Keyframes: [
@@ -322,6 +327,7 @@ export function blueprint_lisek(
                                             Rotation: [-0.174, 0.0, 0.0, 0.985],
                                         },
                                     ],
+                                    Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                                 },
                                 jump: {
                                     Keyframes: [
@@ -399,6 +405,7 @@ export function blueprint_lisek(
                                             Rotation: [-0.131, 0.0, 0.0, 0.991],
                                         },
                                     ],
+                                    Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                                 },
                                 jump: {
                                     Keyframes: [
@@ -476,6 +483,7 @@ export function blueprint_lisek(
                                             Rotation: [0.131, 0.0, 0.0, 0.991],
                                         },
                                     ],
+                                    Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                                 },
                                 jump: {
                                     Keyframes: [
