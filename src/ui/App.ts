@@ -16,7 +16,7 @@ export function Title(game: Game) {
                 font-weight: 600;
             "
         >
-            OUTSIDE
+            HABITAT
         </div>
         <nav
             style="

@@ -450,7 +450,7 @@ export function map_forest(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([122.6, 0.2, 0.4], [0, 0.383, 0, -0.924], undefined),
+        transform([121.6, 0.2, 0.5], [0, 0.383, 0, -0.924], undefined),
         ...blueprint_crib(game),
     ]);
 
