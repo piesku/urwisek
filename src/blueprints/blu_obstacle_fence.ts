@@ -11,7 +11,7 @@ export function blueprint_obstacle_fence(game: Game) {
             [transform(), ...prop_fence(game)],
             [
                 transform([0, 0.7, 0.5], undefined, [0.1, 1.2, 2]),
-                collide(false, Layer.Terrain, Layer.None),
+                collide(false, Layer.Terrain | Layer.SurfaceWood, Layer.None),
                 rigid_body(RigidKind.Static),
             ]
         ),

@@ -11,7 +11,7 @@ export function blueprint_obstacle_slup(game: Game) {
             [transform(), ...prop_slup(game)],
             [
                 transform([0, 4, 0], undefined, [0.5, 8, 0.5]),
-                collide(false, Layer.Terrain, Layer.None),
+                collide(false, Layer.Terrain | Layer.SurfaceWood, Layer.None),
                 rigid_body(RigidKind.Static),
             ]
         ),
