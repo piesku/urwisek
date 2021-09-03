@@ -1785,7 +1785,7 @@
     const sit_keytime_4 = sit_keytime_3 + 1;
     function blueprint_lisek(game, animation_step_length = 0.2, actionOnEachStep, color = [1, 0.5, 0, 1]) {
         return [
-            render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshLisek, color, 0),
+            render_colored_skinned(game.MaterialColoredSkinned, game.MeshLisek, color, 0),
             children([
                 transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74]),
                 children([
@@ -2283,7 +2283,7 @@
             // The tail, animated procedurally.
             [
                 transform(),
-                render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
+                render_colored_skinned(game.MaterialColoredSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
             ]),
         ]);
         instantiate(game, [
@@ -6850,7 +6850,7 @@
             this.MaterialColoredWireframe = mat_forward_colored_wireframe(this.Gl);
             this.MaterialColoredShaded = mat_forward_colored_phong(this.Gl);
             this.MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
-            this.MaterialColoredPhongSkinned = mat_forward_colored_phong_skinned(this.Gl);
+            this.MaterialColoredSkinned = mat_forward_colored_phong_skinned(this.Gl);
             this.MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
             this.MaterialInstanced = mat_forward_instanced(this.Gl);
             this.MeshLeaf = mesh_leaf(this.Gl);
