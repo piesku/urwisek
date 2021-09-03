@@ -1683,7 +1683,7 @@ zdz_offsets.push(float(-1 / 2 / zdz_scale, 1 / 2 / zdz_scale), 0.8, float(-1 / 4
 zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, float(-180, 180), 0));
 }
 return [
-collide(false, 2 /* Terrain */, 0 /* None */),
+collide(false, 2 /* Terrain */ | 16 /* SurfaceGround */, 0 /* None */),
 rigid_body(0 /* Static */),
 children([
 transform(),
@@ -1698,15 +1698,6 @@ transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
 render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
 ]),
 ];
-}
-
-/**
-* @module components/com_audio_listener
-*/
-function audio_listener() {
-return (game, entity) => {
-game.World.Signature[entity] |= 2 /* AudioListener */;
-};
 }
 
 function bone(index, inverse_bind_pose) {
@@ -2238,7 +2229,7 @@ Flags: 1 /* EarlyExit */,
 
 function blueprint_player(game) {
 return [
-audio_listener(),
+audio_source(false),
 control_player(1 /* Move */),
 move(3, 0),
 collide(true, 1 /* Player */, 2 /* Terrain */ | 4 /* Movable */, [0.6, 0.8, 0.8]),
@@ -2483,15 +2474,15 @@ function blueprint_obstacle_house(game) {
 return [
 children([transform(), ...prop_house(game)], [
 transform([0, 1.5, 0], undefined, [3, 3, 3]),
-collide(false, 2 /* Terrain */, 0 /* None */),
+collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
 rigid_body(0 /* Static */),
 ], [
 transform([-2.25, 2, 0], undefined, [1.5, 0.1, 3]),
-collide(false, 2 /* Terrain */, 0 /* None */),
+collide(false, 2 /* Terrain */ | 64 /* SurfaceMetal */, 0 /* None */),
 rigid_body(0 /* Static */),
 ], [
 transform([-0.8, 0.1, 0], undefined, [4.9, 0.2, 3.4]),
-collide(false, 2 /* Terrain */, 0 /* None */),
+collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
 rigid_body(0 /* Static */),
 ]),
 ];
@@ -2555,7 +2546,7 @@ function blueprint_obstacle_car(game) {
 return [
 children([transform(), ...prop_car2(game)], [
 transform([0, 0.8, 0], undefined, [4, 1, 2]),
-collide(false, 2 /* Terrain */, 0 /* None */),
+collide(false, 2 /* Terrain */ | 64 /* SurfaceMetal */, 0 /* None */),
 rigid_body(0 /* Static */),
 ]),
 ];
@@ -2581,7 +2572,7 @@ render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17,
 
 function blueprint_box(game) {
 return [
-collide(true, 4 /* Movable */, 2 /* Terrain */ | 4 /* Movable */),
+collide(true, 4 /* Movable */ | 32 /* SurfaceWood */, 2 /* Terrain */ | 4 /* Movable */),
 rigid_body(1 /* Dynamic */),
 mimic(0),
 disable(32768 /* Mimic */),
@@ -3322,7 +3313,7 @@ function blueprint_obstacle_slup(game) {
 return [
 children([transform(), ...prop_slup(game)], [
 transform([0, 4, 0], undefined, [0.5, 8, 0.5]),
-collide(false, 2 /* Terrain */, 0 /* None */),
+collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
 rigid_body(0 /* Static */),
 ]),
 ];
@@ -3332,7 +3323,7 @@ function blueprint_obstacle_barn(game) {
 return [
 children([transform(), ...prop_barn(game)], [
 transform([0, 1, 0], undefined, [3, 2, 3]),
-collide(false, 2 /* Terrain */, 0 /* None */),
+collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
 rigid_body(0 /* Static */),
 ]),
 ];
@@ -3342,7 +3333,7 @@ function blueprint_obstacle_fence(game) {
 return [
 children([transform(), ...prop_fence(game)], [
 transform([0, 0.7, 0.5], undefined, [0.1, 1.2, 2]),
-collide(false, 2 /* Terrain */, 0 /* None */),
+collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
 rigid_body(0 /* Static */),
 ]),
 ];
@@ -5766,6 +5757,78 @@ move.LocalRotations.push(control.Rotation.slice());
 }
 }
 
+let snd_walk1 = {
+Kind: 1 /* Synth */,
+Tracks: [
+{
+Instrument: [
+3,
+"lowpass",
+9,
+0,
+false,
+false,
+8,
+8,
+[
+["sine", 8, 1, 1, 3, 8, false, false, 8, 8, 8],
+[false, 8, 2, 2, 2],
+],
+],
+Notes: [48],
+},
+],
+Exit: 0.25,
+};
+
+let snd_walk2 = {
+Kind: 1 /* Synth */,
+Tracks: [
+{
+Instrument: [
+3,
+"lowpass",
+8,
+0,
+false,
+false,
+8,
+8,
+[
+["sine", 8, 1, 1, 3, 8, false, false, 8, 8, 8],
+[false, 8, 1, 2, 3],
+],
+],
+Notes: [48],
+},
+],
+Exit: 0.25,
+};
+
+let snd_walk3 = {
+Kind: 1 /* Synth */,
+Tracks: [
+{
+Instrument: [
+8,
+"bandpass",
+8,
+2,
+false,
+false,
+8,
+8,
+[
+["square", 3, 1, 1, 2, 8, false, false, 7, 7, 8],
+[false, 3, 2, 2, 3],
+],
+],
+Notes: [48],
+},
+],
+Exit: 0.25,
+};
+
 const QUERY$j = 512 /* ControlPlayer */;
 function sys_control_keyboard(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -5777,15 +5840,32 @@ update$e(game, i);
 function update$e(game, entity) {
 let control = game.World.ControlPlayer[entity];
 if (control.Flags & 1 /* Move */) {
-
 let move = game.World.Move[entity];
+let collide = game.World.Collide[entity];
+let audio_source = game.World.AudioSource[entity];
+let rigid_body = game.World.RigidBody[entity];
+let is_walking = false;
 if (game.InputState["ArrowLeft"]) {
 move.Directions.push([-1, 0, 0]);
+is_walking = true;
 }
 if (game.InputState["ArrowRight"]) {
 move.Directions.push([1, 0, 0]);
+is_walking = true;
 }
-let rigid_body = game.World.RigidBody[entity];
+if (is_walking && collide.Collisions.length > 0) {
+let other_entity = collide.Collisions[0].Other;
+let other_layers = game.World.Collide[other_entity].Layers;
+if (other_layers & 16 /* SurfaceGround */) {
+audio_source.Trigger = snd_walk1;
+}
+else if (other_layers & 32 /* SurfaceWood */) {
+audio_source.Trigger = snd_walk2;
+}
+else if (other_layers & 64 /* SurfaceMetal */) {
+audio_source.Trigger = snd_walk3;
+}
+}
 if (!rigid_body.IsAirborne) {
 
 if (game.InputState["ArrowUp"]) {
@@ -6938,7 +7018,7 @@ function blueprint_obstacle_branch(game) {
 return [
 children([transform(), ...blueprint_branch(game)], [
 transform(undefined, undefined, [0.5, 1, 0.25]),
-collide(false, 2 /* Terrain */, 0 /* None */),
+collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
 rigid_body(0 /* Static */),
 ]),
 ];
@@ -6973,7 +7053,7 @@ return [
 mimic(0),
 disable(32768 /* Mimic */),
 rigid_body(1 /* Dynamic */),
-collide(true, 4 /* Movable */, 2 /* Terrain */ | 4 /* Movable */, [6, 0.5, 0.5]),
+collide(true, 4 /* Movable */ | 32 /* SurfaceWood */, 2 /* Terrain */ | 4 /* Movable */, [6, 0.5, 0.5]),
 children([
 transform([0, 0, 0], from_euler([0, 0, 0, 1], 0, 0, 90), [0.5, 6, 0.5]),
 ...blueprint_branch(game),
@@ -7436,7 +7516,7 @@ let ground_size = 16;
 let ground_height = 50;
 instantiate(game, [
 transform([0, -ground_height / 2, 0], undefined, [ground_size, ground_height, ground_size]),
-collide(false, 2 /* Terrain */, 0 /* None */),
+collide(false, 2 /* Terrain */ | 16 /* SurfaceGround */, 0 /* None */),
 rigid_body(0 /* Static */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.5, 0.5, 1]),
 ]);
