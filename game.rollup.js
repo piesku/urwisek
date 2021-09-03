@@ -2241,7 +2241,7 @@
             audio_listener(),
             control_player(1 /* Move */),
             move(3, 0),
-            collide(true, 1 /* Player */, 2 /* Terrain */ | 4 /* Obstacle */, [0.6, 0.8, 0.8]),
+            collide(true, 1 /* Player */, 2 /* Terrain */ | 4 /* Movable */, [0.6, 0.8, 0.8]),
             rigid_body(1 /* Dynamic */, 0),
             children(
             // [
@@ -2254,7 +2254,7 @@
                 control_player(2 /* Rotate */),
                 children([
                     transform([0, 0.5, 1], undefined, [0.1, 0.1, 0.1]),
-                    collide(true, 0 /* None */, 4 /* Obstacle */),
+                    collide(true, 0 /* None */, 4 /* Movable */),
                     control_player(8 /* Grab */),
                     //render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
                 ]),
@@ -2581,7 +2581,7 @@
 
     function blueprint_box(game) {
         return [
-            collide(true, 4 /* Obstacle */, 2 /* Terrain */ | 4 /* Obstacle */),
+            collide(true, 4 /* Movable */, 2 /* Terrain */ | 4 /* Movable */),
             rigid_body(1 /* Dynamic */),
             mimic(0),
             disable(32768 /* Mimic */),
@@ -5817,16 +5817,12 @@
                 collide.Collisions.length > 0) {
                 let obstacle_entity = collide.Collisions[0].Other;
                 let obstacle_mimic = game.World.Mimic[obstacle_entity];
-                if (obstacle_mimic) {
-                    for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
-                        let control = game.World.ControlPlayer[ent];
-                        control.IsGrabbingEntity = obstacle_entity;
-                    }
-                    game.World.Signature[obstacle_entity] |= 32768 /* Mimic */;
-                    if (obstacle_mimic) {
-                        obstacle_mimic.Target = entity;
-                    }
+                for (let ent of query_up(game.World, entity, 512 /* ControlPlayer */)) {
+                    let control = game.World.ControlPlayer[ent];
+                    control.IsGrabbingEntity = obstacle_entity;
                 }
+                game.World.Signature[obstacle_entity] |= 32768 /* Mimic */;
+                obstacle_mimic.Target = entity;
             }
             if (game.InputDelta["Space"] === -1 && control.IsGrabbingEntity) {
                 game.World.Signature[control.IsGrabbingEntity] &= ~32768 /* Mimic */;
@@ -6967,19 +6963,19 @@
                 control_always([0, 0, 1], null),
                 control_ai("walk"),
                 move(0.5, 0.5),
-                ...blueprint_lisek(game, 10, undefined, [0.8, 0.2, 0.2, 1]),
+                ...blueprint_lisek(game, 10, undefined, [0, 0, 0, 1]),
             ]),
         ];
     }
 
     function blueprint_pushable_branch(game) {
         return [
-            collide(true, 4 /* Obstacle */, 2 /* Terrain */ | 4 /* Obstacle */, [0.5, 0.5, 6]),
-            rigid_body(1 /* Dynamic */),
             mimic(0),
             disable(32768 /* Mimic */),
+            rigid_body(1 /* Dynamic */),
+            collide(true, 4 /* Movable */, 2 /* Terrain */ | 4 /* Movable */, [6, 0.5, 0.5]),
             children([
-                transform([0, 0, 0], from_euler([0, 0, 0, 1], 90, 0, 0), [0.5, 6, 0.5]),
+                transform([0, 0, 0], from_euler([0, 0, 0, 1], 0, 0, 90), [0.5, 6, 0.5]),
                 ...blueprint_branch(game),
             ]),
         ];
@@ -7152,7 +7148,7 @@
             ...blueprint_tree(game),
         ]);
         instantiate(game, [
-            transform([49.788, 0.191, -3.254], undefined, [10, 4, 10]),
+            transform([52.481, 0.191, -8.083], undefined, [10, 4, 10]),
             ...blueprint_tree(game),
         ]);
         instantiate(game, [
@@ -7256,7 +7252,7 @@
             ...blueprint_tree(game),
         ]);
         instantiate(game, [
-            transform([-3.794, -1.961, 0], [0, 0.707, 0, 0.707], [1.5, 2.003, 2]),
+            transform([-3.794, -1.961, 0], [0, 0.707, 0, 0.707], [1.5, 6.144, 2]),
             ...blueprint_ground(game),
         ]);
         instantiate(game, [
@@ -7284,7 +7280,7 @@
             ...blueprint_bush(game),
         ]);
         instantiate(game, [
-            transform([10.51, -1.192, -0.696], [0.704, -0.07, 0.07, 0.704], [0.5, 4, 0.5]),
+            transform([10.124, -1.192, -0.696], [0.704, -0.07, 0.07, 0.704], [0.5, 4, 0.5]),
             ...blueprint_obstacle_branch(game),
         ]);
         instantiate(game, [
@@ -7296,7 +7292,7 @@
             ...blueprint_branch(game),
         ]);
         instantiate(game, [
-            transform([11.247, -0.094, -0.654], [0.705, 0.056, -0.056, 0.705], [0.5, 4, 0.5]),
+            transform([11.491, -0.094, -0.654], [0.705, 0.056, -0.056, 0.705], [0.5, 4, 0.5]),
             ...blueprint_obstacle_branch(game),
         ]);
         instantiate(game, [
@@ -7332,7 +7328,7 @@
             ...blueprint_obstacle_branch(game),
         ]);
         instantiate(game, [
-            transform([68.295, 0, -5.533], undefined, undefined),
+            transform([68.295, -3.312, -5.533], undefined, undefined),
             ...blueprint_monster(game),
         ]);
         instantiate(game, [
@@ -7368,12 +7364,48 @@
             ...blueprint_obstacle_branch(game),
         ]);
         instantiate(game, [
-            transform([79.037, -2.25, 1.395], [0, 0.707, 0, 0.707], [4, 5, 40]),
+            transform([83, -2.25, 1.395], [0, 0.707, 0, 0.707], [4, 5, 40]),
             ...blueprint_ground(game),
         ]);
         instantiate(game, [
-            transform([48.271, 7.051, 0], [0, 0.707, 0, 0.707], undefined),
+            transform([48.271, 7.051, 0], undefined, undefined),
             ...blueprint_pushable_branch(game),
+        ]);
+        instantiate(game, [
+            transform([58.222, -3.256, 1.395], [0, 0.707, 0, 0.707], [4, 2, 10]),
+            ...blueprint_ground(game),
+        ]);
+        instantiate(game, [
+            transform([55.291, -1.158, -1.698], undefined, [3, 3, 3]),
+            ...blueprint_bush(game),
+        ]);
+        instantiate(game, [
+            transform([58.346, -1.41, -1.985], undefined, [3, 3, 3]),
+            ...blueprint_bush(game),
+        ]);
+        instantiate(game, [
+            transform([59.944, 0.696, 1.773], [0, 0.66, 0, 0.751], undefined),
+            ...blueprint_pushable_branch(game),
+        ]);
+        instantiate(game, [
+            transform([62.346, 0.65, 1.652], [0, 0.674, 0, 0.739], undefined),
+            ...blueprint_pushable_branch(game),
+        ]);
+        instantiate(game, [
+            transform([58.433, 0.696, 1.773], [0, 0.708, 0, 0.706], undefined),
+            ...blueprint_pushable_branch(game),
+        ]);
+        instantiate(game, [
+            transform([61.141, 0.682, 1.682], [0, 0.724, 0, 0.69], undefined),
+            ...blueprint_pushable_branch(game),
+        ]);
+        instantiate(game, [
+            transform([54.119, -1.488, 0], [0.707, 0.006, -0.006, 0.707], [0.5, 2, 0.5]),
+            ...blueprint_obstacle_branch(game),
+        ]);
+        instantiate(game, [
+            transform([55.644, -0.759, 0.49], [0.703, 0.075, -0.075, 0.703], [0.5, 2, 0.5]),
+            ...blueprint_obstacle_branch(game),
         ]);
         instantiate(game, [...blueprint_sun_light(), transform()]);
         instantiate(game, [...blueprint_sun_shadow(game), transform()]);
@@ -7391,7 +7423,7 @@
                 transform(),
                 ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
                 shake(0.03),
-                toggle(1048576 /* Shake */, 10, 0.3, true),
+                toggle(1048576 /* Shake */, 5, 0.5, true),
             ]),
         ]);
     }
@@ -7472,7 +7504,7 @@
     // @ts-ignore
     window.scenes = [scene_intro, scene_level1, scene_level2, scene_level3, scene_stage];
     // @ts-ignore ⮮ CHANGE ME HERE.
-    window.scenes[0](game);
+    window.scenes[3](game);
     game.Start();
     // @ts-ignore
     window.$ = dispatch.bind(null, game);
