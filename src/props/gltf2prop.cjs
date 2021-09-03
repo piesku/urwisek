@@ -40,7 +40,7 @@ let create_child = (mesh, translation, rotation, scale, color) => {
 let gltf = JSON.parse(json);
 let nodes = gltf.nodes;
 let colors = gltf.materials.map((mat) =>
-    (mat.pbrMetallicRoughness.baseColorFactor || [0, 0, 0, 1]).map((col) =>
+    (mat.pbrMetallicRoughness.baseColorFactor || [1, 1, 1, 1]).map((col) =>
         parseFloat(col.toFixed(3))
     )
 );

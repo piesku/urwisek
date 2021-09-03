@@ -1,9 +1,9 @@
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
 import {float, integer} from "../../common/random.js";
-import {blueprint_box} from "../blueprints/blu_box.js";
 import {blueprint_bush} from "../blueprints/blu_bush.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {blueprint_crib} from "../blueprints/blu_crib.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
 import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
 import {blueprint_tree} from "../blueprints/blu_tree.js";
@@ -68,8 +68,8 @@ export function scene_stage(game: Game) {
     ]);
 
     instantiate_player(game, [-1, 1, 1]);
-    instantiate(game, [...blueprint_box(game), transform([2.5, 5, 1])]);
-    instantiate(game, [...blueprint_box(game), transform([2.4, 8, 1])]);
+    instantiate(game, [...blueprint_crib(game), transform([2.5, 0, 1])]);
+    // instantiate(game, [...blueprint_box(game), transform([2.4, 8, 1])]);
 
     let slups = 2;
     for (let i = 0; i < slups; i++) {
