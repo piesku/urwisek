@@ -48,13 +48,20 @@ import {sys_ui} from "./systems/sys_ui.js";
 import {Title} from "./ui/App.js";
 import {World} from "./world.js";
 
+export const enum QualitySettings {
+    Low = 512,
+    Medium = 1024,
+    High = 2048,
+    Ultra = 4096,
+}
+
 export class Game extends Game3D {
     World = new World();
 
     MaterialColoredWireframe = mat_forward_colored_wireframe(this.Gl);
     MaterialColoredShaded = mat_forward_colored_phong(this.Gl);
     MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
-    MaterialColoredPhongSkinned = mat_forward_colored_phong_skinned(this.Gl);
+    MaterialColoredSkinned = mat_forward_colored_phong_skinned(this.Gl);
     MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
     MaterialInstanced = mat_forward_instanced(this.Gl);
 
@@ -71,15 +78,21 @@ export class Game extends Game3D {
     LightDetails = new Float32Array(4 * 8);
     Cameras: Array<Entity> = [];
 
+    Quality = QualitySettings.High;
     Targets = {
         Noop: create_depth_target(this.Gl, 2, 2),
-        Sun: create_depth_target(this.Gl, 2048, 2048),
+        Sun: create_depth_target(this.Gl, this.Quality, this.Quality),
     };
 
     CurrentScene = scene_intro;
     CurrentView = Title;
 
     override FixedUpdate(delta: number) {
+        // Player input.
+        sys_control_touch_move(this, delta);
+        sys_control_keyboard(this, delta);
+        sys_control_xbox(this, delta);
+
         // Collisions and physics.
         sys_physics_integrate(this, delta);
         sys_transform(this, delta);
@@ -93,11 +106,6 @@ export class Game extends Game3D {
     override FrameUpdate(delta: number) {
         // Event loop.
         sys_poll(this, delta);
-
-        // Player input.
-        sys_control_touch_move(this, delta);
-        sys_control_keyboard(this, delta);
-        sys_control_xbox(this, delta);
 
         // AI.
         sys_control_ai(this, delta);

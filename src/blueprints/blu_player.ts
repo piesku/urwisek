@@ -81,11 +81,7 @@ export function instantiate_player(game: Game, translation: Vec3) {
             // The tail, animated procedurally.
             [
                 transform(),
-                render_colored_skinned(
-                    game.MaterialColoredPhongSkinned,
-                    game.MeshOgon,
-                    [1, 0.5, 0, 1]
-                ),
+                render_colored_skinned(game.MaterialColoredSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
             ]
         ),
     ]);

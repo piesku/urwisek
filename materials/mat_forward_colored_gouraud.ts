@@ -1,6 +1,6 @@
 import {link, Material} from "../common/material.js";
 import {GL_TRIANGLES} from "../common/webgl.js";
-import {ColoredShadedLayout, ForwardShadingLayout} from "./layout.js";
+import {ColoredShadedLayout, FogLayout, ForwardShadingLayout} from "./layout.js";
 
 let vertex = `#version 300 es\n
 
@@ -16,17 +16,19 @@ let vertex = `#version 300 es\n
     uniform float shininess;
     uniform vec4 light_positions[MAX_LIGHTS];
     uniform vec4 light_details[MAX_LIGHTS];
+    uniform vec4 fog_color;
+    uniform float fog_distance;
 
     in vec3 attr_position;
     in vec3 attr_normal;
     out vec4 vert_color;
 
     void main() {
-        vec4 attr_pos = world * vec4(attr_position, 1.0);
-        vec3 attr_normal = normalize((vec4(attr_normal, 1.0) * self).xyz);
-        gl_Position = pv * attr_pos;
+        vec4 world_position = world * vec4(attr_position, 1.0);
+        vec3 world_normal = normalize((vec4(attr_normal, 1.0) * self).xyz);
+        gl_Position = pv * world_position;
 
-        vec3 view_dir = eye - attr_pos.xyz;
+        vec3 view_dir = eye - world_position.xyz;
         vec3 view_normal = normalize(view_dir);
 
         // Ambient light.
@@ -45,14 +47,14 @@ let vertex = `#version 300 es\n
                 // Directional light.
                 light_normal = light_positions[i].xyz;
             } else {
-                vec3 light_dir = light_positions[i].xyz - attr_pos.xyz;
+                vec3 light_dir = light_positions[i].xyz - world_position.xyz;
                 float light_dist = length(light_dir);
                 light_normal = light_dir / light_dist;
                 // Distance attenuation.
                 light_intensity /= (light_dist * light_dist);
             }
 
-            float diffuse_factor = dot(attr_normal, light_normal);
+            float diffuse_factor = dot(world_normal, light_normal);
             if (diffuse_factor > 0.0) {
                 // Diffuse color.
                 light_acc += diffuse_color.rgb * diffuse_factor * light_color * light_intensity;
@@ -60,7 +62,7 @@ let vertex = `#version 300 es\n
                 if (shininess > 0.0) {
                     // Blinn-Phong reflection model.
                     vec3 h = normalize(light_normal + view_normal);
-                    float specular_angle = max(dot(h, attr_normal), 0.0);
+                    float specular_angle = max(dot(h, world_normal), 0.0);
                     float specular_factor = pow(specular_angle, shininess);
 
                     // Specular color.
@@ -70,6 +72,10 @@ let vertex = `#version 300 es\n
         }
 
         vert_color = vec4(light_acc, 1.0);
+
+        float eye_distance = length(eye - world_position.xyz);
+        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+        vert_color = mix(vert_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
     }
 `;
 
@@ -87,7 +93,7 @@ let fragment = `#version 300 es\n
 
 export function mat_forward_colored_gouraud(
     gl: WebGL2RenderingContext
-): Material<ColoredShadedLayout & ForwardShadingLayout> {
+): Material<ColoredShadedLayout & ForwardShadingLayout & FogLayout> {
     let program = link(gl, vertex, fragment);
     return {
         Mode: GL_TRIANGLES,
@@ -104,6 +110,9 @@ export function mat_forward_colored_gouraud(
             Eye: gl.getUniformLocation(program, "eye")!,
             LightPositions: gl.getUniformLocation(program, "light_positions")!,
             LightDetails: gl.getUniformLocation(program, "light_details")!,
+
+            FogColor: gl.getUniformLocation(program, "fog_color")!,
+            FogDistance: gl.getUniformLocation(program, "fog_distance")!,
 
             VertexPosition: gl.getAttribLocation(program, "attr_position")!,
             VertexNormal: gl.getAttribLocation(program, "attr_normal")!,

@@ -8,23 +8,15 @@ import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
 export function blueprint_sun_light(game: Game) {
-    return [
-        children(
-            [
-                transform([10, 10, -10], from_euler([0, 0, 0, 1], -45, 135, 0)),
-                light_directional([1, 1, 1], 0.6),
-            ],
-            [transform([10, 10, 10]), light_directional([1, 1, 1], 0.9)]
-        ),
-    ];
+    return [children([transform([10, 10, 10]), light_directional([1, 1, 1], 0.9)])];
 }
 
 export function blueprint_sun_shadow(game: Game) {
     return [
         mimic(find_first(game.World, "sun anchor"), 0.01),
         children([
-            transform([10, 10, -10], from_euler([0, 0, 0, 1], -45, 135, 0)),
-            camera_depth_ortho(game.Targets.Sun, 10, 1, 100),
+            transform([10, 10, -10], from_euler([0, 0, 0, 1], -35, 135, 0)),
+            camera_depth_ortho(game.Targets.Sun, 8, 1, 100),
             light_directional([1, 1, 1], 0.6),
         ]),
     ];

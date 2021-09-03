@@ -77,13 +77,11 @@ export interface PaletteShadedLayout {
     // Uniforms
     Pv: WebGLUniformLocation;
     World: WebGLUniformLocation;
-    Self: WebGLUniformLocation;
 
     Palette: WebGLUniformLocation;
 
     // Attributes
     VertexPosition: GLint;
-    VertexNormal: GLint;
 }
 
 export interface ForwardShadingLayout {
@@ -162,6 +160,7 @@ export interface InstancedLayout {
 }
 
 export interface FogLayout {
+    Eye: WebGLUniformLocation;
     FogColor: WebGLUniformLocation;
     FogDistance: WebGLUniformLocation;
 }
