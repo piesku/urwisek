@@ -388,7 +388,7 @@ export function map_forest(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([10.51, -1.192, -0.696], [0.704, -0.07, 0.07, 0.704], [0.5, 4, 0.5]),
+        transform([10.124, -1.192, -0.696], [0.704, -0.07, 0.07, 0.704], [0.5, 4, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 
@@ -403,7 +403,7 @@ export function map_forest(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([11.247, -0.094, -0.654], [0.705, 0.056, -0.056, 0.705], [0.5, 4, 0.5]),
+        transform([11.491, -0.094, -0.654], [0.705, 0.056, -0.056, 0.705], [0.5, 4, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 

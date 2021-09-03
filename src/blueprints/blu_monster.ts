@@ -14,7 +14,7 @@ export function blueprint_monster(game: Game) {
             control_always([0, 0, 1], null),
             control_ai("walk"),
             move(0.5, 0.5),
-            ...blueprint_lisek(game, 10, undefined, [0.8, 0.2, 0.2, 1]),
+            ...blueprint_lisek(game, 10, undefined, [0, 0, 0, 1]),
         ]),
     ];
 }

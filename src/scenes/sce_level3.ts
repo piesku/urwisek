@@ -24,7 +24,7 @@ export function scene_level3(game: Game) {
             transform(),
             ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
             shake(0.03),
-            toggle(Has.Shake, 10, 0.3, true),
+            toggle(Has.Shake, 5, 0.5, true),
         ]),
     ]);
 }
