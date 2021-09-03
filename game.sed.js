@@ -1484,10 +1484,7 @@ Ultra
 }
 
 function App(game) {
-if (game.CurrentScene === scene_intro) {
 return game.CurrentView(game);
-}
-return "";
 }
 function Title(game) {
 return html `
@@ -1496,10 +1493,9 @@ style="
 margin: 60vh 2vw 0;
 font-size: 12vw;
 font-weight: 600;
-line-height: .9;
 "
 >
-LEFT BEHIND
+OUTSIDE
 </div>
 <nav
 style="
@@ -1529,6 +1525,24 @@ font-size: 4vw;
 >
 Mankind has found a new home in the stars.<br />Life on Earth continues.
 </div>
+</div>
+`;
+}
+function Play(game) {
+return "";
+}
+function End(game) {
+return html `
+<div
+style="
+margin: 20vh 2vw 0;
+font-size: 12vw;
+font-weight: 600;
+opacity: 0;
+animation: 1s 4s forwards fadein;
+"
+>
+THE END
 </div>
 `;
 }
@@ -1737,9 +1751,6 @@ return 1 - (1 - t) ** 4;
 function ease_in_out_quart(t) {
 return t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
 }
-function ease_in_out_sine(t) {
-return -(Math.cos(Math.PI * t) - 1) / 2;
-}
 
 /**
 * @module components/com_animate
@@ -1830,6 +1841,7 @@ Translation: [0, 0, 0],
 Rotation: [0, 0, 0, 1],
 },
 ],
+Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
 jump: {
 Keyframes: [
@@ -1899,6 +1911,7 @@ Timestamp: 0,
 Rotation: [0, 0, 0, 1],
 },
 ],
+Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
 jump: {
 Keyframes: [
@@ -1907,6 +1920,7 @@ Timestamp: 0,
 Rotation: [0, 0, 0, 1],
 },
 ],
+Flags: 1 /* EarlyExit */,
 },
 }),
 children([
@@ -1941,6 +1955,7 @@ Timestamp: animation_step_length,
 Rotation: [0, 0.0, 0.0, 1],
 },
 ],
+Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
 jump: {
 Keyframes: [
@@ -1998,6 +2013,7 @@ Rotation: [0.131, 0.0, 0.0, 0.991],
 ActionOnEnd: actionOnEachStep,
 },
 ],
+Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
 jump: {
 Keyframes: [
@@ -2052,6 +2068,7 @@ Timestamp: animation_step_length,
 Rotation: [-0.174, 0.0, 0.0, 0.985],
 },
 ],
+Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
 jump: {
 Keyframes: [
@@ -2125,6 +2142,7 @@ Timestamp: animation_step_length,
 Rotation: [-0.131, 0.0, 0.0, 0.991],
 },
 ],
+Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
 jump: {
 Keyframes: [
@@ -2198,6 +2216,7 @@ Timestamp: animation_step_length,
 Rotation: [0.131, 0.0, 0.0, 0.991],
 },
 ],
+Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
 jump: {
 Keyframes: [
@@ -3833,6 +3852,498 @@ mimic(find_first(game.World, "camera anchor"), 0.05),
 ]);
 }
 
+/**
+* @module components/com_toggle
+*/
+function toggle(mask, delay, duration, init) {
+return (game, entity) => {
+game.World.Signature[entity] |= 8388608 /* Toggle */;
+game.World.Toggle[entity] = {
+Mask: mask,
+Duration: duration,
+Delay: delay,
+SinceLast: delay,
+CurrentlyEnabled: !init,
+};
+};
+}
+
+function blueprint_branch(game) {
+return [
+cull(262144 /* Render */),
+render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.2, 0.2, 1]),
+];
+}
+
+function blueprint_obstacle_branch(game) {
+return [
+children([transform(), ...blueprint_branch(game)], [
+transform(undefined, undefined, [0.5, 1, 0.25]),
+collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
+rigid_body(0 /* Static */),
+]),
+];
+}
+
+/**
+* @module components/com_control_ai
+*/
+function control_ai(Animation) {
+return (game, entity) => {
+game.World.Signature[entity] |= 256 /* ControlAi */;
+game.World.ControlAi[entity] = {
+Animation,
+};
+};
+}
+
+function blueprint_monster(game) {
+return [
+children([
+transform([0, 0, 0], from_euler([0, 0, 0, 1], 0, -90, 0), [5, 60, 20]),
+control_always([0, 0, 1], null),
+control_ai("walk"),
+move(0.5, 0.5),
+...blueprint_lisek(game, 10, undefined, [0, 0, 0, 1]),
+]),
+];
+}
+
+function blueprint_pushable_branch(game) {
+return [
+mimic(0),
+disable(32768 /* Mimic */),
+rigid_body(1 /* Dynamic */),
+collide(true, 4 /* Movable */ | 32 /* SurfaceWood */, 2 /* Terrain */ | 4 /* Movable */, [6, 0.5, 0.5]),
+children([
+transform([0, 0, 0], from_euler([0, 0, 0, 1], 0, 0, 90), [0.5, 6, 0.5]),
+...blueprint_branch(game),
+]),
+];
+}
+
+function blueprint_end(game) {
+return [
+named("exit"),
+collide(false, 2 /* Terrain */, 1 /* Player */),
+trigger(1 /* Player */, 4 /* EndGame */),
+];
+}
+
+function prop_crib(game) {
+return [
+children([
+transform([0, 0.5, 0], undefined, [1, 0.5, 1]),
+cull(262144 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 1, 1]),
+], [
+transform([0, 0.25, 0], [0, 0, -0.707, 0.707], [0.5, 1, 1]),
+cull(262144 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
+], [
+transform([0.25, 0.75, 0], [0, 0, -0.707, 0.707], [1, 0.5, 1]),
+cull(262144 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
+]),
+];
+}
+
+function blueprint_crib(game) {
+return [
+children([
+transform(),
+animate({
+idle: {
+Keyframes: [
+{
+Timestamp: 0.0,
+Rotation: from_euler([0, 0, 0, 1], -25, 0, 0),
+Ease: ease_in_out_quart,
+},
+{
+Timestamp: 2.0,
+Rotation: from_euler([0, 0, 0, 1], 25, 0, 0),
+Ease: ease_in_out_quart,
+},
+],
+},
+}),
+...prop_crib(game),
+]),
+];
+}
+
+function map_forest(game) {
+instantiate(game, [
+transform([3.698, -4.7, 1.395], [0, 0.707, 0, 0.707], [4, 2.003, 20]),
+...blueprint_ground(game),
+]);
+instantiate(game, [
+transform([33.685, -2.25, 1.395], [0, 0.707, 0, 0.707], [4, 5, 40]),
+...blueprint_ground(game),
+]);
+instantiate(game, [
+transform([68.763, -1.75, -5.605], [0, 0.707, 0, 0.707], [10, 4, 150]),
+...blueprint_ground(game),
+]);
+instantiate_player(game, [0, -2, 0]);
+instantiate(game, [
+transform([11.077, 0.547, -6.398], undefined, undefined),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([-3.752, -1.042, -0.369], undefined, [3, 3, 3]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([20.014, 0.582, -6.565], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([7.742, 0.611, -5.393], undefined, undefined),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([17.472, 0.547, -8.601], undefined, undefined),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([20.536, 0.547, -1.319], undefined, undefined),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([10.405, 0.547, -1.964], undefined, undefined),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([-1.606, 0.547, -2.287], undefined, undefined),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([27.699, 0.582, -2.777], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([29.875, 0.582, -9.011], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([15.796, 0.582, -4.064], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([23.4, 0.582, -0.949], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([-3.889, -3.873, 2.375], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([-1.288, 0.191, -1.989], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([10.51, -3.953, -1.485], undefined, [10, 8, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([6.327, 0.191, -1.725], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([9.531, 0.191, -6.075], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([9.298, 0.191, -2.361], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([12.562, 0.026, -1.458], undefined, [10, 8, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([13.787, 0.191, -3.901], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([16.759, 0.191, -9.066], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([16.063, 0.191, -3.029], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([24.792, 0.191, -2.704], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([19.979, 0.191, -3.293], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([30.828, 0.191, -1.452], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([33.475, 0.191, -8.416], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([37.639, 0.191, -1.219], undefined, [7.5, 3, 7.5]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([41.669, -0.324, -1.576], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([46.723, -0.09, -1.525], undefined, [10, 8, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([52.76, 0.191, -2.093], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([56.985, 0.191, -2.047], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([83.135, 0.191, -1.66], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([61.023, 0.191, -9.333], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([60.327, 0.191, -3.297], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([64.506, 0.191, -2.925], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([69.056, 0.191, -2.972], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([70.356, 0.191, -8.637], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([79.318, 0.191, -3.25], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([77.739, 0.191, -8.683], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([43.479, 0.191, -9.068], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([90.685, 0.191, -2.381], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([-3.794, -1.961, 0], [0, 0.707, 0, 0.707], [1.5, 6.144, 2]),
+...blueprint_ground(game),
+]);
+instantiate(game, [
+transform([-0.541, -0.873, -2.022], undefined, [3, 3, 3]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([2.748, -0.436, -2.215], undefined, [3, 3, 3]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([5.921, -0.436, -2.176], undefined, [3, 3, 3]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([9.133, -0.436, -2.137], undefined, [3, 3, 3]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([12.267, -0.436, -2.099], undefined, [3, 3, 3]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([15.07, -1.114, 1.98], undefined, [3, 3, 3]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([10.124, -1.192, -0.696], [0.704, -0.07, 0.07, 0.704], [0.5, 4, 0.5]),
+...blueprint_obstacle_branch(game),
+]);
+instantiate(game, [
+transform([12.816, -2.88, 0.162], undefined, [1.3, 1.3, 1.3]),
+...blueprint_box(game),
+]);
+instantiate(game, [
+transform([-1.529, 2.558, -2.052], [0.344, 0.618, -0.344, 0.618], [0.5, 4, 0.5]),
+...blueprint_branch(game),
+]);
+instantiate(game, [
+transform([11.491, -0.094, -0.654], [0.705, 0.056, -0.056, 0.705], [0.5, 4, 0.5]),
+...blueprint_obstacle_branch(game),
+]);
+instantiate(game, [
+transform([6.645, 3.532, -1.492], [0.54, 0.61, 0.192, 0.547], [0.5, 4, 0.5]),
+...blueprint_branch(game),
+]);
+instantiate(game, [
+transform([19.142, -0.333, 2.004], undefined, [20, 4, 20]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([44.068, 1.007, 0], undefined, [1.3, 1.3, 1.3]),
+...blueprint_box(game),
+]);
+instantiate(game, [
+transform([34.713, -0.331, -1.754], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([34.042, 2.193, 0.619], [0.706, -0.045, 0.045, 0.706], [0.5, 4, 0.5]),
+...blueprint_obstacle_branch(game),
+]);
+instantiate(game, [
+transform([35.14, 2.918, 0.012], [0.707, 0.006, -0.006, 0.707], [0.5, 2, 0.5]),
+...blueprint_obstacle_branch(game),
+]);
+instantiate(game, [
+transform([37.71, 4.1, 0.044], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
+...blueprint_obstacle_branch(game),
+]);
+instantiate(game, [
+transform([41.553, 5.419, -0.251], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
+...blueprint_obstacle_branch(game),
+]);
+instantiate(game, [
+transform([68.295, -3.312, -3.498], undefined, undefined),
+...blueprint_monster(game),
+]);
+instantiate(game, [
+transform([34.944, 0.582, -4.29], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([45.044, 0.582, -5.722], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([38.853, 0.582, 0.005], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([49.571, 0.582, 2.404], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([58.548, 0.582, -9.282], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([71.898, 0.582, -1.62], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([61.489, 0.582, -1.736], undefined, [2.439, 1, 2.539]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([46.815, 6.495, 0], [0.5, 0.5, -0.5, 0.5], [0.5, 6, 0.5]),
+...blueprint_obstacle_branch(game),
+]);
+instantiate(game, [
+transform([103.514, -2.25, 1.395], [0, 0.707, 0, 0.707], [4, 5, 80]),
+...blueprint_ground(game),
+]);
+instantiate(game, [
+transform([48.271, 7.051, 0], undefined, undefined),
+...blueprint_pushable_branch(game),
+]);
+instantiate(game, [
+transform([58.571, -3.256, 1.395], [0, 0.707, 0, 0.707], [4, 2, 10]),
+...blueprint_ground(game),
+]);
+instantiate(game, [
+transform([55.291, -1.158, -1.698], undefined, [3, 3, 3]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([58.346, -1.41, -1.985], undefined, [3, 3, 3]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([59.944, 0.696, 1.773], [0, 0.66, 0, 0.751], undefined),
+...blueprint_pushable_branch(game),
+]);
+instantiate(game, [
+transform([62.768, 0.65, 1.652], [0, 0.674, 0, 0.739], undefined),
+...blueprint_pushable_branch(game),
+]);
+instantiate(game, [
+transform([58.433, 0.696, 1.773], [0, 0.708, 0, 0.706], undefined),
+...blueprint_pushable_branch(game),
+]);
+instantiate(game, [
+transform([61.141, 0.682, 1.682], [0, 0.724, 0, 0.69], undefined),
+...blueprint_pushable_branch(game),
+]);
+instantiate(game, [
+transform([54.119, -1.488, 0], [0.707, 0.006, -0.006, 0.707], [0.5, 2, 0.5]),
+...blueprint_obstacle_branch(game),
+]);
+instantiate(game, [
+transform([55.644, -0.759, 0.49], [0.703, 0.075, -0.075, 0.703], [0.5, 2, 0.5]),
+...blueprint_obstacle_branch(game),
+]);
+instantiate(game, [
+transform([80.256, 0.191, 2.869], undefined, [10, 4, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [
+transform([82.065, 1.241, 2.496], undefined, [2, 2, 2]),
+...blueprint_bush(game),
+]);
+instantiate(game, [
+transform([120, 3, 0], from_euler([0, 0, 0, 1], 0, 90, 0), [1, 10, 1]),
+...blueprint_end(),
+]);
+instantiate(game, [
+transform([122.6, 0.2, 0.4], [0, 0.383, 0, -0.924], undefined),
+...blueprint_crib(game),
+]);
+instantiate(game, [...blueprint_sun_light(), transform()]);
+instantiate(game, [...blueprint_sun_shadow(game), transform()]);
+}
+
+function scene_level3(game) {
+game.World = new World();
+game.ViewportResized = true;
+map_forest(game);
+
+instantiate(game, [
+transform([0, 10, 10]),
+mimic(find_first(game.World, "camera anchor"), 0.05),
+children([
+transform(),
+...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
+shake(0.03),
+toggle(1048576 /* Shake */, 5, 0.5, true),
+]),
+]);
+}
+
 function dispatch(game, action, payload) {
 switch (action) {
 case 0 /* ToggleFullscreen */: {
@@ -3860,11 +4371,20 @@ case scene_level1:
 game.CurrentScene = scene_level2;
 break;
 case scene_level2:
-alert("Thanks for playtesting!");
-game.CurrentScene = scene_intro;
+game.CurrentScene = scene_level3;
 break;
 }
 game.CurrentScene(game);
+game.CurrentView = Play;
+break;
+}
+case 4 /* EndGame */: {
+let [trigger_entity] = payload;
+game.World.Signature[trigger_entity] &= ~33554432 /* Trigger */;
+for (let i = 0; i < game.World.Signature.length; i++) {
+game.World.Signature[i] &= ~512 /* ControlPlayer */;
+}
+game.CurrentView = End;
 break;
 }
 }
@@ -6994,479 +7514,6 @@ sys_ui(this);
 }
 }
 
-/**
-* @module components/com_toggle
-*/
-function toggle(mask, delay, duration, init) {
-return (game, entity) => {
-game.World.Signature[entity] |= 8388608 /* Toggle */;
-game.World.Toggle[entity] = {
-Mask: mask,
-Duration: duration,
-Delay: delay,
-SinceLast: delay,
-CurrentlyEnabled: !init,
-};
-};
-}
-
-function blueprint_branch(game) {
-return [
-cull(262144 /* Render */),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.2, 0.2, 1]),
-];
-}
-
-function blueprint_obstacle_branch(game) {
-return [
-children([transform(), ...blueprint_branch(game)], [
-transform(undefined, undefined, [0.5, 1, 0.25]),
-collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
-rigid_body(0 /* Static */),
-]),
-];
-}
-
-/**
-* @module components/com_control_ai
-*/
-function control_ai(Animation) {
-return (game, entity) => {
-game.World.Signature[entity] |= 256 /* ControlAi */;
-game.World.ControlAi[entity] = {
-Animation,
-};
-};
-}
-
-function blueprint_monster(game) {
-return [
-children([
-transform([0, 0, 0], from_euler([0, 0, 0, 1], 0, -90, 0), [5, 60, 20]),
-control_always([0, 0, 1], null),
-control_ai("walk"),
-move(0.5, 0.5),
-...blueprint_lisek(game, 10, undefined, [0, 0, 0, 1]),
-]),
-];
-}
-
-function blueprint_pushable_branch(game) {
-return [
-mimic(0),
-disable(32768 /* Mimic */),
-rigid_body(1 /* Dynamic */),
-collide(true, 4 /* Movable */ | 32 /* SurfaceWood */, 2 /* Terrain */ | 4 /* Movable */, [6, 0.5, 0.5]),
-children([
-transform([0, 0, 0], from_euler([0, 0, 0, 1], 0, 0, 90), [0.5, 6, 0.5]),
-...blueprint_branch(game),
-]),
-];
-}
-
-function map_forest(game) {
-instantiate(game, [
-transform([3.698, -4.7, 1.395], [0, 0.707, 0, 0.707], [4, 2.003, 20]),
-...blueprint_ground(game),
-]);
-instantiate(game, [
-transform([33.685, -2.25, 1.395], [0, 0.707, 0, 0.707], [4, 5, 40]),
-...blueprint_ground(game),
-]);
-instantiate(game, [
-transform([68.763, -1.75, -5.605], [0, 0.707, 0, 0.707], [10, 4, 150]),
-...blueprint_ground(game),
-]);
-instantiate_player(game, [0, -2, 0]);
-instantiate(game, [
-transform([11.077, 0.547, -6.398], undefined, undefined),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([-3.752, -1.042, -0.369], undefined, [3, 3, 3]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([20.014, 0.582, -6.565], undefined, [2.439, 1, 2.539]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([7.742, 0.611, -5.393], undefined, undefined),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([17.472, 0.547, -8.601], undefined, undefined),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([20.536, 0.547, -1.319], undefined, undefined),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([10.405, 0.547, -1.964], undefined, undefined),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([-1.606, 0.547, -2.287], undefined, undefined),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([27.699, 0.582, -2.777], undefined, [2.439, 1, 2.539]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([29.875, 0.582, -9.011], undefined, [2.439, 1, 2.539]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([15.796, 0.582, -4.064], undefined, [2.439, 1, 2.539]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([23.4, 0.582, -0.949], undefined, [2.439, 1, 2.539]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([-3.889, -3.873, 2.375], undefined, [20, 4, 20]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([-1.288, 0.191, -1.989], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([10.51, -3.953, -1.485], undefined, [10, 8, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([6.327, 0.191, -1.725], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([9.531, 0.191, -6.075], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([9.298, 0.191, -2.361], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([12.562, 0.026, -1.458], undefined, [10, 8, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([13.787, 0.191, -3.901], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([16.759, 0.191, -9.066], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([16.063, 0.191, -3.029], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([24.792, 0.191, -2.704], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([19.979, 0.191, -3.293], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([30.828, 0.191, -1.452], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([33.475, 0.191, -8.416], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([37.639, 0.191, -1.219], undefined, [7.5, 3, 7.5]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([41.669, -0.324, -1.576], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([46.723, -0.09, -1.525], undefined, [10, 8, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([52.76, 0.191, -2.093], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([56.985, 0.191, -2.047], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([83.135, 0.191, -1.66], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([61.023, 0.191, -9.333], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([60.327, 0.191, -3.297], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([64.506, 0.191, -2.925], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([69.056, 0.191, -2.972], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([70.356, 0.191, -8.637], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([79.318, 0.191, -3.25], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([77.739, 0.191, -8.683], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([43.479, 0.191, -9.068], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([90.685, 0.191, -2.381], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([-3.794, -1.961, 0], [0, 0.707, 0, 0.707], [1.5, 6.144, 2]),
-...blueprint_ground(game),
-]);
-instantiate(game, [
-transform([-0.541, -0.873, -2.022], undefined, [3, 3, 3]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([2.748, -0.436, -2.215], undefined, [3, 3, 3]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([5.921, -0.436, -2.176], undefined, [3, 3, 3]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([9.133, -0.436, -2.137], undefined, [3, 3, 3]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([12.267, -0.436, -2.099], undefined, [3, 3, 3]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([15.07, -1.114, 1.98], undefined, [3, 3, 3]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([10.124, -1.192, -0.696], [0.704, -0.07, 0.07, 0.704], [0.5, 4, 0.5]),
-...blueprint_obstacle_branch(game),
-]);
-instantiate(game, [
-transform([12.816, -2.88, 0.162], undefined, [1.3, 1.3, 1.3]),
-...blueprint_box(game),
-]);
-instantiate(game, [
-transform([-1.529, 2.558, -2.052], [0.344, 0.618, -0.344, 0.618], [0.5, 4, 0.5]),
-...blueprint_branch(game),
-]);
-instantiate(game, [
-transform([11.491, -0.094, -0.654], [0.705, 0.056, -0.056, 0.705], [0.5, 4, 0.5]),
-...blueprint_obstacle_branch(game),
-]);
-instantiate(game, [
-transform([6.645, 3.532, -1.492], [0.54, 0.61, 0.192, 0.547], [0.5, 4, 0.5]),
-...blueprint_branch(game),
-]);
-instantiate(game, [
-transform([19.142, -0.333, 2.004], undefined, [20, 4, 20]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([44.068, 1.007, 0], undefined, [1.3, 1.3, 1.3]),
-...blueprint_box(game),
-]);
-instantiate(game, [
-transform([34.713, -0.331, -1.754], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([34.042, 2.193, 0.619], [0.706, -0.045, 0.045, 0.706], [0.5, 4, 0.5]),
-...blueprint_obstacle_branch(game),
-]);
-instantiate(game, [
-transform([35.14, 2.918, 0.012], [0.707, 0.006, -0.006, 0.707], [0.5, 2, 0.5]),
-...blueprint_obstacle_branch(game),
-]);
-instantiate(game, [
-transform([37.71, 4.1, 0.044], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
-...blueprint_obstacle_branch(game),
-]);
-instantiate(game, [
-transform([41.553, 5.419, -0.251], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
-...blueprint_obstacle_branch(game),
-]);
-instantiate(game, [
-transform([68.295, -3.312, -3.498], undefined, undefined),
-...blueprint_monster(game),
-]);
-instantiate(game, [
-transform([34.944, 0.582, -4.29], undefined, [2.439, 1, 2.539]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([45.044, 0.582, -5.722], undefined, [2.439, 1, 2.539]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([38.853, 0.582, 0.005], undefined, [2.439, 1, 2.539]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([49.571, 0.582, 2.404], undefined, [2.439, 1, 2.539]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([58.548, 0.582, -9.282], undefined, [2.439, 1, 2.539]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([71.898, 0.582, -1.62], undefined, [2.439, 1, 2.539]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([61.489, 0.582, -1.736], undefined, [2.439, 1, 2.539]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([46.815, 6.495, 0], [0.5, 0.5, -0.5, 0.5], [0.5, 6, 0.5]),
-...blueprint_obstacle_branch(game),
-]);
-instantiate(game, [
-transform([103.514, -2.25, 1.395], [0, 0.707, 0, 0.707], [4, 5, 80]),
-...blueprint_ground(game),
-]);
-instantiate(game, [
-transform([48.271, 7.051, 0], undefined, undefined),
-...blueprint_pushable_branch(game),
-]);
-instantiate(game, [
-transform([58.571, -3.256, 1.395], [0, 0.707, 0, 0.707], [4, 2, 10]),
-...blueprint_ground(game),
-]);
-instantiate(game, [
-transform([55.291, -1.158, -1.698], undefined, [3, 3, 3]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([58.346, -1.41, -1.985], undefined, [3, 3, 3]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
-transform([59.944, 0.696, 1.773], [0, 0.66, 0, 0.751], undefined),
-...blueprint_pushable_branch(game),
-]);
-instantiate(game, [
-transform([62.768, 0.65, 1.652], [0, 0.674, 0, 0.739], undefined),
-...blueprint_pushable_branch(game),
-]);
-instantiate(game, [
-transform([58.433, 0.696, 1.773], [0, 0.708, 0, 0.706], undefined),
-...blueprint_pushable_branch(game),
-]);
-instantiate(game, [
-transform([61.141, 0.682, 1.682], [0, 0.724, 0, 0.69], undefined),
-...blueprint_pushable_branch(game),
-]);
-instantiate(game, [
-transform([54.119, -1.488, 0], [0.707, 0.006, -0.006, 0.707], [0.5, 2, 0.5]),
-...blueprint_obstacle_branch(game),
-]);
-instantiate(game, [
-transform([55.644, -0.759, 0.49], [0.703, 0.075, -0.075, 0.703], [0.5, 2, 0.5]),
-...blueprint_obstacle_branch(game),
-]);
-instantiate(game, [
-transform([80.256, 0.191, 2.869], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([82.065, 1.241, 2.496], undefined, [2, 2, 2]),
-...blueprint_bush(game),
-]);
-instantiate(game, [...blueprint_sun_light(), transform()]);
-instantiate(game, [...blueprint_sun_shadow(game), transform()]);
-}
-
-function scene_level3(game) {
-game.World = new World();
-game.ViewportResized = true;
-map_forest(game);
-
-instantiate(game, [
-transform([0, 10, 10]),
-mimic(find_first(game.World, "camera anchor"), 0.05),
-children([
-transform(),
-...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
-shake(0.03),
-toggle(1048576 /* Shake */, 5, 0.5, true),
-]),
-]);
-}
-
-function prop_crib(game) {
-return [
-children([
-transform([0, 0.5, 0], undefined, [1, 0.5, 1]),
-cull(262144 /* Render */),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 1, 1]),
-], [
-transform([0, 0.25, 0], [0, 0, -0.707, 0.707], [0.5, 1, 1]),
-cull(262144 /* Render */),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
-], [
-transform([0.25, 0.75, 0], [0, 0, -0.707, 0.707], [1, 0.5, 1]),
-cull(262144 /* Render */),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
-]),
-];
-}
-
-function blueprint_crib(game) {
-return [
-animate({
-idle: {
-Keyframes: [
-{
-Timestamp: 0.0,
-Rotation: from_euler([0, 0, 0, 1], -25, 0, 0),
-Ease: ease_in_out_sine,
-},
-{
-Timestamp: 2.0,
-Rotation: from_euler([0, 0, 0, 1], 25, 0, 0),
-Ease: ease_in_out_sine,
-},
-],
-},
-}),
-...prop_crib(game),
-];
-}
-
 function scene_stage(game) {
 game.World = new World();
 game.ViewportResized = true;
@@ -7543,7 +7590,7 @@ let game = new Game();
 
 window.scenes = [scene_intro, scene_level1, scene_level2, scene_level3, scene_stage];
 
-window.scenes[4](game);
+window.scenes[0](game);
 game.Start();
 
 window.$ = dispatch.bind(null, game);

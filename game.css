@@ -36,3 +36,12 @@ nav div:hover {
         transform: translateY(-100vh);
     }
 }
+
+@keyframes fadein {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
