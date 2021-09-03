@@ -223,7 +223,7 @@ export function map_forest(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([49.788, 0.191, -3.254], undefined, [10, 4, 10]),
+        transform([52.481, 0.191, -8.083], undefined, [10, 4, 10]),
         ...blueprint_tree(game),
     ]);
 
@@ -353,7 +353,7 @@ export function map_forest(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([-3.794, -1.961, 0], [0, 0.707, 0, 0.707], [1.5, 2.003, 2]),
+        transform([-3.794, -1.961, 0], [0, 0.707, 0, 0.707], [1.5, 6.144, 2]),
         ...blueprint_ground(game),
     ]);
 
@@ -448,7 +448,7 @@ export function map_forest(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([68.295, 0, -5.533], undefined, undefined),
+        transform([68.295, -3.312, -5.533], undefined, undefined),
         ...blueprint_monster(game),
     ]);
 
@@ -493,13 +493,58 @@ export function map_forest(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([79.037, -2.25, 1.395], [0, 0.707, 0, 0.707], [4, 5, 40]),
+        transform([83, -2.25, 1.395], [0, 0.707, 0, 0.707], [4, 5, 40]),
         ...blueprint_ground(game),
     ]);
 
     instantiate(game, [
-        transform([48.271, 7.051, 0], [0, 0.707, 0, 0.707], undefined),
+        transform([48.271, 7.051, 0], undefined, undefined),
         ...blueprint_pushable_branch(game),
+    ]);
+
+    instantiate(game, [
+        transform([58.222, -3.256, 1.395], [0, 0.707, 0, 0.707], [4, 2, 10]),
+        ...blueprint_ground(game),
+    ]);
+
+    instantiate(game, [
+        transform([55.291, -1.158, -1.698], undefined, [3, 3, 3]),
+        ...blueprint_bush(game),
+    ]);
+
+    instantiate(game, [
+        transform([58.346, -1.41, -1.985], undefined, [3, 3, 3]),
+        ...blueprint_bush(game),
+    ]);
+
+    instantiate(game, [
+        transform([59.944, 0.696, 1.773], [0, 0.66, 0, 0.751], undefined),
+        ...blueprint_pushable_branch(game),
+    ]);
+
+    instantiate(game, [
+        transform([62.346, 0.65, 1.652], [0, 0.674, 0, 0.739], undefined),
+        ...blueprint_pushable_branch(game),
+    ]);
+
+    instantiate(game, [
+        transform([58.433, 0.696, 1.773], [0, 0.708, 0, 0.706], undefined),
+        ...blueprint_pushable_branch(game),
+    ]);
+
+    instantiate(game, [
+        transform([61.141, 0.682, 1.682], [0, 0.724, 0, 0.69], undefined),
+        ...blueprint_pushable_branch(game),
+    ]);
+
+    instantiate(game, [
+        transform([54.119, -1.488, 0], [0.707, 0.006, -0.006, 0.707], [0.5, 2, 0.5]),
+        ...blueprint_obstacle_branch(game),
+    ]);
+
+    instantiate(game, [
+        transform([55.644, -0.759, 0.49], [0.703, 0.075, -0.075, 0.703], [0.5, 2, 0.5]),
+        ...blueprint_obstacle_branch(game),
     ]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);

@@ -23,7 +23,7 @@ function blueprint_player(game: Game) {
         audio_listener(),
         control_player(Control.Move),
         move(3, 0),
-        collide(true, Layer.Player, Layer.Terrain | Layer.Obstacle, [0.6, 0.8, 0.8]),
+        collide(true, Layer.Player, Layer.Terrain | Layer.Movable, [0.6, 0.8, 0.8]),
         rigid_body(RigidKind.Dynamic, 0),
         children(
             // [
@@ -36,7 +36,7 @@ function blueprint_player(game: Game) {
                 control_player(Control.Rotate),
                 children([
                     transform([0, 0.5, 1], undefined, [0.1, 0.1, 0.1]),
-                    collide(true, Layer.None, Layer.Obstacle),
+                    collide(true, Layer.None, Layer.Movable),
                     control_player(Control.Grab),
                     //render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
                 ]),

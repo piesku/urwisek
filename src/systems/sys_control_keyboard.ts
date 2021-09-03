@@ -67,18 +67,13 @@ function update(game: Game, entity: Entity) {
         ) {
             let obstacle_entity = collide.Collisions[0].Other;
             let obstacle_mimic = game.World.Mimic[obstacle_entity];
-
-            if (obstacle_mimic) {
-                for (let ent of query_up(game.World, entity, Has.ControlPlayer)) {
-                    let control = game.World.ControlPlayer[ent];
-                    control.IsGrabbingEntity = obstacle_entity;
-                }
-
-                game.World.Signature[obstacle_entity] |= Has.Mimic;
-                if (obstacle_mimic) {
-                    obstacle_mimic.Target = entity;
-                }
+            for (let ent of query_up(game.World, entity, Has.ControlPlayer)) {
+                let control = game.World.ControlPlayer[ent];
+                control.IsGrabbingEntity = obstacle_entity;
             }
+
+            game.World.Signature[obstacle_entity] |= Has.Mimic;
+            obstacle_mimic.Target = entity;
         }
 
         if (game.InputDelta["Space"] === -1 && control.IsGrabbingEntity) {

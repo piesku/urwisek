@@ -57,6 +57,7 @@ let create_instance = (name, translation, rotation, scale) => {
         case "ground":
         case "bush":
         case "tree":
+        case "rock":
         case "box":
         case "monster":
         case "branch":
