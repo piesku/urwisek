@@ -11,7 +11,7 @@ export function blueprint_obstacle_car(game: Game) {
             [transform(), ...prop_car2(game)],
             [
                 transform([0, 0.8, 0], undefined, [4, 1, 2]),
-                collide(false, Layer.Terrain, Layer.None),
+                collide(false, Layer.Terrain | Layer.SurfaceMetal, Layer.None),
                 rigid_body(RigidKind.Static),
             ]
         ),

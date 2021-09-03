@@ -11,19 +11,19 @@ export function blueprint_obstacle_house(game: Game) {
             [transform(), ...prop_house(game)],
             [
                 transform([0, 1.5, 0], undefined, [3, 3, 3]),
-                collide(false, Layer.Terrain, Layer.None),
+                collide(false, Layer.Terrain | Layer.SurfaceWood, Layer.None),
                 rigid_body(RigidKind.Static),
             ],
 
             [
                 transform([-2.25, 2, 0], undefined, [1.5, 0.1, 3]),
-                collide(false, Layer.Terrain, Layer.None),
+                collide(false, Layer.Terrain | Layer.SurfaceMetal, Layer.None),
                 rigid_body(RigidKind.Static),
             ],
 
             [
                 transform([-0.8, 0.1, 0], undefined, [4.9, 0.2, 3.4]),
-                collide(false, Layer.Terrain, Layer.None),
+                collide(false, Layer.Terrain | Layer.SurfaceWood, Layer.None),
                 rigid_body(RigidKind.Static),
             ]
         ),

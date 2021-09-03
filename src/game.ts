@@ -145,4 +145,7 @@ export const enum Layer {
     Terrain = 2,
     Obstacle = 4,
     Collectable = 8,
+    SurfaceGround = 16,
+    SurfaceWood = 32,
+    SurfaceMetal = 64,
 }
