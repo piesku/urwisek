@@ -1495,7 +1495,7 @@ font-size: 12vw;
 font-weight: 600;
 "
 >
-OUTSIDE
+HABITAT
 </div>
 <nav
 style="
@@ -4320,7 +4320,7 @@ transform([120, 3, 0], from_euler([0, 0, 0, 1], 0, 90, 0), [1, 10, 1]),
 ...blueprint_end(),
 ]);
 instantiate(game, [
-transform([122.6, 0.2, 0.4], [0, 0.383, 0, -0.924], undefined),
+transform([121.6, 0.2, 0.5], [0, 0.383, 0, -0.924], undefined),
 ...blueprint_crib(game),
 ]);
 instantiate(game, [...blueprint_sun_light(), transform()]);
