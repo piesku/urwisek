@@ -61,7 +61,7 @@ export class Game extends Game3D {
     MaterialColoredWireframe = mat_forward_colored_wireframe(this.Gl);
     MaterialColoredShaded = mat_forward_colored_phong(this.Gl);
     MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
-    MaterialColoredPhongSkinned = mat_forward_colored_phong_skinned(this.Gl);
+    MaterialColoredSkinned = mat_forward_colored_phong_skinned(this.Gl);
     MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
     MaterialInstanced = mat_forward_instanced(this.Gl);
 

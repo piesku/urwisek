@@ -34,7 +34,7 @@ export function blueprint_lisek(
     color: Vec4 = [1, 0.5, 0, 1]
 ) {
     return [
-        render_colored_skinned(game.MaterialColoredPhongSkinned, game.MeshLisek, color, 0),
+        render_colored_skinned(game.MaterialColoredSkinned, game.MeshLisek, color, 0),
         children([
             transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74]),
             children([
