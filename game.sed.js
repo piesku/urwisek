@@ -1737,6 +1737,9 @@ return 1 - (1 - t) ** 4;
 function ease_in_out_quart(t) {
 return t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
 }
+function ease_in_out_sine(t) {
+return -(Math.cos(Math.PI * t) - 1) / 2;
+}
 
 /**
 * @module components/com_animate
@@ -7424,6 +7427,46 @@ toggle(1048576 /* Shake */, 5, 0.5, true),
 ]);
 }
 
+function prop_crib(game) {
+return [
+children([
+transform([0, 0.5, 0], undefined, [1, 0.5, 1]),
+cull(262144 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 1, 1]),
+], [
+transform([0, 0.25, 0], [0, 0, -0.707, 0.707], [0.5, 1, 1]),
+cull(262144 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
+], [
+transform([0.25, 0.75, 0], [0, 0, -0.707, 0.707], [1, 0.5, 1]),
+cull(262144 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
+]),
+];
+}
+
+function blueprint_crib(game) {
+return [
+animate({
+idle: {
+Keyframes: [
+{
+Timestamp: 0.0,
+Rotation: from_euler([0, 0, 0, 1], -25, 0, 0),
+Ease: ease_in_out_sine,
+},
+{
+Timestamp: 2.0,
+Rotation: from_euler([0, 0, 0, 1], 25, 0, 0),
+Ease: ease_in_out_sine,
+},
+],
+},
+}),
+...prop_crib(game),
+];
+}
+
 function scene_stage(game) {
 game.World = new World();
 game.ViewportResized = true;
@@ -7457,8 +7500,8 @@ transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
 render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
 ]);
 instantiate_player(game, [-1, 1, 1]);
-instantiate(game, [...blueprint_box(game), transform([2.5, 5, 1])]);
-instantiate(game, [...blueprint_box(game), transform([2.4, 8, 1])]);
+instantiate(game, [...blueprint_crib(game), transform([2.5, 0, 1])]);
+
 let slups = 2;
 for (let i = 0; i < slups; i++) {
 instantiate(game, [
@@ -7500,7 +7543,7 @@ let game = new Game();
 
 window.scenes = [scene_intro, scene_level1, scene_level2, scene_level3, scene_stage];
 
-window.scenes[3](game);
+window.scenes[4](game);
 game.Start();
 
 window.$ = dispatch.bind(null, game);
