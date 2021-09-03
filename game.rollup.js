@@ -3933,7 +3933,7 @@
     function prop_crib(game) {
         return [
             children([
-                transform([0, 0.5, 0], undefined, [1, 0.5, 1]),
+                transform([0, 0.5, 0], undefined, [1.01, 0.5, 1]),
                 cull(262144 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 1, 1]),
             ], [
