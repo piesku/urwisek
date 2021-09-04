@@ -6416,7 +6416,7 @@ control.IsGrabbingEntity = null;
 }
 }
 if (control.Flags & 4 /* Animate */) {
-let anim_name = "idle";
+let anim_name;
 if (game.InputState["ArrowLeft"] || game.InputState["ArrowRight"]) {
 anim_name = "walk";
 }
@@ -6432,9 +6432,11 @@ anim_name = "jump";
 }
 }
 }
+if (anim_name) {
 for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
 let animate = game.World.Animate[ent];
 animate.Trigger = anim_name;
+}
 }
 }
 }
@@ -6527,16 +6529,11 @@ control.IsGrabbingEntity = null;
 }
 }
 if (control.Flags & 4 /* Animate */) {
-let anim_name;
 if (dx !== 0) {
-anim_name = "walk";
-}
-else {
-anim_name = "idle";
-}
 for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
 let animate = game.World.Animate[ent];
-animate.Trigger = anim_name;
+animate.Trigger = "walk";
+}
 }
 }
 }
