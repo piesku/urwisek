@@ -2,7 +2,6 @@ import {Vec2} from "../../common/math.js";
 import {clamp} from "../../common/number.js";
 import {set} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
-import {Animate} from "../components/com_animate.js";
 import {query_all} from "../components/com_children.js";
 import {Control} from "../components/com_control_player.js";
 import {query_up} from "../components/com_transform.js";
@@ -114,17 +113,11 @@ function update(game: Game, entity: Entity, dx: number, dy: number) {
     }
 
     if (control.Flags & Control.Animate) {
-        let anim_name: Animate["Trigger"];
-
         if (dx !== 0) {
-            anim_name = "walk";
-        } else {
-            anim_name = "idle";
-        }
-
-        for (let ent of query_all(game.World, entity, Has.Animate)) {
-            let animate = game.World.Animate[ent];
-            animate.Trigger = anim_name;
+            for (let ent of query_all(game.World, entity, Has.Animate)) {
+                let animate = game.World.Animate[ent];
+                animate.Trigger = "walk";
+            }
         }
     }
 }

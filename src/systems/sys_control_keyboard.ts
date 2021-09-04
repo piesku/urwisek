@@ -106,7 +106,7 @@ function update(game: Game, entity: Entity) {
     }
 
     if (control.Flags & Control.Animate) {
-        let anim_name: Animate["Trigger"] = "idle";
+        let anim_name: Animate["Trigger"];
 
         if (game.InputState["ArrowLeft"] || game.InputState["ArrowRight"]) {
             anim_name = "walk";
@@ -125,9 +125,11 @@ function update(game: Game, entity: Entity) {
             }
         }
 
-        for (let ent of query_all(game.World, entity, Has.Animate)) {
-            let animate = game.World.Animate[ent];
-            animate.Trigger = anim_name;
+        if (anim_name) {
+            for (let ent of query_all(game.World, entity, Has.Animate)) {
+                let animate = game.World.Animate[ent];
+                animate.Trigger = anim_name;
+            }
         }
     }
 }
