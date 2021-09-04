@@ -10,9 +10,10 @@ main {
     position: absolute;
     width: 100vw;
     height: 100vh;
-    user-select: none;
     overflow: hidden;
     word-break: break-word;
+    user-select: none;
+    touch-action: none;
 }
 
 nav div {
