@@ -249,6 +249,10 @@
                 this.InputDelta["WheelY"] = evt.deltaY;
             });
             this.Ui.addEventListener("touchstart", (evt) => {
+                if (evt.target === this.Ui) {
+                    // Prevent browsers from interpreting touch gestures as navigation input.
+                    evt.preventDefault();
+                }
                 if (evt.touches.length === 1) {
                     // It's a new gesture.
                     this.InputTouches = {};
@@ -269,8 +273,10 @@
                 }
             });
             this.Ui.addEventListener("touchmove", (evt) => {
-                // Prevent browsers from interpreting touch gestures as navigation input.
-                evt.preventDefault();
+                if (evt.target === this.Ui) {
+                    // Prevent browsers from interpreting touch gestures as navigation input.
+                    evt.preventDefault();
+                }
                 for (let i = 0; i < evt.changedTouches.length; i++) {
                     let touch = evt.changedTouches[i];
                     let index = this.InputTouches[touch.identifier];
@@ -283,6 +289,10 @@
                 }
             });
             this.Ui.addEventListener("touchend", (evt) => {
+                if (evt.target === this.Ui) {
+                    // Prevent browsers from interpreting touch gestures as navigation input.
+                    evt.preventDefault();
+                }
                 for (let i = 0; i < evt.changedTouches.length; i++) {
                     let touch = evt.changedTouches[i];
                     let index = this.InputTouches[touch.identifier];

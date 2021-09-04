@@ -249,6 +249,10 @@ evt.preventDefault();
 this.InputDelta["WheelY"] = evt.deltaY;
 });
 this.Ui.addEventListener("touchstart", (evt) => {
+if (evt.target === this.Ui) {
+
+evt.preventDefault();
+}
 if (evt.touches.length === 1) {
 
 this.InputTouches = {};
@@ -269,8 +273,10 @@ this.InputDelta[`Touch${index}Y`] = 0;
 }
 });
 this.Ui.addEventListener("touchmove", (evt) => {
+if (evt.target === this.Ui) {
 
 evt.preventDefault();
+}
 for (let i = 0; i < evt.changedTouches.length; i++) {
 let touch = evt.changedTouches[i];
 let index = this.InputTouches[touch.identifier];
@@ -283,6 +289,10 @@ this.InputState[`Touch${index}Y`] = touch.clientY;
 }
 });
 this.Ui.addEventListener("touchend", (evt) => {
+if (evt.target === this.Ui) {
+
+evt.preventDefault();
+}
 for (let i = 0; i < evt.changedTouches.length; i++) {
 let touch = evt.changedTouches[i];
 let index = this.InputTouches[touch.identifier];
