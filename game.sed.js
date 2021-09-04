@@ -1050,38 +1050,8 @@ throw `No entity named ${name}.`;
 /**
 * @module components/com_render
 */
-const colored_shaded_vaos = new WeakMap();
 const colored_shadows_vaos = new WeakMap();
 const colored_skinned_vaos = new WeakMap();
-function render_colored_shaded(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
-return (game, entity) => {
-if (!colored_shaded_vaos.has(mesh)) {
-
-let vao = game.Gl.createVertexArray();
-game.Gl.bindVertexArray(vao);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
-game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
-game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-game.Gl.bindVertexArray(null);
-colored_shaded_vaos.set(mesh, vao);
-}
-game.World.Signature[entity] |= 262144 /* Render */;
-game.World.Render[entity] = {
-Kind: 1 /* ColoredShaded */,
-Material: material,
-Mesh: mesh,
-FrontFace: front_face,
-Vao: colored_shaded_vaos.get(mesh),
-DiffuseColor: diffuse_color,
-SpecularColor: specular_color,
-Shininess: shininess,
-};
-};
-}
 function render_colored_shadows(material, mesh, diffuse_color, shininess = 0, specular_color = [1, 1, 1, 1], front_face = GL_CW) {
 return (game, entity) => {
 if (!colored_shadows_vaos.has(mesh)) {
@@ -2428,7 +2398,7 @@ return [
 children([
 transform([0, height / 2, 0], undefined, [0.25, height, 0.25]),
 cull(262144 /* Render */),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.2, 0.2, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.2, 0.2, 1]),
 ], [
 transform([0, height, 0]),
 cull(262144 /* Render */),
@@ -3881,7 +3851,7 @@ CurrentlyEnabled: !init,
 function blueprint_branch(game) {
 return [
 cull(262144 /* Render */),
-render_colored_shaded(game.MaterialColoredShaded, game.MeshCylinder, [0.8, 0.2, 0.2, 1]),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.2, 0.2, 1]),
 ];
 }
 
