@@ -3,7 +3,6 @@ import {element} from "../../common/random.js";
 import {animate} from "../components/com_animate.js";
 import {bone} from "../components/com_bone.js";
 import {children} from "../components/com_children.js";
-import {control_ai} from "../components/com_control_ai.js";
 import {control_always} from "../components/com_control_always.js";
 import {lifespan} from "../components/com_lifespan.js";
 import {move} from "../components/com_move.js";
@@ -26,8 +25,7 @@ const colors: Array<Vec4> = [
 
 export function blueprint_bird(game: Game) {
     return [
-        control_ai("walk"),
-        control_always([0, 0, 1], null),
+        control_always([0, 0, 1], null, "walk"),
         move(1, 0),
         lifespan(10),
         render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, element(colors), 0),
