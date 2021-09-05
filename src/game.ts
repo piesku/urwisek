@@ -83,6 +83,7 @@ export class Game extends Game3D {
 
     CurrentScene = scene_intro;
     CurrentView = Title;
+    PupsFound = 0;
 
     override FixedUpdate(delta: number) {
         // Player input.

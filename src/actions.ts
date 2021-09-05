@@ -49,6 +49,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                     break;
             }
 
+            game.PupsFound++;
             game.CurrentScene(game);
             game.CurrentView = Play;
             break;

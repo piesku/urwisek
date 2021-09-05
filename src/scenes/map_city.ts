@@ -589,11 +589,6 @@ export function map_city(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([76.527, 1.398, 2.936], [0, 0.996, 0, 0.086], undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
         transform([78.016, 0.236, -3.542], undefined, undefined),
         ...prop_slup(game),
     ]);
@@ -608,10 +603,7 @@ export function map_city(game: Game) {
         ...blueprint_obstacle_car(game),
     ]);
 
-    instantiate(game, [
-        transform([77.9, 2.5, 0], from_euler([0, 0, 0, 1], 0, 90, 0), [1, 10, 1]),
-        ...blueprint_exit(game),
-    ]);
+    instantiate(game, [transform([77, 1.5, 0]), ...blueprint_exit(game)]);
 
     instantiate(game, [
         transform([-3, 2, -2], [0.011, 0.755, 0.122, 0.644]),

@@ -513,7 +513,7 @@ export function map_farm(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([94.328, 0.258, 2.515], undefined, undefined),
+        transform([96.328, 0.258, 2.515], undefined, undefined),
         ...blueprint_tree(game),
     ]);
 
@@ -602,10 +602,7 @@ export function map_farm(game: Game) {
         ...prop_fence(game),
     ]);
 
-    instantiate(game, [
-        transform([93, 1, 0], from_euler([0, 0, 0, 1], 0, 90, 0), [1, 10, 1]),
-        ...blueprint_exit(game),
-    ]);
+    instantiate(game, [transform([95, 0.5, 0]), ...blueprint_exit(game)]);
 
     instantiate(game, [
         transform([62.526, -0.798, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 5.75]),

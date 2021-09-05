@@ -52,7 +52,7 @@ let create_instance = (name, translation, rotation, scale) => {
             imports.add(`import {blueprint_${name}} from "../blueprints/blu_${name}.js";`);
             return `
     instantiate(game, [
-        transform(${vec(translation)}, from_euler([0, 0, 0, 1], 0, 90, 0), ${vec(scale)}),
+        transform(${vec(translation)}),
         ...blueprint_${name}(game),
     ]);`;
         case "ground":

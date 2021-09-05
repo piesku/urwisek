@@ -17,7 +17,6 @@ import {RigidKind, rigid_body} from "../components/com_rigid_body.js";
 import {transform} from "../components/com_transform.js";
 import {Game, Layer} from "../game.js";
 import {blueprint_lisek} from "./blu_lisek.js";
-import {blueprint_pup} from "./blu_pup.js";
 
 function blueprint_player(game: Game) {
     return [
@@ -43,17 +42,17 @@ function blueprint_player(game: Game) {
                 ]),
             ],
             [
-                named("pup anchor 1"),
+                named("pup anchor 0"),
                 transform([0, -0.42, 0.2], [0, 0.707, 0, 0.707]),
                 control_player(Control.Rotate),
             ],
             [
-                named("pup anchor 2"),
+                named("pup anchor 1"),
                 transform([-0.2, -0.42, 0.2], [0, 0.707, 0, 0.707]),
                 control_player(Control.Rotate),
             ],
             [
-                named("pup anchor 3"),
+                named("pup anchor 2"),
                 transform([-0.4, -0.42, 0.2], [0, 0.707, 0, 0.707]),
                 control_player(Control.Rotate),
             ],
@@ -193,9 +192,17 @@ export function instantiate_player(game: Game, translation: Vec3) {
         ]),
     ]);
 
-    instantiate(game, [transform(), ...blueprint_pup(game, 1)]);
-    instantiate(game, [transform(), ...blueprint_pup(game, 2)]);
-    instantiate(game, [transform(), ...blueprint_pup(game, 3)]);
+    for (let i = 0; i < game.PupsFound; i++) {
+        instantiate(game, [
+            transform(),
+            mimic(find_first(game.World, "pup anchor " + i), 0.2),
+            children([
+                ...blueprint_lisek(game),
+                transform(undefined, undefined, [0.3, 0.3, 0.3]),
+                control_player(Control.Animate),
+            ]),
+        ]);
+    }
 
     return lisek_entity;
 }
