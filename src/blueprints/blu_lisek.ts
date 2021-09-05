@@ -4,10 +4,12 @@ import {Action} from "../actions.js";
 import {animate, AnimationFlag} from "../components/com_animate.js";
 import {bone} from "../components/com_bone.js";
 import {children} from "../components/com_children.js";
+import {cull} from "../components/com_cull.js";
 import {named} from "../components/com_named.js";
 import {render_colored_skinned} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
+import {Has} from "../world.js";
 
 const enum BoneIndex {
     Root = 0,
@@ -47,6 +49,7 @@ export function blueprint_lisek(
                         0.433, 0.395, 1.0,
                     ]
                 ),
+                cull(Has.Animate),
                 animate({
                     idle: {
                         Keyframes: [
@@ -124,6 +127,7 @@ export function blueprint_lisek(
                         children([
                             // An intermediate joint to allow two idle cycles for the head.
                             transform(),
+                            cull(Has.Animate),
                             animate({
                                 idle: {
                                     Keyframes: [
@@ -180,6 +184,7 @@ export function blueprint_lisek(
                                         0.795, 0.0, 0.0, -0.306, 0.251, 1.0,
                                     ]
                                 ),
+                                cull(Has.Animate),
                                 animate({
                                     idle: {
                                         Keyframes: [
@@ -246,6 +251,7 @@ export function blueprint_lisek(
                                     -0.073, 0.395, -0.015, 1.0,
                                 ]
                             ),
+                            cull(Has.Animate),
                             animate({
                                 idle: {
                                     Keyframes: [
@@ -307,6 +313,7 @@ export function blueprint_lisek(
                                     0.073, 0.395, -0.015, 1.0,
                                 ]
                             ),
+                            cull(Has.Animate),
                             animate({
                                 idle: {
                                     Keyframes: [
@@ -366,6 +373,7 @@ export function blueprint_lisek(
                                     -0.992, 0.0, -0.073, 0.291, -0.509, 1.0,
                                 ]
                             ),
+                            cull(Has.Animate),
                             animate({
                                 idle: {
                                     Keyframes: [
@@ -444,6 +452,7 @@ export function blueprint_lisek(
                                     -0.992, 0.0, 0.073, 0.291, -0.509, 1.0,
                                 ]
                             ),
+                            cull(Has.Animate),
                             animate({
                                 idle: {
                                     Keyframes: [

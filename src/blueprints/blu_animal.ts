@@ -13,7 +13,6 @@ import {blueprint_lisek} from "./blu_lisek.js";
 const colors: Array<Vec4> = [
     [0.1, 0.1, 0.1, 1],
     [0.2, 0.2, 0.2, 1],
-    [0.3, 0.3, 0.3, 1],
 ];
 
 export function blueprint_animal(game: Game) {
@@ -26,7 +25,7 @@ export function blueprint_animal(game: Game) {
             lifespan(100),
             children([
                 transform(undefined, undefined, [2, 2, 2]),
-                cull(Has.Render),
+                cull(Has.Render | Has.Children),
                 ...blueprint_lisek(game, 1, undefined, element(colors)),
             ]),
         ];
@@ -39,7 +38,7 @@ export function blueprint_animal(game: Game) {
             lifespan(50),
             children([
                 transform(undefined, undefined, [1, 1.5, 1]),
-                cull(Has.Render),
+                cull(Has.Render | Has.Children),
                 ...blueprint_lisek(game, 0.2, undefined, element(colors)),
             ]),
         ];
@@ -51,7 +50,7 @@ export function blueprint_animal(game: Game) {
         lifespan(30),
         children([
             transform(undefined, undefined, [0.5, 0.5, 1]),
-            cull(Has.Render),
+            cull(Has.Render | Has.Children),
             ...blueprint_lisek(game, 0.1, undefined, element(colors)),
         ]),
     ];
