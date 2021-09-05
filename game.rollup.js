@@ -1070,7 +1070,7 @@
             }
             game.World.Signature[entity] |= 262144 /* Render */;
             game.World.Render[entity] = {
-                Kind: 2 /* ColoredShadows */,
+                Kind: 1 /* ColoredShadows */,
                 Material: material,
                 Mesh: mesh,
                 FrontFace: front_face,
@@ -1102,7 +1102,7 @@
             }
             game.World.Signature[entity] |= 262144 /* Render */;
             game.World.Render[entity] = {
-                Kind: 3 /* ColoredSkinned */,
+                Kind: 2 /* ColoredSkinned */,
                 Material: material,
                 Mesh: mesh,
                 FrontFace: front_face,
@@ -1122,7 +1122,7 @@
             game.Gl.bufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * DATA_PER_PARTICLE * 4, GL_DYNAMIC_DRAW);
             game.World.Signature[entity] |= 262144 /* Render */;
             game.World.Render[entity] = {
-                Kind: 5 /* ParticlesColored */,
+                Kind: 3 /* ParticlesColored */,
                 Material: game.MaterialParticlesColored,
                 Buffer: buffer,
                 ColorStart: start_color,
@@ -1162,7 +1162,7 @@
             game.Gl.bindVertexArray(null);
             game.World.Signature[entity] |= 262144 /* Render */;
             game.World.Render[entity] = {
-                Kind: 6 /* Instanced */,
+                Kind: 4 /* Instanced */,
                 Material: material,
                 Mesh: mesh,
                 FrontFace: GL_CW,
@@ -1242,6 +1242,9 @@
     }
     function float(min = 0, max = 1) {
         return rand() * (max - min) + min;
+    }
+    function element(arr) {
+        return arr[integer(0, arr.length - 1)];
     }
 
     /**
@@ -1673,7 +1676,7 @@
         let zdz_offsets = [];
         let zdz_rotations = [];
         for (let i = 0; i < zdzblos; i++) {
-            zdz_offsets.push(float(-1 / 2 / zdz_scale, 1 / 2 / zdz_scale), 0.8, float(-1 / 4 / zdz_scale, 1 / 4 / zdz_scale), integer(0, 2));
+            zdz_offsets.push(float(-1 / 2 / zdz_scale, 1 / 2 / zdz_scale), 0.8, float(-1 / 4 / zdz_scale, 1 / 4 / zdz_scale), integer(0, 1));
             zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, float(-180, 180), 0));
         }
         return [
@@ -4432,130 +4435,6 @@
         return shader;
     }
 
-    let vertex$5 = `#version 300 es\n
-
-    uniform mat4 pv;
-    uniform mat4 world;
-    uniform mat4 self;
-
-    in vec3 attr_position;
-    in vec3 attr_normal;
-
-    out vec4 vert_position;
-    out vec3 vert_normal;
-
-    void main() {
-        vert_position = world * vec4(attr_position, 1.0);
-        vert_normal = (vec4(attr_normal, 1.0) * self).xyz;
-        gl_Position = pv * vert_position;
-    }
-`;
-    let fragment$5 = `#version 300 es\n
-    precision mediump float;
-
-    // See Game.LightPositions and Game.LightDetails.
-    const int MAX_LIGHTS = 8;
-
-    uniform vec3 eye;
-    uniform vec4 diffuse_color;
-    uniform vec4 specular_color;
-    uniform float shininess;
-    uniform vec4 light_positions[MAX_LIGHTS];
-    uniform vec4 light_details[MAX_LIGHTS];
-    uniform vec4 fog_color;
-    uniform float fog_distance;
-
-    in vec4 vert_position;
-    in vec3 vert_normal;
-
-    out vec4 frag_color;
-
-    const float bands = 2.0;
-    float posterize(float factor) {
-        return floor(factor * bands) / bands;
-    }
-
-    void main() {
-        vec3 world_normal = normalize(vert_normal);
-
-        vec3 view_dir = eye - vert_position.xyz;
-        vec3 view_normal = normalize(view_dir);
-
-        // Ambient light.
-        vec3 light_acc = diffuse_color.rgb * 0.3;
-
-        for (int i = 0; i < MAX_LIGHTS; i++) {
-            if (light_positions[i].w == 0.0) {
-                break;
-            }
-
-            vec3 light_color = light_details[i].rgb;
-            float light_intensity = light_details[i].a;
-
-            vec3 light_normal;
-            if (light_positions[i].w == 1.0) {
-                // Directional light.
-                light_normal = light_positions[i].xyz;
-            } else {
-                vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
-                float light_dist = length(light_dir);
-                light_normal = light_dir / light_dist;
-                // Distance attenuation.
-                light_intensity /= (light_dist * light_dist);
-            }
-
-            float diffuse_factor = dot(world_normal, light_normal);
-            if (diffuse_factor > 0.0) {
-                // Diffuse color.
-                light_acc += diffuse_color.rgb * light_color * posterize(diffuse_factor * light_intensity);
-
-                if (shininess > 0.0) {
-                    // Phong reflection model.
-                    // vec3 r = reflect(-light_normal, world_normal);
-                    // float specular_angle = max(dot(r, view_normal), 0.0);
-                    // float specular_factor = pow(specular_angle, shininess);
-
-                    // Blinn-Phong reflection model.
-                    vec3 h = normalize(light_normal + view_normal);
-                    float specular_angle = max(dot(h, world_normal), 0.0);
-                    float specular_factor = pow(specular_angle, shininess);
-
-                    // Specular color.
-                    light_acc += specular_color.rgb * light_color * posterize(specular_factor * light_intensity);
-                }
-            }
-        }
-
-        frag_color = vec4(light_acc, 1.0);
-
-        float eye_distance = length(view_dir);
-        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
-        frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
-    }
-`;
-    function mat_forward_colored_phong(gl) {
-        let program = link(gl, vertex$5, fragment$5);
-        return {
-            Mode: GL_TRIANGLES,
-            Program: program,
-            Locations: {
-                Pv: gl.getUniformLocation(program, "pv"),
-                World: gl.getUniformLocation(program, "world"),
-                Self: gl.getUniformLocation(program, "self"),
-                DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
-                SpecularColor: gl.getUniformLocation(program, "specular_color"),
-                Shininess: gl.getUniformLocation(program, "shininess"),
-                Eye: gl.getUniformLocation(program, "eye"),
-                LightPositions: gl.getUniformLocation(program, "light_positions"),
-                LightDetails: gl.getUniformLocation(program, "light_details"),
-                FogColor: gl.getUniformLocation(program, "fog_color"),
-                FogDistance: gl.getUniformLocation(program, "fog_distance"),
-                VertexPosition: gl.getAttribLocation(program, "attr_position"),
-                VertexNormal: gl.getAttribLocation(program, "attr_normal"),
-            },
-        };
-    }
-
     let vertex$4 = `#version 300 es\n
     uniform mat4 pv;
     uniform mat4 world;
@@ -5312,27 +5191,37 @@
     }
     // prettier-ignore
     let vertex_arr$3 = Float32Array.from([
-        -0.120, 0.016, 0.120,
-        0.040, 0.000, 0.040,
-        -0.050, 0.000, -0.050,
-        0.130, 0.022, -0.130
+        -0.170, 0.016, 0.000,
+        0.000, 0.000, 0.057,
+        -0.000, 0.000, -0.071,
+        0.184, 0.022, -0.000
     ]);
     // prettier-ignore
     let normal_arr$3 = Float32Array.from([
-        0.066, 0.996, -0.066,
-        -0.010, 1.000, 0.010,
-        -0.010, 1.000, 0.010,
-        -0.084, 0.993, 0.084
+        0.094, 0.996, 0.000,
+        -0.014, 1.000, 0.000,
+        -0.014, 1.000, 0.000,
+        -0.119, 0.993, 0.000
     ]);
     // prettier-ignore
     let texcoord_arr$3 = Float32Array.from([]);
     // prettier-ignore
-    let weights_arr$3 = Float32Array.from([]);
+    let weights_arr$3 = Float32Array.from([
+        2.000, 1.000, 0.000, 0.000,
+        0.000, 1.000, 0.000, 0.000,
+        0.000, 1.000, 0.000, 0.000,
+        1.000, 1.000, 0.000, 0.000
+    ]);
     // prettier-ignore
     let index_arr$3 = Uint16Array.from([
         2, 3, 1,
         0, 2, 1
     ]);
+    /*
+    1.000, 0.000, 0.000, 0.000, 0.000, 1.000, 0.000, 0.000, 0.000, 0.000, 1.000, 0.000, 0.000, 0.000, 0.000, 1.000
+    0.124, 0.992, 0.000, 0.000, -0.992, 0.124, -0.000, 0.000, -0.000, -0.000, 1.000, 0.000, -0.000, -0.000, -0.000, 1.000
+    0.124, -0.992, -0.000, 0.000, 0.992, 0.124, -0.000, 0.000, 0.000, -0.000, 1.000, 0.000, 0.000, -0.000, -0.000, 1.000
+    */
 
     function mesh_lisek(gl) {
         let vertex_buf = gl.createBuffer();
@@ -7061,22 +6950,16 @@
                         case 0 /* ColoredUnlit */:
                             use_colored_unlit(game, render.Material, eye);
                             break;
-                        case 1 /* ColoredShaded */:
-                            use_colored_shaded(game, render.Material, eye);
-                            break;
-                        case 4 /* Vertices */:
-                            use_vertices(game, render.Material, eye);
-                            break;
-                        case 2 /* ColoredShadows */:
+                        case 1 /* ColoredShadows */:
                             use_colored_shadows(game, render.Material, eye);
                             break;
-                        case 3 /* ColoredSkinned */:
+                        case 2 /* ColoredSkinned */:
                             use_colored_skinned(game, render.Material, eye);
                             break;
-                        case 5 /* ParticlesColored */:
+                        case 3 /* ParticlesColored */:
                             use_particles_colored(game, render.Material, eye);
                             break;
-                        case 6 /* Instanced */:
+                        case 4 /* Instanced */:
                             use_instanced(game, render.Material, eye);
                             break;
                     }
@@ -7089,26 +6972,20 @@
                     case 0 /* ColoredUnlit */:
                         draw_colored_unlit(game, transform, render);
                         break;
-                    case 1 /* ColoredShaded */:
-                        draw_colored_shaded(game, transform, render);
-                        break;
-                    case 4 /* Vertices */:
-                        draw_vertices(game, transform, render);
-                        break;
-                    case 2 /* ColoredShadows */:
+                    case 1 /* ColoredShadows */:
                         draw_colored_shadows(game, transform, render);
                         break;
-                    case 3 /* ColoredSkinned */:
+                    case 2 /* ColoredSkinned */:
                         draw_colored_skinned(game, i, transform, render);
                         break;
-                    case 5 /* ParticlesColored */: {
+                    case 3 /* ParticlesColored */: {
                         let emitter = game.World.EmitParticles[i];
                         if (emitter.Instances.length) {
                             draw_particles_colored(game, render, emitter);
                         }
                         break;
                     }
-                    case 6 /* Instanced */:
+                    case 4 /* Instanced */:
                         draw_instanced(game, transform, render);
                         break;
                 }
@@ -7125,37 +7002,6 @@
         game.Gl.bindVertexArray(render.Vao);
         game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
         game.Gl.bindVertexArray(null);
-    }
-    function use_colored_shaded(game, material, eye) {
-        game.Gl.useProgram(material.Program);
-        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-        game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
-        game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-        game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
-        game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-        game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
-    }
-    function draw_colored_shaded(game, transform, render) {
-        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-        game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
-        game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-        game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-        game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
-        game.Gl.bindVertexArray(render.Vao);
-        game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-        game.Gl.bindVertexArray(null);
-    }
-    function use_vertices(game, material, eye) {
-        game.Gl.useProgram(material.Program);
-        game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-    }
-    function draw_vertices(game, transform, render) {
-        game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-        game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
-        game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.VertexBuffer);
-        game.Gl.enableVertexAttribArray(render.Material.Locations.VertexPosition);
-        game.Gl.vertexAttribPointer(render.Material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-        game.Gl.drawArrays(render.Material.Mode, 0, render.IndexCount);
     }
     function use_colored_shadows(game, material, eye) {
         game.Gl.useProgram(material.Program);
@@ -7424,7 +7270,6 @@
             super(...arguments);
             this.World = new World();
             this.MaterialColoredWireframe = mat_forward_colored_wireframe(this.Gl);
-            this.MaterialColoredShaded = mat_forward_colored_phong(this.Gl);
             this.MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
             this.MaterialColoredSkinned = mat_forward_colored_phong_skinned(this.Gl);
             this.MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
@@ -7491,18 +7336,131 @@
         }
     }
 
+    const fly_keytime_1 = 0.9;
+    const colors = [
+        [0.1, 0.1, 0.1, 1],
+        [0.2, 0.2, 0.2, 1],
+        [0.3, 0.3, 0.3, 1],
+    ];
+    function blueprint_bird(game) {
+        return [
+            control_ai("walk"),
+            control_always([0, 0, 1], null),
+            move(1, 0),
+            lifespan(10),
+            render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, element(colors), 0),
+            children([
+                transform(),
+                children([
+                    transform(),
+                    bone(0 /* Root */, [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]),
+                    animate({
+                        idle: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0,
+                                    Translation: [0, 0, 0],
+                                },
+                            ],
+                        },
+                        walk: {
+                            Keyframes: [
+                                {
+                                    Timestamp: 0,
+                                    Translation: [0, -0.05, 0],
+                                },
+                                {
+                                    Timestamp: fly_keytime_1,
+                                    Translation: [0, 0.01, 0],
+                                },
+                            ],
+                        },
+                    }),
+                    children([
+                        transform(undefined, [0, 0, -0.628, 0.778]),
+                        children([
+                            transform(),
+                            bone(1 /* WingL */, [
+                                0.124, 0.992, 0.0, 0.0, -0.992, 0.124, -0.0, 0.0, -0.0, -0.0,
+                                1.0, 0.0, -0.0, -0.0, -0.0, 1.0,
+                            ]),
+                            animate({
+                                idle: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0,
+                                            Rotation: [0, 0, 0, 1],
+                                        },
+                                    ],
+                                },
+                                walk: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0,
+                                            Rotation: [0, 0, 0.044, 0.999],
+                                        },
+                                        {
+                                            Timestamp: fly_keytime_1,
+                                            Rotation: [0, 0, -0.342, 0.94],
+                                        },
+                                    ],
+                                },
+                            }),
+                        ]),
+                    ], [
+                        transform(undefined, [0, 0, 0.628, 0.778]),
+                        children([
+                            transform(),
+                            bone(2 /* WingR */, [
+                                0.124, -0.992, -0.0, 0.0, 0.992, 0.124, -0.0, 0.0, 0.0, -0.0,
+                                1.0, 0.0, 0.0, -0.0, -0.0, 1.0,
+                            ]),
+                            animate({
+                                idle: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0,
+                                            Rotation: [0, 0, 0, 1],
+                                        },
+                                    ],
+                                },
+                                walk: {
+                                    Keyframes: [
+                                        {
+                                            Timestamp: 0,
+                                            Rotation: [0, 0, -0.044, 0.999],
+                                        },
+                                        {
+                                            Timestamp: fly_keytime_1,
+                                            Rotation: [0, 0, 0.342, 0.94],
+                                        },
+                                    ],
+                                },
+                            }),
+                        ]),
+                    ]),
+                ]),
+            ]),
+        ];
+    }
+
     function scene_stage(game) {
         game.World = new World();
         game.ViewportResized = true;
         // Ground.
         let ground_size = 16;
-        let ground_height = 50;
+        let ground_height = 5;
         instantiate(game, [
             transform([0, -ground_height / 2, 0], undefined, [ground_size, ground_height, ground_size]),
-            collide(false, 2 /* Terrain */ | 16 /* SurfaceGround */, 0 /* None */),
-            rigid_body(0 /* Static */),
-            render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.5, 0.5, 1]),
+            ...blueprint_ground(game),
         ]);
+        let slups = 2;
+        for (let i = 0; i < slups; i++) {
+            instantiate(game, [
+                transform([float(-ground_size / 2, ground_size / 2), 0, float(-3, 0)], from_euler([0, 0, 0, 1], 0, float(-180, 180), 0)),
+                ...prop_slup(game),
+            ]);
+        }
         let trees = 8;
         for (let i = 0; i < trees; i++) {
             let z = float(-8, -0.5);
@@ -7511,28 +7469,13 @@
                 ...blueprint_tree(game),
             ]);
         }
-        let zdzblos = 80;
-        let zdz_scale = 0.5;
-        let zdz_offsets = [];
-        let zdz_rotations = [];
-        for (let i = 0; i < zdzblos; i++) {
-            zdz_offsets.push(float(-ground_size / 2 / zdz_scale, ground_size / 2 / zdz_scale), 0.2, float(-ground_size / 4 / zdz_scale, ground_size / 4 / zdz_scale), integer(0, 2));
-            zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, 0, 0));
-        }
-        instantiate(game, [
-            transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
-            render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
-        ]);
         instantiate_player(game, [-1, 1, 1]);
-        instantiate(game, [...blueprint_crib(game), transform([2.5, 0, 1])]);
-        // instantiate(game, [...blueprint_box(game), transform([2.4, 8, 1])]);
-        let slups = 2;
-        for (let i = 0; i < slups; i++) {
-            instantiate(game, [
-                transform([float(-ground_size / 2, ground_size / 2), 0, float(-3, 0)], from_euler([0, 0, 0, 1], 0, float(-180, 180), 0)),
-                ...prop_slup(game),
-            ]);
-        }
+        instantiate(game, [...blueprint_box(game), transform([2.5, 6, 1])]);
+        instantiate(game, [...blueprint_box(game), transform([2.4, 8, 1])]);
+        instantiate(game, [
+            transform([-4, 2, -1], from_euler([0, 0, 0, 1], -10, 100, 10)),
+            children([transform(), shake(1), spawn(blueprint_bird, 0.5)]),
+        ]);
         instantiate(game, [
             transform([-4, 0, -1], from_euler([0, 0, 0, 1], 0, -35 + 180, 0), [0.6, 0.6, 0.6]),
             ...prop_car2(game),
