@@ -1,7 +1,6 @@
 import {create_depth_target} from "../common/framebuffer.js";
 import {Game3D} from "../common/game.js";
 import {Entity} from "../common/world.js";
-import {mat_forward_colored_phong} from "../materials/mat_forward_colored_phong.js";
 import {mat_forward_colored_phong_skinned} from "../materials/mat_forward_colored_phong_skinned.js";
 import {mat_forward_colored_shadows} from "../materials/mat_forward_colored_shadows.js";
 import {mat_forward_colored_wireframe} from "../materials/mat_forward_colored_unlit.js";
@@ -59,7 +58,6 @@ export class Game extends Game3D {
     World = new World();
 
     MaterialColoredWireframe = mat_forward_colored_wireframe(this.Gl);
-    MaterialColoredShaded = mat_forward_colored_phong(this.Gl);
     MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
     MaterialColoredSkinned = mat_forward_colored_phong_skinned(this.Gl);
     MaterialParticlesColored = mat_forward_particles_colored(this.Gl);

@@ -37,7 +37,6 @@ import {query_all} from "../components/com_children.js";
 import {EmitParticles} from "../components/com_emit_particles.js";
 import {
     DATA_PER_PARTICLE,
-    RenderColoredShaded,
     RenderColoredShadows,
     RenderColoredSkinned,
     RenderColoredUnlit,
@@ -113,9 +112,6 @@ function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
                     case RenderKind.ColoredUnlit:
                         use_colored_unlit(game, render.Material, eye);
                         break;
-                    case RenderKind.ColoredShaded:
-                        use_colored_shaded(game, render.Material, eye);
-                        break;
                     case RenderKind.Vertices:
                         use_vertices(game, render.Material, eye);
                         break;
@@ -142,9 +138,6 @@ function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
             switch (render.Kind) {
                 case RenderKind.ColoredUnlit:
                     draw_colored_unlit(game, transform, render);
-                    break;
-                case RenderKind.ColoredShaded:
-                    draw_colored_shaded(game, transform, render);
                     break;
                 case RenderKind.Vertices:
                     draw_vertices(game, transform, render);
@@ -178,31 +171,6 @@ function use_colored_unlit(game: Game, material: Material<ColoredUnlitLayout>, e
 function draw_colored_unlit(game: Game, transform: Transform, render: RenderColoredUnlit) {
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
     game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
-    game.Gl.bindVertexArray(render.Vao);
-    game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-    game.Gl.bindVertexArray(null);
-}
-
-function use_colored_shaded(
-    game: Game,
-    material: Material<ColoredShadedLayout & ForwardShadingLayout & FogLayout>,
-    eye: CameraEye
-) {
-    game.Gl.useProgram(material.Program);
-    game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-    game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
-    game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-    game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
-    game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
-}
-
-function draw_colored_shaded(game: Game, transform: Transform, render: RenderColoredShaded) {
-    game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-    game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
-    game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-    game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-    game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
     game.Gl.bindVertexArray(render.Vao);
     game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
     game.Gl.bindVertexArray(null);
