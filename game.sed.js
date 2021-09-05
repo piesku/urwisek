@@ -7057,9 +7057,6 @@ switch (camera.Kind) {
 case 0 /* Forward */:
 render_forward(game, camera);
 break;
-case 2 /* Framebuffer */:
-render_framebuffer(game, camera);
-break;
 case 3 /* Depth */:
 render_depth(game, camera);
 break;
@@ -7073,13 +7070,6 @@ game.Gl.clearColor(...camera.ClearColor);
 game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 render(game, camera);
 }
-function render_framebuffer(game, camera) {
-game.Gl.bindFramebuffer(GL_FRAMEBUFFER, camera.Target.Framebuffer);
-game.Gl.viewport(0, 0, camera.Target.Width, camera.Target.Height);
-game.Gl.clearColor(...camera.ClearColor);
-game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-render(game, camera, camera.Target.RenderTexture);
-}
 function render_depth(game, camera) {
 game.Gl.bindFramebuffer(GL_FRAMEBUFFER, camera.Target.Framebuffer);
 game.Gl.viewport(0, 0, camera.Target.Width, camera.Target.Height);
@@ -7087,7 +7077,7 @@ game.Gl.clearColor(...camera.ClearColor);
 game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 render(game, camera);
 }
-function render(game, eye, current_target) {
+function render(game, eye) {
 
 let current_material = null;
 let current_front_face = null;
@@ -7144,6 +7134,7 @@ break;
 }
 }
 function use_colored_unlit(game, material, eye) {
+game.Gl.enable(GL_CULL_FACE);
 game.Gl.useProgram(material.Program);
 game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 }
@@ -7155,6 +7146,7 @@ game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_S
 game.Gl.bindVertexArray(null);
 }
 function use_colored_shadows(game, material, eye) {
+game.Gl.enable(GL_CULL_FACE);
 game.Gl.useProgram(material.Program);
 game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
@@ -7190,6 +7182,7 @@ game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_S
 game.Gl.bindVertexArray(null);
 }
 function use_colored_skinned(game, material, eye) {
+game.Gl.enable(GL_CULL_FACE);
 game.Gl.useProgram(material.Program);
 game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
@@ -7235,6 +7228,7 @@ game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_S
 game.Gl.bindVertexArray(null);
 }
 function use_particles_colored(game, material, eye) {
+game.Gl.enable(GL_CULL_FACE);
 game.Gl.useProgram(material.Program);
 game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 }
@@ -7252,6 +7246,7 @@ game.Gl.vertexAttribPointer(render.Material.Locations.Direction, 3, GL_FLOAT, fa
 game.Gl.drawArrays(render.Material.Mode, 0, emitter.Instances.length / DATA_PER_PARTICLE);
 }
 function use_instanced(game, material, eye) {
+game.Gl.disable(GL_CULL_FACE);
 game.Gl.useProgram(material.Program);
 game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
@@ -7262,7 +7257,9 @@ function draw_instanced(game, transform, render) {
 game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
 game.Gl.uniform3fv(render.Material.Locations.Palette, render.Palette);
 game.Gl.bindVertexArray(render.Vao);
-game.Gl.drawElementsInstanced(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0, render.InstanceCount);
+let quality_factor = game.Quality / 4096 /* Ultra */;
+let instance_count = Math.floor(render.InstanceCount * quality_factor);
+game.Gl.drawElementsInstanced(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0, instance_count);
 game.Gl.bindVertexArray(null);
 }
 
