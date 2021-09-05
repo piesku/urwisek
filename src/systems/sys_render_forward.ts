@@ -26,13 +26,7 @@ import {
     ParticlesColoredLayout,
     ShadowMappingLayout,
 } from "../../materials/layout.js";
-import {
-    CameraDepth,
-    CameraEye,
-    CameraForward,
-    CameraFramebuffer,
-    CameraKind,
-} from "../components/com_camera.js";
+import {CameraDepth, CameraEye, CameraForward, CameraKind} from "../components/com_camera.js";
 import {query_all} from "../components/com_children.js";
 import {EmitParticles} from "../components/com_emit_particles.js";
 import {
@@ -61,9 +55,6 @@ export function sys_render_forward(game: Game, delta: number) {
             case CameraKind.Forward:
                 render_forward(game, camera);
                 break;
-            case CameraKind.Framebuffer:
-                render_framebuffer(game, camera);
-                break;
             case CameraKind.Depth:
                 render_depth(game, camera);
                 break;
@@ -79,14 +70,6 @@ function render_forward(game: Game, camera: CameraForward) {
     render(game, camera);
 }
 
-function render_framebuffer(game: Game, camera: CameraFramebuffer) {
-    game.Gl.bindFramebuffer(GL_FRAMEBUFFER, camera.Target.Framebuffer);
-    game.Gl.viewport(0, 0, camera.Target.Width, camera.Target.Height);
-    game.Gl.clearColor(...camera.ClearColor);
-    game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    render(game, camera, camera.Target.RenderTexture);
-}
-
 function render_depth(game: Game, camera: CameraDepth) {
     game.Gl.bindFramebuffer(GL_FRAMEBUFFER, camera.Target.Framebuffer);
     game.Gl.viewport(0, 0, camera.Target.Width, camera.Target.Height);
@@ -95,7 +78,7 @@ function render_depth(game: Game, camera: CameraDepth) {
     render(game, camera);
 }
 
-function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
+function render(game: Game, eye: CameraEye) {
     // Keep track of the current material to minimize switching.
     let current_material = null;
     let current_front_face = null;
