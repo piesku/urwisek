@@ -2193,17 +2193,6 @@
         ];
     }
 
-    function blueprint_pup(game, idx) {
-        return [
-            mimic(find_first(game.World, "pup anchor " + idx), 0.2),
-            children([
-                ...blueprint_lisek(game),
-                transform(undefined, undefined, [0.3, 0.3, 0.3]),
-                control_player(4 /* Animate */),
-            ]),
-        ];
-    }
-
     function blueprint_player(game) {
         return [
             audio_source(false),
@@ -2227,15 +2216,15 @@
                     //render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
                 ]),
             ], [
-                named("pup anchor 1"),
+                named("pup anchor 0"),
                 transform([0, -0.42, 0.2], [0, 0.707, 0, 0.707]),
                 control_player(2 /* Rotate */),
             ], [
-                named("pup anchor 2"),
+                named("pup anchor 1"),
                 transform([-0.2, -0.42, 0.2], [0, 0.707, 0, 0.707]),
                 control_player(2 /* Rotate */),
             ], [
-                named("pup anchor 3"),
+                named("pup anchor 2"),
                 transform([-0.4, -0.42, 0.2], [0, 0.707, 0, 0.707]),
                 control_player(2 /* Rotate */),
             ], [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))], [named("sun anchor"), transform()], [
@@ -2336,9 +2325,17 @@
                 // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
             ]),
         ]);
-        instantiate(game, [transform(), ...blueprint_pup(game, 1)]);
-        instantiate(game, [transform(), ...blueprint_pup(game, 2)]);
-        instantiate(game, [transform(), ...blueprint_pup(game, 3)]);
+        for (let i = 0; i < game.PupsFound; i++) {
+            instantiate(game, [
+                transform(),
+                mimic(find_first(game.World, "pup anchor " + i), 0.2),
+                children([
+                    ...blueprint_lisek(game),
+                    transform(undefined, undefined, [0.3, 0.3, 0.3]),
+                    control_player(4 /* Animate */),
+                ]),
+            ]);
+        }
         return lisek_entity;
     }
 
@@ -2587,9 +2584,9 @@
 
     function blueprint_exit(game) {
         return [
-            named("exit"),
-            collide(false, 2 /* Terrain */, 1 /* Player */),
+            collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
             trigger(1 /* Player */, 3 /* NextScene */),
+            children([named("exit"), transform([1, 1, 0])], [transform([1, 0, 0], [0, -0.707, 0, 0.707], [0.3, 0.3, 0.3]), ...blueprint_lisek(game)]),
         ];
     }
 
@@ -3194,10 +3191,6 @@
             ...blueprint_tree(game),
         ]);
         instantiate(game, [
-            transform([76.527, 1.398, 2.936], [0, 0.996, 0, 0.086], undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
             transform([78.016, 0.236, -3.542], undefined, undefined),
             ...prop_slup(game),
         ]);
@@ -3209,10 +3202,7 @@
             transform([56.401, 1, 0.298], [0.698, 0.155, 0.159, -0.681], undefined),
             ...blueprint_obstacle_car(game),
         ]);
-        instantiate(game, [
-            transform([77.9, 2.5, 0], from_euler([0, 0, 0, 1], 0, 90, 0), [1, 10, 1]),
-            ...blueprint_exit(),
-        ]);
+        instantiate(game, [transform([77, 1.5, 0]), ...blueprint_exit(game)]);
         instantiate(game, [
             transform([-3, 2, -2], [0.011, 0.755, 0.122, 0.644]),
             children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(524288 /* Shake */ | 1048576 /* Spawn */)]),
@@ -3896,7 +3886,7 @@
             ...blueprint_tree(game),
         ]);
         instantiate(game, [
-            transform([94.328, 0.258, 2.515], undefined, undefined),
+            transform([96.328, 0.258, 2.515], undefined, undefined),
             ...blueprint_tree(game),
         ]);
         instantiate(game, [
@@ -3967,10 +3957,7 @@
             transform([89.73, 1.638, 2.069], [0, 1, 0, 0], undefined),
             ...prop_fence(game),
         ]);
-        instantiate(game, [
-            transform([93, 1, 0], from_euler([0, 0, 0, 1], 0, 90, 0), [1, 10, 1]),
-            ...blueprint_exit(),
-        ]);
+        instantiate(game, [transform([95, 0.5, 0]), ...blueprint_exit(game)]);
         instantiate(game, [
             transform([62.526, -0.798, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 5.75]),
             ...blueprint_ground(game),
@@ -4501,6 +4488,7 @@
                         game.CurrentScene = scene_level3;
                         break;
                 }
+                game.PupsFound++;
                 game.CurrentScene(game);
                 game.CurrentView = Play;
                 break;
@@ -7423,6 +7411,7 @@
             };
             this.CurrentScene = scene_intro;
             this.CurrentView = Title;
+            this.PupsFound = 0;
         }
         FixedUpdate(delta) {
             // Player input.
