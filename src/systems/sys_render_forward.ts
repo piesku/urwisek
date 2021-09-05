@@ -43,7 +43,6 @@ import {
     RenderInstanced,
     RenderKind,
     RenderParticlesColored,
-    RenderVertices,
 } from "../components/com_render.js";
 import {Transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
@@ -112,9 +111,6 @@ function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
                     case RenderKind.ColoredUnlit:
                         use_colored_unlit(game, render.Material, eye);
                         break;
-                    case RenderKind.Vertices:
-                        use_vertices(game, render.Material, eye);
-                        break;
                     case RenderKind.ColoredShadows:
                         use_colored_shadows(game, render.Material, eye);
                         break;
@@ -138,9 +134,6 @@ function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
             switch (render.Kind) {
                 case RenderKind.ColoredUnlit:
                     draw_colored_unlit(game, transform, render);
-                    break;
-                case RenderKind.Vertices:
-                    draw_vertices(game, transform, render);
                     break;
                 case RenderKind.ColoredShadows:
                     draw_colored_shadows(game, transform, render);
@@ -174,20 +167,6 @@ function draw_colored_unlit(game: Game, transform: Transform, render: RenderColo
     game.Gl.bindVertexArray(render.Vao);
     game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
     game.Gl.bindVertexArray(null);
-}
-
-function use_vertices(game: Game, material: Material<ColoredUnlitLayout>, eye: CameraEye) {
-    game.Gl.useProgram(material.Program);
-    game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-}
-
-function draw_vertices(game: Game, transform: Transform, render: RenderVertices) {
-    game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-    game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
-    game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.VertexBuffer);
-    game.Gl.enableVertexAttribArray(render.Material.Locations.VertexPosition);
-    game.Gl.vertexAttribPointer(render.Material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-    game.Gl.drawArrays(render.Material.Mode, 0, render.IndexCount);
 }
 
 function use_colored_shadows(

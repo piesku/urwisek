@@ -32,7 +32,6 @@ export type Render =
     | RenderColoredUnlit
     | RenderColoredShadows
     | RenderColoredSkinned
-    | RenderVertices
     | RenderParticlesColored
     | RenderInstanced;
 
@@ -40,7 +39,6 @@ export const enum RenderKind {
     ColoredUnlit,
     ColoredShadows,
     ColoredSkinned,
-    Vertices,
     ParticlesColored,
     Instanced,
 }
@@ -224,33 +222,6 @@ export function render_colored_skinned(
             DiffuseColor: diffuse_color,
             SpecularColor: specular_color,
             Shininess: shininess,
-        };
-    };
-}
-
-export interface RenderVertices {
-    Kind: RenderKind.Vertices;
-    Material: Material<ColoredUnlitLayout>;
-    FrontFace: GLenum;
-    VertexBuffer: WebGLBuffer;
-    IndexCount: number;
-    Color: Vec4;
-}
-
-export function render_vertices(material: Material<ColoredUnlitLayout>, max: number, color: Vec4) {
-    return (game: Game, entity: Entity) => {
-        let vertex_buf = game.Gl.createBuffer()!;
-        game.Gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-        game.Gl.bufferData(GL_ARRAY_BUFFER, max * Float32Array.BYTES_PER_ELEMENT, GL_DYNAMIC_DRAW);
-
-        game.World.Signature[entity] |= Has.Render;
-        game.World.Render[entity] = {
-            Kind: RenderKind.Vertices,
-            Material: material,
-            FrontFace: GL_CW,
-            VertexBuffer: vertex_buf,
-            IndexCount: 0,
-            Color: color,
         };
     };
 }
