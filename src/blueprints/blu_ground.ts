@@ -17,7 +17,7 @@ export function blueprint_ground(game: Game) {
             float(-1 / 2 / zdz_scale, 1 / 2 / zdz_scale),
             0.8,
             float(-1 / 4 / zdz_scale, 1 / 4 / zdz_scale),
-            integer(0, 2)
+            integer(0, 1)
         );
         zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, float(-180, 180), 0));
     }
