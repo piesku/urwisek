@@ -17,6 +17,7 @@ import {RigidKind, rigid_body} from "../components/com_rigid_body.js";
 import {transform} from "../components/com_transform.js";
 import {Game, Layer} from "../game.js";
 import {blueprint_lisek} from "./blu_lisek.js";
+import {blueprint_pup} from "./blu_pup.js";
 
 function blueprint_player(game: Game) {
     return [
@@ -40,6 +41,21 @@ function blueprint_player(game: Game) {
                     control_player(Control.Grab),
                     //render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
                 ]),
+            ],
+            [
+                named("pup anchor 1"),
+                transform([0, -0.42, 0.2], [0, 0.707, 0, 0.707]),
+                control_player(Control.Rotate),
+            ],
+            [
+                named("pup anchor 2"),
+                transform([-0.2, -0.42, 0.2], [0, 0.707, 0, 0.707]),
+                control_player(Control.Rotate),
+            ],
+            [
+                named("pup anchor 3"),
+                transform([-0.4, -0.42, 0.2], [0, 0.707, 0, 0.707]),
+                control_player(Control.Rotate),
             ],
             [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))],
             [named("sun anchor"), transform()],
@@ -79,6 +95,7 @@ export function instantiate_player(game: Game, translation: Vec3) {
             // The mesh, animated by the player.
             [...blueprint_lisek(game), transform(), control_player(Control.Animate)],
             // The tail, animated procedurally.
+            [named("tail anchor"), transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74])],
             [
                 transform(),
                 render_colored_skinned(game.MaterialColoredSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
@@ -175,6 +192,10 @@ export function instantiate_player(game: Game, translation: Vec3) {
             // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
         ]),
     ]);
+
+    instantiate(game, [transform(), ...blueprint_pup(game, 1)]);
+    instantiate(game, [transform(), ...blueprint_pup(game, 2)]);
+    instantiate(game, [transform(), ...blueprint_pup(game, 3)]);
 
     return lisek_entity;
 }
