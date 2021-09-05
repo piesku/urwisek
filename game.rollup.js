@@ -215,39 +215,12 @@
                 MouseX: 0,
                 MouseY: 0,
             };
-            // Pixels traveled while mouse/touch was down.
-            this.InputDistance = {
-                Mouse: 0,
-                Mouse0: 0,
-                Mouse1: 0,
-                Mouse2: 0,
-                Touch0: 0,
-                Touch1: 0,
-            };
             // Map of touch ids to touch indices. In particular, Firefox assigns high
             // ints as ids. Chrome usually starts at 0, so id === index.
             this.InputTouches = {};
             this.Ui = document.querySelector("main");
             document.addEventListener("visibilitychange", () => document.hidden ? this.Stop() : this.Start());
             this.Ui.addEventListener("contextmenu", (evt) => evt.preventDefault());
-            this.Ui.addEventListener("mousedown", (evt) => {
-                this.InputState[`Mouse${evt.button}`] = 1;
-                this.InputDelta[`Mouse${evt.button}`] = 1;
-            });
-            this.Ui.addEventListener("mouseup", (evt) => {
-                this.InputState[`Mouse${evt.button}`] = 0;
-                this.InputDelta[`Mouse${evt.button}`] = -1;
-            });
-            this.Ui.addEventListener("mousemove", (evt) => {
-                this.InputState["MouseX"] = evt.clientX;
-                this.InputState["MouseY"] = evt.clientY;
-                this.InputDelta["MouseX"] = evt.movementX;
-                this.InputDelta["MouseY"] = evt.movementY;
-            });
-            this.Ui.addEventListener("wheel", (evt) => {
-                evt.preventDefault();
-                this.InputDelta["WheelY"] = evt.deltaY;
-            });
             this.Ui.addEventListener("touchstart", (evt) => {
                 if (evt.target === this.Ui) {
                     // Prevent browsers from interpreting touch gestures as navigation input.
@@ -345,44 +318,10 @@
         }
         FrameSetup(delta) {
             this.Now = performance.now();
-            let mouse_distance = Math.abs(this.InputDelta["MouseX"]) + Math.abs(this.InputDelta["MouseY"]);
-            this.InputDistance["Mouse"] += mouse_distance;
-            if (this.InputState["Mouse0"] === 1) {
-                this.InputDistance["Mouse0"] += mouse_distance;
-            }
-            if (this.InputState["Mouse1"] === 1) {
-                this.InputDistance["Mouse1"] += mouse_distance;
-            }
-            if (this.InputState["Mouse2"] === 1) {
-                this.InputDistance["Mouse2"] += mouse_distance;
-            }
-            if (this.InputState["Touch0"] === 1) {
-                this.InputDistance["Touch0"] +=
-                    Math.abs(this.InputDelta["Touch0X"]) + Math.abs(this.InputDelta["Touch0Y"]);
-            }
-            if (this.InputState["Touch1"] === 1) {
-                this.InputDistance["Touch1"] +=
-                    Math.abs(this.InputDelta["Touch1X"]) + Math.abs(this.InputDelta["Touch1Y"]);
-            }
         }
         FixedUpdate(step) { }
         FrameUpdate(delta) { }
         InputReset() {
-            if (this.InputDelta["Mouse0"] === -1) {
-                this.InputDistance["Mouse0"] = 0;
-            }
-            if (this.InputDelta["Mouse1"] === -1) {
-                this.InputDistance["Mouse1"] = 0;
-            }
-            if (this.InputDelta["Mouse2"] === -1) {
-                this.InputDistance["Mouse2"] = 0;
-            }
-            if (this.InputDelta["Touch0"] === -1) {
-                this.InputDistance["Touch0"] = 0;
-            }
-            if (this.InputDelta["Touch1"] === -1) {
-                this.InputDistance["Touch1"] = 0;
-            }
             for (let name in this.InputDelta) {
                 this.InputDelta[name] = 0;
             }
@@ -997,6 +936,21 @@
     }
 
     /**
+     * @module components/com_draw
+     */
+    function draw_text$1(text, font, fill_style) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 1024 /* Draw */;
+            game.World.Draw[entity] = {
+                Kind: 0 /* Text */,
+                Text: text,
+                Font: font,
+                FillStyle: fill_style,
+            };
+        };
+    }
+
+    /**
      * Add EmitParticles.
      *
      * @param lifespan How long particles live for.
@@ -1218,6 +1172,7 @@
 
     function blueprint_pixie(game) {
         return [
+            draw_text$1("Follow me", "Arial", "#fff"),
             mimic(find_first(game.World, "pixie anchor"), 0.02),
             children([
                 transform(),
@@ -1778,7 +1733,6 @@
                 transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74]),
                 children([
                     transform(),
-                    named("tail anchor"),
                     bone(0 /* Root */, [
                         1.0, 0.0, 0.0, 0.0, 0.0, 0.096, -0.995, 0.0, 0.0, 0.995, 0.096, 0.0, 0.0,
                         0.433, 0.395, 1.0,
@@ -2239,6 +2193,17 @@
         ];
     }
 
+    function blueprint_pup(game, idx) {
+        return [
+            mimic(find_first(game.World, "pup anchor " + idx), 0.2),
+            children([
+                ...blueprint_lisek(game),
+                transform(undefined, undefined, [0.3, 0.3, 0.3]),
+                control_player(4 /* Animate */),
+            ]),
+        ];
+    }
+
     function blueprint_player(game) {
         return [
             audio_source(false),
@@ -2261,6 +2226,18 @@
                     control_player(8 /* Grab */),
                     //render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
                 ]),
+            ], [
+                named("pup anchor 1"),
+                transform([0, -0.42, 0.2], [0, 0.707, 0, 0.707]),
+                control_player(2 /* Rotate */),
+            ], [
+                named("pup anchor 2"),
+                transform([-0.2, -0.42, 0.2], [0, 0.707, 0, 0.707]),
+                control_player(2 /* Rotate */),
+            ], [
+                named("pup anchor 3"),
+                transform([-0.4, -0.42, 0.2], [0, 0.707, 0, 0.707]),
+                control_player(2 /* Rotate */),
             ], [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))], [named("sun anchor"), transform()], [
                 named("pixie anchor"),
                 transform([4, 1, 0], [0, 0.7, 0, 0.7]),
@@ -2284,7 +2261,7 @@
             // The mesh, animated by the player.
             [...blueprint_lisek(game), transform(), control_player(4 /* Animate */)], 
             // The tail, animated procedurally.
-            [
+            [named("tail anchor"), transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74])], [
                 transform(),
                 render_colored_skinned(game.MaterialColoredSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
             ]),
@@ -2359,6 +2336,9 @@
                 // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
             ]),
         ]);
+        instantiate(game, [transform(), ...blueprint_pup(game, 1)]);
+        instantiate(game, [transform(), ...blueprint_pup(game, 2)]);
+        instantiate(game, [transform(), ...blueprint_pup(game, 3)]);
         return lisek_entity;
     }
 
@@ -6642,7 +6622,7 @@
         game.Context2D.resetTransform();
         game.Context2D.clearRect(0, 0, game.ViewportWidth, game.ViewportHeight);
         let position = [0, 0, 0];
-        let camera_entity = game.Cameras[0];
+        let camera_entity = game.Cameras[1];
         let main_camera = game.World.Camera[camera_entity];
         if (!main_camera) {
             return;
