@@ -2606,6 +2606,156 @@ trigger(1 /* Player */, 3 /* NextScene */),
 ];
 }
 
+const fly_keytime_1 = 0.6;
+const colors$1 = [
+[0.1, 0.1, 0.1, 1],
+[0.2, 0.2, 0.2, 1],
+[0.3, 0.3, 0.3, 1],
+];
+function blueprint_bird(game) {
+return [
+control_always([0, 0, 1], null, "walk"),
+move(1, 0),
+lifespan(10),
+render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, element(colors$1), 0),
+children([
+transform(),
+children([
+transform(),
+bone(0 /* Root */, [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]),
+animate({
+idle: {
+Keyframes: [
+{
+Timestamp: 0,
+Translation: [0, 0, 0],
+},
+],
+},
+walk: {
+Keyframes: [
+{
+Timestamp: 0,
+Translation: [0, -0.05, 0],
+},
+{
+Timestamp: fly_keytime_1,
+Translation: [0, 0.01, 0],
+},
+],
+},
+}),
+children([
+transform(undefined, [0, 0, -0.628, 0.778]),
+children([
+transform(),
+bone(1 /* WingL */, [
+0.124, 0.992, 0.0, 0.0, -0.992, 0.124, -0.0, 0.0, -0.0, -0.0,
+1.0, 0.0, -0.0, -0.0, -0.0, 1.0,
+]),
+animate({
+idle: {
+Keyframes: [
+{
+Timestamp: 0,
+Rotation: [0, 0, 0, 1],
+},
+],
+},
+walk: {
+Keyframes: [
+{
+Timestamp: 0,
+Rotation: [0, 0, 0.044, 0.999],
+},
+{
+Timestamp: fly_keytime_1,
+Rotation: [0, 0, -0.342, 0.94],
+},
+],
+},
+}),
+]),
+], [
+transform(undefined, [0, 0, 0.628, 0.778]),
+children([
+transform(),
+bone(2 /* WingR */, [
+0.124, -0.992, -0.0, 0.0, 0.992, 0.124, -0.0, 0.0, 0.0, -0.0,
+1.0, 0.0, 0.0, -0.0, -0.0, 1.0,
+]),
+animate({
+idle: {
+Keyframes: [
+{
+Timestamp: 0,
+Rotation: [0, 0, 0, 1],
+},
+],
+},
+walk: {
+Keyframes: [
+{
+Timestamp: 0,
+Rotation: [0, 0, -0.044, 0.999],
+},
+{
+Timestamp: fly_keytime_1,
+Rotation: [0, 0, 0.342, 0.94],
+},
+],
+},
+}),
+]),
+]),
+]),
+]),
+];
+}
+
+const colors = [
+[0.1, 0.1, 0.1, 1],
+[0.2, 0.2, 0.2, 1],
+[0.3, 0.3, 0.3, 1],
+];
+function blueprint_animal(game) {
+let r = float();
+if (r < 0.1) {
+return [
+control_always([0, 0, 1], null, "walk"),
+move(float(1, 1.2), 0),
+lifespan(100),
+children([
+transform(undefined, undefined, [2, 2, 2]),
+cull(131072 /* Render */),
+...blueprint_lisek(game, 1, undefined, element(colors)),
+]),
+];
+}
+if (r < 0.5) {
+return [
+control_always([0, 0, 1], null, "walk"),
+move(float(2, 2.2), 0),
+lifespan(50),
+children([
+transform(undefined, undefined, [1, 1.5, 1]),
+cull(131072 /* Render */),
+...blueprint_lisek(game, 0.2, undefined, element(colors)),
+]),
+];
+}
+return [
+control_always([0, 0, 1], null, "jump"),
+move(float(3, 3.2), 0),
+lifespan(30),
+children([
+transform(undefined, undefined, [0.5, 0.5, 1]),
+cull(131072 /* Render */),
+...blueprint_lisek(game, 0.1, undefined, element(colors)),
+]),
+];
+}
+
 function map_city(game) {
 instantiate(game, [
 transform([7.532, -0.5, 1.453], [0, 0.707, 0, 0.707], [4, 2.003, 30]),
@@ -3077,6 +3227,27 @@ instantiate(game, [
 transform([77.9, 2.5, 0], from_euler([0, 0, 0, 1], 0, 90, 0), [1, 10, 1]),
 ...blueprint_exit(),
 ]);
+instantiate(game, [
+transform([-3, 2, -2], [0.011, 0.755, 0.122, 0.644]),
+children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(524288 /* Shake */ | 1048576 /* Spawn */)]),
+]);
+instantiate(game, [
+transform([14, 2, -2], [0.011, 0.755, 0.122, 0.644]),
+children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(524288 /* Shake */ | 1048576 /* Spawn */)]),
+]);
+instantiate(game, [
+transform([33, 2, -2], [0.011, 0.755, 0.122, 0.644]),
+children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(524288 /* Shake */ | 1048576 /* Spawn */)]),
+]);
+instantiate(game, [
+transform([53, 2, -2], [0.011, 0.755, 0.122, 0.644]),
+children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(524288 /* Shake */ | 1048576 /* Spawn */)]),
+]);
+instantiate(game, [
+transform([73, 2, -2], [0.011, 0.755, 0.122, 0.644]),
+children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(524288 /* Shake */ | 1048576 /* Spawn */)]),
+]);
+instantiate(game, [transform([-7, 0.5, -5], [0, 0.707, 0, 0.707]), spawn(blueprint_animal, 1)]);
 instantiate(game, [...blueprint_sun_light(), transform()]);
 instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 }
@@ -7134,8 +7305,10 @@ update$2(game, i, delta);
 }
 function update$2(game, entity, delta) {
 let spawn = game.World.Spawn[entity];
+
+let quality_factor = 2048 /* High */ / game.Quality;
 spawn.SinceLast += delta;
-if (spawn.SinceLast > spawn.Interval) {
+if (spawn.SinceLast > spawn.Interval * quality_factor) {
 spawn.SinceLast = 0;
 let entity_transform = game.World.Transform[entity];
 let world_position = [0, 0, 0];
@@ -7307,113 +7480,6 @@ sys_render_forward(this);
 sys_draw(this);
 sys_ui(this);
 }
-}
-
-const fly_keytime_1 = 0.9;
-const colors = [
-[0.1, 0.1, 0.1, 1],
-[0.2, 0.2, 0.2, 1],
-[0.3, 0.3, 0.3, 1],
-];
-function blueprint_bird(game) {
-return [
-control_always([0, 0, 1], null, "walk"),
-move(1, 0),
-lifespan(10),
-render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, element(colors), 0),
-children([
-transform(),
-children([
-transform(),
-bone(0 /* Root */, [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]),
-animate({
-idle: {
-Keyframes: [
-{
-Timestamp: 0,
-Translation: [0, 0, 0],
-},
-],
-},
-walk: {
-Keyframes: [
-{
-Timestamp: 0,
-Translation: [0, -0.05, 0],
-},
-{
-Timestamp: fly_keytime_1,
-Translation: [0, 0.01, 0],
-},
-],
-},
-}),
-children([
-transform(undefined, [0, 0, -0.628, 0.778]),
-children([
-transform(),
-bone(1 /* WingL */, [
-0.124, 0.992, 0.0, 0.0, -0.992, 0.124, -0.0, 0.0, -0.0, -0.0,
-1.0, 0.0, -0.0, -0.0, -0.0, 1.0,
-]),
-animate({
-idle: {
-Keyframes: [
-{
-Timestamp: 0,
-Rotation: [0, 0, 0, 1],
-},
-],
-},
-walk: {
-Keyframes: [
-{
-Timestamp: 0,
-Rotation: [0, 0, 0.044, 0.999],
-},
-{
-Timestamp: fly_keytime_1,
-Rotation: [0, 0, -0.342, 0.94],
-},
-],
-},
-}),
-]),
-], [
-transform(undefined, [0, 0, 0.628, 0.778]),
-children([
-transform(),
-bone(2 /* WingR */, [
-0.124, -0.992, -0.0, 0.0, 0.992, 0.124, -0.0, 0.0, 0.0, -0.0,
-1.0, 0.0, 0.0, -0.0, -0.0, 1.0,
-]),
-animate({
-idle: {
-Keyframes: [
-{
-Timestamp: 0,
-Rotation: [0, 0, 0, 1],
-},
-],
-},
-walk: {
-Keyframes: [
-{
-Timestamp: 0,
-Rotation: [0, 0, -0.044, 0.999],
-},
-{
-Timestamp: fly_keytime_1,
-Rotation: [0, 0, 0.342, 0.94],
-},
-],
-},
-}),
-]),
-]),
-]),
-]),
-];
 }
 
 function scene_stage(game) {
