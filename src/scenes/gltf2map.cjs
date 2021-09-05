@@ -88,6 +88,15 @@ let create_instance = (name, translation, rotation, scale) => {
         transform(${vec(translation)}, ${vec(rotation)}),
         children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
     ]);`;
+        case "spawn_animal":
+            imports.add(`import {blueprint_animal} from "../blueprints/blu_animal.js";`);
+            imports.add(`import {spawn} from "../components/com_spawn.js";`);
+            imports.add(`import {Has} from "../world.js";`);
+            return `
+    instantiate(game, [
+        transform(${vec(translation)}, ${vec(rotation)}),
+        spawn(blueprint_animal, 1),
+    ]);`;
         default:
             imports.add(`import {prop_${name}} from "../props/prop_${name}.js";`);
             return `

@@ -21,6 +21,7 @@ import {cull} from "../components/com_cull.js";
 import {shake} from "../components/com_shake.js";
 import {spawn} from "../components/com_spawn.js";
 import {Has} from "../world.js";
+import {blueprint_animal} from "../blueprints/blu_animal.js";
 
 export function map_city(game: Game) {
     instantiate(game, [
@@ -636,6 +637,8 @@ export function map_city(game: Game) {
         transform([73, 2, -2], [0.011, 0.755, 0.122, 0.644]),
         children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
     ]);
+
+    instantiate(game, [transform([-7, 0.5, -5], [0, 0.707, 0, 0.707]), spawn(blueprint_animal, 1)]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 
