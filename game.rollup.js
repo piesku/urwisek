@@ -1783,6 +1783,7 @@
                         1.0, 0.0, 0.0, 0.0, 0.0, 0.096, -0.995, 0.0, 0.0, 0.995, 0.096, 0.0, 0.0,
                         0.433, 0.395, 1.0,
                     ]),
+                    cull(1 /* Animate */),
                     animate({
                         idle: {
                             Keyframes: [
@@ -1859,6 +1860,7 @@
                         children([
                             // An intermediate joint to allow two idle cycles for the head.
                             transform(),
+                            cull(1 /* Animate */),
                             animate({
                                 idle: {
                                     Keyframes: [
@@ -1912,6 +1914,7 @@
                                     1.0, 0.0, 0.0, 0.0, 0.0, 0.795, -0.606, 0.0, 0.0, 0.606,
                                     0.795, 0.0, 0.0, -0.306, 0.251, 1.0,
                                 ]),
+                                cull(1 /* Animate */),
                                 animate({
                                     idle: {
                                         Keyframes: [
@@ -1974,6 +1977,7 @@
                                 1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -0.0, -1.0, 0.0,
                                 -0.073, 0.395, -0.015, 1.0,
                             ]),
+                            cull(1 /* Animate */),
                             animate({
                                 idle: {
                                     Keyframes: [
@@ -2031,6 +2035,7 @@
                                 1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -0.0, -1.0, 0.0,
                                 0.073, 0.395, -0.015, 1.0,
                             ]),
+                            cull(1 /* Animate */),
                             animate({
                                 idle: {
                                     Keyframes: [
@@ -2086,6 +2091,7 @@
                                 1.0, 0.0, 0.0, 0.0, 0.0, -0.992, 0.124, 0.0, 0.0, -0.124,
                                 -0.992, 0.0, -0.073, 0.291, -0.509, 1.0,
                             ]),
+                            cull(1 /* Animate */),
                             animate({
                                 idle: {
                                     Keyframes: [
@@ -2160,6 +2166,7 @@
                                 1.0, 0.0, 0.0, 0.0, 0.0, -0.992, 0.124, 0.0, 0.0, -0.124,
                                 -0.992, 0.0, 0.073, 0.291, -0.509, 1.0,
                             ]),
+                            cull(1 /* Animate */),
                             animate({
                                 idle: {
                                     Keyframes: [
@@ -2716,7 +2723,6 @@
     const colors = [
         [0.1, 0.1, 0.1, 1],
         [0.2, 0.2, 0.2, 1],
-        [0.3, 0.3, 0.3, 1],
     ];
     function blueprint_animal(game) {
         let r = float();
@@ -2727,7 +2733,7 @@
                 lifespan(100),
                 children([
                     transform(undefined, undefined, [2, 2, 2]),
-                    cull(131072 /* Render */),
+                    cull(131072 /* Render */ | 32 /* Children */),
                     ...blueprint_lisek(game, 1, undefined, element(colors)),
                 ]),
             ];
@@ -2739,7 +2745,7 @@
                 lifespan(50),
                 children([
                     transform(undefined, undefined, [1, 1.5, 1]),
-                    cull(131072 /* Render */),
+                    cull(131072 /* Render */ | 32 /* Children */),
                     ...blueprint_lisek(game, 0.2, undefined, element(colors)),
                 ]),
             ];
@@ -2750,7 +2756,7 @@
             lifespan(30),
             children([
                 transform(undefined, undefined, [0.5, 0.5, 1]),
-                cull(131072 /* Render */),
+                cull(131072 /* Render */ | 32 /* Children */),
                 ...blueprint_lisek(game, 0.1, undefined, element(colors)),
             ]),
         ];
@@ -7369,7 +7375,8 @@
         invert(transform.Self, transform.World);
         if (world.Signature[entity] & 32 /* Children */) {
             let children = world.Children[entity];
-            for (let child of children.Children) {
+            for (let i = 0; i < children.Children.length; i++) {
+                let child = children.Children[i];
                 if (world.Signature[child] & 8388608 /* Transform */) {
                     let child_transform = world.Transform[child];
                     child_transform.Parent = entity;
