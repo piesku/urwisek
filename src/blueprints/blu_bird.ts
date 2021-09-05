@@ -3,6 +3,9 @@ import {animate} from "../components/com_animate.js";
 import {bone} from "../components/com_bone.js";
 import {children} from "../components/com_children.js";
 import {control_ai} from "../components/com_control_ai.js";
+import {control_always} from "../components/com_control_always.js";
+import {lifespan} from "../components/com_lifespan.js";
+import {move} from "../components/com_move.js";
 import {render_colored_skinned} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
@@ -17,8 +20,11 @@ const fly_keytime_1 = 0.9;
 
 export function blueprint_bird(game: Game, color: Vec4 = [0, 0.5, 1, 1]) {
     return [
-        render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, color, 0),
         control_ai("walk"),
+        control_always([0, 0, 1], null),
+        move(1, 0),
+        lifespan(10),
+        render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, color, 0),
         children([
             transform(),
             children([

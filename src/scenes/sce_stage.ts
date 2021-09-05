@@ -13,6 +13,8 @@ import {children} from "../components/com_children.js";
 import {mimic} from "../components/com_mimic.js";
 import {find_first} from "../components/com_named.js";
 import {render_colored_shadows} from "../components/com_render.js";
+import {shake} from "../components/com_shake.js";
+import {spawn} from "../components/com_spawn.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {prop_car2} from "../props/prop_car2.js";
@@ -26,7 +28,7 @@ export function scene_stage(game: Game) {
 
     // Ground.
     let ground_size = 16;
-    let ground_height = 50;
+    let ground_height = 5;
     instantiate(game, [
         transform([0, -ground_height / 2, 0], undefined, [ground_size, ground_height, ground_size]),
         ...blueprint_ground(game),
@@ -56,7 +58,14 @@ export function scene_stage(game: Game) {
     instantiate(game, [...blueprint_box(game), transform([2.5, 6, 1])]);
     instantiate(game, [...blueprint_box(game), transform([2.4, 8, 1])]);
 
-    instantiate(game, [...blueprint_bird(game), transform([-2, 1, 2], undefined, [5, 5, 5])]);
+    instantiate(game, [
+        transform([-5, 2, 0]),
+        children([
+            transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 10)),
+            shake(2),
+            spawn(blueprint_bird, 0.5),
+        ]),
+    ]);
 
     instantiate(game, [
         transform([-4, 0, -1], from_euler([0, 0, 0, 1], 0, -35 + 180, 0), [0.6, 0.6, 0.6]),
