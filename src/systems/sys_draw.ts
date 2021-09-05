@@ -16,7 +16,7 @@ export function sys_draw(game: Game, delta: number) {
     game.Context2D.clearRect(0, 0, game.ViewportWidth, game.ViewportHeight);
     let position = <Vec3>[0, 0, 0];
 
-    let camera_entity = game.Cameras[0];
+    let camera_entity = game.Cameras[1];
     let main_camera = game.World.Camera[camera_entity];
     if (!main_camera) {
         return;

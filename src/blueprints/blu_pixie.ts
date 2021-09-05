@@ -1,4 +1,5 @@
 import {children} from "../components/com_children.js";
+import {draw_text} from "../components/com_draw.js";
 import {emit_particles} from "../components/com_emit_particles.js";
 import {mimic} from "../components/com_mimic.js";
 import {find_first} from "../components/com_named.js";
@@ -10,6 +11,7 @@ import {Game} from "../game.js";
 
 export function blueprint_pixie(game: Game) {
     return [
+        draw_text("Follow me", "Arial", "#fff"),
         mimic(find_first(game.World, "pixie anchor"), 0.02),
         children([
             transform(),
