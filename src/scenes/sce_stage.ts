@@ -59,12 +59,8 @@ export function scene_stage(game: Game) {
     instantiate(game, [...blueprint_box(game), transform([2.4, 8, 1])]);
 
     instantiate(game, [
-        transform([-5, 2, 0]),
-        children([
-            transform(undefined, from_euler([0, 0, 0, 1], 0, 90, 10)),
-            shake(2),
-            spawn(blueprint_bird, 0.5),
-        ]),
+        transform([-4, 2, -1], from_euler([0, 0, 0, 1], -10, 100, 10)),
+        children([transform(), shake(1), spawn(blueprint_bird, 0.5)]),
     ]);
 
     instantiate(game, [
