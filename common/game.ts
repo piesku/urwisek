@@ -28,15 +28,6 @@ export abstract class GameImpl {
         MouseX: 0,
         MouseY: 0,
     };
-    // Pixels traveled while mouse/touch was down.
-    InputDistance: Record<string, number> = {
-        Mouse: 0,
-        Mouse0: 0,
-        Mouse1: 0,
-        Mouse2: 0,
-        Touch0: 0,
-        Touch1: 0,
-    };
     // Map of touch ids to touch indices. In particular, Firefox assigns high
     // ints as ids. Chrome usually starts at 0, so id === index.
     InputTouches: Record<string, number> = {};
@@ -49,25 +40,6 @@ export abstract class GameImpl {
         );
 
         this.Ui.addEventListener("contextmenu", (evt) => evt.preventDefault());
-
-        this.Ui.addEventListener("mousedown", (evt) => {
-            this.InputState[`Mouse${evt.button}`] = 1;
-            this.InputDelta[`Mouse${evt.button}`] = 1;
-        });
-        this.Ui.addEventListener("mouseup", (evt) => {
-            this.InputState[`Mouse${evt.button}`] = 0;
-            this.InputDelta[`Mouse${evt.button}`] = -1;
-        });
-        this.Ui.addEventListener("mousemove", (evt) => {
-            this.InputState["MouseX"] = evt.clientX;
-            this.InputState["MouseY"] = evt.clientY;
-            this.InputDelta["MouseX"] = evt.movementX;
-            this.InputDelta["MouseY"] = evt.movementY;
-        });
-        this.Ui.addEventListener("wheel", (evt) => {
-            evt.preventDefault();
-            this.InputDelta["WheelY"] = evt.deltaY;
-        });
 
         this.Ui.addEventListener("touchstart", (evt) => {
             if (evt.target === this.Ui) {
@@ -178,52 +150,12 @@ export abstract class GameImpl {
 
     FrameSetup(delta: number) {
         this.Now = performance.now();
-
-        let mouse_distance =
-            Math.abs(this.InputDelta["MouseX"]) + Math.abs(this.InputDelta["MouseY"]);
-        this.InputDistance["Mouse"] += mouse_distance;
-
-        if (this.InputState["Mouse0"] === 1) {
-            this.InputDistance["Mouse0"] += mouse_distance;
-        }
-        if (this.InputState["Mouse1"] === 1) {
-            this.InputDistance["Mouse1"] += mouse_distance;
-        }
-        if (this.InputState["Mouse2"] === 1) {
-            this.InputDistance["Mouse2"] += mouse_distance;
-        }
-
-        if (this.InputState["Touch0"] === 1) {
-            this.InputDistance["Touch0"] +=
-                Math.abs(this.InputDelta["Touch0X"]) + Math.abs(this.InputDelta["Touch0Y"]);
-        }
-        if (this.InputState["Touch1"] === 1) {
-            this.InputDistance["Touch1"] +=
-                Math.abs(this.InputDelta["Touch1X"]) + Math.abs(this.InputDelta["Touch1Y"]);
-        }
     }
 
     FixedUpdate(step: number) {}
     FrameUpdate(delta: number) {}
 
     InputReset() {
-        if (this.InputDelta["Mouse0"] === -1) {
-            this.InputDistance["Mouse0"] = 0;
-        }
-        if (this.InputDelta["Mouse1"] === -1) {
-            this.InputDistance["Mouse1"] = 0;
-        }
-        if (this.InputDelta["Mouse2"] === -1) {
-            this.InputDistance["Mouse2"] = 0;
-        }
-
-        if (this.InputDelta["Touch0"] === -1) {
-            this.InputDistance["Touch0"] = 0;
-        }
-        if (this.InputDelta["Touch1"] === -1) {
-            this.InputDistance["Touch1"] = 0;
-        }
-
         for (let name in this.InputDelta) {
             this.InputDelta[name] = 0;
         }
