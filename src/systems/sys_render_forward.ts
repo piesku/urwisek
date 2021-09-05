@@ -8,6 +8,7 @@ import {Material} from "../../common/material.js";
 import {
     GL_ARRAY_BUFFER,
     GL_COLOR_BUFFER_BIT,
+    GL_CULL_FACE,
     GL_DEPTH_BUFFER_BIT,
     GL_FLOAT,
     GL_FRAMEBUFFER,
@@ -39,7 +40,7 @@ import {
     RenderParticlesColored,
 } from "../components/com_render.js";
 import {Transform} from "../components/com_transform.js";
-import {Game} from "../game.js";
+import {Game, QualitySettings} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Transform | Has.Render;
@@ -140,6 +141,7 @@ function render(game: Game, eye: CameraEye) {
 }
 
 function use_colored_unlit(game: Game, material: Material<ColoredUnlitLayout>, eye: CameraEye) {
+    game.Gl.enable(GL_CULL_FACE);
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 }
@@ -159,6 +161,7 @@ function use_colored_shadows(
     >,
     eye: CameraEye
 ) {
+    game.Gl.enable(GL_CULL_FACE);
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
@@ -201,6 +204,7 @@ function use_colored_skinned(
     material: Material<ColoredShadedLayout & ForwardShadingLayout & FogLayout>,
     eye: CameraEye
 ) {
+    game.Gl.enable(GL_CULL_FACE);
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
@@ -258,6 +262,7 @@ function use_particles_colored(
     material: Material<ParticlesColoredLayout>,
     eye: CameraEye
 ) {
+    game.Gl.enable(GL_CULL_FACE);
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 }
@@ -308,6 +313,7 @@ function use_instanced(
     material: Material<PaletteShadedLayout & InstancedLayout & FogLayout>,
     eye: CameraEye
 ) {
+    game.Gl.disable(GL_CULL_FACE);
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
@@ -319,12 +325,15 @@ function draw_instanced(game: Game, transform: Transform, render: RenderInstance
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
     game.Gl.uniform3fv(render.Material.Locations.Palette, render.Palette);
     game.Gl.bindVertexArray(render.Vao);
+
+    let quality_factor = game.Quality / QualitySettings.Ultra;
+    let instance_count = Math.floor(render.InstanceCount * quality_factor);
     game.Gl.drawElementsInstanced(
         render.Material.Mode,
         render.Mesh.IndexCount,
         GL_UNSIGNED_SHORT,
         0,
-        render.InstanceCount
+        instance_count
     );
     game.Gl.bindVertexArray(null);
 }
