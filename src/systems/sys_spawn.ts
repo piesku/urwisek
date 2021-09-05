@@ -7,7 +7,7 @@ import {get_rotation, get_translation} from "../../common/mat4.js";
 import {Quat, Vec3} from "../../common/math.js";
 import {Entity} from "../../common/world.js";
 import {transform} from "../components/com_transform.js";
-import {Game} from "../game.js";
+import {Game, QualitySettings} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Transform | Has.Spawn;
@@ -22,9 +22,11 @@ export function sys_spawn(game: Game, delta: number) {
 
 function update(game: Game, entity: Entity, delta: number) {
     let spawn = game.World.Spawn[entity];
+    // Spawn more frequently on ultra quality settings.
+    let quality_factor = QualitySettings.High / game.Quality;
 
     spawn.SinceLast += delta;
-    if (spawn.SinceLast > spawn.Interval) {
+    if (spawn.SinceLast > spawn.Interval * quality_factor) {
         spawn.SinceLast = 0;
 
         let entity_transform = game.World.Transform[entity];
