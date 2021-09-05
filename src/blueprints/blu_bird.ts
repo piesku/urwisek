@@ -16,7 +16,7 @@ const enum BoneIndex {
     WingR,
 }
 
-const fly_keytime_1 = 0.9;
+const fly_keytime_1 = 0.6;
 const colors: Array<Vec4> = [
     [0.1, 0.1, 0.1, 1],
     [0.2, 0.2, 0.2, 1],

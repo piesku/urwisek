@@ -15,6 +15,12 @@ import {blueprint_obstacle_car} from "../blueprints/blu_obstacle_car.js";
 import {blueprint_box} from "../blueprints/blu_box.js";
 import {prop_car2} from "../props/prop_car2.js";
 import {blueprint_exit} from "../blueprints/blu_exit.js";
+import {blueprint_bird} from "../blueprints/blu_bird.js";
+import {children} from "../components/com_children.js";
+import {cull} from "../components/com_cull.js";
+import {shake} from "../components/com_shake.js";
+import {spawn} from "../components/com_spawn.js";
+import {Has} from "../world.js";
 
 export function map_city(game: Game) {
     instantiate(game, [
@@ -604,6 +610,31 @@ export function map_city(game: Game) {
     instantiate(game, [
         transform([77.9, 2.5, 0], from_euler([0, 0, 0, 1], 0, 90, 0), [1, 10, 1]),
         ...blueprint_exit(game),
+    ]);
+
+    instantiate(game, [
+        transform([-3, 2, -2], [0.011, 0.755, 0.122, 0.644]),
+        children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
+    ]);
+
+    instantiate(game, [
+        transform([14, 2, -2], [0.011, 0.755, 0.122, 0.644]),
+        children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
+    ]);
+
+    instantiate(game, [
+        transform([33, 2, -2], [0.011, 0.755, 0.122, 0.644]),
+        children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
+    ]);
+
+    instantiate(game, [
+        transform([53, 2, -2], [0.011, 0.755, 0.122, 0.644]),
+        children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
+    ]);
+
+    instantiate(game, [
+        transform([73, 2, -2], [0.011, 0.755, 0.122, 0.644]),
+        children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
     ]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
