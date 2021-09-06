@@ -1733,6 +1733,8 @@ children([
 transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74]),
 children([
 transform(),
+
+named(timescale === 1 ? "tail anchor" : ""),
 bone(0 /* Root */, [
 1.0, 0.0, 0.0, 0.0, 0.0, 0.096, -0.995, 0.0, 0.0, 0.995, 0.096, 0.0, 0.0,
 0.433, 0.395, 1.0,
@@ -2250,7 +2252,7 @@ children(
 
 [...blueprint_lisek(game), transform(), control_player(4 /* Animate */)], 
 
-[named("tail anchor"), transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74])], [
+[
 transform(),
 render_colored_skinned(game.MaterialColoredSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
 ]),
@@ -2328,7 +2330,7 @@ callback((game, entity) => (entity)),
 for (let i = 0; i < pups_found; i++) {
 instantiate(game, [
 transform(),
-mimic(find_first(game.World, "pup anchor " + i), 0.2),
+mimic(find_first(game.World, "pup anchor " + i), 0.2 - 0.02 * i),
 children([
 ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.7 + 0.1 * i),
 transform(undefined, undefined, [0.3, 0.3, 0.3]),
