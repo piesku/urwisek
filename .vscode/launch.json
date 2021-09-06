@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "chrome",
+            "type": "pwa-chrome",
             "request": "launch",
             "name": "Standalone 720p",
             "runtimeArgs": [
@@ -15,7 +15,7 @@
             "webRoot": "${workspaceFolder}"
         },
         {
-            "type": "chrome",
+            "type": "pwa-chrome",
             "request": "launch",
             "name": "Chrome",
             "url": "http://localhost:1234",
