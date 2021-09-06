@@ -5,6 +5,7 @@ import {animate, AnimationFlag} from "../components/com_animate.js";
 import {bone} from "../components/com_bone.js";
 import {children} from "../components/com_children.js";
 import {cull} from "../components/com_cull.js";
+import {named} from "../components/com_named.js";
 import {render_colored_skinned} from "../components/com_render.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
@@ -40,6 +41,8 @@ export function blueprint_lisek(
             transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74]),
             children([
                 transform(),
+                // Only the player's lisek has the tail, and only it has timescale=1.
+                named(timescale === 1 ? "tail anchor" : ""),
                 bone(
                     BoneIndex.Root,
                     [

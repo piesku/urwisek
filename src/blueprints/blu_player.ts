@@ -94,7 +94,6 @@ export function instantiate_player(game: Game, translation: Vec3, pups_found = g
             // The mesh, animated by the player.
             [...blueprint_lisek(game), transform(), control_player(Control.Animate)],
             // The tail, animated procedurally.
-            [named("tail anchor"), transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74])],
             [
                 transform(),
                 render_colored_skinned(game.MaterialColoredSkinned, game.MeshOgon, [1, 0.5, 0, 1]),
@@ -195,7 +194,7 @@ export function instantiate_player(game: Game, translation: Vec3, pups_found = g
     for (let i = 0; i < pups_found; i++) {
         instantiate(game, [
             transform(),
-            mimic(find_first(game.World, "pup anchor " + i), 0.2),
+            mimic(find_first(game.World, "pup anchor " + i), 0.2 - 0.02 * i),
             children([
                 ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.7 + 0.1 * i),
                 transform(undefined, undefined, [0.3, 0.3, 0.3]),
