@@ -26,7 +26,7 @@ export function blueprint_animal(game: Game) {
             children([
                 transform(undefined, undefined, [2, 2, 2]),
                 cull(Has.Render | Has.Children),
-                ...blueprint_lisek(game, 1, undefined, element(colors)),
+                ...blueprint_lisek(game, element(colors), 3),
             ]),
         ];
     }
@@ -39,7 +39,7 @@ export function blueprint_animal(game: Game) {
             children([
                 transform(undefined, undefined, [1, 1.5, 1]),
                 cull(Has.Render | Has.Children),
-                ...blueprint_lisek(game, 0.2, undefined, element(colors)),
+                ...blueprint_lisek(game, element(colors), 1.5),
             ]),
         ];
     }
@@ -51,7 +51,7 @@ export function blueprint_animal(game: Game) {
         children([
             transform(undefined, undefined, [0.5, 0.5, 1]),
             cull(Has.Render | Has.Children),
-            ...blueprint_lisek(game, 0.1, undefined, element(colors)),
+            ...blueprint_lisek(game, element(colors), 0.8),
         ]),
     ];
 }

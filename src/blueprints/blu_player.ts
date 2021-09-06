@@ -70,7 +70,7 @@ function blueprint_player(game: Game) {
     ];
 }
 
-export function instantiate_player(game: Game, translation: Vec3) {
+export function instantiate_player(game: Game, translation: Vec3, pups_found = game.PupsFound) {
     instantiate(game, [...blueprint_player(game), transform(translation)]);
 
     const enum TailBoneIndex {
@@ -192,12 +192,12 @@ export function instantiate_player(game: Game, translation: Vec3) {
         ]),
     ]);
 
-    for (let i = 0; i < game.PupsFound; i++) {
+    for (let i = 0; i < pups_found; i++) {
         instantiate(game, [
             transform(),
             mimic(find_first(game.World, "pup anchor " + i), 0.2),
             children([
-                ...blueprint_lisek(game),
+                ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.7 + 0.1 * i),
                 transform(undefined, undefined, [0.3, 0.3, 0.3]),
                 control_player(Control.Animate),
             ]),
