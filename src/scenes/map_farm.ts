@@ -5,7 +5,6 @@ import {transform} from "../components/com_transform.js";
 import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
 import {render_colored_shadows} from "../components/com_render.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
-import {instantiate_player} from "../blueprints/blu_player.js";
 import {blueprint_tree} from "../blueprints/blu_tree.js";
 import {blueprint_bush} from "../blueprints/blu_bush.js";
 import {prop_barn} from "../props/prop_barn.js";
@@ -39,8 +38,6 @@ export function map_farm(game: Game) {
         transform([56.933, -1.5, -6.039], [0, 0.707, 0, 0.707], [10, 4, 120]),
         ...blueprint_ground(game),
     ]);
-
-    instantiate_player(game, [0, 0.774, 0]);
 
     instantiate(game, [
         transform([66.274, 0.258, -4.179], undefined, undefined),

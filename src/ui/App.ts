@@ -11,12 +11,12 @@ export function Title(game: Game) {
     return html`
         <div
             style="
-                margin: 60vh 2vw 0;
-                font-size: 12vw;
+                margin: 40vh 2vw 0;
+                font-size: 16vw;
                 font-weight: 600;
             "
         >
-            HABITAT
+            NOAH
         </div>
         <nav
             style="
@@ -36,7 +36,7 @@ export function Intro(game: Game) {
     return html`
         <div
             style="
-                animation: 8s ease-out 1s forwards intro;
+                animation: 6s ease-out 1s forwards intro;
             "
         >
             <div
@@ -45,7 +45,7 @@ export function Intro(game: Game) {
                     font-size: 4vw;
                 "
             >
-                Mankind has found a new home in the stars.<br />Life on Earth continues.
+                Humans have destroyed Earth and ran away.<br />Reach the Ark!
             </div>
         </div>
     `;

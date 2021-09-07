@@ -24,7 +24,6 @@ let scene_name = process.argv[2]
 let vec = (arr) =>
     arr ? "[" + arr.map((v) => parseFloat(v.toFixed(3))).join(", ") + "]" : "undefined";
 
-let starting_translation = [0, 0, 0];
 let imports = new Set([
     'import {instantiate} from "../../common/game.js";',
     'import {from_euler} from "../../common/quat.js";',
@@ -37,10 +36,7 @@ let imports = new Set([
 let create_instance = (name, translation, rotation, scale) => {
     switch (name) {
         case "lisek":
-            imports.add(`import {instantiate_player} from "../blueprints/blu_player.js";`);
-            starting_translation = translation || starting_translation;
-            return `
-    instantiate_player(game, ${vec(translation)});`;
+            return "";
         case "ogon":
             return `
     instantiate(game, [

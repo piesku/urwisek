@@ -117,7 +117,7 @@ function update(game: Game, entity: Entity) {
             let parent_mimic = game.World.Mimic[parent_entity];
             let anchor_entity = parent_mimic.Target;
             let anchor_parent = game.World.Transform[anchor_entity].Parent;
-            if (anchor_parent) {
+            if (anchor_parent !== undefined) {
                 let rigid_body = game.World.RigidBody[anchor_parent];
                 if (rigid_body.IsAirborne) {
                     anim_name = "jump";

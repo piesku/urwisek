@@ -5,7 +5,6 @@ import {transform} from "../components/com_transform.js";
 import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
 import {render_colored_shadows} from "../components/com_render.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
-import {instantiate_player} from "../blueprints/blu_player.js";
 import {prop_house} from "../props/prop_house.js";
 import {blueprint_bush} from "../blueprints/blu_bush.js";
 import {prop_slup} from "../props/prop_slup.js";
@@ -48,8 +47,6 @@ export function map_city(game: Game) {
         transform([49.734, -1.5, -5.547], [0, 0.707, 0, 0.707], [10, 4, 120]),
         ...blueprint_ground(game),
     ]);
-
-    instantiate_player(game, [0, 0.774, 0]);
 
     instantiate(game, [
         transform([17.043, -3.406, -6.364], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
