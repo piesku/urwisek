@@ -91,7 +91,7 @@ export function scene_intro(game: Game) {
 
                 // The pups flee.
                 instantiate(game, [
-                    task_timeout(3, () => {
+                    task_timeout(4, () => {
                         for (let pup of pups) {
                             control_always([0, 0, 1], null, "jump")(game, pup);
                             lifespan(7)(game, pup);
@@ -100,7 +100,7 @@ export function scene_intro(game: Game) {
                 ]);
 
                 instantiate(game, [
-                    task_timeout(6, () => {
+                    task_timeout(7, () => {
                         // No more stars.
                         destroy_all(game.World, starfield_entity);
 
@@ -119,7 +119,7 @@ export function scene_intro(game: Game) {
                 ]);
 
                 instantiate(game, [
-                    task_timeout(7, () => {
+                    task_timeout(8, () => {
                         game.World.Signature[player_entity] |= Has.ControlPlayer;
                     }),
                 ]);
