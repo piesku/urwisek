@@ -74,7 +74,7 @@ export function scene_intro(game: Game) {
         ]),
     ];
 
-    // Animate the camera during the intro.
+    // The into animation.
     instantiate(game, [
         task_until(
             () => game.CurrentView === Intro,
@@ -82,44 +82,46 @@ export function scene_intro(game: Game) {
                 // No more rockets.
                 destroy_all(game.World, rocket_spawner_entity);
 
-                // Pedestal the camera down.
                 instantiate(game, [
-                    task_timeout(1, () => {
-                        game.World.Signature[camera_entity] |= Has.Mimic;
-                    }),
-                ]);
+                    children(
+                        [
+                            task_timeout(1, () => {
+                                // Pedestal the camera down.
+                                game.World.Signature[camera_entity] |= Has.Mimic;
+                            }),
+                        ],
+                        [
+                            task_timeout(4, () => {
+                                // The pups flee.
+                                for (let pup of pups) {
+                                    control_always([0, 0, 1], null, "jump")(game, pup);
+                                    lifespan(7)(game, pup);
+                                }
+                            }),
+                        ],
+                        [
+                            task_timeout(7, () => {
+                                // No more stars.
+                                destroy_all(game.World, starfield_entity);
 
-                // The pups flee.
-                instantiate(game, [
-                    task_timeout(4, () => {
-                        for (let pup of pups) {
-                            control_always([0, 0, 1], null, "jump")(game, pup);
-                            lifespan(7)(game, pup);
-                        }
-                    }),
-                ]);
+                                // Increase the camera's responsiveness.
+                                let mimic = game.World.Mimic[camera_entity];
+                                mimic.Target = find_first(
+                                    game.World,
+                                    "camera anchor",
+                                    camera_anchor_intro + 1
+                                );
+                                mimic.Stiffness = 0.05;
 
-                instantiate(game, [
-                    task_timeout(7, () => {
-                        // No more stars.
-                        destroy_all(game.World, starfield_entity);
-
-                        // Increase the camera's responsiveness.
-                        let mimic = game.World.Mimic[camera_entity];
-                        mimic.Target = find_first(
-                            game.World,
-                            "camera anchor",
-                            camera_anchor_intro + 1
-                        );
-                        mimic.Stiffness = 0.05;
-
-                        // Spawn the pixie.
-                        instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
-                    }),
-                ]);
-
-                instantiate(game, [
-                    task_timeout(8, () => {
+                                // Spawn the pixie.
+                                instantiate(game, [
+                                    ...blueprint_pixie(game),
+                                    transform([-20, 5, 0]),
+                                ]);
+                            }),
+                        ]
+                    ),
+                    task_timeout(2, () => {
                         game.World.Signature[player_entity] |= Has.ControlPlayer;
                     }),
                 ]);
