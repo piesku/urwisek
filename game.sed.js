@@ -935,50 +935,58 @@ function blueprint_camera(game, clear_color) {
 return [children([transform([0, 0, 5]), camera_forward_perspective(1, 0.1, 15, clear_color)])];
 }
 
+function ease_out_quart(t) {
+return 1 - (1 - t) ** 4;
+}
+function ease_in_out_quart(t) {
+return t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
+}
+
 /**
-* @module components/com_draw
+* @module components/com_animate
 */
-function draw_text$1(text, font, fill_style) {
+function animate(clips) {
 return (game, entity) => {
-game.World.Signature[entity] |= 1024 /* Draw */;
-game.World.Draw[entity] = {
-Kind: 0 /* Text */,
-Text: text,
-Font: font,
-FillStyle: fill_style,
+let States = {};
+for (let name in clips) {
+let { Keyframes, Flags = 7 /* Default */ } = clips[name];
+let duration = Keyframes[Keyframes.length - 1].Timestamp;
+States[name] = {
+
+
+
+
+
+Keyframes: Keyframes.map((keyframe) => ({ ...keyframe })),
+Flags,
+Duration: duration,
+Time: 0,
+};
+}
+game.World.Signature[entity] |= 1 /* Animate */;
+game.World.Animate[entity] = {
+States,
+Current: States["idle"],
 };
 };
 }
 
-/**
-* Add EmitParticles.
-*
-* @param lifespan How long particles live for.
-* @param frequency How often particles spawn.
-* @param speed How fast particles move.
-*/
-function emit_particles(lifespan, frequency, speed) {
+function bone(index, inverse_bind_pose) {
 return (game, entity) => {
-game.World.Signature[entity] |= 2048 /* EmitParticles */;
-game.World.EmitParticles[entity] = {
-Lifespan: lifespan,
-Frequency: frequency,
-Speed: speed,
-Instances: [],
-SinceLast: 0,
+game.World.Signature[entity] |= 8 /* Bone */;
+game.World.Bone[entity] = {
+Index: index,
+Dirty: inverse_bind_pose === undefined,
+InverseBindPose: inverse_bind_pose || create(),
 };
 };
 }
 
-/**
-* @module components/com_mimic
-*/
-function mimic(Target, Stiffness = 0.1) {
+function cull(mask) {
 return (game, entity) => {
-game.World.Signature[entity] |= 16384 /* Mimic */;
-game.World.Mimic[entity] = {
-Target,
-Stiffness,
+game.World.Signature[entity] |= 512 /* Cull */;
+game.World.Cull[entity] = {
+Mask: mask,
 };
 };
 }
@@ -992,8 +1000,8 @@ game.World.Signature[entity] |= 65536 /* Named */;
 game.World.Named[entity] = { Name };
 };
 }
-function find_first(world, name) {
-for (let i = 0; i < world.Signature.length; i++) {
+function find_first(world, name, start_at = 0) {
+for (let i = start_at; i < world.Signature.length; i++) {
 if (world.Signature[i] & 65536 /* Named */ && world.Named[i].Name === name) {
 return i;
 }
@@ -1125,596 +1133,6 @@ InstanceCount: offsets.length / 4,
 Palette: palette,
 InstanceOffsetBuffer: instance_offset_buffer,
 InstanceRotationBuffer: instance_rotation_buffer,
-};
-};
-}
-
-/**
-* @module components/com_shake
-*/
-/**
-* sys_shake modifies the transform of the entity. Add it to children only.
-*/
-function shake(magnitude) {
-return (game, entity) => {
-game.World.Signature[entity] |= 524288 /* Shake */;
-game.World.Shake[entity] = {
-Magnitude: magnitude,
-};
-};
-}
-
-/**
-* @module components/com_task
-*/
-/** A task that completes when the predicate returns true. */
-function task_until(predicate, on_done) {
-return (game, entity) => {
-game.World.Signature[entity] |= 2097152 /* Task */;
-game.World.Task[entity] = {
-Kind: 0 /* Until */,
-Predicate: predicate,
-OnDone: on_done,
-};
-};
-}
-/** A task that completes after the specified duration (in seconds). */
-function task_timeout(duration, on_done) {
-return (game, entity) => {
-game.World.Signature[entity] |= 2097152 /* Task */;
-game.World.Task[entity] = {
-Kind: 1 /* Timeout */,
-Remaining: duration,
-OnDone: on_done,
-};
-};
-}
-
-function blueprint_pixie(game) {
-return [
-draw_text$1("Follow me", "Arial", "#fff"),
-mimic(find_first(game.World, "pixie anchor"), 0.02),
-children([
-transform(),
-shake(0.1),
-emit_particles(1, 0.1, 0.1),
-render_particles_colored([1, 1, 1, 1], 4, [0.5, 0.5, 1, 1], 1),
-]),
-task_timeout(7, (entity) => {
-let mimic = game.World.Mimic[entity];
-mimic.Target = find_first(game.World, "exit");
-}),
-];
-}
-
-let seed = 1;
-function rand() {
-seed = (seed * 16807) % 2147483647;
-return (seed - 1) / 2147483646;
-}
-function integer(min = 0, max = 1) {
-return ~~(rand() * (max - min + 1) + min);
-}
-function float(min = 0, max = 1) {
-return rand() * (max - min) + min;
-}
-function element(arr) {
-return arr[integer(0, arr.length - 1)];
-}
-
-/**
-* @module components/com_audio_source
-*/
-/**
-* Add the AudioSource component.
-*
-* @param spatial Does the source produce 3D sound?
-* @param idle The name of the clip to play by default, in a loop.
-*/
-function audio_source(spatial, idle) {
-return (game, entity) => {
-let panner = spatial ? game.Audio.createPanner() : undefined;
-game.World.Signature[entity] |= 4 /* AudioSource */;
-game.World.AudioSource[entity] = {
-Panner: panner,
-Idle: idle,
-Time: 0,
-};
-};
-}
-
-/**
-* @module components/com_control_always
-*/
-function control_always(direction, rotation, animation) {
-return (game, entity) => {
-game.World.Signature[entity] |= 128 /* ControlAlways */;
-game.World.ControlAlways[entity] = {
-Direction: direction,
-Rotation: rotation,
-Animation: animation,
-};
-};
-}
-
-/**
-* @module components/com_disable
-*/
-function disable(mask) {
-return (game, entity) => {
-game.World.Signature[entity] &= ~mask;
-};
-}
-
-/**
-* @module components/com_lifespan
-*/
-function lifespan(remaining, action) {
-return (game, entity) => {
-game.World.Signature[entity] |= 4096 /* Lifespan */;
-game.World.Lifespan[entity] = {
-Remaining: remaining,
-Action: action,
-};
-};
-}
-
-/**
-* @module components/com_move
-*/
-/**
-* The Move mixin.
-*
-* @param move_speed - Movement speed in units per second.
-* @param rotation_speed - Rotation speed, in radians per second.
-*/
-function move(move_speed, rotation_speed) {
-return (game, entity) => {
-game.World.Signature[entity] |= 32768 /* Move */;
-game.World.Move[entity] = {
-MoveSpeed: move_speed,
-RotationSpeed: rotation_speed,
-Directions: [],
-LocalRotations: [],
-SelfRotations: [],
-};
-};
-}
-
-function cull(mask) {
-return (game, entity) => {
-game.World.Signature[entity] |= 512 /* Cull */;
-game.World.Cull[entity] = {
-Mask: mask,
-};
-};
-}
-
-function prop_rocket(game) {
-return [
-children([
-transform([0, 1.5, 0], [0, -0.707, 0, 0.707], [1, 3, 1]),
-cull(131072 /* Render */),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
-], [
-transform([0, 3.8, 0], [0, -0.707, 0, 0.707], [0.8, 1.6, 0.8]),
-cull(131072 /* Render */),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
-], [
-transform([0, 5.4, 0], [0, -0.707, 0, 0.707], [0.56, 1.6, 0.56]),
-cull(131072 /* Render */),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
-], [
-transform([0, 6.2, 0], [-0.5, -0.5, 0.5, 0.5], [1.721, 0.509, 0.593]),
-cull(131072 /* Render */),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
-], [
-transform([0, 4.6, 0], [-0.5, -0.5, 0.5, 0.5], [1.12, 0.438, 0.796]),
-cull(131072 /* Render */),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
-], [
-transform([0, 3, 0], [-0.5, -0.5, 0.5, 0.5], [2.61, 0.771, 0.9]),
-cull(131072 /* Render */),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
-]),
-];
-}
-
-let snd_rocket = {
-Kind: 1 /* Synth */,
-Tracks: [
-{
-Instrument: [8, "lowpass", 9, 8, false, false, 8, 1, [[false, 8, 5, 0, 9]]],
-Notes: [77],
-},
-],
-Exit: 0.1,
-};
-
-function blueprint_rocket(game) {
-return [
-control_always([0, 0, 1], null),
-move(float(1, 3), 0),
-lifespan(25),
-audio_source(true, snd_rocket),
-disable(4 /* AudioSource */),
-children(
-
-[
-transform(undefined, from_euler([0.7, 0, 0, 0.7], 0, -90, -90), [0.1, 0.1, 0.1]),
-...prop_rocket(game),
-], 
-
-[
-transform(undefined, [0, 1, 0, 0]),
-shake(0.02),
-emit_particles(1, 0.01, 1),
-render_particles_colored([1, 0.5, 0, 1], 10, [0.56, 0.33, 0.24, 1], 2),
-]),
-];
-}
-
-/**
-* @module components/com_spawn
-*/
-/**
-* Spawn blueprints with a given frequency.
-*
-* @param creator The function returning the blueprint to spawn.
-* @param interval The frequency of spawning.
-*/
-function spawn(creator, interval) {
-return (game, entity) => {
-game.World.Signature[entity] |= 1048576 /* Spawn */;
-game.World.Spawn[entity] = {
-Creator: creator,
-Interval: interval,
-SinceLast: interval,
-};
-};
-}
-
-function shift(values) {
-let value = values.shift();
-if (typeof value === "boolean" || value == undefined) {
-return "";
-}
-else if (Array.isArray(value)) {
-return value.join("");
-}
-else {
-return value;
-}
-}
-function html(strings, ...values) {
-return strings.reduce((out, cur) => out + shift(values) + cur);
-}
-
-function Settings(game) {
-return html `
-Quality:
-<select onchange="$(${1 /* ChangeSettings */}, this)">
-<option
-value="${512 /* Low */}"
-${game.Quality === 512 /* Low */ && "selected"}
->
-Low
-</option>
-<option
-value="${1024 /* Medium */}"
-${game.Quality === 1024 /* Medium */ && "selected"}
->
-Medium
-</option>
-<option
-value="${2048 /* High */}"
-${game.Quality === 2048 /* High */ && "selected"}
->
-High
-</option>
-<option
-value="${4096 /* Ultra */}"
-${game.Quality === 4096 /* Ultra */ && "selected"}
->
-Ultra
-</option>
-</select>
-`;
-}
-
-function App(game) {
-return game.CurrentView(game);
-}
-function Title(game) {
-return html `
-<div
-style="
-margin: 60vh 2vw 0;
-font-size: 12vw;
-font-weight: 600;
-"
->
-HABITAT
-</div>
-<nav
-style="
-margin: 2vh 3vw;
-font-size: 1rem;
-font-style: italic;
-line-height: 2;
-"
->
-<div onclick="$(${2 /* NewGame */})">New Game</div>
-<div>${Settings(game)}</div>
-</nav>
-`;
-}
-function Intro(game) {
-return html `
-<div
-style="
-animation: 8s ease-out 1s forwards intro;
-"
->
-<div
-style="
-margin: 60vh 2vw 0;
-font-size: 4vw;
-"
->
-Mankind has found a new home in the stars.<br />Life on Earth continues.
-</div>
-</div>
-`;
-}
-function Play(game) {
-return "";
-}
-function End(game) {
-return html `
-<div
-style="
-margin: 20vh 2vw 0;
-font-size: 12vw;
-font-weight: 600;
-opacity: 0;
-animation: 1s 4s forwards fadein;
-"
->
-THE END
-</div>
-`;
-}
-
-class WorldImpl {
-constructor() {
-this.Signature = [];
-this.Graveyard = [];
-}
-CreateEntity() {
-if (this.Graveyard.length > 0) {
-return this.Graveyard.pop();
-}
-if (DEBUG && this.Signature.length > 10000) {
-throw new Error("No more entities available.");
-}
-
-return this.Signature.push(0) - 1;
-}
-DestroyEntity(entity) {
-this.Signature[entity] = 0;
-if (DEBUG && this.Graveyard.includes(entity)) {
-throw new Error("Entity already in graveyard.");
-}
-this.Graveyard.push(entity);
-}
-}
-
-function first_entity(world, query, start_at = 0) {
-for (let i = start_at; i < world.Signature.length; i++) {
-if ((world.Signature[i] & query) === query) {
-return i;
-}
-}
-}
-
-class World extends WorldImpl {
-constructor() {
-super(...arguments);
-this.Animate = [];
-this.AudioSource = [];
-this.Bone = [];
-this.Camera = [];
-this.Children = [];
-this.Collide = [];
-this.ControlAlways = [];
-this.ControlPlayer = [];
-this.Cull = [];
-this.Draw = [];
-this.EmitParticles = [];
-this.Lifespan = [];
-this.Light = [];
-this.Mimic = [];
-this.Move = [];
-this.Named = [];
-this.Render = [];
-this.RigidBody = [];
-this.Shake = [];
-this.Spawn = [];
-this.Task = [];
-this.Toggle = [];
-this.Transform = [];
-this.Trigger = [];
-}
-}
-
-/**
-* @module components/com_light
-*/
-function light_directional(color = [1, 1, 1], range = 1) {
-return (game, entity) => {
-game.World.Signature[entity] |= 8192 /* Light */;
-game.World.Light[entity] = {
-Kind: 1 /* Directional */,
-Color: color,
-Intensity: range ** 2,
-};
-};
-}
-
-function blueprint_sun_light(game) {
-return [children([transform([10, 10, 10]), light_directional([1, 1, 1], 0.9)])];
-}
-function blueprint_sun_shadow(game) {
-return [
-mimic(find_first(game.World, "sun anchor"), 0.01),
-children([
-transform([10, 10, -10], from_euler([0, 0, 0, 1], -35, 135, 0)),
-camera_depth_ortho(game.Targets.Sun, 8, 1, 100),
-light_directional([1, 1, 1], 0.6),
-]),
-];
-}
-
-/**
-* @module components/com_collide
-*/
-/**
-* Add the Collide component.
-*
-* @param dynamic Dynamic colliders collider with all colliders. Static
-* colliders collide only with dynamic colliders.
-* @param layers Bit field with layers this collider is on.
-* @param mask Bit mask with layers visible to this collider.
-* @param size Size of the collider relative to the entity's transform.
-*/
-function collide(dynamic, layers, mask, size = [1, 1, 1]) {
-return (game, entity) => {
-game.World.Signature[entity] |= 64 /* Collide */;
-game.World.Collide[entity] = {
-Entity: entity,
-New: true,
-Dynamic: dynamic,
-Layers: layers,
-Signature: mask,
-Size: size,
-Min: [0, 0, 0],
-Max: [0, 0, 0],
-Center: [0, 0, 0],
-Half: [0, 0, 0],
-Collisions: [],
-};
-};
-}
-
-/**
-* @module components/com_rigid_body
-*/
-function rigid_body(kind, bounciness = 0.5) {
-return (game, entity) => {
-game.World.Signature[entity] |= 262144 /* RigidBody */;
-game.World.RigidBody[entity] = {
-Kind: kind,
-Bounciness: bounciness,
-Acceleration: [0, 0, 0],
-VelocityIntegrated: [0, 0, 0],
-VelocityResolved: [0, 0, 0],
-LastPosition: [0, 0, 0],
-IsAirborne: false,
-};
-};
-}
-
-function blueprint_ground(game) {
-let zdzblos = 100;
-let zdz_scale = 0.5;
-let zdz_offsets = [];
-let zdz_rotations = [];
-for (let i = 0; i < zdzblos; i++) {
-zdz_offsets.push(float(-1 / 2 / zdz_scale, 1 / 2 / zdz_scale), 0.8, float(-1 / 4 / zdz_scale, 1 / 4 / zdz_scale), integer(0, 1));
-zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, float(-180, 180), 0));
-}
-return [
-collide(false, 2 /* Terrain */ | 16 /* SurfaceGround */, 0 /* None */),
-rigid_body(0 /* Static */),
-children([
-transform(),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [
-82 / 255,
-39 / 255,
-5 / 255,
-1,
-]),
-], [
-transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
-render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
-]),
-];
-}
-
-function bone(index, inverse_bind_pose) {
-return (game, entity) => {
-game.World.Signature[entity] |= 8 /* Bone */;
-game.World.Bone[entity] = {
-Index: index,
-Dirty: inverse_bind_pose === undefined,
-InverseBindPose: inverse_bind_pose || create(),
-};
-};
-}
-
-/**
-* @module components/com_callback
-*/
-function callback(fn) {
-return (game, entity) => {
-fn(game, entity);
-};
-}
-
-function control_player(flags) {
-return (game, entity) => {
-game.World.Signature[entity] |= 256 /* ControlPlayer */;
-game.World.ControlPlayer[entity] = {
-Flags: flags,
-IsFacingRight: true,
-IsGrabbingEntity: null,
-};
-};
-}
-
-function ease_out_quart(t) {
-return 1 - (1 - t) ** 4;
-}
-function ease_in_out_quart(t) {
-return t < 0.5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2;
-}
-
-/**
-* @module components/com_animate
-*/
-function animate(clips) {
-return (game, entity) => {
-let States = {};
-for (let name in clips) {
-let { Keyframes, Flags = 7 /* Default */ } = clips[name];
-let duration = Keyframes[Keyframes.length - 1].Timestamp;
-States[name] = {
-
-
-
-
-
-Keyframes: Keyframes.map((keyframe) => ({ ...keyframe })),
-Flags,
-Duration: duration,
-Time: 0,
-};
-}
-game.World.Signature[entity] |= 1 /* Animate */;
-game.World.Animate[entity] = {
-States,
-Current: States["idle"],
 };
 };
 }
@@ -2195,6 +1613,223 @@ Flags: 1 /* EarlyExit */,
 ];
 }
 
+/**
+* Add EmitParticles.
+*
+* @param lifespan How long particles live for.
+* @param frequency How often particles spawn.
+* @param speed How fast particles move.
+*/
+function emit_particles(lifespan, frequency, speed) {
+return (game, entity) => {
+game.World.Signature[entity] |= 2048 /* EmitParticles */;
+game.World.EmitParticles[entity] = {
+Lifespan: lifespan,
+Frequency: frequency,
+Speed: speed,
+Instances: [],
+SinceLast: 0,
+};
+};
+}
+
+/**
+* @module components/com_mimic
+*/
+function mimic(Target, Stiffness = 0.1) {
+return (game, entity) => {
+game.World.Signature[entity] |= 16384 /* Mimic */;
+game.World.Mimic[entity] = {
+Target,
+Stiffness,
+};
+};
+}
+
+/**
+* @module components/com_shake
+*/
+/**
+* sys_shake modifies the transform of the entity. Add it to children only.
+*/
+function shake(magnitude) {
+return (game, entity) => {
+game.World.Signature[entity] |= 524288 /* Shake */;
+game.World.Shake[entity] = {
+Magnitude: magnitude,
+};
+};
+}
+
+/**
+* @module components/com_task
+*/
+/** A task that completes when the predicate returns true. */
+function task_until(predicate, on_done) {
+return (game, entity) => {
+game.World.Signature[entity] |= 2097152 /* Task */;
+game.World.Task[entity] = {
+Kind: 0 /* Until */,
+Predicate: predicate,
+OnDone: on_done,
+};
+};
+}
+/** A task that completes after the specified duration (in seconds). */
+function task_timeout(duration, on_done) {
+return (game, entity) => {
+game.World.Signature[entity] |= 2097152 /* Task */;
+game.World.Task[entity] = {
+Kind: 1 /* Timeout */,
+Remaining: duration,
+OnDone: on_done,
+};
+};
+}
+
+function blueprint_pixie(game) {
+return [
+//draw_text("Follow me", "Arial", "#fff"),
+mimic(find_first(game.World, "pixie anchor"), 0.02),
+children([
+transform(),
+shake(0.1),
+emit_particles(1, 0.1, 0.1),
+render_particles_colored([1, 1, 1, 1], 4, [0.5, 0.5, 1, 1], 1),
+]),
+task_timeout(7, (entity) => {
+let mimic = game.World.Mimic[entity];
+mimic.Target = find_first(game.World, "exit");
+}),
+];
+}
+
+/**
+* @module components/com_audio_source
+*/
+/**
+* Add the AudioSource component.
+*
+* @param spatial Does the source produce 3D sound?
+* @param idle The name of the clip to play by default, in a loop.
+*/
+function audio_source(spatial, idle) {
+return (game, entity) => {
+let panner = spatial ? game.Audio.createPanner() : undefined;
+game.World.Signature[entity] |= 4 /* AudioSource */;
+game.World.AudioSource[entity] = {
+Panner: panner,
+Idle: idle,
+Time: 0,
+};
+};
+}
+
+/**
+* @module components/com_callback
+*/
+function callback(fn) {
+return (game, entity) => {
+fn(game, entity);
+};
+}
+
+/**
+* @module components/com_collide
+*/
+/**
+* Add the Collide component.
+*
+* @param dynamic Dynamic colliders collider with all colliders. Static
+* colliders collide only with dynamic colliders.
+* @param layers Bit field with layers this collider is on.
+* @param mask Bit mask with layers visible to this collider.
+* @param size Size of the collider relative to the entity's transform.
+*/
+function collide(dynamic, layers, mask, size = [1, 1, 1]) {
+return (game, entity) => {
+game.World.Signature[entity] |= 64 /* Collide */;
+game.World.Collide[entity] = {
+Entity: entity,
+New: true,
+Dynamic: dynamic,
+Layers: layers,
+Signature: mask,
+Size: size,
+Min: [0, 0, 0],
+Max: [0, 0, 0],
+Center: [0, 0, 0],
+Half: [0, 0, 0],
+Collisions: [],
+};
+};
+}
+
+/**
+* @module components/com_control_always
+*/
+function control_always(direction, rotation, animation) {
+return (game, entity) => {
+game.World.Signature[entity] |= 128 /* ControlAlways */;
+game.World.ControlAlways[entity] = {
+Direction: direction,
+Rotation: rotation,
+Animation: animation,
+};
+};
+}
+
+function control_player(flags) {
+return (game, entity) => {
+game.World.Signature[entity] |= 256 /* ControlPlayer */;
+game.World.ControlPlayer[entity] = {
+Flags: flags,
+IsFacingRight: true,
+IsGrabbingEntity: null,
+};
+};
+}
+
+/**
+* @module components/com_move
+*/
+/**
+* The Move mixin.
+*
+* @param move_speed - Movement speed in units per second.
+* @param rotation_speed - Rotation speed, in radians per second.
+*/
+function move(move_speed, rotation_speed) {
+return (game, entity) => {
+game.World.Signature[entity] |= 32768 /* Move */;
+game.World.Move[entity] = {
+MoveSpeed: move_speed,
+RotationSpeed: rotation_speed,
+Directions: [],
+LocalRotations: [],
+SelfRotations: [],
+};
+};
+}
+
+/**
+* @module components/com_rigid_body
+*/
+function rigid_body(kind, bounciness = 0.5) {
+return (game, entity) => {
+game.World.Signature[entity] |= 262144 /* RigidBody */;
+game.World.RigidBody[entity] = {
+Kind: kind,
+Bounciness: bounciness,
+Acceleration: [0, 0, 0],
+VelocityIntegrated: [0, 0, 0],
+VelocityResolved: [0, 0, 0],
+LastPosition: [0, 0, 0],
+IsAirborne: false,
+};
+};
+}
+
 function blueprint_player(game) {
 return [
 audio_source(false),
@@ -2240,12 +1875,12 @@ transform([4, 1, 0], [0, 0.7, 0, 0.7]),
 ];
 }
 function instantiate_player(game, translation, pups_found = game.PupsFound) {
-instantiate(game, [...blueprint_player(), transform(translation)]);
+let player_entity = instantiate(game, [...blueprint_player(), transform(translation)]);
 let tail_root = 0;
 let tail_bone1 = 0;
 let tail_bone2 = 0;
 let tail_bone3 = 0;
-let lisek_entity = instantiate(game, [
+instantiate(game, [
 transform([-10, 0, 0.5]),
 mimic(find_first(game.World, "mesh anchor"), 0.2),
 children(
@@ -2338,7 +1973,358 @@ control_player(4 /* Animate */),
 ]),
 ]);
 }
-return lisek_entity;
+return player_entity;
+}
+
+let seed = 1;
+function rand() {
+seed = (seed * 16807) % 2147483647;
+return (seed - 1) / 2147483646;
+}
+function integer(min = 0, max = 1) {
+return ~~(rand() * (max - min + 1) + min);
+}
+function float(min = 0, max = 1) {
+return rand() * (max - min) + min;
+}
+function element(arr) {
+return arr[integer(0, arr.length - 1)];
+}
+
+/**
+* @module components/com_disable
+*/
+function disable(mask) {
+return (game, entity) => {
+game.World.Signature[entity] &= ~mask;
+};
+}
+
+/**
+* @module components/com_lifespan
+*/
+function lifespan(remaining, action) {
+return (game, entity) => {
+game.World.Signature[entity] |= 4096 /* Lifespan */;
+game.World.Lifespan[entity] = {
+Remaining: remaining,
+Action: action,
+};
+};
+}
+
+function prop_rocket(game) {
+return [
+children([
+transform([0, 1.5, 0], [0, -0.707, 0, 0.707], [1, 3, 1]),
+cull(131072 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+], [
+transform([0, 3.8, 0], [0, -0.707, 0, 0.707], [0.8, 1.6, 0.8]),
+cull(131072 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+], [
+transform([0, 5.4, 0], [0, -0.707, 0, 0.707], [0.56, 1.6, 0.56]),
+cull(131072 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+], [
+transform([0, 6.2, 0], [-0.5, -0.5, 0.5, 0.5], [1.721, 0.509, 0.593]),
+cull(131072 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+], [
+transform([0, 4.6, 0], [-0.5, -0.5, 0.5, 0.5], [1.12, 0.438, 0.796]),
+cull(131072 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+], [
+transform([0, 3, 0], [-0.5, -0.5, 0.5, 0.5], [2.61, 0.771, 0.9]),
+cull(131072 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+]),
+];
+}
+
+let snd_rocket = {
+Kind: 1 /* Synth */,
+Tracks: [
+{
+Instrument: [8, "lowpass", 9, 8, false, false, 8, 1, [[false, 8, 5, 0, 9]]],
+Notes: [77],
+},
+],
+Exit: 0.1,
+};
+
+function blueprint_rocket(game) {
+return [
+control_always([0, 0, 1], null),
+move(float(1, 3), 0),
+lifespan(25),
+audio_source(true, snd_rocket),
+disable(4 /* AudioSource */),
+//draw_text(story.shift() || "", "Arial", "#fff"),
+children(
+
+[
+transform(undefined, from_euler([0.7, 0, 0, 0.7], 0, -90, -90), [0.1, 0.1, 0.1]),
+...prop_rocket(game),
+], 
+
+[
+transform(undefined, [0, 1, 0, 0]),
+shake(0.02),
+emit_particles(1, 0.01, 1),
+render_particles_colored([1, 0.5, 0, 1], 10, [0.56, 0.33, 0.24, 1], 2),
+]),
+];
+}
+
+/**
+* @module components/com_spawn
+*/
+/**
+* Spawn blueprints with a given frequency.
+*
+* @param creator The function returning the blueprint to spawn.
+* @param interval The frequency of spawning.
+*/
+function spawn(creator, interval) {
+return (game, entity) => {
+game.World.Signature[entity] |= 1048576 /* Spawn */;
+game.World.Spawn[entity] = {
+Creator: creator,
+Interval: interval,
+SinceLast: interval,
+};
+};
+}
+
+function shift(values) {
+let value = values.shift();
+if (typeof value === "boolean" || value == undefined) {
+return "";
+}
+else if (Array.isArray(value)) {
+return value.join("");
+}
+else {
+return value;
+}
+}
+function html(strings, ...values) {
+return strings.reduce((out, cur) => out + shift(values) + cur);
+}
+
+function Settings(game) {
+return html `
+Quality:
+<select onchange="$(${1 /* ChangeSettings */}, this)">
+<option
+value="${512 /* Low */}"
+${game.Quality === 512 /* Low */ && "selected"}
+>
+Low
+</option>
+<option
+value="${1024 /* Medium */}"
+${game.Quality === 1024 /* Medium */ && "selected"}
+>
+Medium
+</option>
+<option
+value="${2048 /* High */}"
+${game.Quality === 2048 /* High */ && "selected"}
+>
+High
+</option>
+<option
+value="${4096 /* Ultra */}"
+${game.Quality === 4096 /* Ultra */ && "selected"}
+>
+Ultra
+</option>
+</select>
+`;
+}
+
+function App(game) {
+return game.CurrentView(game);
+}
+function Title(game) {
+return html `
+<div
+style="
+margin: 40vh 2vw 0;
+font-size: 16vw;
+font-weight: 600;
+"
+>
+NOAH
+</div>
+<nav
+style="
+margin: 2vh 3vw;
+font-size: 1rem;
+font-style: italic;
+line-height: 2;
+"
+>
+<div onclick="$(${2 /* NewGame */})">New Game</div>
+<div>${Settings(game)}</div>
+</nav>
+`;
+}
+function Intro(game) {
+return html `
+<div
+style="
+animation: 6s ease-out 1s forwards intro;
+"
+>
+<div
+style="
+margin: 60vh 2vw 0;
+font-size: 4vw;
+"
+>
+Humans have destroyed Earth and ran away.<br />Reach the Ark!
+</div>
+</div>
+`;
+}
+function Play(game) {
+return "";
+}
+function End(game) {
+return html `
+<div
+style="
+margin: 20vh 2vw 0;
+font-size: 12vw;
+font-weight: 600;
+opacity: 0;
+animation: 1s 4s forwards fadein;
+"
+>
+THE END
+</div>
+`;
+}
+
+class WorldImpl {
+constructor() {
+this.Signature = [];
+this.Graveyard = [];
+}
+CreateEntity() {
+if (this.Graveyard.length > 0) {
+return this.Graveyard.pop();
+}
+if (DEBUG && this.Signature.length > 10000) {
+throw new Error("No more entities available.");
+}
+
+return this.Signature.push(0) - 1;
+}
+DestroyEntity(entity) {
+this.Signature[entity] = 0;
+if (DEBUG && this.Graveyard.includes(entity)) {
+throw new Error("Entity already in graveyard.");
+}
+this.Graveyard.push(entity);
+}
+}
+
+function first_entity(world, query, start_at = 0) {
+for (let i = start_at; i < world.Signature.length; i++) {
+if ((world.Signature[i] & query) === query) {
+return i;
+}
+}
+}
+
+class World extends WorldImpl {
+constructor() {
+super(...arguments);
+this.Animate = [];
+this.AudioSource = [];
+this.Bone = [];
+this.Camera = [];
+this.Children = [];
+this.Collide = [];
+this.ControlAlways = [];
+this.ControlPlayer = [];
+this.Cull = [];
+this.Draw = [];
+this.EmitParticles = [];
+this.Lifespan = [];
+this.Light = [];
+this.Mimic = [];
+this.Move = [];
+this.Named = [];
+this.Render = [];
+this.RigidBody = [];
+this.Shake = [];
+this.Spawn = [];
+this.Task = [];
+this.Toggle = [];
+this.Transform = [];
+this.Trigger = [];
+}
+}
+
+/**
+* @module components/com_light
+*/
+function light_directional(color = [1, 1, 1], range = 1) {
+return (game, entity) => {
+game.World.Signature[entity] |= 8192 /* Light */;
+game.World.Light[entity] = {
+Kind: 1 /* Directional */,
+Color: color,
+Intensity: range ** 2,
+};
+};
+}
+
+function blueprint_sun_light(game) {
+return [children([transform([10, 10, 10]), light_directional([1, 1, 1], 0.9)])];
+}
+function blueprint_sun_shadow(game) {
+return [
+mimic(find_first(game.World, "sun anchor"), 0.01),
+children([
+transform([10, 10, -10], from_euler([0, 0, 0, 1], -35, 135, 0)),
+camera_depth_ortho(game.Targets.Sun, 8, 1, 100),
+light_directional([1, 1, 1], 0.6),
+]),
+];
+}
+
+function blueprint_ground(game) {
+let zdzblos = 100;
+let zdz_scale = 0.5;
+let zdz_offsets = [];
+let zdz_rotations = [];
+for (let i = 0; i < zdzblos; i++) {
+zdz_offsets.push(float(-1 / 2 / zdz_scale, 1 / 2 / zdz_scale), 0.8, float(-1 / 4 / zdz_scale, 1 / 4 / zdz_scale), integer(0, 1));
+zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, float(-180, 180), 0));
+}
+return [
+collide(false, 2 /* Terrain */ | 16 /* SurfaceGround */, 0 /* None */),
+rigid_body(0 /* Static */),
+children([
+transform(),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [
+82 / 255,
+39 / 255,
+5 / 255,
+1,
+]),
+], [
+transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
+render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
+]),
+];
 }
 
 function prop_house(game) {
@@ -2762,7 +2748,6 @@ instantiate(game, [
 transform([49.734, -1.5, -5.547], [0, 0.707, 0, 0.707], [10, 4, 120]),
 ...blueprint_ground(game),
 ]);
-instantiate_player(game, [0, 0.774, 0]);
 instantiate(game, [
 transform([17.043, -3.406, -6.364], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
@@ -3233,6 +3218,9 @@ instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 function scene_intro(game) {
 game.World = new World();
 game.ViewportResized = true;
+let camera_anchor_intro = instantiate(game, [transform([0, 1, -3]), named("camera anchor")]);
+let player_entity = instantiate_player(game, [0, 0.774, 0]);
+game.World.Signature[player_entity] &= ~256 /* ControlPlayer */;
 map_city(game);
 let starfield_entity = instantiate(game, [
 transform([0, 16, -5], from_euler([0, 0, 0, 1], 10, 0, 0), [17, 10, 1]),
@@ -3250,28 +3238,61 @@ children([transform(), shake(3), spawn(blueprint_rocket, 3)]),
 let camera_entity = instantiate(game, [
 ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
 transform([0, 15, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
-mimic(find_first(game.World, "camera anchor"), 0.01),
+mimic(find_first(game.World, "camera anchor"), 0.02),
 disable(16384 /* Mimic */),
 ]);
+let pups = [
+instantiate(game, [
+...blueprint_lisek(game, [1, 0.5, 0, 1], 0.7),
+transform([1, 0.5, 0], [0, 0.707, 0, 0.707], [0.3, 0.3, 0.3]),
+move(1.5, 0),
+]),
+instantiate(game, [
+...blueprint_lisek(game, [1, 0.5, 0, 1], 0.8),
+transform([0.3, 0.5, -0.5], [0, 0.707, 0, 0.707], [0.3, 0.3, 0.3]),
+move(1.6, 0),
+]),
+instantiate(game, [
+...blueprint_lisek(game, [1, 0.5, 0, 1], 0.9),
+transform([-0.2, 0.5, 0.3], [0, 0.707, 0, 0.707], [0.3, 0.3, 0.3]),
+move(1.7, 0),
+]),
+];
 
 instantiate(game, [
 task_until(() => game.CurrentView === Intro, () => {
 
 destroy_all(game.World, rocket_spawner_entity);
+
 instantiate(game, [
 task_timeout(1, () => {
 game.World.Signature[camera_entity] |= 16384 /* Mimic */;
 }),
 ]);
+
 instantiate(game, [
 task_timeout(3, () => {
+for (let pup of pups) {
+control_always([0, 0, 1], null, "jump")(game, pup);
+lifespan(7)(game, pup);
+}
+}),
+]);
+instantiate(game, [
+task_timeout(6, () => {
+
+destroy_all(game.World, starfield_entity);
+
+let mimic = game.World.Mimic[camera_entity];
+mimic.Target = find_first(game.World, "camera anchor", camera_anchor_intro + 1);
+mimic.Stiffness = 0.05;
+
 instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
 }),
 ]);
 instantiate(game, [
-task_timeout(9, () => {
-game.World.Mimic[camera_entity].Stiffness = 0.05;
-destroy_all(game.World, starfield_entity);
+task_timeout(7, () => {
+game.World.Signature[player_entity] |= 256 /* ControlPlayer */;
 }),
 ]);
 }),
@@ -3281,6 +3302,7 @@ destroy_all(game.World, starfield_entity);
 function scene_level1(game) {
 game.World = new World();
 game.ViewportResized = true;
+instantiate_player(game, [0, 0.774, 0]);
 map_city(game);
 instantiate(game, [
 ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
@@ -3510,7 +3532,6 @@ instantiate(game, [
 transform([56.933, -1.5, -6.039], [0, 0.707, 0, 0.707], [10, 4, 120]),
 ...blueprint_ground(game),
 ]);
-instantiate_player(game, [0, 0.774, 0]);
 instantiate(game, [
 transform([66.274, 0.258, -4.179], undefined, undefined),
 ...blueprint_tree(game),
@@ -3971,6 +3992,7 @@ instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 function scene_level2(game) {
 game.World = new World();
 game.ViewportResized = true;
+instantiate_player(game, [0, 0.774, 0]);
 map_farm(game);
 instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
 
@@ -4102,7 +4124,6 @@ instantiate(game, [
 transform([68.763, -1.75, -5.605], [0, 0.707, 0, 0.707], [10, 4, 150]),
 ...blueprint_ground(game),
 ]);
-instantiate_player(game, [0, -2, 0]);
 instantiate(game, [
 transform([11.077, 0.547, -6.398], undefined, undefined),
 ...blueprint_bush(game),
@@ -4431,10 +4452,7 @@ instantiate(game, [
 transform([82.065, 1.241, 2.496], undefined, [2, 2, 2]),
 ...blueprint_bush(game),
 ]);
-instantiate(game, [
-transform([120, 3, 0], from_euler([0, 0, 0, 1], 0, 90, 0), [1, 10, 1]),
-...blueprint_end(),
-]);
+instantiate(game, [transform([120, 3, 0]), ...blueprint_end()]);
 instantiate(game, [
 transform([121.6, 0.2, 0.5], [0, 0.383, 0, -0.924], undefined),
 ...blueprint_crib(game),
@@ -4446,6 +4464,7 @@ instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 function scene_level3(game) {
 game.World = new World();
 game.ViewportResized = true;
+instantiate_player(game, [0, -2, 0]);
 map_forest(game);
 
 instantiate(game, [
@@ -6435,7 +6454,7 @@ if (parent_entity !== undefined) {
 let parent_mimic = game.World.Mimic[parent_entity];
 let anchor_entity = parent_mimic.Target;
 let anchor_parent = game.World.Transform[anchor_entity].Parent;
-if (anchor_parent) {
+if (anchor_parent !== undefined) {
 let rigid_body = game.World.RigidBody[anchor_parent];
 if (rigid_body.IsAirborne) {
 anim_name = "jump";
