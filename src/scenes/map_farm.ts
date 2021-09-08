@@ -1,9 +1,10 @@
-import {instantiate} from "../../common/game.js";
+import {Blueprint, instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
 import {Game} from "../game.js";
 import {transform} from "../components/com_transform.js";
 import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
 import {render_colored_shadows} from "../components/com_render.js";
+import {Quat, Vec3} from "../../common/math.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
 import {blueprint_tree} from "../blueprints/blu_tree.js";
 import {blueprint_bush} from "../blueprints/blu_bush.js";
@@ -18,595 +19,444 @@ import {blueprint_obstacle_barn} from "../blueprints/blu_obstacle_barn.js";
 import {blueprint_obstacle_fence} from "../blueprints/blu_obstacle_fence.js";
 import {blueprint_exit} from "../blueprints/blu_exit.js";
 
+let transforms: Record<string, Array<[Vec3, Quat?, Vec3?]>> = {
+    ground: [
+        [
+            [5.4, -0.5, 0.96],
+            [0, 0.71, 0, 0.71],
+            [4, 2, 15],
+        ],
+        [
+            [19.35, -2.5, 0.96],
+            [0, 0.71, 0, 0.71],
+            [4, 2, 14],
+        ],
+        [
+            [42.3, -0.5, 0.96],
+            [0, 0.71, 0, 0.71],
+            [4, 2, 35],
+        ],
+        [
+            [56.93, -1.5, -6.04],
+            [0, 0.71, 0, 0.71],
+            [10, 4, 120],
+        ],
+        [
+            [82.63, -0.5, 0.96],
+            [0, 0.71, 0, 0.71],
+            [4, 2, 35],
+        ],
+        [
+            [62.53, -0.8, 0.96],
+            [0, 0.71, 0, 0.71],
+            [4, 2, 5.75],
+        ],
+    ],
+    tree: [
+        [[66.27, 0.26, -4.18]],
+        [[13.79, 0.19, -3.01]],
+        [[25.09, 0.4, 2.79]],
+        [[59.5, 0.26, 0.93]],
+        [[54.9, 0.26, 1.47]],
+        [[50.29, 0.26, 1.16]],
+        [[67.94, 0.26, 2.63]],
+        [[79.2, 0.26, -0.81]],
+        [[81.95, 0.26, -5.34]],
+        [[94.12, 0.26, -2.96]],
+        [[96.33, 0.26, 2.51]],
+    ],
+    bush: [
+        [[32.71, 0.39, -4.35]],
+        [[18.12, 0.55, -5.59]],
+        [[13.63, -0.54, -1.59], undefined, [2, 2, 2]],
+        [[62.6, 0.58, -7]],
+        [[66.02, 3.59, -7.08]],
+        [[11.41, 0.61, -5.83]],
+        [[29.08, 0.33, -4.94]],
+        [[2.72, 0.61, 2.53]],
+        [[9.21, 0.61, 2.53]],
+        [[15.27, -1.92, 2.4]],
+        [[15.64, -0.54, -1.63], undefined, [2, 2, 2]],
+        [[17.73, -0.54, -1.47], undefined, [2, 2, 2]],
+        [[19.82, -0.54, -1.78], undefined, [2, 2, 2]],
+        [[21.79, -0.54, -1.67], undefined, [2, 2, 2]],
+        [[23.69, -0.54, -2.02], undefined, [2, 2, 2]],
+        [[47.85, 0.33, 2.41]],
+        [[58.51, 0.61, 2.53]],
+        [[77.58, 0.78, 2.87]],
+    ],
+    barn: [
+        [
+            [1.39, 0.5, -5.42],
+            [0, 0.56, 0, 0.83],
+            [2, 2, 2],
+        ],
+        [[19.23, 0.5, -6.94], undefined, [0.8, 0.8, 0.8]],
+        [
+            [71.83, 0.5, -7.63],
+            [0, -0.44, 0, 0.9],
+            [0.8, 0.8, 0.8],
+        ],
+        [[31.74, 0.5, -6.94], undefined, [0.8, 0.8, 0.8]],
+        [[95.37, 0.5, -5.59], undefined, [0.8, 0.8, 0.8]],
+    ],
+    fence: [
+        [
+            [-0.95, 0.5, 2.69],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [1.05, 0.5, 2.69],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [2.52, -0.05, 2.69],
+            [0.19, 0.68, -0.19, 0.68],
+        ],
+        [
+            [8.46, 0.5, -7.56],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [10.46, 0.5, -7.56],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [12.46, 0.5, -7.56],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [14.46, 0.5, -7.56],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [16.46, 0.5, -7.56],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [18.46, 0.5, -7.56],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [74.69, 0.5, -3.81],
+            [0, 0.82, 0, 0.58],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [73.83, 0.5, -3.49],
+            [0, 0.82, 0, 0.58],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [72.94, 0.5, -3.3],
+            [0, 0.74, 0, 0.67],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [72.02, 0.5, -3.24],
+            [0, 0.72, 0, 0.69],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [71.07, 0.5, -3.19],
+            [0, 0.72, 0, 0.69],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [70.14, 0.5, -3.3],
+            [0, 0.6, 0, 0.8],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [69.34, 0.5, -3.74],
+            [0, 0.41, 0, 0.91],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [67.36, 0.5, -5.59],
+            [0, 0.41, 0, 0.91],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [66.55, 0.5, -5.93],
+            [0, 0.68, 0, 0.74],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [65.62, 0.5, -6.02],
+            [0, 0.68, 0, 0.74],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [64.69, 0.5, -6.02],
+            [0, 0.74, 0, 0.67],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [63.79, 0.5, -5.93],
+            [0, 0.74, 0, 0.67],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [68.03, 0.5, -4.98],
+            [0, 0.41, 0, 0.91],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [62.88, 0.5, -5.92],
+            [0, 0.68, 0, 0.74],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [61.96, 0.5, -5.92],
+            [0, 0.74, 0, 0.67],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [61.12, 0.5, -6.12],
+            [0, 0.48, 0, 0.88],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [60.44, 0.5, -6.74],
+            [0, 0.33, 0, 0.94],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [60.09, 0.5, -7.58],
+            [0, 0.05, 0, 1],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [60.01, 0.5, -8.53],
+            [0, 0.05, 0, 1],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [68.41, 0.29, -4.19],
+            [0.15, 0.38, -0.33, 0.85],
+            [0.5, 0.5, 0.5],
+        ],
+        [
+            [15.13, -1.48, 1.53],
+            [0.5, 0.5, 0.5, 0.5],
+        ],
+        [
+            [24.97, 0.5, -7.56],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [26.97, 0.5, -7.56],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [28.97, 0.5, -7.56],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [30.97, 0.5, -7.56],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [21, 0.5, -7.56],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [23, 0.5, -7.56],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [54.83, 0.5, 2.69],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [56.83, 0.5, 2.69],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [58.3, -0.05, 2.69],
+            [0.19, 0.68, -0.19, 0.68],
+        ],
+        [
+            [90.59, 0.5, -6.21],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [92.59, 0.5, -6.21],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [94.59, 0.5, -6.21],
+            [0, 0.71, 0, 0.71],
+        ],
+        [
+            [89.69, 0.5, -5.27],
+            [0, 1, 0, 0],
+        ],
+        [
+            [89.7, 0.5, -3.44],
+            [0, 1, 0, 0],
+        ],
+        [
+            [89.71, 0.5, -1.64],
+            [0, 1, 0, 0],
+        ],
+        [
+            [89.73, 0.5, 2.07],
+            [0, 1, 0, 0],
+        ],
+        [
+            [89.69, 1.64, -5.27],
+            [0, 1, 0, 0],
+        ],
+        [
+            [89.7, 1.64, -3.44],
+            [0, 1, 0, 0],
+        ],
+        [
+            [89.71, 1.64, -1.64],
+            [0, 1, 0, 0],
+        ],
+        [
+            [89.73, 1.64, 2.07],
+            [0, 1, 0, 0],
+        ],
+    ],
+    silo: [
+        [
+            [7.95, 0.5, -5.44],
+            [0, 0.17, 0, 0.98],
+        ],
+        [
+            [62.05, 0.5, -7.33],
+            [0, 0.17, 0, 0.98],
+            [0.6, 0.6, 0.6],
+        ],
+        [
+            [64.08, 0.5, -7.33],
+            [0, 0.17, 0, 0.98],
+            [0.6, 0.6, 0.6],
+        ],
+        [
+            [66.14, 0.5, -7.33],
+            [0, 0.17, 0, 0.98],
+            [0.6, 0.6, 0.6],
+        ],
+        [
+            [72.23, 0.5, -1.57],
+            [0, 0.17, 0, 0.98],
+        ],
+    ],
+    slup: [
+        [
+            [24.62, 0.36, -5.02],
+            [0, 0.95, 0, 0.31],
+        ],
+        [
+            [70.27, 0.36, -8.29],
+            [0, 0.95, 0, 0.31],
+            [0.7, 0.7, 0.7],
+        ],
+        [
+            [38.09, 0.36, -7.73],
+            [0, 0.95, 0, 0.31],
+        ],
+        [
+            [53.83, 0.36, -3.7],
+            [0, 0.19, 0, 0.98],
+        ],
+        [
+            [59.06, 0.36, -10.05],
+            [0, 0.56, 0, 0.83],
+        ],
+        [
+            [84.66, 0.36, -2.18],
+            [0, 0.95, 0, 0.31],
+        ],
+    ],
+    car2: [
+        [
+            [11.78, 0.9, -6.81],
+            [0.68, 0.19, -0.19, 0.68],
+            [0.4, 0.4, 0.4],
+        ],
+    ],
+    obstacle_slup: [
+        [
+            [25.37, 0.23, 0],
+            [-0.67, 0.67, 0.22, 0.22],
+            [0.75, 0.75, 0.75],
+        ],
+        [
+            [78.08, 0.72, -3.38],
+            [-0.32, 0.63, 0.63, -0.32],
+            [0.75, 0.75, 0.75],
+        ],
+    ],
+    box: [
+        [[23.23, -0.71, 0.06]],
+        [[41.23, 3.45, 0.06]],
+        [[41.23, 1.08, 0.06]],
+        [[41.23, 2.27, 0.06]],
+        [[41.23, 4.62, 0]],
+        [[77, 1.98, 0]],
+        [[72.16, 4.57, 0.31]],
+    ],
+    obstacle_barn: [
+        [
+            [44.79, 0.5, -0.19],
+            [0, 0.71, 0, 0.71],
+            [2, 2, 2],
+        ],
+    ],
+    obstacle_fence: [
+        [
+            [71.01, 3, 0.32],
+            [0.71, 0.71, 0, 0],
+            [2, 2, 2],
+        ],
+        [[-1.91, 0.5, -0.22]],
+        [[-1.91, 0.5, 1.82]],
+        [
+            [89.73, 0.5, 0.15],
+            [0, 1, 0, 0],
+        ],
+        [
+            [89.73, 1.64, 0.15],
+            [0, 1, 0, 0],
+        ],
+    ],
+    exit: [[[95, 0.5, 0]]],
+};
+
+let blueprints: Record<string, (game: Game) => Blueprint<Game>> = {
+    ground: blueprint_ground,
+    tree: blueprint_tree,
+    bush: blueprint_bush,
+    barn: prop_barn,
+    fence: prop_fence,
+    silo: prop_silo,
+    slup: prop_slup,
+    car2: prop_car2,
+    obstacle_slup: blueprint_obstacle_slup,
+    box: blueprint_box,
+    obstacle_barn: blueprint_obstacle_barn,
+    obstacle_fence: blueprint_obstacle_fence,
+    exit: blueprint_exit,
+};
+
 export function map_farm(game: Game) {
-    instantiate(game, [
-        transform([5.402, -0.5, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 15]),
-        ...blueprint_ground(game),
-    ]);
-
-    instantiate(game, [
-        transform([19.346, -2.5, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 14]),
-        ...blueprint_ground(game),
-    ]);
-
-    instantiate(game, [
-        transform([42.296, -0.498, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 35]),
-        ...blueprint_ground(game),
-    ]);
-
-    instantiate(game, [
-        transform([56.933, -1.5, -6.039], [0, 0.707, 0, 0.707], [10, 4, 120]),
-        ...blueprint_ground(game),
-    ]);
-
-    instantiate(game, [
-        transform([66.274, 0.258, -4.179], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([32.705, 0.386, -4.345], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([1.391, 0.5, -5.425], [0, 0.56, 0, 0.829], [2, 2, 2]),
-        ...prop_barn(game),
-    ]);
-
-    instantiate(game, [
-        transform([-0.953, 0.5, 2.694], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([1.047, 0.5, 2.694], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([2.523, -0.045, 2.694], [0.191, 0.681, -0.191, 0.681], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([7.953, 0.5, -5.44], [0, 0.175, 0, 0.985], undefined),
-        ...prop_silo(game),
-    ]);
-
-    instantiate(game, [
-        transform([8.455, 0.5, -7.559], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([10.455, 0.5, -7.559], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([12.455, 0.5, -7.559], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([14.455, 0.5, -7.559], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([16.455, 0.5, -7.559], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([19.227, 0.5, -6.935], undefined, [0.8, 0.8, 0.8]),
-        ...prop_barn(game),
-    ]);
-
-    instantiate(game, [
-        transform([18.455, 0.5, -7.559], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([18.125, 0.547, -5.585], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([13.626, -0.537, -1.589], undefined, [2, 2, 2]),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([13.791, 0.191, -3.014], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([24.62, 0.356, -5.02], [0, 0.952, 0, 0.305], undefined),
-        ...prop_slup(game),
-    ]);
-
-    instantiate(game, [
-        transform([62.05, 0.5, -7.332], [0, 0.175, 0, 0.985], [0.6, 0.6, 0.6]),
-        ...prop_silo(game),
-    ]);
-
-    instantiate(game, [
-        transform([64.082, 0.5, -7.332], [0, 0.175, 0, 0.985], [0.6, 0.6, 0.6]),
-        ...prop_silo(game),
-    ]);
-
-    instantiate(game, [
-        transform([66.141, 0.5, -7.332], [0, 0.175, 0, 0.985], [0.6, 0.6, 0.6]),
-        ...prop_silo(game),
-    ]);
-
-    instantiate(game, [
-        transform([62.6, 0.582, -7], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([66.018, 3.589, -7.08], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([70.268, 0.356, -8.288], [0, 0.952, 0, 0.305], [0.7, 0.7, 0.7]),
-        ...prop_slup(game),
-    ]);
-
-    instantiate(game, [
-        transform([71.828, 0.5, -7.627], [0, -0.437, 0, 0.899], [0.8, 0.8, 0.8]),
-        ...prop_barn(game),
-    ]);
-
-    instantiate(game, [
-        transform([74.694, 0.5, -3.806], [0, 0.815, 0, 0.579], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([11.777, 0.9, -6.806], [0.681, 0.19, -0.19, 0.681], [0.4, 0.4, 0.4]),
-        ...prop_car2(game),
-    ]);
-
-    instantiate(game, [
-        transform([11.411, 0.611, -5.828], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([73.83, 0.5, -3.493], [0, 0.815, 0, 0.579], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([72.936, 0.5, -3.299], [0, 0.739, 0, 0.674], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([72.017, 0.5, -3.237], [0, 0.722, 0, 0.692], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([71.067, 0.5, -3.193], [0, 0.722, 0, 0.692], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([70.144, 0.5, -3.303], [0, 0.602, 0, 0.798], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([69.338, 0.5, -3.74], [0, 0.411, 0, 0.911], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([67.357, 0.5, -5.59], [0, 0.411, 0, 0.911], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([66.55, 0.5, -5.934], [0, 0.678, 0, 0.735], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([65.619, 0.5, -6.015], [0, 0.678, 0, 0.735], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([64.694, 0.5, -6.015], [0, 0.739, 0, 0.674], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([63.788, 0.5, -5.928], [0, 0.739, 0, 0.674], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([68.032, 0.5, -4.984], [0, 0.411, 0, 0.911], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([62.882, 0.5, -5.915], [0, 0.678, 0, 0.735], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([61.957, 0.5, -5.915], [0, 0.739, 0, 0.674], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([61.12, 0.5, -6.121], [0, 0.476, 0, 0.88], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([60.439, 0.5, -6.74], [0, 0.33, 0, 0.944], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([60.095, 0.5, -7.584], [0, 0.049, 0, 0.999], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([60.007, 0.5, -8.527], [0, 0.049, 0, 0.999], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([68.415, 0.289, -4.194], [0.149, 0.384, -0.33, 0.85], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([29.079, 0.331, -4.94], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([2.724, 0.611, 2.529], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([25.372, 0.228, 0], [-0.673, 0.673, 0.216, 0.216], [0.75, 0.75, 0.75]),
-        ...blueprint_obstacle_slup(game),
-    ]);
-
-    instantiate(game, [
-        transform([23.231, -0.715, 0.057], undefined, undefined),
-        ...blueprint_box(game),
-    ]);
-
-    instantiate(game, [
-        transform([25.088, 0.402, 2.789], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([9.208, 0.611, 2.529], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([15.132, -1.485, 1.53], [0.5, 0.5, 0.5, 0.5], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([15.272, -1.922, 2.401], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([24.972, 0.5, -7.559], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([26.972, 0.5, -7.559], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([28.972, 0.5, -7.559], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([31.744, 0.5, -6.935], undefined, [0.8, 0.8, 0.8]),
-        ...prop_barn(game),
-    ]);
-
-    instantiate(game, [
-        transform([30.972, 0.5, -7.559], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([38.086, 0.356, -7.729], [0, 0.952, 0, 0.305], undefined),
-        ...prop_slup(game),
-    ]);
-
-    instantiate(game, [
-        transform([20.999, 0.5, -7.559], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([22.999, 0.5, -7.559], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([15.638, -0.537, -1.628], undefined, [2, 2, 2]),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([17.728, -0.537, -1.473], undefined, [2, 2, 2]),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([19.817, -0.537, -1.783], undefined, [2, 2, 2]),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([21.791, -0.537, -1.667], undefined, [2, 2, 2]),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([23.687, -0.537, -2.015], undefined, [2, 2, 2]),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([44.792, 0.5, -0.191], [0, 0.707, 0, 0.707], [2, 2, 2]),
-        ...blueprint_obstacle_barn(game),
-    ]);
-
-    instantiate(game, [
-        transform([41.232, 3.454, 0.057], undefined, undefined),
-        ...blueprint_box(game),
-    ]);
-
-    instantiate(game, [
-        transform([41.232, 1.077, 0.057], undefined, undefined),
-        ...blueprint_box(game),
-    ]);
-
-    instantiate(game, [
-        transform([41.232, 2.27, 0.057], undefined, undefined),
-        ...blueprint_box(game),
-    ]);
-
-    instantiate(game, [
-        transform([41.232, 4.617, 0], undefined, undefined),
-        ...blueprint_box(game),
-    ]);
-
-    instantiate(game, [
-        transform([59.503, 0.258, 0.928], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([54.898, 0.258, 1.47], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([50.294, 0.258, 1.16], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([53.834, 0.356, -3.705], [0, 0.194, 0, 0.981], undefined),
-        ...prop_slup(game),
-    ]);
-
-    instantiate(game, [
-        transform([59.058, 0.356, -10.051], [0, 0.556, 0, 0.831], undefined),
-        ...prop_slup(game),
-    ]);
-
-    instantiate(game, [
-        transform([47.846, 0.331, 2.412], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([54.829, 0.5, 2.694], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([56.829, 0.5, 2.694], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([58.305, -0.045, 2.694], [0.191, 0.681, -0.191, 0.681], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([58.505, 0.611, 2.529], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([82.626, -0.498, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 35]),
-        ...blueprint_ground(game),
-    ]);
-
-    instantiate(game, [
-        transform([72.227, 0.5, -1.567], [0, 0.175, 0, 0.985], undefined),
-        ...prop_silo(game),
-    ]);
-
-    instantiate(game, [
-        transform([71.008, 2.999, 0.323], [0.707, 0.707, 0, 0], [2, 2, 2]),
-        ...blueprint_obstacle_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([78.077, 0.722, -3.382], [-0.324, 0.629, 0.629, -0.324], [0.75, 0.75, 0.75]),
-        ...blueprint_obstacle_slup(game),
-    ]);
-
-    instantiate(game, [
-        transform([76.999, 1.985, 0], undefined, undefined),
-        ...blueprint_box(game),
-    ]);
-
-    instantiate(game, [
-        transform([72.162, 4.567, 0.31], undefined, undefined),
-        ...blueprint_box(game),
-    ]);
-
-    instantiate(game, [
-        transform([77.575, 0.777, 2.871], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([67.938, 0.258, 2.631], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([79.198, 0.258, -0.813], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([81.946, 0.258, -5.34], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([94.119, 0.258, -2.957], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([96.328, 0.258, 2.515], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([-1.914, 0.5, -0.217], undefined, undefined),
-        ...blueprint_obstacle_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([-1.914, 0.5, 1.824], undefined, undefined),
-        ...blueprint_obstacle_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([84.659, 0.356, -2.181], [0, 0.952, 0, 0.305], undefined),
-        ...prop_slup(game),
-    ]);
-
-    instantiate(game, [
-        transform([90.594, 0.5, -6.21], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([92.594, 0.5, -6.21], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([95.366, 0.5, -5.586], undefined, [0.8, 0.8, 0.8]),
-        ...prop_barn(game),
-    ]);
-
-    instantiate(game, [
-        transform([94.594, 0.5, -6.21], [0, 0.707, 0, 0.707], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([89.688, 0.5, -5.266], [0, 1, 0, 0], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([89.696, 0.5, -3.44], [0, 1, 0, 0], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([89.712, 0.5, -1.644], [0, 1, 0, 0], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([89.73, 0.5, 0.147], [0, 1, 0, 0], undefined),
-        ...blueprint_obstacle_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([89.73, 0.5, 2.069], [0, 1, 0, 0], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([89.688, 1.638, -5.266], [0, 1, 0, 0], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([89.696, 1.638, -3.44], [0, 1, 0, 0], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([89.712, 1.638, -1.644], [0, 1, 0, 0], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([89.73, 1.638, 0.147], [0, 1, 0, 0], undefined),
-        ...blueprint_obstacle_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([89.73, 1.638, 2.069], [0, 1, 0, 0], undefined),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [transform([95, 0.5, 0]), ...blueprint_exit(game)]);
-
-    instantiate(game, [
-        transform([62.526, -0.798, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 5.75]),
-        ...blueprint_ground(game),
-    ]);
-
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 
     instantiate(game, [...blueprint_sun_shadow(game), transform()]);
+
+    for (let key of Object.keys(transforms)) {
+        let blueprint = blueprints[key];
+        for (let i = 0; i < transforms[key].length; i++) {
+            instantiate(game, [
+                transform(transforms[key][i][0], transforms[key][i][1], transforms[key][i][2]),
+                ...blueprint(game),
+            ]);
+        }
+    }
 }

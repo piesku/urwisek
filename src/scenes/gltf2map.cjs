@@ -21,39 +21,33 @@ let scene_name = process.argv[2]
     .replace(/^-+/, "")
     .replace(/-+$/, "");
 
-let vec = (arr) =>
-    arr ? "[" + arr.map((v) => parseFloat(v.toFixed(3))).join(", ") + "]" : "undefined";
+let vec = (arr) => (arr ? "[" + round(arr).join(", ") + "]" : "undefined");
+let vec2 = (arr) => (arr ? round(arr) : undefined);
+
+let round = (arr) => arr.map((v) => v && v.toFixed && parseFloat(v.toFixed(2)));
 
 let imports = new Set([
-    'import {instantiate} from "../../common/game.js";',
+    'import {Blueprint, instantiate} from "../../common/game.js";',
     'import {from_euler} from "../../common/quat.js";',
     'import {Game} from "../game.js";',
     'import {transform} from "../components/com_transform.js";',
     'import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";',
     'import {render_colored_shadows} from "../components/com_render.js";',
+    'import { Quat, Vec3 } from "../../common/math.js";',
 ]);
 
+let elements = {};
+let blueprints = {};
 let create_instance = (name, translation, rotation, scale) => {
     switch (name) {
         case "lisek":
             return "";
         case "ogon":
-            return `
-    instantiate(game, [
-        transform(${vec(translation)}, from_euler([0, 0, 0, 1], 0, 90, 0), ${vec(scale)}),
-        render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
-    ]);`;
         case "exit":
         case "end":
-            imports.add(`import {blueprint_${name}} from "../blueprints/blu_${name}.js";`);
-            return `
-    instantiate(game, [
-        transform(${vec(translation)}),
-        ...blueprint_${name}(game),
-    ]);`;
-        case "ground":
         case "bush":
         case "tree":
+        case "ground":
         case "rock":
         case "box":
         case "crib":
@@ -66,40 +60,20 @@ let create_instance = (name, translation, rotation, scale) => {
         case "obstacle_slup":
         case "obstacle_barn":
         case "obstacle_fence":
-            imports.add(`import {blueprint_${name}} from "../blueprints/blu_${name}.js";`);
-            return `
-    instantiate(game, [
-        transform(${vec(translation)}, ${vec(rotation)}, ${vec(scale)}),
-        ...blueprint_${name}(game),
-    ]);`;
         case "spawn_bird":
-            imports.add(`import {blueprint_bird} from "../blueprints/blu_bird.js";`);
-            imports.add(`import {children} from "../components/com_children.js";`);
-            imports.add(`import {cull} from "../components/com_cull.js";`);
-            imports.add(`import {shake} from "../components/com_shake.js";`);
-            imports.add(`import {spawn} from "../components/com_spawn.js";`);
-            imports.add(`import {Has} from "../world.js";`);
-            return `
-    instantiate(game, [
-        transform(${vec(translation)}, ${vec(rotation)}),
-        children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
-    ]);`;
         case "spawn_animal":
-            imports.add(`import {blueprint_animal} from "../blueprints/blu_animal.js";`);
-            imports.add(`import {spawn} from "../components/com_spawn.js";`);
-            imports.add(`import {Has} from "../world.js";`);
-            return `
-    instantiate(game, [
-        transform(${vec(translation)}, ${vec(rotation)}),
-        spawn(blueprint_animal, 1),
-    ]);`;
+            imports.add(`import {blueprint_${name}} from "../blueprints/blu_${name}.js";`);
+
+            blueprints[name] = `blueprint_${name}`;
+            elements[name] = elements[name] || [];
+            elements[name].push([vec2(translation), vec2(rotation), vec2(scale)]);
+            break;
         default:
             imports.add(`import {prop_${name}} from "../props/prop_${name}.js";`);
-            return `
-    instantiate(game, [
-        transform(${vec(translation)}, ${vec(rotation)}, ${vec(scale)}),
-        ...prop_${name}(game),
-    ]);`;
+
+            blueprints[name] = `prop_${name}`;
+            elements[name] = elements[name] || [];
+            elements[name].push([vec2(translation), vec2(rotation), vec2(scale)]);
     }
 };
 
@@ -118,6 +92,17 @@ let nodes = gltf.nodes
 let result = `\
 ${Array.from(imports).join("\n")}
 
+let transforms: Record<string, Array<[Vec3, Quat?, Vec3?]>> = ${JSON.stringify(elements)
+    .replace(/\,null\,null\]/gi, "]")
+    .replace(/\,null\]/gi, "]")
+    .replace(/null/gi, "undefined")};
+
+let blueprints: Record<string, (game: Game) => Blueprint<Game>> = {
+    ${Object.keys(blueprints)
+        .map((key) => `${key}: ${blueprints[key]}`)
+        .join(",\n")}
+};
+
 export function map_${scene_name}(game: Game) {
 ${nodes}
 
@@ -130,6 +115,16 @@ ${nodes}
         ...blueprint_sun_shadow(game),
         transform(),
     ]);
+
+    for (let key of Object.keys(transforms)) {
+        let blueprint = blueprints[key];
+        for (let i = 0; i < transforms[key].length; i++) {
+            instantiate(game, [
+                transform(transforms[key][i][0], transforms[key][i][1], transforms[key][i][2]),
+                ...blueprint(game),
+            ]);
+        }
+    }
 }`;
 
 console.log(result);
