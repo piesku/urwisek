@@ -1,6 +1,24 @@
 (function () {
     'use strict';
 
+    /**
+     * @module components/com_named
+     */
+    function named(Name) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 65536 /* Named */;
+            game.World.Named[entity] = { Name };
+        };
+    }
+    function find_first(world, name, start_at = 0) {
+        for (let i = start_at; i < world.Signature.length; i++) {
+            if (world.Signature[i] & 65536 /* Named */ && world.Named[i].Name === name) {
+                return i;
+            }
+        }
+        throw `No entity named ${name}.`;
+    }
+
     // The following defined constants and descriptions are directly ported from
     // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Constants.
     // Any copyright is dedicated to the Public Domain.
@@ -989,24 +1007,6 @@
                 Mask: mask,
             };
         };
-    }
-
-    /**
-     * @module components/com_named
-     */
-    function named(Name) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 65536 /* Named */;
-            game.World.Named[entity] = { Name };
-        };
-    }
-    function find_first(world, name, start_at = 0) {
-        for (let i = start_at; i < world.Signature.length; i++) {
-            if (world.Signature[i] & 65536 /* Named */ && world.Named[i].Name === name) {
-                return i;
-            }
-        }
-        throw `No entity named ${name}.`;
     }
 
     /**
@@ -3860,45 +3860,25 @@
         ];
     }
 
-    function prop_crib(game) {
+    function blueprint_launchpad(game) {
         return [
-            children([
-                transform([0, 0.5, 0], undefined, [1.01, 0.5, 1]),
-                cull(131072 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 1, 1]),
-            ], [
-                transform([0, 0.25, 0], [0, 0, -0.707, 0.707], [0.5, 1, 1]),
-                cull(131072 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
-            ], [
-                transform([0.25, 0.75, 0], [0, 0, -0.707, 0.707], [1, 0.5, 1]),
-                cull(131072 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
-            ]),
-        ];
-    }
-
-    function blueprint_crib(game) {
-        return [
+            named("launchpad"),
+            control_always([0, 1, 0], null),
+            disable(128 /* ControlAlways */),
+            move(5, 0),
             children([
                 transform(),
-                animate({
-                    idle: {
-                        Keyframes: [
-                            {
-                                Timestamp: 0.0,
-                                Rotation: from_euler([0, 0, 0, 1], -25, 0, 0),
-                                Ease: ease_in_out_quart,
-                            },
-                            {
-                                Timestamp: 2.0,
-                                Rotation: from_euler([0, 0, 0, 1], 25, 0, 0),
-                                Ease: ease_in_out_quart,
-                            },
-                        ],
-                    },
-                }),
-                ...prop_crib(game),
+                shake(0.01),
+                disable(524288 /* Shake */),
+                children([transform([0, -30, 0], undefined, [3, 3, 3]), ...prop_rocket(game)], [
+                    transform([0, -30, 0], [0.707, 0, 0, 0.707]),
+                    children([
+                        transform(),
+                        shake(0.1),
+                        emit_particles(2, 0.01, 5),
+                        render_particles_colored([1, 1, 1, 1], 200, [1, 0.5, 0, 1], 500),
+                    ]),
+                ]),
             ]),
         ];
     }
@@ -3916,9 +3896,9 @@
                 [4, 5, 40],
             ],
             [
-                [68.76, -1.75, -5.6],
+                [46.76, -1.75, -5.6],
                 [0, 0.71, 0, 0.71],
-                [10, 4, 150],
+                [10, 4, 105],
             ],
             [
                 [-3.79, -1.96, 0],
@@ -3926,9 +3906,9 @@
                 [1.5, 6.14, 2],
             ],
             [
-                [103.51, -2.25, 1.4],
+                [92.21, -2.25, 1.4],
                 [0, 0.71, 0, 0.71],
-                [4, 5, 80],
+                [4, 5, 57],
             ],
             [
                 [58.57, -3.26, 1.4],
@@ -4083,11 +4063,11 @@
                 [0, 0.72, 0, 0.69],
             ],
         ],
-        end: [[[120, 3, 0], undefined, [1, 10, 1]]],
-        crib: [
+        end: [[[120.2, 3, 0], undefined, [1, 10, 1]]],
+        launchpad: [
             [
-                [121.6, 0.2, 0.5],
-                [0, 0.38, 0, -0.92],
+                [122.6, 0.2, 0],
+                [0, 0.71, 0, -0.71],
             ],
         ],
     };
@@ -4101,7 +4081,7 @@
         monster: blueprint_monster,
         pushable_branch: blueprint_pushable_branch,
         end: blueprint_end,
-        crib: blueprint_crib,
+        launchpad: blueprint_launchpad,
     };
     function map_forest(game) {
         instantiate(game, [...blueprint_sun_light(), transform()]);
@@ -4176,6 +4156,10 @@
                 for (let i = 0; i < game.World.Signature.length; i++) {
                     game.World.Signature[i] &= ~256 /* ControlPlayer */;
                 }
+                let launchpad_entity = find_first(game.World, "launchpad");
+                game.World.Signature[launchpad_entity] |= 128 /* ControlAlways */;
+                let launchpad_shaker_entity = game.World.Children[launchpad_entity].Children[0];
+                game.World.Signature[launchpad_shaker_entity] |= 524288 /* Shake */;
                 game.CurrentView = End;
                 break;
             }
