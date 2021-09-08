@@ -62,6 +62,7 @@ let create_instance = (name, translation, rotation, scale) => {
         case "obstacle_fence":
         case "spawn_bird":
         case "spawn_animal":
+        case "launchpad":
             imports.add(`import {blueprint_${name}} from "../blueprints/blu_${name}.js";`);
 
             blueprints[name] = `blueprint_${name}`;

@@ -1,4 +1,5 @@
 import {Entity} from "../common/world.js";
+import {find_first} from "./components/com_named.js";
 import {Game} from "./game.js";
 import {scene_intro} from "./scenes/sce_intro.js";
 import {scene_level1} from "./scenes/sce_level1.js";
@@ -62,6 +63,12 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             for (let i = 0; i < game.World.Signature.length; i++) {
                 game.World.Signature[i] &= ~Has.ControlPlayer;
             }
+
+            let launchpad_entity = find_first(game.World, "launchpad");
+            game.World.Signature[launchpad_entity] |= Has.ControlAlways;
+
+            let launchpad_shaker_entity = game.World.Children[launchpad_entity].Children[0];
+            game.World.Signature[launchpad_shaker_entity] |= Has.Shake;
 
             game.CurrentView = End;
             break;

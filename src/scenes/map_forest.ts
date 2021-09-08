@@ -14,7 +14,7 @@ import {blueprint_branch} from "../blueprints/blu_branch.js";
 import {blueprint_monster} from "../blueprints/blu_monster.js";
 import {blueprint_pushable_branch} from "../blueprints/blu_pushable_branch.js";
 import {blueprint_end} from "../blueprints/blu_end.js";
-import {blueprint_crib} from "../blueprints/blu_crib.js";
+import {blueprint_launchpad} from "../blueprints/blu_launchpad.js";
 
 let transforms: Record<string, Array<[Vec3, Quat?, Vec3?]>> = {
     ground: [
@@ -29,9 +29,9 @@ let transforms: Record<string, Array<[Vec3, Quat?, Vec3?]>> = {
             [4, 5, 40],
         ],
         [
-            [68.76, -1.75, -5.6],
+            [46.76, -1.75, -5.6],
             [0, 0.71, 0, 0.71],
-            [10, 4, 150],
+            [10, 4, 105],
         ],
         [
             [-3.79, -1.96, 0],
@@ -39,9 +39,9 @@ let transforms: Record<string, Array<[Vec3, Quat?, Vec3?]>> = {
             [1.5, 6.14, 2],
         ],
         [
-            [103.51, -2.25, 1.4],
+            [92.21, -2.25, 1.4],
             [0, 0.71, 0, 0.71],
-            [4, 5, 80],
+            [4, 5, 57],
         ],
         [
             [58.57, -3.26, 1.4],
@@ -196,11 +196,11 @@ let transforms: Record<string, Array<[Vec3, Quat?, Vec3?]>> = {
             [0, 0.72, 0, 0.69],
         ],
     ],
-    end: [[[120, 3, 0], undefined, [1, 10, 1]]],
-    crib: [
+    end: [[[120.2, 3, 0], undefined, [1, 10, 1]]],
+    launchpad: [
         [
-            [121.6, 0.2, 0.5],
-            [0, 0.38, 0, -0.92],
+            [122.6, 0.2, 0],
+            [0, 0.71, 0, -0.71],
         ],
     ],
 };
@@ -215,7 +215,7 @@ let blueprints: Record<string, (game: Game) => Blueprint<Game>> = {
     monster: blueprint_monster,
     pushable_branch: blueprint_pushable_branch,
     end: blueprint_end,
-    crib: blueprint_crib,
+    launchpad: blueprint_launchpad,
 };
 
 export function map_forest(game: Game) {
