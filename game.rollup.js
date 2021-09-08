@@ -3119,7 +3119,7 @@
                             ]);
                         }),
                     ]),
-                    task_timeout(8, () => {
+                    task_timeout(2, () => {
                         game.World.Signature[player_entity] |= 256 /* ControlPlayer */;
                     }),
                 ]);
