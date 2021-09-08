@@ -2016,27 +2016,27 @@
     function prop_rocket(game) {
         return [
             children([
-                transform([0, 1.5, 0], [0, -0.707, 0, 0.707], [1, 3, 1]),
+                transform([0, 3.5, 0], [0, -0.707, 0, 0.707], [1, 7, 1]),
+                cull(131072 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
+            ], [
+                transform([0, 7.8, 0], [0, -0.707, 0, 0.707], [0.8, 1.6, 0.8]),
+                cull(131072 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
+            ], [
+                transform([0, 9.4, 0], [0, -0.707, 0, 0.707], [0.56, 1.6, 0.56]),
+                cull(131072 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
+            ], [
+                transform([0, 10.2, 0], [-0.5, -0.5, 0.5, 0.5], [1.721, 0.509, 0.593]),
+                cull(131072 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
+            ], [
+                transform([0, 8.6, 0], [-0.5, -0.5, 0.5, 0.5], [1.12, 0.438, 0.796]),
                 cull(131072 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
             ], [
-                transform([0, 3.8, 0], [0, -0.707, 0, 0.707], [0.8, 1.6, 0.8]),
-                cull(131072 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
-            ], [
-                transform([0, 5.4, 0], [0, -0.707, 0, 0.707], [0.56, 1.6, 0.56]),
-                cull(131072 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
-            ], [
-                transform([0, 6.2, 0], [-0.5, -0.5, 0.5, 0.5], [1.721, 0.509, 0.593]),
-                cull(131072 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
-            ], [
-                transform([0, 4.6, 0], [-0.5, -0.5, 0.5, 0.5], [1.12, 0.438, 0.796]),
-                cull(131072 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
-            ], [
-                transform([0, 3, 0], [-0.5, -0.5, 0.5, 0.5], [2.61, 0.771, 0.9]),
+                transform([0, 7, 0], [-0.5, -0.5, 0.5, 0.5], [2.61, 0.771, 0.9]),
                 cull(131072 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
             ]),
@@ -3085,40 +3085,41 @@
                 move(1.7, 0),
             ]),
         ];
-        // Animate the camera during the intro.
+        // The into animation.
         instantiate(game, [
             task_until(() => game.CurrentView === Intro, () => {
                 // No more rockets.
                 destroy_all(game.World, rocket_spawner_entity);
-                // Pedestal the camera down.
                 instantiate(game, [
-                    task_timeout(1, () => {
-                        game.World.Signature[camera_entity] |= 16384 /* Mimic */;
-                    }),
-                ]);
-                // The pups flee.
-                instantiate(game, [
-                    task_timeout(3, () => {
-                        for (let pup of pups) {
-                            control_always([0, 0, 1], null, "jump")(game, pup);
-                            lifespan(7)(game, pup);
-                        }
-                    }),
-                ]);
-                instantiate(game, [
-                    task_timeout(6, () => {
-                        // No more stars.
-                        destroy_all(game.World, starfield_entity);
-                        // Increase the camera's responsiveness.
-                        let mimic = game.World.Mimic[camera_entity];
-                        mimic.Target = find_first(game.World, "camera anchor", camera_anchor_intro + 1);
-                        mimic.Stiffness = 0.05;
-                        // Spawn the pixie.
-                        instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
-                    }),
-                ]);
-                instantiate(game, [
-                    task_timeout(7, () => {
+                    children([
+                        task_timeout(1, () => {
+                            // Pedestal the camera down.
+                            game.World.Signature[camera_entity] |= 16384 /* Mimic */;
+                        }),
+                    ], [
+                        task_timeout(4, () => {
+                            // The pups flee.
+                            for (let pup of pups) {
+                                control_always([0, 0, 1], null, "jump")(game, pup);
+                                lifespan(7)(game, pup);
+                            }
+                        }),
+                    ], [
+                        task_timeout(7, () => {
+                            // No more stars.
+                            destroy_all(game.World, starfield_entity);
+                            // Increase the camera's responsiveness.
+                            let mimic = game.World.Mimic[camera_entity];
+                            mimic.Target = find_first(game.World, "camera anchor", camera_anchor_intro + 1);
+                            mimic.Stiffness = 0.05;
+                            // Spawn the pixie.
+                            instantiate(game, [
+                                ...blueprint_pixie(game),
+                                transform([-20, 5, 0]),
+                            ]);
+                        }),
+                    ]),
+                    task_timeout(8, () => {
                         game.World.Signature[player_entity] |= 256 /* ControlPlayer */;
                     }),
                 ]);
