@@ -3,7 +3,6 @@ import {Game3D} from "../common/game.js";
 import {Entity} from "../common/world.js";
 import {mat_forward_colored_phong_skinned} from "../materials/mat_forward_colored_phong_skinned.js";
 import {mat_forward_colored_shadows} from "../materials/mat_forward_colored_shadows.js";
-import {mat_forward_colored_wireframe} from "../materials/mat_forward_colored_unlit.js";
 import {mat_forward_instanced} from "../materials/mat_forward_instanced.js";
 import {mat_forward_particles_colored} from "../materials/mat_forward_particles_colored.js";
 import {mesh_cube} from "../meshes/cube.js";
@@ -24,7 +23,6 @@ import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
 import {sys_control_touch_move} from "./systems/sys_control_touch_move.js";
 import {sys_control_xbox} from "./systems/sys_control_xbox.js";
 import {sys_cull} from "./systems/sys_cull.js";
-import {sys_debug} from "./systems/sys_debug.js";
 import {sys_lifespan} from "./systems/sys_lifespan.js";
 import {sys_light} from "./systems/sys_light.js";
 import {sys_mimic} from "./systems/sys_mimic.js";
@@ -55,7 +53,6 @@ export const enum QualitySettings {
 export class Game extends Game3D {
     World = new World();
 
-    MaterialColoredWireframe = mat_forward_colored_wireframe(this.Gl);
     MaterialColoredShadows = mat_forward_colored_shadows(this.Gl);
     MaterialColoredSkinned = mat_forward_colored_phong_skinned(this.Gl);
     MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
@@ -117,10 +114,6 @@ export class Game extends Game3D {
         sys_spawn(this, delta);
         sys_particles(this, delta);
         sys_transform(this, delta);
-
-        if (false) {
-            sys_debug(this, delta);
-        }
 
         // Rendering.
         sys_audio_listener(this, delta);

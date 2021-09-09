@@ -19,7 +19,6 @@ import {
 import {Entity, first_entity} from "../../common/world.js";
 import {
     ColoredShadedLayout,
-    ColoredUnlitLayout,
     FogLayout,
     ForwardShadingLayout,
     InstancedLayout,
@@ -34,7 +33,6 @@ import {
     DATA_PER_PARTICLE,
     RenderColoredShadows,
     RenderColoredSkinned,
-    RenderColoredUnlit,
     RenderInstanced,
     RenderKind,
     RenderParticlesColored,
@@ -91,9 +89,6 @@ function render(game: Game, eye: CameraEye) {
             if (render.Material !== current_material) {
                 current_material = render.Material;
                 switch (render.Kind) {
-                    case RenderKind.ColoredUnlit:
-                        use_colored_unlit(game, render.Material, eye);
-                        break;
                     case RenderKind.ColoredShadows:
                         use_colored_shadows(game, render.Material, eye);
                         break;
@@ -110,9 +105,6 @@ function render(game: Game, eye: CameraEye) {
             }
 
             switch (render.Kind) {
-                case RenderKind.ColoredUnlit:
-                    draw_colored_unlit(game, transform, render);
-                    break;
                 case RenderKind.ColoredShadows:
                     draw_colored_shadows(game, transform, render);
                     break;
@@ -132,20 +124,6 @@ function render(game: Game, eye: CameraEye) {
             }
         }
     }
-}
-
-function use_colored_unlit(game: Game, material: Material<ColoredUnlitLayout>, eye: CameraEye) {
-    game.Gl.enable(GL_CULL_FACE);
-    game.Gl.useProgram(material.Program);
-    game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-}
-
-function draw_colored_unlit(game: Game, transform: Transform, render: RenderColoredUnlit) {
-    game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-    game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
-    game.Gl.bindVertexArray(render.Vao);
-    game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-    game.Gl.bindVertexArray(null);
 }
 
 function use_colored_shadows(

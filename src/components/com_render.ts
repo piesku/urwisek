@@ -15,7 +15,6 @@ import {
 import {Entity} from "../../common/world.js";
 import {
     ColoredShadedLayout,
-    ColoredUnlitLayout,
     FogLayout,
     ForwardShadingLayout,
     InstancedLayout,
@@ -28,70 +27,20 @@ import {Game} from "../game.js";
 import {Has} from "../world.js";
 
 export type Render =
-    | RenderColoredUnlit
     | RenderColoredShadows
     | RenderColoredSkinned
     | RenderParticlesColored
     | RenderInstanced;
 
 export const enum RenderKind {
-    ColoredUnlit,
     ColoredShadows,
     ColoredSkinned,
     ParticlesColored,
     Instanced,
 }
 
-const colored_unlit_vaos: WeakMap<Mesh, WebGLVertexArrayObject> = new WeakMap();
 const colored_shadows_vaos: WeakMap<Mesh, WebGLVertexArrayObject> = new WeakMap();
 const colored_skinned_vaos: WeakMap<Mesh, WebGLVertexArrayObject> = new WeakMap();
-
-export interface RenderColoredUnlit {
-    readonly Kind: RenderKind.ColoredUnlit;
-    readonly Material: Material<ColoredUnlitLayout>;
-    readonly Mesh: Mesh;
-    readonly Vao: WebGLVertexArrayObject;
-    Color: Vec4;
-}
-
-export function render_colored_unlit(
-    material: Material<ColoredUnlitLayout>,
-    mesh: Mesh,
-    color: Vec4
-) {
-    return (game: Game, entity: Entity) => {
-        if (!colored_unlit_vaos.has(mesh)) {
-            // We only need to create the VAO once.
-            let vao = game.Gl.createVertexArray()!;
-            game.Gl.bindVertexArray(vao);
-
-            game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
-            game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
-            game.Gl.vertexAttribPointer(
-                material.Locations.VertexPosition,
-                3,
-                GL_FLOAT,
-                false,
-                0,
-                0
-            );
-
-            game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-
-            game.Gl.bindVertexArray(null);
-            colored_unlit_vaos.set(mesh, vao);
-        }
-
-        game.World.Signature[entity] |= Has.Render;
-        game.World.Render[entity] = {
-            Kind: RenderKind.ColoredUnlit,
-            Material: material,
-            Mesh: mesh,
-            Vao: colored_unlit_vaos.get(mesh)!,
-            Color: color,
-        };
-    };
-}
 
 export interface RenderColoredShadows {
     readonly Kind: RenderKind.ColoredShadows;
