@@ -105,8 +105,6 @@ export interface RenderColoredShadows {
     readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;
     DiffuseColor: Vec4;
-    SpecularColor: Vec4;
-    Shininess: number;
 }
 
 export function render_colored_shadows(
@@ -115,8 +113,6 @@ export function render_colored_shadows(
     >,
     mesh: Mesh,
     diffuse_color: Vec4,
-    shininess: number = 0,
-    specular_color: Vec4 = [1, 1, 1, 1],
     front_face: GLenum = GL_CW
 ) {
     return (game: Game, entity: Entity) => {
@@ -154,8 +150,6 @@ export function render_colored_shadows(
             FrontFace: front_face,
             Vao: colored_shadows_vaos.get(mesh)!,
             DiffuseColor: diffuse_color,
-            SpecularColor: specular_color,
-            Shininess: shininess,
         };
     };
 }
@@ -169,16 +163,12 @@ export interface RenderColoredSkinned {
     readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;
     DiffuseColor: Vec4;
-    SpecularColor: Vec4;
-    Shininess: number;
 }
 
 export function render_colored_skinned(
     material: Material<ColoredShadedLayout & ForwardShadingLayout & SkinningLayout & FogLayout>,
     mesh: Mesh,
     diffuse_color: Vec4,
-    shininess: number = 0,
-    specular_color: Vec4 = [1, 1, 1, 1],
     front_face: GLenum = GL_CW
 ) {
     return (game: Game, entity: Entity) => {
@@ -220,8 +210,6 @@ export function render_colored_skinned(
             FrontFace: front_face,
             Vao: colored_skinned_vaos.get(mesh)!,
             DiffuseColor: diffuse_color,
-            SpecularColor: specular_color,
-            Shininess: shininess,
         };
     };
 }

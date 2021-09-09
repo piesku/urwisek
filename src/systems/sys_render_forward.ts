@@ -192,8 +192,6 @@ function draw_colored_shadows(game: Game, transform: Transform, render: RenderCo
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
     game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
     game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-    game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-    game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
     game.Gl.bindVertexArray(render.Vao);
     game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
     game.Gl.bindVertexArray(null);
@@ -224,8 +222,6 @@ function draw_colored_skinned(
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
     game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
     game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-    game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-    game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
 
     let bone_entities: Array<Entity> = [];
     if (game.World.Signature[entity] & Has.Children) {
