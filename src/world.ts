@@ -25,7 +25,6 @@ import {Trigger} from "./components/com_trigger.js";
 
 const enum Component {
     Animate,
-    AudioListener,
     AudioSource,
     Bone,
     Camera,
@@ -53,7 +52,6 @@ const enum Component {
 export const enum Has {
     None = 0,
     Animate = 1 << Component.Animate,
-    AudioListener = 1 << Component.AudioListener,
     AudioSource = 1 << Component.AudioSource,
     Bone = 1 << Component.Bone,
     Camera = 1 << Component.Camera,

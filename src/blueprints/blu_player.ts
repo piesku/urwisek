@@ -20,7 +20,7 @@ import {blueprint_lisek} from "./blu_lisek.js";
 
 function blueprint_player(game: Game) {
     return [
-        audio_source(false),
+        audio_source(),
         control_player(Control.Move),
         move(3, 0),
         collide(true, Layer.Player, Layer.Terrain | Layer.Movable, [0.6, 0.8, 0.8]),

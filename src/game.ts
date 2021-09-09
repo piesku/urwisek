@@ -15,7 +15,6 @@ import {mesh_ogon} from "../meshes/ogon.js";
 import {mesh_plane} from "../meshes/plane.js";
 import {scene_intro} from "./scenes/sce_intro.js";
 import {sys_animate} from "./systems/sys_animate.js";
-import {sys_audio_listener} from "./systems/sys_audio_listener.js";
 import {sys_audio_source} from "./systems/sys_audio_source.js";
 import {sys_camera} from "./systems/sys_camera.js";
 import {sys_collide} from "./systems/sys_collide.js";
@@ -121,7 +120,6 @@ export class Game extends Game3D {
         }
 
         // Rendering.
-        sys_audio_listener(this, delta);
         sys_audio_source(this, delta);
         sys_resize(this, delta);
         sys_camera(this, delta);
