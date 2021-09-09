@@ -82,7 +82,6 @@ function render_depth(game: Game, camera: CameraDepth) {
 function render(game: Game, eye: CameraEye) {
     // Keep track of the current material to minimize switching.
     let current_material = null;
-    let current_front_face = null;
 
     for (let i = 0; i < game.World.Signature.length; i++) {
         if ((game.World.Signature[i] & QUERY) === QUERY) {
@@ -108,11 +107,6 @@ function render(game: Game, eye: CameraEye) {
                         use_instanced(game, render.Material, eye);
                         break;
                 }
-            }
-
-            if (render.FrontFace !== current_front_face) {
-                current_front_face = render.FrontFace;
-                game.Gl.frontFace(render.FrontFace);
             }
 
             switch (render.Kind) {

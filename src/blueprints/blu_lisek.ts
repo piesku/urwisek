@@ -36,7 +36,7 @@ export function blueprint_lisek(
     actionOnEachStep?: Action
 ) {
     return [
-        render_colored_skinned(game.MaterialColoredSkinned, game.MeshLisek, color, 0),
+        render_colored_skinned(game.MaterialColoredSkinned, game.MeshLisek, color),
         children([
             transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74]),
             children([
