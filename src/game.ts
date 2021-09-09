@@ -31,7 +31,6 @@ import {sys_mimic} from "./systems/sys_mimic.js";
 import {sys_move} from "./systems/sys_move.js";
 import {sys_particles} from "./systems/sys_particles.js";
 import {sys_physics_integrate} from "./systems/sys_physics_integrate.js";
-import {sys_physics_kinematic} from "./systems/sys_physics_kinematic.js";
 import {sys_physics_resolve} from "./systems/sys_physics_resolve.js";
 import {sys_poll} from "./systems/sys_poll.js";
 import {sys_render_forward} from "./systems/sys_render_forward.js";
@@ -93,7 +92,6 @@ export class Game extends Game3D {
         // Collisions and physics.
         sys_physics_integrate(this, delta);
         sys_transform(this, delta);
-        sys_physics_kinematic(this, delta);
         sys_collide(this, delta);
         sys_physics_resolve(this, delta);
         sys_transform(this, delta);
