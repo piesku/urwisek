@@ -2,18 +2,18 @@
  * @module components/com_audio_source
  */
 
-import {AudioClip} from "../../common/audio.js";
+import {AudioSynthClip} from "../../common/audio.js";
 import {Entity} from "../../common/world.js";
 import {Game} from "../game.js";
 import {Has} from "../world.js";
 
 export interface AudioSource {
     /** The next clip to play. */
-    Trigger?: AudioClip;
+    Trigger?: AudioSynthClip;
     /** The clip which was triggered most recently. */
-    Current?: AudioClip;
+    Current?: AudioSynthClip;
     /** The clip to play by default, in a loop. */
-    Idle?: AudioClip;
+    Idle?: AudioSynthClip;
     /** Elapsed time since the last clip change. */
     Time: number;
 }
@@ -23,7 +23,7 @@ export interface AudioSource {
  *
  * @param idle The name of the clip to play by default, in a loop.
  */
-export function audio_source(idle?: AudioClip) {
+export function audio_source(idle?: AudioSynthClip) {
     return (game: Game, entity: Entity) => {
         game.World.Signature[entity] |= Has.AudioSource;
         game.World.AudioSource[entity] = {

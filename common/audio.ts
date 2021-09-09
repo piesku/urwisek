@@ -1,18 +1,4 @@
-export type AudioClip = AudioBufferClip | AudioSynthClip;
-
-export const enum AudioClipKind {
-    Buffer,
-    Synth,
-}
-
-export interface AudioBufferClip {
-    Kind: AudioClipKind.Buffer;
-    Buffer: AudioBuffer;
-    Exit: number;
-}
-
 export interface AudioSynthClip {
-    Kind: AudioClipKind.Synth;
     /** Audio tracks making up this clip. */
     Tracks: Array<AudioTrack>;
     /** How soon after starting this clip can we play another one (in seconds)? */
@@ -219,11 +205,4 @@ export function play_synth_clip(audio: AudioContext, clip: AudioSynthClip) {
             }
         }
     }
-}
-
-export function play_buffer_clip(audio: AudioContext, clip: AudioBufferClip) {
-    let source = audio.createBufferSource();
-    source.buffer = clip.Buffer;
-    source.connect(audio.destination);
-    source.start();
 }

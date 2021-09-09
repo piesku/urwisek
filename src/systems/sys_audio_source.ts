@@ -2,7 +2,7 @@
  * @module systems/sys_audio_source
  */
 
-import {AudioClipKind, play_buffer_clip, play_synth_clip} from "../../common/audio.js";
+import {play_synth_clip} from "../../common/audio.js";
 import {Entity} from "../../common/world.js";
 import {Game} from "../game.js";
 import {Has} from "../world.js";
@@ -32,14 +32,7 @@ function update(game: Game, entity: Entity, delta: number) {
     }
 
     if (audio_source.Trigger && !audio_source.Current) {
-        switch (audio_source.Trigger.Kind) {
-            case AudioClipKind.Buffer:
-                play_buffer_clip(game.Audio, audio_source.Trigger);
-                break;
-            case AudioClipKind.Synth:
-                play_synth_clip(game.Audio, audio_source.Trigger);
-                break;
-        }
+        play_synth_clip(game.Audio, audio_source.Trigger);
 
         audio_source.Current = audio_source.Trigger;
         audio_source.Time = 0;
