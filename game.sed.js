@@ -6,13 +6,13 @@
 */
 function named(Name) {
 return (game, entity) => {
-game.World.Signature[entity] |= 32768 /* Named */;
+game.World.Signature[entity] |= 16384 /* Named */;
 game.World.Named[entity] = { Name };
 };
 }
 function find_first(world, name, start_at = 0) {
 for (let i = start_at; i < world.Signature.length; i++) {
-if (world.Signature[i] & 32768 /* Named */ && world.Named[i].Name === name) {
+if (world.Signature[i] & 16384 /* Named */ && world.Named[i].Name === name) {
 return i;
 }
 }
@@ -569,12 +569,6 @@ out[14] = (far + near) * nf;
 out[15] = 1;
 return out;
 }
-function get_up(out, mat) {
-out[0] = mat[4];
-out[1] = mat[5];
-out[2] = mat[6];
-return normalize(out, out);
-}
 function get_forward(out, mat) {
 out[0] = mat[8];
 out[1] = mat[9];
@@ -826,7 +820,7 @@ return out;
 */
 function camera_forward_perspective(fovy, near, far, clear_color = [0.9, 0.9, 0.9, 1]) {
 return (game, entity) => {
-game.World.Signature[entity] |= 16 /* Camera */;
+game.World.Signature[entity] |= 8 /* Camera */;
 game.World.Camera[entity] = {
 Kind: 0 /* Forward */,
 Projection: {
@@ -846,7 +840,7 @@ ClearColor: clear_color,
 }
 function camera_depth_ortho(target, radius, near, far, clear_color = [0, 0, 0, 1]) {
 return (game, entity) => {
-game.World.Signature[entity] |= 16 /* Camera */;
+game.World.Signature[entity] |= 8 /* Camera */;
 game.World.Camera[entity] = {
 Kind: 3 /* Depth */,
 Target: target,
@@ -879,7 +873,7 @@ for (let blueprint of blueprints) {
 let child = instantiate(game, blueprint);
 child_entities.push(child);
 }
-game.World.Signature[entity] |= 32 /* Children */;
+game.World.Signature[entity] |= 16 /* Children */;
 game.World.Children[entity] = {
 Children: child_entities,
 };
@@ -897,7 +891,7 @@ function* query_all(world, parent, mask) {
 if ((world.Signature[parent] & mask) === mask) {
 yield parent;
 }
-if (world.Signature[parent] & 32 /* Children */) {
+if (world.Signature[parent] & 16 /* Children */) {
 for (let child of world.Children[parent].Children) {
 yield* query_all(world, child, mask);
 }
@@ -909,7 +903,7 @@ yield* query_all(world, child, mask);
 * @param entity The root entity to start removing at.
 */
 function destroy_all(world, entity) {
-if (world.Signature[entity] & 32 /* Children */) {
+if (world.Signature[entity] & 16 /* Children */) {
 for (let child of world.Children[entity].Children) {
 destroy_all(world, child);
 }
@@ -922,7 +916,7 @@ world.DestroyEntity(entity);
 */
 function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
 return (game, entity) => {
-game.World.Signature[entity] |= 4194304 /* Transform */;
+game.World.Signature[entity] |= 2097152 /* Transform */;
 game.World.Transform[entity] = {
 World: create(),
 Self: create(),
@@ -992,7 +986,7 @@ Current: States["idle"],
 
 function bone(index, inverse_bind_pose) {
 return (game, entity) => {
-game.World.Signature[entity] |= 8 /* Bone */;
+game.World.Signature[entity] |= 4 /* Bone */;
 game.World.Bone[entity] = {
 Index: index,
 Dirty: inverse_bind_pose === undefined,
@@ -1003,7 +997,7 @@ InverseBindPose: inverse_bind_pose || create(),
 
 function cull(mask) {
 return (game, entity) => {
-game.World.Signature[entity] |= 512 /* Cull */;
+game.World.Signature[entity] |= 256 /* Cull */;
 game.World.Cull[entity] = {
 Mask: mask,
 };
@@ -1031,7 +1025,7 @@ game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.Gl.bindVertexArray(null);
 colored_shadows_vaos.set(mesh, vao);
 }
-game.World.Signature[entity] |= 65536 /* Render */;
+game.World.Signature[entity] |= 32768 /* Render */;
 game.World.Render[entity] = {
 Kind: 1 /* ColoredShadows */,
 Material: material,
@@ -1060,7 +1054,7 @@ game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.Gl.bindVertexArray(null);
 colored_skinned_vaos.set(mesh, vao);
 }
-game.World.Signature[entity] |= 65536 /* Render */;
+game.World.Signature[entity] |= 32768 /* Render */;
 game.World.Render[entity] = {
 Kind: 2 /* ColoredSkinned */,
 Material: material,
@@ -1077,7 +1071,7 @@ return (game, entity) => {
 let buffer = game.Gl.createBuffer();
 game.Gl.bindBuffer(GL_ARRAY_BUFFER, buffer);
 game.Gl.bufferData(GL_ARRAY_BUFFER, MAX_PARTICLES * DATA_PER_PARTICLE * 4, GL_DYNAMIC_DRAW);
-game.World.Signature[entity] |= 65536 /* Render */;
+game.World.Signature[entity] |= 32768 /* Render */;
 game.World.Render[entity] = {
 Kind: 3 /* ParticlesColored */,
 Material: game.MaterialParticlesColored,
@@ -1116,7 +1110,7 @@ game.Gl.vertexAttribPointer(material.Locations.InstanceRotation, 4, GL_FLOAT, fa
 game.Gl.vertexAttribDivisor(material.Locations.InstanceRotation, 1);
 game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.Gl.bindVertexArray(null);
-game.World.Signature[entity] |= 65536 /* Render */;
+game.World.Signature[entity] |= 32768 /* Render */;
 game.World.Render[entity] = {
 Kind: 4 /* Instanced */,
 Material: material,
@@ -1615,7 +1609,7 @@ Flags: 1 /* EarlyExit */,
 */
 function emit_particles(lifespan, frequency, speed) {
 return (game, entity) => {
-game.World.Signature[entity] |= 1024 /* EmitParticles */;
+game.World.Signature[entity] |= 512 /* EmitParticles */;
 game.World.EmitParticles[entity] = {
 Lifespan: lifespan,
 Frequency: frequency,
@@ -1631,7 +1625,7 @@ SinceLast: 0,
 */
 function mimic(Target, Stiffness = 0.1) {
 return (game, entity) => {
-game.World.Signature[entity] |= 8192 /* Mimic */;
+game.World.Signature[entity] |= 4096 /* Mimic */;
 game.World.Mimic[entity] = {
 Target,
 Stiffness,
@@ -1647,7 +1641,7 @@ Stiffness,
 */
 function shake(magnitude) {
 return (game, entity) => {
-game.World.Signature[entity] |= 262144 /* Shake */;
+game.World.Signature[entity] |= 131072 /* Shake */;
 game.World.Shake[entity] = {
 Magnitude: magnitude,
 };
@@ -1660,7 +1654,7 @@ Magnitude: magnitude,
 /** A task that completes when the predicate returns true. */
 function task_until(predicate, on_done) {
 return (game, entity) => {
-game.World.Signature[entity] |= 1048576 /* Task */;
+game.World.Signature[entity] |= 524288 /* Task */;
 game.World.Task[entity] = {
 Kind: 0 /* Until */,
 Predicate: predicate,
@@ -1671,7 +1665,7 @@ OnDone: on_done,
 /** A task that completes after the specified duration (in seconds). */
 function task_timeout(duration, on_done) {
 return (game, entity) => {
-game.World.Signature[entity] |= 1048576 /* Task */;
+game.World.Signature[entity] |= 524288 /* Task */;
 game.World.Task[entity] = {
 Kind: 1 /* Timeout */,
 Remaining: duration,
@@ -1702,15 +1696,12 @@ mimic.Target = find_first(game.World, "exit");
 /**
 * Add the AudioSource component.
 *
-* @param spatial Does the source produce 3D sound?
 * @param idle The name of the clip to play by default, in a loop.
 */
-function audio_source(spatial, idle) {
+function audio_source(idle) {
 return (game, entity) => {
-let panner = spatial ? game.Audio.createPanner() : undefined;
-game.World.Signature[entity] |= 4 /* AudioSource */;
+game.World.Signature[entity] |= 2 /* AudioSource */;
 game.World.AudioSource[entity] = {
-Panner: panner,
 Idle: idle,
 Time: 0,
 };
@@ -1740,7 +1731,7 @@ fn(game, entity);
 */
 function collide(dynamic, layers, mask, size = [1, 1, 1]) {
 return (game, entity) => {
-game.World.Signature[entity] |= 64 /* Collide */;
+game.World.Signature[entity] |= 32 /* Collide */;
 game.World.Collide[entity] = {
 Entity: entity,
 New: true,
@@ -1762,7 +1753,7 @@ Collisions: [],
 */
 function control_always(direction, rotation, animation) {
 return (game, entity) => {
-game.World.Signature[entity] |= 128 /* ControlAlways */;
+game.World.Signature[entity] |= 64 /* ControlAlways */;
 game.World.ControlAlways[entity] = {
 Direction: direction,
 Rotation: rotation,
@@ -1773,7 +1764,7 @@ Animation: animation,
 
 function control_player(flags) {
 return (game, entity) => {
-game.World.Signature[entity] |= 256 /* ControlPlayer */;
+game.World.Signature[entity] |= 128 /* ControlPlayer */;
 game.World.ControlPlayer[entity] = {
 Flags: flags,
 IsFacingRight: true,
@@ -1793,7 +1784,7 @@ IsGrabbingEntity: null,
 */
 function move(move_speed, rotation_speed) {
 return (game, entity) => {
-game.World.Signature[entity] |= 16384 /* Move */;
+game.World.Signature[entity] |= 8192 /* Move */;
 game.World.Move[entity] = {
 MoveSpeed: move_speed,
 RotationSpeed: rotation_speed,
@@ -1809,14 +1800,13 @@ SelfRotations: [],
 */
 function rigid_body(kind, bounciness = 0.5) {
 return (game, entity) => {
-game.World.Signature[entity] |= 131072 /* RigidBody */;
+game.World.Signature[entity] |= 65536 /* RigidBody */;
 game.World.RigidBody[entity] = {
 Kind: kind,
 Bounciness: bounciness,
 Acceleration: [0, 0, 0],
 VelocityIntegrated: [0, 0, 0],
 VelocityResolved: [0, 0, 0],
-LastPosition: [0, 0, 0],
 IsAirborne: false,
 };
 };
@@ -1824,7 +1814,7 @@ IsAirborne: false,
 
 function blueprint_player(game) {
 return [
-audio_source(false),
+audio_source(),
 control_player(1 /* Move */),
 move(3, 0),
 collide(true, 1 /* Player */, 2 /* Terrain */ | 4 /* Movable */, [0.6, 0.8, 0.8]),
@@ -1997,7 +1987,7 @@ game.World.Signature[entity] &= ~mask;
 */
 function lifespan(remaining, action) {
 return (game, entity) => {
-game.World.Signature[entity] |= 2048 /* Lifespan */;
+game.World.Signature[entity] |= 1024 /* Lifespan */;
 game.World.Lifespan[entity] = {
 Remaining: remaining,
 Action: action,
@@ -2009,34 +1999,33 @@ function prop_rocket(game) {
 return [
 children([
 transform([0, 3.5, 0], [0, -0.707, 0, 0.707], [1, 7, 1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
 ], [
 transform([0, 7.8, 0], [0, -0.707, 0, 0.707], [0.8, 1.6, 0.8]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
 ], [
 transform([0, 9.4, 0], [0, -0.707, 0, 0.707], [0.56, 1.6, 0.56]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
 ], [
 transform([0, 10.2, 0], [-0.5, -0.5, 0.5, 0.5], [1.721, 0.509, 0.593]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [1, 1, 1, 1]),
 ], [
 transform([0, 8.6, 0], [-0.5, -0.5, 0.5, 0.5], [1.12, 0.438, 0.796]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
 ], [
 transform([0, 7, 0], [-0.5, -0.5, 0.5, 0.5], [2.61, 0.771, 0.9]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
 ]),
 ];
 }
 
 let snd_rocket = {
-Kind: 1 /* Synth */,
 Tracks: [
 {
 Instrument: [8, "lowpass", 9, 8, false, false, 8, 1, [[false, 8, 5, 0, 9]]],
@@ -2051,8 +2040,8 @@ return [
 control_always([0, 0, 1], null),
 move(float(1, 3), 0),
 lifespan(25),
-audio_source(true, snd_rocket),
-disable(4 /* AudioSource */),
+audio_source(snd_rocket),
+disable(2 /* AudioSource */),
 children(
 
 [
@@ -2080,7 +2069,7 @@ render_particles_colored([1, 0.5, 0, 1], 10, [0.56, 0.33, 0.24, 1], 2),
 */
 function spawn(creator, interval) {
 return (game, entity) => {
-game.World.Signature[entity] |= 524288 /* Spawn */;
+game.World.Signature[entity] |= 262144 /* Spawn */;
 game.World.Spawn[entity] = {
 Creator: creator,
 Interval: interval,
@@ -2267,7 +2256,7 @@ this.Trigger = [];
 */
 function light_directional(color = [1, 1, 1], range = 1) {
 return (game, entity) => {
-game.World.Signature[entity] |= 4096 /* Light */;
+game.World.Signature[entity] |= 2048 /* Light */;
 game.World.Light[entity] = {
 Kind: 1 /* Directional */,
 Color: color,
@@ -2321,19 +2310,19 @@ function prop_house(game) {
 return [
 children([
 transform([0, 1.5, 0], undefined, [3, 3, 3]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
 ], [
 transform([-2.25, 2, 0], undefined, [1.5, 0.1, 3]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.069, 0.154, 0.8, 1]),
 ], [
 transform([-0.8, 0.1, 0], undefined, [4.9, 0.2, 3.4]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
 ], [
 transform([-2.8, 1, 0], undefined, [0.1, 2, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
 ]),
 ];
@@ -2362,11 +2351,11 @@ rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float
 return [
 children([
 transform([0, height / 2, 0], undefined, [0.25, height, 0.25]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.2, 0.2, 1]),
 ], [
 transform([0, height, 0]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), leaft_colors),
 ]),
 ];
@@ -2382,7 +2371,7 @@ offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radi
 rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
 }
 return [
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), leaft_colors),
 ];
 }
@@ -2391,47 +2380,47 @@ function prop_slup(game) {
 return [
 children([
 transform([0, 4, 0], undefined, [0.5, 8, 0.5]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.119, 0.027, 0.012, 1]),
 ], [
 transform([0, 7.41, -0.25], undefined, [3, 0.45, 0.2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
 ], [
 transform([0, 7.41, 0.25], undefined, [3, 0.45, 0.2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
 ], [
 transform([0, 6.329, -0.25], undefined, [3, 0.45, 0.2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
 ], [
 transform([1.3, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
 ], [
 transform([1, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
 ], [
 transform([1.3, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
 ], [
 transform([1, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
 ], [
 transform([-0.34, 5.76, -0.24], [0, 0, -0.383, 0.924], [1.2, 0.2, 0.05]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.367, 0.367, 0.367, 1]),
 ], [
 transform([-1, 7.75, 0.25], undefined, [0.2, 0.3, 0.2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
 ], [
 transform([-1.3, 7.75, 0.25], undefined, [0.2, 0.3, 0.2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
 ]),
 ];
@@ -2459,51 +2448,51 @@ function prop_car2(game) {
 return [
 children([
 transform([0, 0.8, 0], undefined, [4, 1, 2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
 ], [
 transform([1.276, 0.5, 0], [0.707, 0, 0, 0.707], [1, 2.2, 1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
 ], [
 transform([-1.1, 0.5, 0], [0.707, 0, 0, 0.707], [1, 2.2, 1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
 ], [
 transform([-0.5, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
 ], [
 transform([-0.5, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
 ], [
 transform([1.9, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
 ], [
 transform([1.9, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
 ], [
 transform([0.7, 2.8, 0], undefined, [2.6, 0.2, 2]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
 ], [
 transform([-2, 1, -0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
 ], [
 transform([-2, 1, 0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
 ], [
 transform([0.264, 1.55, 0.55], undefined, [0.2, 0.5, 0.8]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
 ], [
 transform([0.264, 1.55, -0.55], undefined, [0.2, 0.5, 0.8]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
 ]),
 ];
@@ -2523,15 +2512,15 @@ function prop_box(game) {
 return [
 children([
 transform(undefined, undefined, undefined),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
 ], [
 transform([0.171, 0.62, 0], [0, 0, 0.574, 0.819], [0.039, 0.7, 1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
 ], [
 transform([-0.293, 0.536, 0], [0, 0, -0.643, 0.766], [0.039, 0.42, 1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
 ]),
 ];
@@ -2542,7 +2531,7 @@ return [
 collide(true, 4 /* Movable */ | 32 /* SurfaceWood */, 2 /* Terrain */ | 4 /* Movable */),
 rigid_body(1 /* Dynamic */),
 mimic(0),
-disable(8192 /* Mimic */),
+disable(4096 /* Mimic */),
 ...prop_box(game),
 ];
 }
@@ -2552,7 +2541,7 @@ disable(8192 /* Mimic */),
 */
 function trigger(mask, action) {
 return (game, entity) => {
-game.World.Signature[entity] |= 8388608 /* Trigger */;
+game.World.Signature[entity] |= 4194304 /* Trigger */;
 game.World.Trigger[entity] = {
 Mask: mask,
 Action: action,
@@ -2688,7 +2677,7 @@ move(float(1, 1.2), 0),
 lifespan(100),
 children([
 transform(undefined, undefined, [2, 2, 2]),
-cull(65536 /* Render */ | 32 /* Children */),
+cull(32768 /* Render */ | 16 /* Children */),
 ...blueprint_lisek(game, element(colors), 3),
 ]),
 ];
@@ -2700,7 +2689,7 @@ move(float(2, 2.2), 0),
 lifespan(50),
 children([
 transform(undefined, undefined, [1, 1.5, 1]),
-cull(65536 /* Render */ | 32 /* Children */),
+cull(32768 /* Render */ | 16 /* Children */),
 ...blueprint_lisek(game, element(colors), 1.5),
 ]),
 ];
@@ -2711,7 +2700,7 @@ move(float(3, 3.2), 0),
 lifespan(30),
 children([
 transform(undefined, undefined, [0.5, 0.5, 1]),
-cull(65536 /* Render */ | 32 /* Children */),
+cull(32768 /* Render */ | 16 /* Children */),
 ...blueprint_lisek(game, element(colors), 0.8),
 ]),
 ];
@@ -3182,23 +3171,23 @@ transform([56.401, 1, 0.298], [0.698, 0.155, 0.159, -0.681], undefined),
 instantiate(game, [transform([77, 1.5, 0]), ...blueprint_exit(game)]);
 instantiate(game, [
 transform([-3, 2, -2], [0.011, 0.755, 0.122, 0.644]),
-children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(262144 /* Shake */ | 524288 /* Spawn */)]),
+children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
 ]);
 instantiate(game, [
 transform([14, 2, -2], [0.011, 0.755, 0.122, 0.644]),
-children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(262144 /* Shake */ | 524288 /* Spawn */)]),
+children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
 ]);
 instantiate(game, [
 transform([33, 2, -2], [0.011, 0.755, 0.122, 0.644]),
-children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(262144 /* Shake */ | 524288 /* Spawn */)]),
+children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
 ]);
 instantiate(game, [
 transform([53, 2, -2], [0.011, 0.755, 0.122, 0.644]),
-children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(262144 /* Shake */ | 524288 /* Spawn */)]),
+children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
 ]);
 instantiate(game, [
 transform([73, 2, -2], [0.011, 0.755, 0.122, 0.644]),
-children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(262144 /* Shake */ | 524288 /* Spawn */)]),
+children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
 ]);
 instantiate(game, [transform([-7, 0.5, -5], [0, 0.707, 0, 0.707]), spawn(blueprint_animal, 1)]);
 instantiate(game, [...blueprint_sun_light(), transform()]);
@@ -3210,7 +3199,7 @@ game.World = new World();
 game.ViewportResized = true;
 let camera_anchor_intro = instantiate(game, [transform([0, 1, -3]), named("camera anchor")]);
 let player_entity = instantiate_player(game, [0, 0.774, 0]);
-game.World.Signature[player_entity] &= ~256 /* ControlPlayer */;
+game.World.Signature[player_entity] &= ~128 /* ControlPlayer */;
 map_city(game);
 let starfield_entity = instantiate(game, [
 transform([0, 16, -5], from_euler([0, 0, 0, 1], 10, 0, 0), [17, 10, 1]),
@@ -3229,7 +3218,7 @@ let camera_entity = instantiate(game, [
 ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
 transform([0, 15, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
 mimic(find_first(game.World, "camera anchor"), 0.02),
-disable(8192 /* Mimic */),
+disable(4096 /* Mimic */),
 ]);
 let pups = [
 instantiate(game, [
@@ -3257,7 +3246,7 @@ instantiate(game, [
 children([
 task_timeout(1, () => {
 
-game.World.Signature[camera_entity] |= 8192 /* Mimic */;
+game.World.Signature[camera_entity] |= 4096 /* Mimic */;
 }),
 ], [
 task_timeout(4, () => {
@@ -3283,7 +3272,7 @@ transform([-20, 5, 0]),
 }),
 ]),
 task_timeout(2, () => {
-game.World.Signature[player_entity] |= 256 /* ControlPlayer */;
+game.World.Signature[player_entity] |= 128 /* ControlPlayer */;
 }),
 ]);
 }),
@@ -3306,111 +3295,111 @@ function prop_barn(game) {
 return [
 children([
 transform([0, 1, 0], undefined, [3, 2, 3]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.406, 0, 0, 1]),
 ], [
 transform([0, 2, 0.9], [0.707, 0, 0, 0.707], [3, 1.2, 2.99]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.406, 0, 0, 1]),
 ], [
 transform([-1.5, 1, -1.5], undefined, [0.1, 2, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-1.5, 1, 1.5], undefined, [0.1, 2, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([1.5, 1, -1.5], undefined, [0.1, 2, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
 ], [
 transform([1.5, 1, 1.5], undefined, [0.1, 2, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 2, 1.49], undefined, [3.099, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 2, -1.5], undefined, [3.099, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([1.5, 2, -0.001], [0, 0.707, 0, 0.707], [3.099, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-1.498, 2, -0.001], [0, 0.707, 0, 0.707], [3.099, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-1.28, 2.524, 1.49], [0, 0, 0.547, 0.837], [1.159, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-1.28, 2.524, -1.494], [0, 0, 0.547, 0.837], [1.159, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([1.273, 2.524, 1.49], [0, 0, -0.547, 0.837], [1.159, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([1.273, 2.524, -1.524], [0, 0, -0.547, 0.837], [1.159, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0.507, 3.274, -1.524], [0, 0, -0.191, 0.982], [1.159, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0.507, 3.274, 1.527], [0, 0, -0.191, 0.982], [1.159, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-0.521, 3.274, 1.527], [0, 0, 0.191, 0.982], [1.159, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-0.521, 3.274, -1.525], [0, 0, 0.191, 0.982], [1.159, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 1.5, 1.6], undefined, [1.8, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0.854, 0.7, 1.6], [0, 0, -0.707, 0.707], [1.5, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-0.85, 0.7, 1.6], [0, 0, -0.707, 0.707], [1.5, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 0.7, 1.59], [0, 0, -0.383, 0.924], [2.2, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 0.7, 1.58], [0, 0, 0.383, 0.924], [2.2, 0.1, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([-1.247, 2.524, -0.011], [0, 0, 0.547, 0.837], [1.159, 0.1, 2.99]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
 ], [
 transform([1.242, 2.524, -0.011], [0, 0, -0.547, 0.837], [1.159, 0.1, 2.99]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
 ], [
 transform([0.508, 3.242, -0.011], [0, 0, -0.191, 0.982], [1.159, 0.1, 2.99]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
 ], [
 transform([-0.515, 3.242, -0.011], [0, 0, 0.191, 0.982], [1.159, 0.1, 2.99]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
 ]),
 ];
@@ -3420,23 +3409,23 @@ function prop_fence(game) {
 return [
 children([
 transform([0, 0.6, 0], undefined, [0.1, 1.2, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 1.21, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 0.6, 1], undefined, [0.1, 1.2, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 0.8, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 0.4, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
 ]),
 ];
@@ -3446,31 +3435,31 @@ function prop_silo(game) {
 return [
 children([
 transform([0, 3, 0], undefined, [2.5, 6, 2.5]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.406, 0, 0, 1]),
 ], [
 transform([0, 0.001, 0], undefined, [2.6, 0.2, 2.6]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 6, 0], undefined, [2.6, 0.2, 2.6]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 3, 0], undefined, [2.6, 0.2, 2.6]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 1.5, 0], undefined, [2.6, 0.2, 2.6]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0, 4.5, 0], undefined, [2.6, 0.2, 2.6]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
 ], [
 transform([0.527, 3, 1.595], undefined, [0.4, 6, 0.4]),
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
 ]),
 ];
@@ -3999,7 +3988,7 @@ mimic(find_first(game.World, "camera anchor"), 0.05),
 */
 function toggle(mask, delay, duration, init) {
 return (game, entity) => {
-game.World.Signature[entity] |= 2097152 /* Toggle */;
+game.World.Signature[entity] |= 1048576 /* Toggle */;
 game.World.Toggle[entity] = {
 Mask: mask,
 Duration: duration,
@@ -4012,7 +4001,7 @@ CurrentlyEnabled: !init,
 
 function blueprint_branch(game) {
 return [
-cull(65536 /* Render */),
+cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.2, 0.2, 1]),
 ];
 }
@@ -4041,7 +4030,7 @@ move(0.5, 0.5),
 function blueprint_pushable_branch(game) {
 return [
 mimic(0),
-disable(8192 /* Mimic */),
+disable(4096 /* Mimic */),
 rigid_body(1 /* Dynamic */),
 collide(true, 4 /* Movable */ | 32 /* SurfaceWood */, 2 /* Terrain */ | 4 /* Movable */, [6, 0.5, 0.5]),
 children([
@@ -4063,12 +4052,12 @@ function blueprint_launchpad(game) {
 return [
 named("launchpad"),
 control_always([0, 1, 0], null),
-disable(128 /* ControlAlways */),
+disable(64 /* ControlAlways */),
 move(5, 0),
 children([
 transform(),
 shake(0.01),
-disable(262144 /* Shake */),
+disable(131072 /* Shake */),
 children([transform([0, -30, 0], undefined, [3, 3, 3]), ...prop_rocket(game)], [
 transform([0, -30, 0], [0.707, 0, 0, 0.707]),
 children([
@@ -4445,7 +4434,7 @@ children([
 transform(),
 ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
 shake(0.03),
-toggle(262144 /* Shake */, 5, 0.5, true),
+toggle(131072 /* Shake */, 5, 0.5, true),
 ]),
 ]);
 }
@@ -4487,14 +4476,14 @@ break;
 }
 case 4 /* EndGame */: {
 let [trigger_entity] = payload;
-game.World.Signature[trigger_entity] &= ~8388608 /* Trigger */;
+game.World.Signature[trigger_entity] &= ~4194304 /* Trigger */;
 for (let i = 0; i < game.World.Signature.length; i++) {
-game.World.Signature[i] &= ~256 /* ControlPlayer */;
+game.World.Signature[i] &= ~128 /* ControlPlayer */;
 }
 let launchpad_entity = find_first(game.World, "launchpad");
-game.World.Signature[launchpad_entity] |= 128 /* ControlAlways */;
+game.World.Signature[launchpad_entity] |= 64 /* ControlAlways */;
 let launchpad_shaker_entity = game.World.Children[launchpad_entity].Children[0];
-game.World.Signature[launchpad_shaker_entity] |= 262144 /* Shake */;
+game.World.Signature[launchpad_shaker_entity] |= 131072 /* Shake */;
 game.CurrentView = End;
 break;
 }
@@ -5646,15 +5635,15 @@ let index_arr = Uint16Array.from([
 /**
 * @module systems/sys_animate
 */
-const QUERY$o = 4194304 /* Transform */ | 1 /* Animate */;
+const QUERY$m = 2097152 /* Transform */ | 1 /* Animate */;
 function sys_animate(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$o) === QUERY$o) {
-update$i(game, i, delta);
+if ((game.World.Signature[i] & QUERY$m) === QUERY$m) {
+update$g(game, i, delta);
 }
 }
 }
-function update$i(game, entity, delta) {
+function update$g(game, entity, delta) {
 let transform = game.World.Transform[entity];
 let animate = game.World.Animate[entity];
 
@@ -5748,51 +5737,9 @@ animate.Current = animate.States["idle"];
 }
 }
 
-/**
-* @module systems/sys_audio_listener
-*/
-const QUERY$n = 2 /* AudioListener */ | 4194304 /* Transform */;
-function sys_audio_listener(game, delta) {
-for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$n) === QUERY$n) {
-update$h(game, i);
-}
-}
-}
-let position$1 = [0, 0, 0];
-let forward$2 = [0, 0, 0];
-let up = [0, 0, 0];
-function update$h(game, entity) {
-let transform = game.World.Transform[entity];
-get_translation(position$1, transform.World);
-get_forward(forward$2, transform.World);
-get_up(up, transform.World);
-let listener = game.Audio.listener;
-if (listener.positionX) {
-
-listener.positionX.value = position$1[0];
-listener.positionY.value = position$1[1];
-listener.positionZ.value = position$1[2];
-listener.forwardX.value = forward$2[0];
-listener.forwardY.value = forward$2[1];
-listener.forwardZ.value = forward$2[2];
-listener.upX.value = up[0];
-listener.upY.value = up[1];
-listener.upZ.value = up[2];
-}
-else {
-
-listener.setPosition(...position$1);
-listener.setOrientation(...forward$2, ...up);
-}
-}
-
-function play_note(audio, panner, instr, note, offset) {
+function play_note(audio, instr, note, offset) {
 let time = audio.currentTime + offset;
 let total_duration = 0;
-if (panner) {
-panner.connect(audio.destination);
-}
 let master = audio.createGain();
 master.gain.value = (instr[0 /* MasterGainAmount */] / 9) ** 3;
 let lfa, lfo;
@@ -5815,15 +5762,7 @@ if (lfa && instr[4 /* FilterDetuneLFO */]) {
 lfa.connect(filter.detune);
 }
 master.connect(filter);
-if (panner) {
-filter.connect(panner);
-}
-else {
 filter.connect(audio.destination);
-}
-}
-else if (panner) {
-master.connect(panner);
 }
 else {
 master.connect(audio.destination);
@@ -5898,7 +5837,7 @@ channel[i] = Math.random() * 2 - 1;
 }
 return noise_buffer;
 }
-function play_synth_clip(audio, panner, clip) {
+function play_synth_clip(audio, clip) {
 
 let spb = 60 / (clip.BPM || 120);
 
@@ -5906,38 +5845,25 @@ let interval = spb / 4;
 for (let track of clip.Tracks) {
 for (let i = 0; i < track.Notes.length; i++) {
 if (track.Notes[i]) {
-play_note(audio, panner, track.Instrument, track.Notes[i], i * interval);
+play_note(audio, track.Instrument, track.Notes[i], i * interval);
 }
 }
 }
-}
-function play_buffer_clip(audio, panner, clip) {
-let source = audio.createBufferSource();
-source.buffer = clip.Buffer;
-if (panner) {
-source.connect(panner);
-panner.connect(audio.destination);
-}
-else {
-source.connect(audio.destination);
-}
-source.start();
 }
 
 /**
 * @module systems/sys_audio_source
 */
-const QUERY$m = 4 /* AudioSource */ | 4194304 /* Transform */;
+const QUERY$l = 2 /* AudioSource */;
 function sys_audio_source(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$m) === QUERY$m) {
-update$g(game, i, delta);
+if ((game.World.Signature[i] & QUERY$l) === QUERY$l) {
+update$f(game, i, delta);
 }
 }
 }
-function update$g(game, entity, delta) {
+function update$f(game, entity, delta) {
 let audio_source = game.World.AudioSource[entity];
-let transform = game.World.Transform[entity];
 if (audio_source.Current) {
 audio_source.Time += delta;
 if (audio_source.Time > audio_source.Current.Exit) {
@@ -5947,49 +5873,17 @@ if (audio_source.Time > audio_source.Current.Exit) {
 
 audio_source.Current = undefined;
 }
-else if (audio_source.Panner) {
-update_panner(audio_source.Panner, transform);
-}
 }
 if (audio_source.Trigger && !audio_source.Current) {
-switch (audio_source.Trigger.Kind) {
-case 0 /* Buffer */:
-play_buffer_clip(game.Audio, audio_source.Panner, audio_source.Trigger);
-break;
-case 1 /* Synth */:
-play_synth_clip(game.Audio, audio_source.Panner, audio_source.Trigger);
-break;
-}
+play_synth_clip(game.Audio, audio_source.Trigger);
 audio_source.Current = audio_source.Trigger;
 audio_source.Time = 0;
-if (audio_source.Panner) {
-update_panner(audio_source.Panner, transform);
-}
 }
 
 
 
 
 audio_source.Trigger = audio_source.Idle;
-}
-const position = [0, 0, 0];
-const forward$1 = [0, 0, 0];
-function update_panner(panner, transform) {
-get_translation(position, transform.World);
-get_forward(forward$1, transform.World);
-if (panner.positionX) {
-panner.positionX.value = position[0];
-panner.positionY.value = position[1];
-panner.positionZ.value = position[2];
-panner.orientationX.value = forward$1[0];
-panner.orientationY.value = forward$1[1];
-panner.orientationZ.value = forward$1[2];
-}
-else {
-
-panner.setPosition(...position);
-panner.setOrientation(...forward$1);
-}
 }
 
 function resize_perspective(projection, aspect) {
@@ -6012,11 +5906,11 @@ invert(projection.Inverse, projection.Projection);
 /**
 * @module systems/sys_camera
 */
-const QUERY$l = 4194304 /* Transform */ | 16 /* Camera */;
+const QUERY$k = 2097152 /* Transform */ | 8 /* Camera */;
 function sys_camera(game, delta) {
 game.Cameras = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$l) === QUERY$l) {
+if ((game.World.Signature[i] & QUERY$k) === QUERY$k) {
 let camera = game.World.Camera[i];
 let transform = game.World.Transform[i];
 let projection = camera.Projection;
@@ -6125,13 +6019,13 @@ a.Max[2] > b.Min[2]);
 /**
 * @module systems/sys_collide
 */
-const QUERY$k = 4194304 /* Transform */ | 64 /* Collide */;
+const QUERY$j = 2097152 /* Transform */ | 32 /* Collide */;
 function sys_collide(game, delta) {
 
 let static_colliders = [];
 let dynamic_colliders = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$k) === QUERY$k) {
+if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
 let transform = game.World.Transform[i];
 let collider = game.World.Collide[i];
 
@@ -6195,15 +6089,15 @@ Hit: negate([0, 0, 0], hit),
 /**
 * @module systems/sys_control_always
 */
-const QUERY$j = 128 /* ControlAlways */ | 4194304 /* Transform */;
+const QUERY$i = 64 /* ControlAlways */ | 2097152 /* Transform */;
 function sys_control_always(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
-update$f(game, i);
+if ((game.World.Signature[i] & QUERY$i) === QUERY$i) {
+update$e(game, i);
 }
 }
 }
-function update$f(game, entity) {
+function update$e(game, entity) {
 let control = game.World.ControlAlways[entity];
 let move = game.World.Move[entity];
 if (control.Direction) {
@@ -6221,7 +6115,6 @@ animate.Trigger = control.Animation;
 }
 
 let snd_walk1 = {
-Kind: 1 /* Synth */,
 Tracks: [
 {
 Instrument: [
@@ -6245,7 +6138,6 @@ Exit: 0.25,
 };
 
 let snd_walk2 = {
-Kind: 1 /* Synth */,
 Tracks: [
 {
 Instrument: [
@@ -6269,7 +6161,6 @@ Exit: 0.25,
 };
 
 let snd_walk3 = {
-Kind: 1 /* Synth */,
 Tracks: [
 {
 Instrument: [
@@ -6292,15 +6183,15 @@ Notes: [48],
 Exit: 0.25,
 };
 
-const QUERY$i = 256 /* ControlPlayer */;
+const QUERY$h = 128 /* ControlPlayer */;
 function sys_control_keyboard(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$i) === QUERY$i) {
-update$e(game, i);
+if ((game.World.Signature[i] & QUERY$h) === QUERY$h) {
+update$d(game, i);
 }
 }
 }
-function update$e(game, entity) {
+function update$d(game, entity) {
 let control = game.World.ControlPlayer[entity];
 if (control.Flags & 1 /* Move */) {
 let move = game.World.Move[entity];
@@ -6360,16 +6251,16 @@ if (game.InputState["Space"] &&
 collide.Collisions.length > 0) {
 let obstacle_entity = collide.Collisions[0].Other;
 let obstacle_mimic = game.World.Mimic[obstacle_entity];
-for (let ent of query_up(game.World, entity, 256 /* ControlPlayer */)) {
+for (let ent of query_up(game.World, entity, 128 /* ControlPlayer */)) {
 let control = game.World.ControlPlayer[ent];
 control.IsGrabbingEntity = obstacle_entity;
 }
-game.World.Signature[obstacle_entity] |= 8192 /* Mimic */;
+game.World.Signature[obstacle_entity] |= 4096 /* Mimic */;
 obstacle_mimic.Target = entity;
 }
 if (game.InputDelta["Space"] === -1 && control.IsGrabbingEntity) {
-game.World.Signature[control.IsGrabbingEntity] &= ~8192 /* Mimic */;
-for (let ent of query_up(game.World, entity, 256 /* ControlPlayer */)) {
+game.World.Signature[control.IsGrabbingEntity] &= ~4096 /* Mimic */;
+for (let ent of query_up(game.World, entity, 128 /* ControlPlayer */)) {
 let control = game.World.ControlPlayer[ent];
 control.IsGrabbingEntity = null;
 }
@@ -6401,7 +6292,7 @@ animate.Trigger = anim_name;
 }
 }
 
-const QUERY$h = 256 /* ControlPlayer */;
+const QUERY$g = 128 /* ControlPlayer */;
 const DOUBLE_TAP_INTERVAL = 0.2;
 const MOVEMENT_DEAD_ZONE = 0.01;
 const JUMPING_DEAD_ZONE = 0.5;
@@ -6429,12 +6320,12 @@ dx = (game.InputState["Touch0X"] - touch_start[0]) / divisor;
 dy = (game.InputState["Touch0Y"] - touch_start[1]) / divisor;
 }
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$h) === QUERY$h) {
-update$d(game, i, dx, dy);
+if ((game.World.Signature[i] & QUERY$g) === QUERY$g) {
+update$c(game, i, dx, dy);
 }
 }
 }
-function update$d(game, entity, dx, dy) {
+function update$c(game, entity, dx, dy) {
 let control = game.World.ControlPlayer[entity];
 if (control.Flags & 1 /* Move */) {
 let move = game.World.Move[entity];
@@ -6472,17 +6363,17 @@ time_between_taps < DOUBLE_TAP_INTERVAL &&
 !control.IsGrabbingEntity &&
 collide.Collisions.length > 0) {
 let obstacle_entity = collide.Collisions[0].Other;
-for (let ent of query_up(game.World, entity, 256 /* ControlPlayer */)) {
+for (let ent of query_up(game.World, entity, 128 /* ControlPlayer */)) {
 let control = game.World.ControlPlayer[ent];
 control.IsGrabbingEntity = obstacle_entity;
 }
-game.World.Signature[obstacle_entity] |= 8192 /* Mimic */;
+game.World.Signature[obstacle_entity] |= 4096 /* Mimic */;
 let obstacle_mimic = game.World.Mimic[obstacle_entity];
 obstacle_mimic.Target = entity;
 }
 if (game.InputDelta["Touch0"] === -1 && control.IsGrabbingEntity) {
-game.World.Signature[control.IsGrabbingEntity] &= ~8192 /* Mimic */;
-for (let ent of query_up(game.World, entity, 256 /* ControlPlayer */)) {
+game.World.Signature[control.IsGrabbingEntity] &= ~4096 /* Mimic */;
+for (let ent of query_up(game.World, entity, 128 /* ControlPlayer */)) {
 let control = game.World.ControlPlayer[ent];
 control.IsGrabbingEntity = null;
 }
@@ -6498,7 +6389,7 @@ animate.Trigger = "walk";
 }
 }
 
-const QUERY$g = 16384 /* Move */ | 256 /* ControlPlayer */;
+const QUERY$f = 8192 /* Move */ | 128 /* ControlPlayer */;
 const DEAD_ZONE = 0.1;
 function sys_control_xbox(game, delta) {
 for (let pad of navigator.getGamepads()) {
@@ -6510,12 +6401,12 @@ game.InputDelta[`pad${pad.index}_axis_4`] = pad.axes[3];
 }
 }
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$g) === QUERY$g) {
-update$c(game, i);
+if ((game.World.Signature[i] & QUERY$f) === QUERY$f) {
+update$b(game, i);
 }
 }
 }
-function update$c(game, entity) {
+function update$b(game, entity) {
 let control = game.World.ControlPlayer[entity];
 if (control.Flags & 1 /* Move */) {
 let move = game.World.Move[entity];
@@ -6530,19 +6421,19 @@ move.Directions.push([0, 0, -game.InputDelta["pad0_axis_2"]]);
 }
 }
 
-const QUERY$f = 4194304 /* Transform */ | 512 /* Cull */;
+const QUERY$e = 2097152 /* Transform */ | 256 /* Cull */;
 function sys_cull(game, delta) {
 
 let camera_entity = game.Cameras[1];
 let transform = game.World.Transform[camera_entity];
 let x = transform.World[12];
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$f) == QUERY$f) {
-update$b(game, i, x);
+if ((game.World.Signature[i] & QUERY$e) == QUERY$e) {
+update$a(game, i, x);
 }
 }
 }
-function update$b(game, entity, camera_x) {
+function update$a(game, entity, camera_x) {
 let cull = game.World.Cull[entity];
 let transform = game.World.Transform[entity];
 let x = transform.World[12];
@@ -6557,15 +6448,15 @@ game.World.Signature[entity] |= cull.Mask;
 /**
 * @module systems/sys_lifespan
 */
-const QUERY$e = 2048 /* Lifespan */;
+const QUERY$d = 1024 /* Lifespan */;
 function sys_lifespan(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$e) == QUERY$e) {
-update$a(game, i, delta);
+if ((game.World.Signature[i] & QUERY$d) == QUERY$d) {
+update$9(game, i, delta);
 }
 }
 }
-function update$a(game, entity, delta) {
+function update$9(game, entity, delta) {
 let lifespan = game.World.Lifespan[entity];
 lifespan.Remaining -= delta;
 if (lifespan.Remaining < 0) {
@@ -6579,19 +6470,19 @@ destroy_all(game.World, entity);
 /**
 * @module systems/sys_light
 */
-const QUERY$d = 4194304 /* Transform */ | 4096 /* Light */;
+const QUERY$c = 2097152 /* Transform */ | 2048 /* Light */;
 function sys_light(game, delta) {
 game.LightPositions.fill(0);
 game.LightDetails.fill(0);
 let counter = 0;
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$d) === QUERY$d) {
-update$9(game, i, counter++);
+if ((game.World.Signature[i] & QUERY$c) === QUERY$c) {
+update$8(game, i, counter++);
 }
 }
 }
 let world_pos = [0, 0, 0];
-function update$9(game, entity, idx) {
+function update$8(game, entity, idx) {
 let light = game.World.Light[entity];
 let transform = game.World.Transform[entity];
 get_translation(world_pos, transform.World);
@@ -6613,10 +6504,10 @@ game.LightDetails[4 * idx + 3] = light.Intensity;
 /**
 * @module systems/sys_mimic
 */
-const QUERY$c = 4194304 /* Transform */ | 8192 /* Mimic */;
+const QUERY$b = 2097152 /* Transform */ | 4096 /* Mimic */;
 function sys_mimic(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$c) === QUERY$c) {
+if ((game.World.Signature[i] & QUERY$b) === QUERY$b) {
 let follower_transform = game.World.Transform[i];
 let follower_mimic = game.World.Mimic[i];
 let target_transform = game.World.Transform[follower_mimic.Target];
@@ -6633,16 +6524,16 @@ follower_transform.Dirty = true;
 /**
 * @module systems/sys_move
 */
-const QUERY$b = 4194304 /* Transform */ | 16384 /* Move */;
+const QUERY$a = 2097152 /* Transform */ | 8192 /* Move */;
 const NO_ROTATION = [0, 0, 0, 1];
 function sys_move(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$b) === QUERY$b) {
-update$8(game, i, delta);
+if ((game.World.Signature[i] & QUERY$a) === QUERY$a) {
+update$7(game, i, delta);
 }
 }
 }
-function update$8(game, entity, delta) {
+function update$7(game, entity, delta) {
 let transform = game.World.Transform[entity];
 let move = game.World.Move[entity];
 if (move.Directions.length) {
@@ -6695,17 +6586,17 @@ function multiply_rotations(acc, cur) {
 return multiply(acc, acc, cur);
 }
 
-const QUERY$a = 4194304 /* Transform */ | 1024 /* EmitParticles */;
+const QUERY$9 = 2097152 /* Transform */ | 512 /* EmitParticles */;
 function sys_particles(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$a) == QUERY$a) {
-update$7(game, i, delta);
+if ((game.World.Signature[i] & QUERY$9) == QUERY$9) {
+update$6(game, i, delta);
 }
 }
 }
 let origin = [0, 0, 0];
 let forward = [0, 0, 0];
-function update$7(game, entity, delta) {
+function update$6(game, entity, delta) {
 let emitter = game.World.EmitParticles[entity];
 let transform = game.World.Transform[entity];
 emitter.SinceLast += delta;
@@ -6734,16 +6625,16 @@ i += DATA_PER_PARTICLE;
 /**
 * @module systems/sys_physics_integrate
 */
-const QUERY$9 = 4194304 /* Transform */ | 131072 /* RigidBody */;
+const QUERY$8 = 2097152 /* Transform */ | 65536 /* RigidBody */;
 const GRAVITY = -20;
 function sys_physics_integrate(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$9) === QUERY$9) {
-update$6(game, i, delta);
+if ((game.World.Signature[i] & QUERY$8) === QUERY$8) {
+update$5(game, i, delta);
 }
 }
 }
-function update$6(game, entity, delta) {
+function update$5(game, entity, delta) {
 let transform = game.World.Transform[entity];
 let rigid_body = game.World.RigidBody[entity];
 if (rigid_body.Kind === 1 /* Dynamic */) {
@@ -6763,34 +6654,9 @@ set$1(rigid_body.Acceleration, 0, 0, 0);
 }
 
 /**
-* @module systems/sys_physics_kinematic
-*/
-const QUERY$8 = 4194304 /* Transform */ | 131072 /* RigidBody */;
-function sys_physics_kinematic(game, delta) {
-for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$8) === QUERY$8) {
-update$5(game, i, delta);
-}
-}
-}
-function update$5(game, entity, delta) {
-let transform = game.World.Transform[entity];
-let rigid_body = game.World.RigidBody[entity];
-if (rigid_body.Kind === 2 /* Kinematic */) {
-let current_position = [0, 0, 0];
-get_translation(current_position, transform.World);
-let movement = [0, 0, 0];
-subtract(movement, current_position, rigid_body.LastPosition);
-
-scale(rigid_body.VelocityIntegrated, movement, 1 / delta);
-copy$1(rigid_body.LastPosition, current_position);
-}
-}
-
-/**
 * @module systems/sys_physics_resolve
 */
-const QUERY$7 = 4194304 /* Transform */ | 64 /* Collide */ | 131072 /* RigidBody */;
+const QUERY$7 = 2097152 /* Transform */ | 32 /* Collide */ | 65536 /* RigidBody */;
 function sys_physics_resolve(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$7) === QUERY$7) {
@@ -6808,7 +6674,7 @@ if (rigid_body.Kind === 1 /* Dynamic */) {
 let has_collision = false;
 for (let i = 0; i < collide.Collisions.length; i++) {
 let collision = collide.Collisions[i];
-if (game.World.Signature[collision.Other] & 131072 /* RigidBody */) {
+if (game.World.Signature[collision.Other] & 65536 /* RigidBody */) {
 has_collision = true;
 
 
@@ -6833,7 +6699,6 @@ scale(a, a, -2 * dot(rigid_body.VelocityIntegrated, a));
 add(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated, a);
 break;
 case 1 /* Dynamic */:
-case 2 /* Kinematic */:
 copy$1(rigid_body.VelocityResolved, other_body.VelocityIntegrated);
 break;
 }
@@ -6856,7 +6721,7 @@ rigid_body.IsAirborne = true;
 /**
 * @module systems/sys_poll
 */
-const QUERY$6 = 1048576 /* Task */;
+const QUERY$6 = 524288 /* Task */;
 function sys_poll(game, delta) {
 
 
@@ -6890,7 +6755,7 @@ let task = game.World.Task[entity];
 if (task.OnDone) {
 task.OnDone(entity);
 }
-game.World.Signature[entity] &= ~1048576 /* Task */;
+game.World.Signature[entity] &= ~524288 /* Task */;
 if (game.World.Signature[entity] === 0 /* None */) {
 game.World.DestroyEntity(entity);
 }
@@ -6900,10 +6765,10 @@ delete game.World.Task[entity];
 }
 }
 function has_blocking_dependencies(world, entity) {
-if (world.Signature[entity] & 32 /* Children */) {
+if (world.Signature[entity] & 16 /* Children */) {
 let children = world.Children[entity];
 for (let child of children.Children) {
-if (world.Signature[child] & 1048576 /* Task */) {
+if (world.Signature[child] & 524288 /* Task */) {
 
 return true;
 }
@@ -6915,7 +6780,7 @@ return false;
 /**
 * @module systems/sys_render_forward
 */
-const QUERY$5 = 4194304 /* Transform */ | 65536 /* Render */;
+const QUERY$5 = 2097152 /* Transform */ | 32768 /* Render */;
 function sys_render_forward(game, delta) {
 if (game.Quality !== game.Targets.Sun.Width) {
 resize_depth_target(game.Gl, game.Targets.Sun, game.Quality, game.Quality);
@@ -7028,7 +6893,7 @@ game.Gl.activeTexture(GL_TEXTURE0);
 game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Sun.DepthTexture);
 game.Gl.uniform1i(material.Locations.ShadowMap, 0);
 
-let light_entity = first_entity(game.World, 16 /* Camera */ | 4096 /* Light */);
+let light_entity = first_entity(game.World, 8 /* Camera */ | 2048 /* Light */);
 if (light_entity) {
 let light_camera = game.World.Camera[light_entity];
 game.Gl.uniformMatrix4fv(material.Locations.ShadowSpace, false, light_camera.Pv);
@@ -7059,8 +6924,8 @@ game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World
 game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
 game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
 let bone_entities = [];
-if (game.World.Signature[entity] & 32 /* Children */) {
-for (let bone_entity of query_all(game.World, entity, 8 /* Bone */ | 4194304 /* Transform */)) {
+if (game.World.Signature[entity] & 16 /* Children */) {
+for (let bone_entity of query_all(game.World, entity, 4 /* Bone */ | 2097152 /* Transform */)) {
 bone_entities.push(bone_entity);
 }
 }
@@ -7069,7 +6934,7 @@ else {
 
 let start_here = entity;
 for (let i = 0; i < 5; i++) {
-let bone_entity = first_entity(game.World, 8 /* Bone */ | 4194304 /* Transform */, start_here);
+let bone_entity = first_entity(game.World, 4 /* Bone */ | 2097152 /* Transform */, start_here);
 if (bone_entity) {
 bone_entities.push(bone_entity);
 start_here = bone_entity + 1;
@@ -7139,7 +7004,7 @@ game.ViewportHeight = game.Canvas3D.height = game.Canvas2D.height = window.inner
 /**
 * @module systems/sys_shake
 */
-const QUERY$4 = 4194304 /* Transform */ | 262144 /* Shake */;
+const QUERY$4 = 2097152 /* Transform */ | 131072 /* Shake */;
 function sys_shake(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$4) == QUERY$4) {
@@ -7158,7 +7023,7 @@ transform.Dirty = true;
 /**
 * @module systems/sys_spawn
 */
-const QUERY$3 = 4194304 /* Transform */ | 524288 /* Spawn */;
+const QUERY$3 = 2097152 /* Transform */ | 262144 /* Spawn */;
 function sys_spawn(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$3) == QUERY$3) {
@@ -7185,7 +7050,7 @@ instantiate(game, [...spawn.Creator(game), transform(world_position, world_rotat
 /**
 * @module systems/sys_toggle
 */
-const QUERY$2 = 2097152 /* Toggle */;
+const QUERY$2 = 1048576 /* Toggle */;
 function sys_toggle(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$2) == QUERY$2) {
@@ -7211,7 +7076,7 @@ game.World.Signature[entity] |= toggle.Mask;
 /**
 * @module systems/sys_transform
 */
-const QUERY$1 = 4194304 /* Transform */;
+const QUERY$1 = 2097152 /* Transform */;
 function sys_transform(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$1) === QUERY$1) {
@@ -7230,11 +7095,11 @@ let parent_transform = world.Transform[transform.Parent];
 multiply$1(transform.World, parent_transform.World, transform.World);
 }
 invert(transform.Self, transform.World);
-if (world.Signature[entity] & 32 /* Children */) {
+if (world.Signature[entity] & 16 /* Children */) {
 let children = world.Children[entity];
 for (let i = 0; i < children.Children.length; i++) {
 let child = children.Children[i];
-if (world.Signature[child] & 4194304 /* Transform */) {
+if (world.Signature[child] & 2097152 /* Transform */) {
 let child_transform = world.Transform[child];
 child_transform.Parent = entity;
 update_transform(world, child, child_transform);
@@ -7246,7 +7111,7 @@ update_transform(world, child, child_transform);
 /**
 * @module systems/sys_trigger
 */
-const QUERY = 4194304 /* Transform */ | 64 /* Collide */ | 8388608 /* Trigger */;
+const QUERY = 2097152 /* Transform */ | 32 /* Collide */ | 4194304 /* Trigger */;
 function sys_trigger(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY) {
@@ -7313,7 +7178,6 @@ sys_control_xbox(this);
 
 sys_physics_integrate(this, delta);
 sys_transform(this);
-sys_physics_kinematic(this, delta);
 sys_collide(this);
 sys_physics_resolve(this);
 sys_transform(this);
@@ -7335,7 +7199,6 @@ sys_spawn(this, delta);
 sys_particles(this, delta);
 sys_transform(this);
 
-sys_audio_listener(this);
 sys_audio_source(this, delta);
 sys_resize(this);
 sys_camera(this);
