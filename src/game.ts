@@ -14,7 +14,6 @@ import {mesh_ogon} from "../meshes/ogon.js";
 import {mesh_plane} from "../meshes/plane.js";
 import {scene_intro} from "./scenes/sce_intro.js";
 import {sys_animate} from "./systems/sys_animate.js";
-import {sys_audio_listener} from "./systems/sys_audio_listener.js";
 import {sys_audio_source} from "./systems/sys_audio_source.js";
 import {sys_camera} from "./systems/sys_camera.js";
 import {sys_collide} from "./systems/sys_collide.js";
@@ -29,7 +28,6 @@ import {sys_mimic} from "./systems/sys_mimic.js";
 import {sys_move} from "./systems/sys_move.js";
 import {sys_particles} from "./systems/sys_particles.js";
 import {sys_physics_integrate} from "./systems/sys_physics_integrate.js";
-import {sys_physics_kinematic} from "./systems/sys_physics_kinematic.js";
 import {sys_physics_resolve} from "./systems/sys_physics_resolve.js";
 import {sys_poll} from "./systems/sys_poll.js";
 import {sys_render_forward} from "./systems/sys_render_forward.js";
@@ -90,7 +88,6 @@ export class Game extends Game3D {
         // Collisions and physics.
         sys_physics_integrate(this, delta);
         sys_transform(this, delta);
-        sys_physics_kinematic(this, delta);
         sys_collide(this, delta);
         sys_physics_resolve(this, delta);
         sys_transform(this, delta);
@@ -116,7 +113,6 @@ export class Game extends Game3D {
         sys_transform(this, delta);
 
         // Rendering.
-        sys_audio_listener(this, delta);
         sys_audio_source(this, delta);
         sys_resize(this, delta);
         sys_camera(this, delta);

@@ -1,7 +1,6 @@
-import {AudioClipKind, AudioSynthClip} from "../../common/audio.js";
+import {AudioSynthClip} from "../../common/audio.js";
 
 export let snd_walk1: AudioSynthClip = {
-    Kind: AudioClipKind.Synth,
     Tracks: [
         {
             Instrument: [

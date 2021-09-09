@@ -20,7 +20,7 @@ export function blueprint_rocket(game: Game) {
         control_always([0, 0, 1], null),
         move(float(1, 3), 0),
         lifespan(25),
-        audio_source(true, snd_rocket),
+        audio_source(snd_rocket),
         disable(Has.AudioSource),
         children(
             // Body 1.

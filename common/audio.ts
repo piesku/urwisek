@@ -1,18 +1,4 @@
-export type AudioClip = AudioBufferClip | AudioSynthClip;
-
-export const enum AudioClipKind {
-    Buffer,
-    Synth,
-}
-
-export interface AudioBufferClip {
-    Kind: AudioClipKind.Buffer;
-    Buffer: AudioBuffer;
-    Exit: number;
-}
-
 export interface AudioSynthClip {
-    Kind: AudioClipKind.Synth;
     /** Audio tracks making up this clip. */
     Tracks: Array<AudioTrack>;
     /** How soon after starting this clip can we play another one (in seconds)? */
@@ -86,19 +72,9 @@ export const enum SourceParam {
     FreqRelease,
 }
 
-export function play_note(
-    audio: AudioContext,
-    panner: PannerNode | undefined,
-    instr: Instrument,
-    note: number,
-    offset: number
-) {
+export function play_note(audio: AudioContext, instr: Instrument, note: number, offset: number) {
     let time = audio.currentTime + offset;
     let total_duration = 0;
-
-    if (panner) {
-        panner.connect(audio.destination);
-    }
 
     let master = audio.createGain();
     master.gain.value = (instr[InstrumentParam.MasterGainAmount] / 9) ** 3;
@@ -127,13 +103,7 @@ export function play_note(
         }
 
         master.connect(filter);
-        if (panner) {
-            filter.connect(panner);
-        } else {
-            filter.connect(audio.destination);
-        }
-    } else if (panner) {
-        master.connect(panner);
+        filter.connect(audio.destination);
     } else {
         master.connect(audio.destination);
     }
@@ -223,11 +193,7 @@ function lazy_noise_buffer(audio: AudioContext) {
     return noise_buffer;
 }
 
-export function play_synth_clip(
-    audio: AudioContext,
-    panner: PannerNode | undefined,
-    clip: AudioSynthClip
-) {
+export function play_synth_clip(audio: AudioContext, clip: AudioSynthClip) {
     // Seconds per beat, corresponding to a quarter note.
     let spb = 60 / (clip.BPM || 120);
     // Track timing is based on sixteenth notes.
@@ -235,26 +201,8 @@ export function play_synth_clip(
     for (let track of clip.Tracks) {
         for (let i = 0; i < track.Notes.length; i++) {
             if (track.Notes[i]) {
-                play_note(audio, panner, track.Instrument, track.Notes[i], i * interval);
+                play_note(audio, track.Instrument, track.Notes[i], i * interval);
             }
         }
     }
-}
-
-export function play_buffer_clip(
-    audio: AudioContext,
-    panner: PannerNode | undefined,
-    clip: AudioBufferClip
-) {
-    let source = audio.createBufferSource();
-    source.buffer = clip.Buffer;
-
-    if (panner) {
-        source.connect(panner);
-        panner.connect(audio.destination);
-    } else {
-        source.connect(audio.destination);
-    }
-
-    source.start();
 }
