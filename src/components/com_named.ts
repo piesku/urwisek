@@ -24,5 +24,5 @@ export function find_first(world: World, name: string, start_at: Entity = 0): En
         }
     }
 
-    throw `No entity named ${name}.`;
+    return -1;
 }

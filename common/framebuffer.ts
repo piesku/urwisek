@@ -6,7 +6,6 @@ import {
     GL_COLOR_ATTACHMENT3,
     GL_DEPTH_ATTACHMENT,
     GL_FRAMEBUFFER,
-    GL_FRAMEBUFFER_COMPLETE,
     GL_TEXTURE_2D,
 } from "./webgl.js";
 
@@ -42,11 +41,6 @@ export function create_forward_target(gl: WebGL2RenderingContext, width: number,
         target.DepthTexture,
         0
     );
-
-    let status = gl.checkFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE) {
-        throw new Error(`Failed to set up the framebuffer (${status}).`);
-    }
 
     return target;
 }
@@ -132,11 +126,6 @@ export function create_deferred_target(gl: WebGL2RenderingContext, width: number
         GL_COLOR_ATTACHMENT3,
     ]);
 
-    let status = gl.checkFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE) {
-        throw new Error(`Failed to set up the framebuffer (${status}).`);
-    }
-
     return target;
 }
 
@@ -191,11 +180,6 @@ export function create_depth_target(gl: WebGL2RenderingContext, width: number, h
         target.ColorTexture,
         0
     );
-
-    let status = gl.checkFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE) {
-        throw new Error(`Failed to set up the framebuffer (${status}).`);
-    }
 
     return target;
 }
