@@ -33,10 +33,6 @@ function update(game: Game, entity: Entity, delta: number) {
         // Transform the direction into the world or the parent space. This will
         // also scale the result by the scale encoded in the transform.
         transform_direction(direction, direction, transform.World);
-        if (transform.Parent !== undefined) {
-            let parent = game.World.Transform[transform.Parent];
-            transform_direction(direction, direction, parent.Self);
-        }
         // Normalize the direction to remove the transform's scale. The length
         // of the orignal direction is now lost.
         normalize(direction, direction);
@@ -57,18 +53,6 @@ function update(game: Game, entity: Entity, delta: number) {
         multiply(transform.Rotation, rotation, transform.Rotation);
         transform.Dirty = true;
         move.LocalRotations = [];
-    }
-
-    // Rotations applied relative to the self space.
-    if (move.SelfRotations.length) {
-        let rotation = move.SelfRotations.reduce(multiply_rotations);
-        let t = Math.min(1, (move.RotationSpeed / Math.PI) * delta);
-        slerp(rotation, NO_ROTATION, rotation, t);
-
-        // Post-multiply.
-        multiply(transform.Rotation, transform.Rotation, rotation);
-        transform.Dirty = true;
-        move.SelfRotations = [];
     }
 }
 
