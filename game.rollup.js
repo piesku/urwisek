@@ -361,9 +361,7 @@
     class Game3D extends GameImpl {
         constructor() {
             super();
-            this.Canvas2D = document.querySelector("#billboard");
-            this.Context2D = this.Canvas2D.getContext("2d");
-            this.Canvas3D = document.querySelector("#scene");
+            this.Canvas3D = document.querySelector("canvas");
             this.Gl = this.Canvas3D.getContext("webgl2");
             this.Audio = new AudioContext();
             this.Gl.enable(GL_DEPTH_TEST);
@@ -6996,8 +6994,8 @@
             game.ViewportResized = true;
         }
         if (game.ViewportResized) {
-            game.ViewportWidth = game.Canvas3D.width = game.Canvas2D.width = window.innerWidth;
-            game.ViewportHeight = game.Canvas3D.height = game.Canvas2D.height = window.innerHeight;
+            game.ViewportWidth = game.Canvas3D.width = window.innerWidth;
+            game.ViewportHeight = game.Canvas3D.height = window.innerHeight;
         }
     }
 
