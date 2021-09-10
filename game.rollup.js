@@ -2075,7 +2075,7 @@
     function Settings(game) {
         return html `
         Quality:
-        <select onchange="$(${1 /* ChangeSettings */}, this)">
+        <select onchange="$(${0 /* ChangeSettings */}, this)">
             <option
                 value="${512 /* Low */}"
                 ${game.Quality === 512 /* Low */ && "selected"}
@@ -2126,7 +2126,7 @@
                 line-height: 2;
             "
         >
-            <div onclick="$(${2 /* NewGame */})">New Game</div>
+            <div onclick="$(${1 /* NewGame */})">New Game</div>
             <div>${Settings(game)}</div>
         </nav>
     `;
@@ -2471,7 +2471,7 @@
     function blueprint_exit(game) {
         return [
             collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
-            trigger(1 /* Player */, 3 /* NextScene */),
+            trigger(1 /* Player */, 2 /* NextScene */),
             children([named("exit"), transform([0, 1, 0])], [transform([0, 0, 0], [0, -0.707, 0, 0.707], [0.3, 0.3, 0.3]), ...blueprint_lisek(game)]),
         ];
     }
@@ -3454,7 +3454,7 @@
         return [
             named("exit"),
             collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
-            trigger(1 /* Player */, 4 /* EndGame */),
+            trigger(1 /* Player */, 3 /* EndGame */),
         ];
     }
 
@@ -3669,25 +3669,16 @@
 
     function dispatch(game, action, payload) {
         switch (action) {
-            case 0 /* ToggleFullscreen */: {
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                }
-                else {
-                    document.body.requestFullscreen();
-                }
-                break;
-            }
-            case 1 /* ChangeSettings */: {
+            case 0 /* ChangeSettings */: {
                 let select = payload;
                 game.Quality = parseInt(select.value);
                 break;
             }
-            case 2 /* NewGame */: {
+            case 1 /* NewGame */: {
                 game.CurrentView = Play;
                 break;
             }
-            case 3 /* NextScene */: {
+            case 2 /* NextScene */: {
                 switch (game.CurrentScene) {
                     case scene_intro:
                     case scene_level1:
@@ -3702,7 +3693,7 @@
                 game.CurrentView = Play;
                 break;
             }
-            case 4 /* EndGame */: {
+            case 3 /* EndGame */: {
                 let [trigger_entity] = payload;
                 game.World.Signature[trigger_entity] &= ~2097152 /* Trigger */;
                 for (let i = 0; i < game.World.Signature.length; i++) {
