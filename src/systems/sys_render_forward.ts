@@ -221,10 +221,10 @@ function draw_colored_skinned(
             bone_entities.push(bone_entity);
         }
     } else {
-        // Find the 5 tail bones. They're top-level for mimic() to work, so we
+        // Find the 4 tail bones. They're top-level for mimic() to work, so we
         // need to find them in the world rather than the tail's children.
         let start_here = entity;
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 4; i++) {
             let bone_entity = first_entity(game.World, Has.Bone | Has.Transform, start_here);
             if (bone_entity) {
                 bone_entities.push(bone_entity);
