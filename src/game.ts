@@ -12,7 +12,7 @@ import {mesh_leaf} from "../meshes/leaf.js";
 import {mesh_lisek} from "../meshes/lisek.js";
 import {mesh_ogon} from "../meshes/ogon.js";
 import {mesh_plane} from "../meshes/plane.js";
-import {scene_intro} from "./scenes/sce_intro.js";
+import {scene_level2} from "./scenes/sce_level2.js";
 import {sys_animate} from "./systems/sys_animate.js";
 import {sys_audio_source} from "./systems/sys_audio_source.js";
 import {sys_camera} from "./systems/sys_camera.js";
@@ -73,7 +73,7 @@ export class Game extends Game3D {
         Sun: create_depth_target(this.Gl, this.Quality, this.Quality),
     };
 
-    CurrentScene = scene_intro;
+    CurrentScene = scene_level2;
     CurrentView = Title;
     PupsFound = 0;
 
