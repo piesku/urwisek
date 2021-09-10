@@ -2228,300 +2228,50 @@
         }
     }
 
-    function blueprint_sun_light(game) {
-        return [children([transform([10, 10, 10]), light(0.9)])];
-    }
-    function blueprint_sun_shadow(game) {
-        return [
-            mimic(find_first(game.World, "sun anchor"), 0.01),
-            children([
-                transform([10, 10, -10], from_euler([0, 0, 0, 1], -35, 135, 0)),
-                camera_depth_ortho(game.Targets.Sun, 8, 1, 100),
-                light(0.6),
-            ]),
-        ];
-    }
-
-    function blueprint_ground(game) {
-        let zdzblos = 100;
-        let zdz_scale = 0.5;
-        let zdz_offsets = [];
-        let zdz_rotations = [];
-        for (let i = 0; i < zdzblos; i++) {
-            zdz_offsets.push(float(-1 / 2 / zdz_scale, 1 / 2 / zdz_scale), 0.8, float(-1 / 4 / zdz_scale, 1 / 4 / zdz_scale), integer(0, 1));
-            zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, float(-180, 180), 0));
-        }
-        return [
-            collide(false, 2 /* Terrain */ | 16 /* SurfaceGround */, 0 /* None */),
-            rigid_body(0 /* Static */),
-            children([
-                transform(),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [
-                    82 / 255,
-                    39 / 255,
-                    5 / 255,
-                    1,
-                ]),
-            ], [
-                transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
-                render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
-            ]),
-        ];
-    }
-
-    function prop_house(game) {
-        return [
-            children([
-                transform([0, 1.5, 0], undefined, [3, 3, 3]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
-            ], [
-                transform([-2.25, 2, 0], undefined, [1.5, 0.1, 3]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.069, 0.154, 0.8, 1]),
-            ], [
-                transform([-0.8, 0.1, 0], undefined, [4.9, 0.2, 3.4]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
-            ], [
-                transform([-2.8, 1, 0], undefined, [0.1, 2, 0.1]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
-            ]),
-        ];
-    }
-
-    // prettier-ignore
-    const leaft_colors = [
-        0, 1, 0,
-        0, 0.36, 0,
-        0, 0.5, 0,
-        0.48, 0.98, 0,
-        1, 0.84, 0,
-        1, 0.54, 0,
-        0.84, 0.21, 0.21,
+    const colors$1 = [
+        [0.1, 0.1, 0.1, 1],
+        [0.2, 0.2, 0.2, 1],
     ];
-    function blueprint_tree(game, min = 2, max = 4) {
-        let radius = float(0.5, 0.9);
-        let leaf_count = integer(400, 600);
-        let height = float(min, max);
-        let offsets = [];
-        let rotations = [];
-        for (let i = 0; i < leaf_count; i++) {
-            offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), integer(0, 7));
-            rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
+    function blueprint_animal(game) {
+        let r = float();
+        if (r < 0.1) {
+            return [
+                control_always([0, 0, 1], null, "walk"),
+                move(float(1, 1.2), 0),
+                lifespan(100),
+                children([
+                    transform(undefined, undefined, [2, 2, 2]),
+                    cull(32768 /* Render */ | 16 /* Children */),
+                    ...blueprint_lisek(game, element(colors$1), 3),
+                ]),
+            ];
+        }
+        if (r < 0.5) {
+            return [
+                control_always([0, 0, 1], null, "walk"),
+                move(float(2, 2.2), 0),
+                lifespan(50),
+                children([
+                    transform(undefined, undefined, [1, 1.5, 1]),
+                    cull(32768 /* Render */ | 16 /* Children */),
+                    ...blueprint_lisek(game, element(colors$1), 1.5),
+                ]),
+            ];
         }
         return [
+            control_always([0, 0, 1], null, "jump"),
+            move(float(3, 3.2), 0),
+            lifespan(30),
             children([
-                transform([0, height / 2, 0], undefined, [0.25, height, 0.25]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.2, 0.2, 1]),
-            ], [
-                transform([0, height, 0]),
-                cull(32768 /* Render */),
-                render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), leaft_colors),
+                transform(undefined, undefined, [0.5, 0.5, 1]),
+                cull(32768 /* Render */ | 16 /* Children */),
+                ...blueprint_lisek(game, element(colors$1), 0.8),
             ]),
-        ];
-    }
-
-    function blueprint_bush(game) {
-        let radius = float(0.5, 0.9);
-        let leaf_count = integer(400, 600);
-        let offsets = [];
-        let rotations = [];
-        for (let i = 0; i < leaf_count; i++) {
-            offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), integer(0, 7));
-            rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
-        }
-        return [
-            cull(32768 /* Render */),
-            render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), leaft_colors),
-        ];
-    }
-
-    function prop_slup(game) {
-        return [
-            children([
-                transform([0, 4, 0], undefined, [0.5, 8, 0.5]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.119, 0.027, 0.012, 1]),
-            ], [
-                transform([0, 7.41, -0.25], undefined, [3, 0.45, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
-            ], [
-                transform([0, 7.41, 0.25], undefined, [3, 0.45, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
-            ], [
-                transform([0, 6.329, -0.25], undefined, [3, 0.45, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
-            ], [
-                transform([1.3, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
-            ], [
-                transform([1, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
-            ], [
-                transform([1.3, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
-            ], [
-                transform([1, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
-            ], [
-                transform([-0.34, 5.76, -0.24], [0, 0, -0.383, 0.924], [1.2, 0.2, 0.05]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.367, 0.367, 0.367, 1]),
-            ], [
-                transform([-1, 7.75, 0.25], undefined, [0.2, 0.3, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
-            ], [
-                transform([-1.3, 7.75, 0.25], undefined, [0.2, 0.3, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
-            ]),
-        ];
-    }
-
-    function blueprint_obstacle_house(game) {
-        return [
-            children([transform(), ...prop_house(game)], [
-                transform([0, 1.5, 0], undefined, [3, 3, 3]),
-                collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
-                rigid_body(0 /* Static */),
-            ], [
-                transform([-2.25, 2, 0], undefined, [1.5, 0.1, 3]),
-                collide(false, 2 /* Terrain */ | 64 /* SurfaceMetal */, 0 /* None */),
-                rigid_body(0 /* Static */),
-            ], [
-                transform([-0.8, 0.1, 0], undefined, [4.9, 0.2, 3.4]),
-                collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
-                rigid_body(0 /* Static */),
-            ]),
-        ];
-    }
-
-    function prop_car2(game) {
-        return [
-            children([
-                transform([0, 0.8, 0], undefined, [4, 1, 2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
-            ], [
-                transform([1.276, 0.5, 0], [0.707, 0, 0, 0.707], [1, 2.2, 1]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
-            ], [
-                transform([-1.1, 0.5, 0], [0.707, 0, 0, 0.707], [1, 2.2, 1]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
-            ], [
-                transform([-0.5, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
-            ], [
-                transform([-0.5, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
-            ], [
-                transform([1.9, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
-            ], [
-                transform([1.9, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
-            ], [
-                transform([0.7, 2.8, 0], undefined, [2.6, 0.2, 2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
-            ], [
-                transform([-2, 1, -0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
-            ], [
-                transform([-2, 1, 0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
-            ], [
-                transform([0.264, 1.55, 0.55], undefined, [0.2, 0.5, 0.8]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
-            ], [
-                transform([0.264, 1.55, -0.55], undefined, [0.2, 0.5, 0.8]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
-            ]),
-        ];
-    }
-
-    function blueprint_obstacle_car(game) {
-        return [
-            children([transform(), ...prop_car2(game)], [
-                transform([0, 0.8, 0], undefined, [4, 1, 2]),
-                collide(false, 2 /* Terrain */ | 64 /* SurfaceMetal */, 0 /* None */),
-                rigid_body(0 /* Static */),
-            ]),
-        ];
-    }
-
-    function prop_box(game) {
-        return [
-            children([
-                transform(undefined, undefined, undefined),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
-            ], [
-                transform([0.171, 0.62, 0], [0, 0, 0.574, 0.819], [0.039, 0.7, 1]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
-            ], [
-                transform([-0.293, 0.536, 0], [0, 0, -0.643, 0.766], [0.039, 0.42, 1]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
-            ]),
-        ];
-    }
-
-    function blueprint_box(game) {
-        return [
-            collide(true, 4 /* Movable */ | 32 /* SurfaceWood */, 2 /* Terrain */ | 4 /* Movable */),
-            rigid_body(1 /* Dynamic */),
-            mimic(0),
-            disable(4096 /* Mimic */),
-            ...prop_box(game),
-        ];
-    }
-
-    /**
-     * @module components/com_trigger
-     */
-    function trigger(mask, action) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 2097152 /* Trigger */;
-            game.World.Trigger[entity] = {
-                Mask: mask,
-                Action: action,
-            };
-        };
-    }
-
-    function blueprint_exit(game) {
-        return [
-            collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
-            trigger(1 /* Player */, 3 /* NextScene */),
-            children([named("exit"), transform([1, 1, 0])], [transform([1, 0, 0], [0, -0.707, 0, 0.707], [0.3, 0.3, 0.3]), ...blueprint_lisek(game)]),
         ];
     }
 
     const fly_keytime_1 = 0.6;
-    const colors$1 = [
+    const colors = [
         [0.1, 0.1, 0.1, 1],
         [0.2, 0.2, 0.2, 1],
         [0.3, 0.3, 0.3, 1],
@@ -2531,7 +2281,7 @@
             control_always([0, 0, 1], null, "walk"),
             move(1, 0),
             lifespan(10),
-            render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, element(colors$1)),
+            render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, element(colors)),
             children([
                 transform(),
                 children([
@@ -2627,44 +2377,282 @@
         ];
     }
 
-    const colors = [
-        [0.1, 0.1, 0.1, 1],
-        [0.2, 0.2, 0.2, 1],
+    function prop_box(game) {
+        return [
+            children([
+                transform(undefined, undefined, undefined),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
+            ], [
+                transform([0.171, 0.62, 0], [0, 0, 0.574, 0.819], [0.039, 0.7, 1]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
+            ], [
+                transform([-0.293, 0.536, 0], [0, 0, -0.643, 0.766], [0.039, 0.42, 1]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.342, 0.17, 0.035, 1]),
+            ]),
+        ];
+    }
+
+    function blueprint_box(game) {
+        return [
+            collide(true, 4 /* Movable */ | 32 /* SurfaceWood */, 2 /* Terrain */ | 4 /* Movable */),
+            rigid_body(1 /* Dynamic */),
+            mimic(0),
+            disable(4096 /* Mimic */),
+            ...prop_box(game),
+        ];
+    }
+
+    // prettier-ignore
+    const leaft_colors = [
+        0, 1, 0,
+        0, 0.36, 0,
+        0, 0.5, 0,
+        0.48, 0.98, 0,
+        1, 0.84, 0,
+        1, 0.54, 0,
+        0.84, 0.21, 0.21,
     ];
-    function blueprint_animal(game) {
-        let r = float();
-        if (r < 0.1) {
-            return [
-                control_always([0, 0, 1], null, "walk"),
-                move(float(1, 1.2), 0),
-                lifespan(100),
-                children([
-                    transform(undefined, undefined, [2, 2, 2]),
-                    cull(32768 /* Render */ | 16 /* Children */),
-                    ...blueprint_lisek(game, element(colors), 3),
-                ]),
-            ];
-        }
-        if (r < 0.5) {
-            return [
-                control_always([0, 0, 1], null, "walk"),
-                move(float(2, 2.2), 0),
-                lifespan(50),
-                children([
-                    transform(undefined, undefined, [1, 1.5, 1]),
-                    cull(32768 /* Render */ | 16 /* Children */),
-                    ...blueprint_lisek(game, element(colors), 1.5),
-                ]),
-            ];
+    function blueprint_tree(game, min = 2, max = 4) {
+        let height = float(min, max);
+        return [
+            children([
+                transform([0, height / 2, 0], undefined, [0.25, height, 0.25]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.2, 0.2, 1]),
+            ], [transform([0, height, 0]), cull(32768 /* Render */), ...blueprint_bush(game)]),
+        ];
+    }
+
+    function blueprint_bush(game) {
+        let radius = float(0.5, 0.9);
+        let leaf_count = integer(400, 600);
+        let offsets = [];
+        let rotations = [];
+        for (let i = 0; i < leaf_count; i++) {
+            offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), integer(0, 7));
+            rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
         }
         return [
-            control_always([0, 0, 1], null, "jump"),
-            move(float(3, 3.2), 0),
-            lifespan(30),
+            cull(32768 /* Render */),
+            render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), leaft_colors),
+        ];
+    }
+
+    /**
+     * @module components/com_trigger
+     */
+    function trigger(mask, action) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 2097152 /* Trigger */;
+            game.World.Trigger[entity] = {
+                Mask: mask,
+                Action: action,
+            };
+        };
+    }
+
+    function blueprint_exit(game) {
+        return [
+            collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
+            trigger(1 /* Player */, 3 /* NextScene */),
+            children([named("exit"), transform([1, 1, 0])], [transform([1, 0, 0], [0, -0.707, 0, 0.707], [0.3, 0.3, 0.3]), ...blueprint_lisek(game)]),
+        ];
+    }
+
+    function blueprint_ground(game) {
+        let zdzblos = 100;
+        let zdz_scale = 0.5;
+        let zdz_offsets = [];
+        let zdz_rotations = [];
+        for (let i = 0; i < zdzblos; i++) {
+            zdz_offsets.push(float(-1 / 2 / zdz_scale, 1 / 2 / zdz_scale), 0.8, float(-1 / 4 / zdz_scale, 1 / 4 / zdz_scale), integer(0, 1));
+            zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, float(-180, 180), 0));
+        }
+        return [
+            collide(false, 2 /* Terrain */ | 16 /* SurfaceGround */, 0 /* None */),
+            rigid_body(0 /* Static */),
             children([
-                transform(undefined, undefined, [0.5, 0.5, 1]),
-                cull(32768 /* Render */ | 16 /* Children */),
-                ...blueprint_lisek(game, element(colors), 0.8),
+                transform(),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [
+                    82 / 255,
+                    39 / 255,
+                    5 / 255,
+                    1,
+                ]),
+            ], [
+                transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
+                render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
+            ]),
+        ];
+    }
+
+    function prop_car2(game) {
+        return [
+            children([
+                transform([0, 0.8, 0], undefined, [4, 1, 2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+            ], [
+                transform([1.276, 0.5, 0], [0.707, 0, 0, 0.707], [1, 2.2, 1]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+            ], [
+                transform([-1.1, 0.5, 0], [0.707, 0, 0, 0.707], [1, 2.2, 1]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0, 1]),
+            ], [
+                transform([-0.5, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+            ], [
+                transform([-0.5, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+            ], [
+                transform([1.9, 2, 0.9], undefined, [0.2, 1.4, 0.2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+            ], [
+                transform([1.9, 2, -0.9], undefined, [0.2, 1.4, 0.2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+            ], [
+                transform([0.7, 2.8, 0], undefined, [2.6, 0.2, 2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.024, 0.016, 1]),
+            ], [
+                transform([-2, 1, -0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
+            ], [
+                transform([-2, 1, 0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.784, 0.019, 1]),
+            ], [
+                transform([0.264, 1.55, 0.55], undefined, [0.2, 0.5, 0.8]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
+            ], [
+                transform([0.264, 1.55, -0.55], undefined, [0.2, 0.5, 0.8]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
+            ]),
+        ];
+    }
+
+    function blueprint_obstacle_car(game) {
+        return [
+            children([transform(), ...prop_car2(game)], [
+                transform([0, 0.8, 0], undefined, [4, 1, 2]),
+                collide(false, 2 /* Terrain */ | 64 /* SurfaceMetal */, 0 /* None */),
+                rigid_body(0 /* Static */),
+            ]),
+        ];
+    }
+
+    function prop_house(game) {
+        return [
+            children([
+                transform([0, 1.5, 0], undefined, [3, 3, 3]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
+            ], [
+                transform([-2.25, 2, 0], undefined, [1.5, 0.1, 3]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.069, 0.154, 0.8, 1]),
+            ], [
+                transform([-0.8, 0.1, 0], undefined, [4.9, 0.2, 3.4]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
+            ], [
+                transform([-2.8, 1, 0], undefined, [0.1, 2, 0.1]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.095, 0.095, 0.095, 1]),
+            ]),
+        ];
+    }
+
+    function blueprint_obstacle_house(game) {
+        return [
+            children([transform(), ...prop_house(game)], [
+                transform([0, 1.5, 0], undefined, [3, 3, 3]),
+                collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
+                rigid_body(0 /* Static */),
+            ], [
+                transform([-2.25, 2, 0], undefined, [1.5, 0.1, 3]),
+                collide(false, 2 /* Terrain */ | 64 /* SurfaceMetal */, 0 /* None */),
+                rigid_body(0 /* Static */),
+            ], [
+                transform([-0.8, 0.1, 0], undefined, [4.9, 0.2, 3.4]),
+                collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
+                rigid_body(0 /* Static */),
+            ]),
+        ];
+    }
+
+    function blueprint_sun_light(game) {
+        return [children([transform([10, 10, 10]), light(0.9)])];
+    }
+    function blueprint_sun_shadow(game) {
+        return [
+            mimic(find_first(game.World, "sun anchor"), 0.01),
+            children([
+                transform([10, 10, -10], from_euler([0, 0, 0, 1], -35, 135, 0)),
+                camera_depth_ortho(game.Targets.Sun, 8, 1, 100),
+                light(0.6),
+            ]),
+        ];
+    }
+
+    function prop_slup(game) {
+        return [
+            children([
+                transform([0, 4, 0], undefined, [0.5, 8, 0.5]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.119, 0.027, 0.012, 1]),
+            ], [
+                transform([0, 7.41, -0.25], undefined, [3, 0.45, 0.2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
+            ], [
+                transform([0, 7.41, 0.25], undefined, [3, 0.45, 0.2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
+            ], [
+                transform([0, 6.329, -0.25], undefined, [3, 0.45, 0.2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.119, 0.027, 0.012, 1]),
+            ], [
+                transform([1.3, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+            ], [
+                transform([1, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+            ], [
+                transform([1.3, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+            ], [
+                transform([1, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+            ], [
+                transform([-0.34, 5.76, -0.24], [0, 0, -0.383, 0.924], [1.2, 0.2, 0.05]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.367, 0.367, 0.367, 1]),
+            ], [
+                transform([-1, 7.75, 0.25], undefined, [0.2, 0.3, 0.2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
+            ], [
+                transform([-1.3, 7.75, 0.25], undefined, [0.2, 0.3, 0.2]),
+                cull(32768 /* Render */),
+                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.367, 0.367, 0.367, 1]),
             ]),
         ];
     }
@@ -2691,15 +2679,15 @@
             ...blueprint_ground(game),
         ]);
         instantiate(game, [
-            transform([17.043, -3.406, -6.364], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
+            transform([17.043, -4.406, -9.364], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
             render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
         ]);
         instantiate(game, [
-            transform([29.067, -2.849, -6.198], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
+            transform([29.067, -2.849, -9.198], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
             render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
         ]);
         instantiate(game, [
-            transform([40.236, -8.323, -7.025], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 8]),
+            transform([40.236, -9.323, -9.025], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 8]),
             render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
         ]);
         instantiate(game, [
@@ -2707,7 +2695,7 @@
             ...prop_house(game),
         ]);
         instantiate(game, [
-            transform([-1.899, 0.435, -3.704], [0, -0.986, 0, 0.166], [0.5, 0.5, 0.5]),
+            transform([-2.899, 0.435, -5.704], [0, 0.906, 0, 0.423], [0.5, 0.5, 0.5]),
             ...prop_house(game),
         ]);
         instantiate(game, [
@@ -2716,10 +2704,6 @@
         ]);
         instantiate(game, [
             transform([24.076, 0.385, -0.486], undefined, undefined),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([0.556, 0.238, -3.394], undefined, undefined),
             ...blueprint_bush(game),
         ]);
         instantiate(game, [
@@ -2739,111 +2723,23 @@
             ...prop_slup(game),
         ]);
         instantiate(game, [
-            transform([-0.619, 4.323, -5.257], undefined, [0.2, 0.2, 0.2]),
+            transform([-0.619, 3.323, -8.257], undefined, [0.2, 0.2, 0.2]),
             ...prop_slup(game),
         ]);
         instantiate(game, [
-            transform([-4.671, 3.776, -5.403], undefined, [0.15, 0.15, 0.15]),
+            transform([-4.671, 2.776, -8.403], undefined, [0.15, 0.15, 0.15]),
             ...prop_slup(game),
-        ]);
-        instantiate(game, [
-            transform([4.619, 0.533, -3.357], undefined, undefined),
-            ...blueprint_bush(game),
         ]);
         instantiate(game, [
             transform([23.85, 0.109, -5.148], undefined, undefined),
             ...prop_slup(game),
         ]);
         instantiate(game, [
-            transform([26.94, 0.93, -1.805], undefined, undefined),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([21.289, 6.84, -5.257], undefined, [0.2, 0.2, 0.2]),
+            transform([21.289, 5.84, -7.257], undefined, [0.2, 0.2, 0.2]),
             ...prop_slup(game),
         ]);
         instantiate(game, [
-            transform([-3.151, -0.074, -5.666], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([11.679, 4.852, -5.235], undefined, [0.25, 0.25, 0.25]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([20.605, 0.481, -2.506], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([28.5, 0.481, -2.506], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([30.326, 0.075, -3.081], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([33.681, 0.258, -2.988], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([33.432, 0.258, -4.449], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([31.597, 0.258, -1.588], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([29.482, 0.258, -0.826], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([28.814, 0.258, -4.263], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([34.241, 0.258, -5.087], undefined, [0.7, 0.7, 0.7]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([32.344, 0.258, -3.376], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([28.145, 0.258, -1.573], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([27.834, 0.258, -3.998], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([30.213, 0.258, -4.558], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([30.571, 0.258, -2.241], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([21.225, 0.258, -3.268], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([22.438, 0.258, -2.848], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([23.729, 0.258, -3.687], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
             transform([31.045, 0.743, -1.14], undefined, undefined),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([29.076, 0.386, -3.853], undefined, undefined),
             ...blueprint_bush(game),
         ]);
         instantiate(game, [
@@ -2875,10 +2771,6 @@
             ...blueprint_bush(game),
         ]);
         instantiate(game, [
-            transform([-2.766, 0.385, -0.993], undefined, undefined),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
             transform([54.036, 0.5, 0.827], undefined, undefined),
             ...blueprint_obstacle_house(game),
         ]);
@@ -2891,106 +2783,10 @@
             ...prop_car2(game),
         ]);
         instantiate(game, [
-            transform([17.431, 0.481, -2.709], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([18.731, 0.481, -1.713], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([22.567, 0.93, -1.771], undefined, undefined),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([30.874, 0.481, 3.099], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([32.985, 0.481, 3.336], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([33.508, 0.481, 2.998], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
             transform([56.116, 0.236, 2.713], undefined, undefined),
             ...prop_slup(game),
         ]);
         instantiate(game, [transform([54.23, 4.091, 0], undefined, undefined), ...blueprint_box(game)]);
-        instantiate(game, [
-            transform([31.022, 0.258, -3.719], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([31.784, 0.258, -4.745], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([31.022, 0.258, -3.719], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([31.784, 0.258, -4.745], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([34.225, 0.258, -5.693], undefined, [0.7, 0.7, 0.7]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([37.32, 0.258, -6.004], undefined, [0.7, 0.7, 0.7]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([34.816, 0.258, -6.02], undefined, [0.7, 0.7, 0.7]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([34.692, 0.258, -5.569], undefined, [0.7, 0.7, 0.7]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([35.656, 0.258, -6.284], undefined, [0.7, 0.7, 0.7]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([35.345, 0.258, -5.678], undefined, [0.7, 0.7, 0.7]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([36.184, 0.258, -5.88], undefined, [0.7, 0.7, 0.7]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([38.564, 0.258, -6.611], undefined, [0.4, 0.4, 0.4]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([36.268, 0.258, -6.533], undefined, [0.4, 0.4, 0.4]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([36.878, 0.258, -7.025], undefined, [0.4, 0.4, 0.4]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([37.911, 0.258, -6.465], undefined, [0.4, 0.4, 0.4]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([37.394, 0.258, -6.916], undefined, [0.4, 0.4, 0.4]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([37.058, 0.258, -6.527], undefined, [0.4, 0.4, 0.4]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([38.19, 0.258, -6.962], undefined, [0.4, 0.4, 0.4]),
-            ...blueprint_tree(game),
-        ]);
         instantiate(game, [
             transform([28.606, 2.405, 0], undefined, undefined),
             ...blueprint_box(game),
@@ -3014,14 +2810,6 @@
         instantiate(game, [
             transform([45.996, 0.109, -1.516], [0, -0.727, 0, 0.686], undefined),
             ...prop_slup(game),
-        ]);
-        instantiate(game, [
-            transform([44.272, 0.258, -4.246], [0, -0.727, 0, 0.686], undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([43.782, 0.258, -3.059], [0, -0.727, 0, 0.686], undefined),
-            ...blueprint_tree(game),
         ]);
         instantiate(game, [
             transform([43.311, 1, -3.568], [-0.713, 0.063, 0.065, 0.696], [0.4, 0.4, 0.4]),
@@ -3048,46 +2836,6 @@
             ...blueprint_bush(game),
         ]);
         instantiate(game, [
-            transform([68.567, 0.075, -3.081], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([71.922, 0.258, -2.988], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([71.673, 0.258, -4.449], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([72.482, 0.258, -5.087], undefined, [0.7, 0.7, 0.7]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([70.584, 0.258, -3.376], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([68.812, 0.258, -2.241], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([67.317, 0.386, -3.853], undefined, undefined),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([69.263, 0.258, -3.719], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([70.025, 0.258, -4.745], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([72.466, 0.258, -5.693], undefined, [0.7, 0.7, 0.7]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
             transform([41.695, 2.405, 0], undefined, undefined),
             ...blueprint_box(game),
         ]);
@@ -3104,20 +2852,8 @@
             ...blueprint_bush(game),
         ]);
         instantiate(game, [
-            transform([87.091, -10.266, -7.025], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 8]),
+            transform([85.091, -10.266, -9.025], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 8]),
             render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
-        ]);
-        instantiate(game, [
-            transform([78.665, 1.215, 3.099], [0, 0.996, 0, 0.086], undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([75.148, 1.398, -0.34], [0, 0.996, 0, 0.086], undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([73.43, 1.229, 3.107], [0, 0.996, 0, 0.086], undefined),
-            ...blueprint_tree(game),
         ]);
         instantiate(game, [
             transform([78.016, 0.236, -3.542], undefined, undefined),
@@ -3153,6 +2889,48 @@
             children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
         ]);
         instantiate(game, [transform([-7, 0.5, -5], [0, 0.707, 0, 0.707]), spawn(blueprint_animal, 1)]);
+        {
+            let width = 28;
+            let depth = 6;
+            let centerX = 6.0;
+            let centerZ = -5.0;
+            let Xmin = centerX - ~~(width / 2);
+            let Xmax = centerX + ~~(width / 2);
+            let Zmin = centerZ - ~~(depth / 2);
+            let Zmax = centerZ + ~~(depth / 2);
+            let number_of_trees = ~~(width * 0.9);
+            for (let i = 0; i < number_of_trees; i++) {
+                instantiate(game, [
+                    transform([float(Xmin, Xmax), 0, float(Zmin, Zmax)]),
+                    ...element([blueprint_tree(game), blueprint_bush(game)]),
+                ]);
+            }
+        }
+        {
+            let width = 12;
+            let depth = 5;
+            let centerX = 71.0;
+            let centerZ = -4.0;
+            let Xmin = centerX - ~~(width / 2);
+            let Xmax = centerX + ~~(width / 2);
+            let Zmin = centerZ - ~~(depth / 2);
+            let Zmax = centerZ + ~~(depth / 2);
+            let number_of_trees = ~~(width * 0.9);
+            for (let i = 0; i < number_of_trees; i++) {
+                instantiate(game, [
+                    transform([float(Xmin, Xmax), 0, float(Zmin, Zmax)]),
+                    ...element([blueprint_tree(game), blueprint_bush(game)]),
+                ]);
+            }
+        }
+        instantiate(game, [
+            transform([-4.431, 0.435, -4.418], [0, 0.906, 0, 0.423], [0.5, 0.5, 0.5]),
+            ...prop_house(game),
+        ]);
+        instantiate(game, [
+            transform([-1.367, 0.435, -6.989], [0, 0.906, 0, 0.423], [0.5, 0.5, 0.5]),
+            ...prop_house(game),
+        ]);
         instantiate(game, [...blueprint_sun_light(), transform()]);
         instantiate(game, [...blueprint_sun_shadow(game), transform()]);
     }
@@ -3469,16 +3247,12 @@
             ...blueprint_ground(game),
         ]);
         instantiate(game, [
-            transform([42.296, -0.498, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 35]),
+            transform([65.296, -0.498, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 81.11]),
             ...blueprint_ground(game),
         ]);
         instantiate(game, [
             transform([56.933, -1.5, -6.039], [0, 0.707, 0, 0.707], [10, 4, 120]),
             ...blueprint_ground(game),
-        ]);
-        instantiate(game, [
-            transform([66.274, 0.258, -4.179], undefined, undefined),
-            ...blueprint_tree(game),
         ]);
         instantiate(game, [
             transform([32.705, 0.386, -4.345], undefined, undefined),
@@ -3539,10 +3313,6 @@
         instantiate(game, [
             transform([13.626, -0.537, -1.589], undefined, [2, 2, 2]),
             ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([13.791, 0.191, -3.014], undefined, undefined),
-            ...blueprint_tree(game),
         ]);
         instantiate(game, [
             transform([24.62, 0.356, -5.02], [0, 0.952, 0, 0.305], undefined),
@@ -3769,18 +3539,6 @@
             ...blueprint_box(game),
         ]);
         instantiate(game, [
-            transform([59.503, 0.258, 0.928], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([54.898, 0.258, 1.47], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([50.294, 0.258, 1.16], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
             transform([53.834, 0.356, -3.705], [0, 0.194, 0, 0.981], undefined),
             ...prop_slup(game),
         ]);
@@ -3809,10 +3567,6 @@
             ...blueprint_bush(game),
         ]);
         instantiate(game, [
-            transform([82.626, -0.498, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 35]),
-            ...blueprint_ground(game),
-        ]);
-        instantiate(game, [
             transform([72.227, 0.5, -1.567], [0, 0.175, 0, 0.985], undefined),
             ...prop_silo(game),
         ]);
@@ -3835,26 +3589,6 @@
         instantiate(game, [
             transform([77.575, 0.777, 2.871], undefined, undefined),
             ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([67.938, 0.258, 2.631], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([79.198, 0.258, -0.813], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([81.946, 0.258, -5.34], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([94.119, 0.258, -2.957], undefined, undefined),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([96.328, 0.258, 2.515], undefined, undefined),
-            ...blueprint_tree(game),
         ]);
         instantiate(game, [
             transform([-1.914, 0.5, -0.217], undefined, undefined),
@@ -3925,10 +3659,6 @@
             ...prop_fence(game),
         ]);
         instantiate(game, [transform([95, 0.5, 0]), ...blueprint_exit(game)]);
-        instantiate(game, [
-            transform([62.526, -0.798, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 5.75]),
-            ...blueprint_ground(game),
-        ]);
         instantiate(game, [...blueprint_sun_light(), transform()]);
         instantiate(game, [...blueprint_sun_shadow(game), transform()]);
     }
@@ -3960,17 +3690,6 @@
                 transform(undefined, undefined, [0.5, 1, 0.25]),
                 collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
                 rigid_body(0 /* Static */),
-            ]),
-        ];
-    }
-
-    function blueprint_monster(game) {
-        return [
-            children([
-                transform([0, 0, 0], from_euler([0, 0, 0, 1], 0, -90, 0), [5, 60, 20]),
-                control_always([0, 0, 1], null, "walk"),
-                move(0.5, 0.5),
-                ...blueprint_lisek(game, [0, 0, 0, 1], 50),
             ]),
         ];
     }
@@ -4033,27 +3752,7 @@
             ...blueprint_ground(game),
         ]);
         instantiate(game, [
-            transform([11.077, 0.547, -6.398], undefined, undefined),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
             transform([-3.752, -1.042, -0.369], undefined, [3, 3, 3]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([20.014, 0.582, -6.565], undefined, [2.439, 1, 2.539]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([7.742, 0.611, -5.393], undefined, undefined),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([17.472, 0.547, -8.601], undefined, undefined),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([20.536, 0.547, -1.319], undefined, undefined),
             ...blueprint_bush(game),
         ]);
         instantiate(game, [
@@ -4061,79 +3760,11 @@
             ...blueprint_bush(game),
         ]);
         instantiate(game, [
-            transform([-1.606, 0.547, -2.287], undefined, undefined),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([27.699, 0.582, -2.777], undefined, [2.439, 1, 2.539]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([29.875, 0.582, -9.011], undefined, [2.439, 1, 2.539]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([15.796, 0.582, -4.064], undefined, [2.439, 1, 2.539]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([23.4, 0.582, -0.949], undefined, [2.439, 1, 2.539]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
             transform([-3.889, -3.873, 2.375], undefined, [20, 4, 20]),
             ...blueprint_tree(game),
         ]);
         instantiate(game, [
-            transform([-1.288, 0.191, -1.989], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
             transform([10.51, -3.953, -1.485], undefined, [10, 8, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([6.327, 0.191, -1.725], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([9.531, 0.191, -6.075], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([9.298, 0.191, -2.361], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([12.562, 0.026, -1.458], undefined, [10, 8, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([13.787, 0.191, -3.901], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([16.759, 0.191, -9.066], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([16.063, 0.191, -3.029], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([24.792, 0.191, -2.704], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([19.979, 0.191, -3.293], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([30.828, 0.191, -1.452], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([33.475, 0.191, -8.416], undefined, [10, 4, 10]),
             ...blueprint_tree(game),
         ]);
         instantiate(game, [
@@ -4149,54 +3780,6 @@
             ...blueprint_tree(game),
         ]);
         instantiate(game, [
-            transform([52.76, 0.191, -2.093], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([56.985, 0.191, -2.047], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([83.135, 0.191, -1.66], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([61.023, 0.191, -9.333], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([60.327, 0.191, -3.297], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([64.506, 0.191, -2.925], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([69.056, 0.191, -2.972], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([70.356, 0.191, -8.637], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([79.318, 0.191, -3.25], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([77.739, 0.191, -8.683], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([43.479, 0.191, -9.068], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([90.685, 0.191, -2.381], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
             transform([-3.794, -1.961, 0], [0, 0.707, 0, 0.707], [1.5, 6.144, 2]),
             ...blueprint_ground(game),
         ]);
@@ -4205,23 +3788,7 @@
             ...blueprint_bush(game),
         ]);
         instantiate(game, [
-            transform([2.748, -0.436, -2.215], undefined, [3, 3, 3]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([5.921, -0.436, -2.176], undefined, [3, 3, 3]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([9.133, -0.436, -2.137], undefined, [3, 3, 3]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
             transform([12.267, -0.436, -2.099], undefined, [3, 3, 3]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([15.07, -1.114, 1.98], undefined, [3, 3, 3]),
             ...blueprint_bush(game),
         ]);
         instantiate(game, [
@@ -4233,16 +3800,8 @@
             ...blueprint_box(game),
         ]);
         instantiate(game, [
-            transform([-1.529, 2.558, -2.052], [0.344, 0.618, -0.344, 0.618], [0.5, 4, 0.5]),
-            ...blueprint_branch(game),
-        ]);
-        instantiate(game, [
             transform([11.491, -0.094, -0.654], [0.705, 0.056, -0.056, 0.705], [0.5, 4, 0.5]),
             ...blueprint_obstacle_branch(game),
-        ]);
-        instantiate(game, [
-            transform([6.645, 3.532, -1.492], [0.54, 0.61, 0.192, 0.547], [0.5, 4, 0.5]),
-            ...blueprint_branch(game),
         ]);
         instantiate(game, [
             transform([19.142, -0.333, 2.004], undefined, [20, 4, 20]),
@@ -4273,31 +3832,11 @@
             ...blueprint_obstacle_branch(game),
         ]);
         instantiate(game, [
-            transform([68.295, -3.312, -3.498], undefined, undefined),
-            ...blueprint_monster(game),
-        ]);
-        instantiate(game, [
-            transform([34.944, 0.582, -4.29], undefined, [2.439, 1, 2.539]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([45.044, 0.582, -5.722], undefined, [2.439, 1, 2.539]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
             transform([38.853, 0.582, 0.005], undefined, [2.439, 1, 2.539]),
             ...blueprint_bush(game),
         ]);
         instantiate(game, [
             transform([49.571, 0.582, 2.404], undefined, [2.439, 1, 2.539]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([58.548, 0.582, -9.282], undefined, [2.439, 1, 2.539]),
-            ...blueprint_bush(game),
-        ]);
-        instantiate(game, [
-            transform([71.898, 0.582, -1.62], undefined, [2.439, 1, 2.539]),
             ...blueprint_bush(game),
         ]);
         instantiate(game, [
@@ -4352,19 +3891,28 @@
             transform([55.644, -0.759, 0.49], [0.703, 0.075, -0.075, 0.703], [0.5, 2, 0.5]),
             ...blueprint_obstacle_branch(game),
         ]);
-        instantiate(game, [
-            transform([80.256, 0.191, 2.869], undefined, [10, 4, 10]),
-            ...blueprint_tree(game),
-        ]);
-        instantiate(game, [
-            transform([82.065, 1.241, 2.496], undefined, [2, 2, 2]),
-            ...blueprint_bush(game),
-        ]);
         instantiate(game, [transform([120.2, 3, 0]), ...blueprint_end()]);
         instantiate(game, [
             transform([122.6, 0.2, 0], [0, 0.707, 0, -0.707], undefined),
             ...blueprint_launchpad(game),
         ]);
+        {
+            let width = 105;
+            let depth = 9;
+            let centerX = 48.0;
+            let centerZ = -6.0;
+            let Xmin = centerX - ~~(width / 2);
+            let Xmax = centerX + ~~(width / 2);
+            let Zmin = centerZ - ~~(depth / 2);
+            let Zmax = centerZ + ~~(depth / 2);
+            let number_of_trees = ~~(width * 0.6);
+            for (let i = 0; i < number_of_trees; i++) {
+                instantiate(game, [
+                    transform([float(Xmin, Xmax), 0, float(Zmin, Zmax)], undefined, [8, 4, 8]),
+                    ...blueprint_tree(game),
+                ]);
+            }
+        }
         instantiate(game, [...blueprint_sun_light(), transform()]);
         instantiate(game, [...blueprint_sun_shadow(game), transform()]);
     }
@@ -7082,7 +6630,7 @@
     // @ts-ignore
     window.scenes = [scene_intro, scene_level1, scene_level2, scene_level3, scene_stage];
     // @ts-ignore ⮮ CHANGE ME HERE.
-    window.scenes[0](game);
+    window.scenes[3](game);
     game.Start();
     // @ts-ignore
     window.$ = dispatch.bind(null, game);
