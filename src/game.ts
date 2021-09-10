@@ -20,7 +20,6 @@ import {sys_collide} from "./systems/sys_collide.js";
 import {sys_control_always} from "./systems/sys_control_always.js";
 import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
 import {sys_control_touch_move} from "./systems/sys_control_touch_move.js";
-import {sys_control_xbox} from "./systems/sys_control_xbox.js";
 import {sys_cull} from "./systems/sys_cull.js";
 import {sys_lifespan} from "./systems/sys_lifespan.js";
 import {sys_light} from "./systems/sys_light.js";
@@ -65,7 +64,6 @@ export class Game extends Game3D {
 
     // The rendering pipeline supports 8 lights.
     LightPositions = new Float32Array(4 * 8);
-    LightDetails = new Float32Array(4 * 8);
     Cameras: Array<Entity> = [];
 
     Quality = QualitySettings.High;
@@ -82,7 +80,6 @@ export class Game extends Game3D {
         // Player input.
         sys_control_touch_move(this, delta);
         sys_control_keyboard(this, delta);
-        sys_control_xbox(this, delta);
 
         // Collisions and physics.
         sys_physics_integrate(this, delta);
