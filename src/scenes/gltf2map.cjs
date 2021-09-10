@@ -48,7 +48,6 @@ let create_instance = (name, translation, rotation, scale) => {
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);`;
         case "exit":
-        case "end":
             imports.add(`import {blueprint_pup} from "../blueprints/blu_pup.js";`);
             imports.add(`import {blueprint_${name}} from "../blueprints/blu_${name}.js";`);
             return `
@@ -60,6 +59,13 @@ let create_instance = (name, translation, rotation, scale) => {
     instantiate(game, [
         transform(${vec(translation)}, [0, -0.71, 0, 0.71]),
         ...blueprint_pup(game),
+    ]); `;
+        case "end":
+            imports.add(`import {blueprint_${name}} from "../blueprints/blu_${name}.js";`);
+            return `
+    instantiate(game, [
+        transform(${vec(translation)}),
+        ...blueprint_${name}(game),
     ]); `;
         case "flora":
             imports.add(`import {blueprint_tree} from "../blueprints/blu_tree.js";`);

@@ -6,7 +6,6 @@ import {find_first} from "./components/com_named.js";
 import {task_timeout} from "./components/com_task.js";
 import {Game} from "./game.js";
 import {scene_intro} from "./scenes/sce_intro.js";
-import {scene_level1} from "./scenes/sce_level1.js";
 import {scene_level2} from "./scenes/sce_level2.js";
 import {scene_level3} from "./scenes/sce_level3.js";
 import {End, Play} from "./ui/App.js";
@@ -39,22 +38,26 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
             switch (game.CurrentScene) {
                 case scene_intro:
-                case scene_level1:
+                case scene_level2:
+                    instantiate(game, [
+                        task_timeout(2, () => {
+                            requestAnimationFrame(() => {
+                                game.CurrentScene(game);
+                                game.CurrentView = Play;
+                            });
+                        }),
+                    ]);
+                    break;
+            }
+
+            switch (game.CurrentScene) {
+                case scene_intro:
                     game.CurrentScene = scene_level2;
                     break;
                 case scene_level2:
                     game.CurrentScene = scene_level3;
                     break;
             }
-
-            instantiate(game, [
-                task_timeout(2, () => {
-                    requestAnimationFrame(() => {
-                        game.CurrentScene(game);
-                        game.CurrentView = Play;
-                    });
-                }),
-            ]);
 
             let pup_entity = find_first(game.World, "pup");
             let pup_anchor = find_first(game.World, "pup anchor " + game.PupsFound);
