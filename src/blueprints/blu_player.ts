@@ -83,7 +83,7 @@ export function instantiate_player(game: Game, translation: Vec3, pups_found = g
     let tail_root: Entity = 0;
     let tail_bone1: Entity = 0;
     let tail_bone2: Entity = 0;
-    let tail_bone3: Entity = 0;
+    let tail_bone3: Entity;
 
     instantiate(game, [
         transform([-10, 0, 0.5]),

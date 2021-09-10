@@ -156,7 +156,7 @@ let result = `\
 ${Array.from(imports).join("\n")}
 
 export function map_${scene_name}(game: Game) {
-${nodes}
+${nodes.replace(/\, undefined\, undefined\)/gi, ")").replace(/\, undefined\)/gi, ")")}
 
     instantiate(game, [
         ...blueprint_sun_light(game),

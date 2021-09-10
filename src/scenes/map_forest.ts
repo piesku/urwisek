@@ -35,10 +35,7 @@ export function map_forest(game: Game) {
         ...blueprint_bush(game),
     ]);
 
-    instantiate(game, [
-        transform([10.41, 0.55, -1.96], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
+    instantiate(game, [transform([10.41, 0.55, -1.96]), ...blueprint_bush(game)]);
 
     instantiate(game, [
         transform([-3.89, -3.87, 2.38], undefined, [20, 4, 20]),
@@ -155,10 +152,7 @@ export function map_forest(game: Game) {
         ...blueprint_ground(game),
     ]);
 
-    instantiate(game, [
-        transform([48.27, 7.05, 0], undefined, undefined),
-        ...blueprint_pushable_branch(game),
-    ]);
+    instantiate(game, [transform([48.27, 7.05, 0]), ...blueprint_pushable_branch(game)]);
 
     instantiate(game, [
         transform([58.57, -3.26, 1.4], [0, 0.71, 0, 0.71], [4, 2, 10]),
@@ -176,22 +170,22 @@ export function map_forest(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([59.94, 0.7, 1.77], [0, 0.66, 0, 0.75], undefined),
+        transform([59.94, 0.7, 1.77], [0, 0.66, 0, 0.75]),
         ...blueprint_pushable_branch(game),
     ]);
 
     instantiate(game, [
-        transform([62.77, 0.65, 1.65], [0, 0.67, 0, 0.74], undefined),
+        transform([62.77, 0.65, 1.65], [0, 0.67, 0, 0.74]),
         ...blueprint_pushable_branch(game),
     ]);
 
     instantiate(game, [
-        transform([58.43, 0.7, 1.77], [0, 0.71, 0, 0.71], undefined),
+        transform([58.43, 0.7, 1.77], [0, 0.71, 0, 0.71]),
         ...blueprint_pushable_branch(game),
     ]);
 
     instantiate(game, [
-        transform([61.14, 0.68, 1.68], [0, 0.72, 0, 0.69], undefined),
+        transform([61.14, 0.68, 1.68], [0, 0.72, 0, 0.69]),
         ...blueprint_pushable_branch(game),
     ]);
 
@@ -208,7 +202,7 @@ export function map_forest(game: Game) {
     instantiate(game, [transform([120.2, 3, 0]), ...blueprint_end(game)]);
 
     instantiate(game, [
-        transform([122.6, 0.2, 0], [0, 0.71, 0, -0.71], undefined),
+        transform([122.6, 0.2, 0], [0, 0.71, 0, -0.71]),
         ...blueprint_launchpad(game),
     ]);
 
