@@ -2625,6 +2625,20 @@
         ];
     }
 
+    function blueprint_fire(game) {
+        return [
+            collide(false, 2 /* Terrain */, 0 /* None */, [1, 4, 1]),
+            rigid_body(0 /* Static */),
+            children([
+                transform(undefined, from_euler([0, 0, 0, 0], -90, 0, 0)),
+                emit_particles(2, 0.05, 1),
+                render_particles_colored([1, 1, 0, 1], 50, [1, 0, 0, 1], 10),
+                shake(0.5),
+                cull(32768 /* Render */ | 131072 /* Shake */ | 512 /* EmitParticles */),
+            ]),
+        ];
+    }
+
     function map_city(game) {
         instantiate(game, [
             transform([7.53, -0.5, 2.45], [0, 0.71, 0, 0.71], [8, 2, 30]),
@@ -2639,7 +2653,7 @@
             ...blueprint_ground(game),
         ]);
         instantiate(game, [
-            transform([76.04, 0.52, 1.45], [0, 0.71, 0, 0.71], [8, 2, 7.05]),
+            transform([76.04, 0.52, 0.45], [0, 0.71, 0, 0.71], [5, 2, 7.05]),
             ...blueprint_ground(game),
         ]);
         instantiate(game, [
@@ -2830,6 +2844,7 @@
             transform([-1.37, 0.44, -6.99], [0, 0.91, 0, 0.42], [0.5, 0.5, 0.5]),
             ...prop_house(game),
         ]);
+        instantiate(game, [transform([-2.6, 0.9, 0.6]), ...blueprint_fire()]);
         instantiate(game, [...blueprint_sun_light(), transform()]);
         instantiate(game, [...blueprint_sun_shadow(game), transform()]);
     }
@@ -2889,7 +2904,7 @@
                             game.World.Signature[camera_entity] |= 4096 /* Mimic */;
                         }),
                     ], [
-                        task_timeout(4, () => {
+                        task_timeout(5, () => {
                             // The pups flee.
                             for (let pup of pups) {
                                 control_always([0, 0, 1], null, "jump")(game, pup);
@@ -2897,7 +2912,7 @@
                             }
                         }),
                     ], [
-                        task_timeout(7, () => {
+                        task_timeout(6, () => {
                             // No more stars.
                             destroy_all(game.World, starfield_entity);
                             // Increase the camera's responsiveness.
@@ -2911,7 +2926,7 @@
                             ]);
                         }),
                     ], [
-                        task_timeout(9, () => {
+                        task_timeout(8, () => {
                             game.World.Signature[player_entity] |= 128 /* ControlPlayer */;
                         }),
                     ]),
