@@ -160,7 +160,6 @@ function use_colored_shadows(
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-    game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
     game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
     game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 
@@ -201,7 +200,6 @@ function use_colored_skinned(
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-    game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
     game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
     game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }

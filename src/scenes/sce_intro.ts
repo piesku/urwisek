@@ -119,11 +119,13 @@ export function scene_intro(game: Game) {
                                     transform([-20, 5, 0]),
                                 ]);
                             }),
+                        ],
+                        [
+                            task_timeout(9, () => {
+                                game.World.Signature[player_entity] |= Has.ControlPlayer;
+                            }),
                         ]
                     ),
-                    task_timeout(2, () => {
-                        game.World.Signature[player_entity] |= Has.ControlPlayer;
-                    }),
                 ]);
             }
         ),
