@@ -1619,6 +1619,30 @@
     }
 
     /**
+     * @module components/com_light
+     */
+    function light_directional(color = [1, 1, 1], range = 1) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 2048 /* Light */;
+            game.World.Light[entity] = {
+                Kind: 1 /* Directional */,
+                Color: color,
+                Intensity: range ** 2,
+            };
+        };
+    }
+    function light_point(color = [1, 1, 1], range = 1) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 2048 /* Light */;
+            game.World.Light[entity] = {
+                Kind: 2 /* Point */,
+                Color: color,
+                Intensity: range ** 2,
+            };
+        };
+    }
+
+    /**
      * @module components/com_mimic
      */
     function mimic(Target, Stiffness = 0.1) {
@@ -1675,6 +1699,7 @@
     function blueprint_pixie(game) {
         return [
             mimic(find_first(game.World, "pixie anchor"), 0.02),
+            light_point([1, 1, 1], 1.5),
             children([
                 transform(),
                 shake(0.1),
@@ -2245,20 +2270,6 @@
             this.Transform = [];
             this.Trigger = [];
         }
-    }
-
-    /**
-     * @module components/com_light
-     */
-    function light_directional(color = [1, 1, 1], range = 1) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 2048 /* Light */;
-            game.World.Light[entity] = {
-                Kind: 1 /* Directional */,
-                Color: color,
-                Intensity: range ** 2,
-            };
-        };
     }
 
     function blueprint_sun_light(game) {
