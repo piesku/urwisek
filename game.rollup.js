@@ -223,16 +223,10 @@
             this.ViewportResized = true;
             // State of input during this frame.
             // 1 = down, 0 = up, or any number for analog inputs.
-            this.InputState = {
-                MouseX: 0,
-                MouseY: 0,
-            };
+            this.InputState = {};
             // Changes of InputState that happened right before this frame.
             // 1 = pressed, -1 = released, 0 = no change.
-            this.InputDelta = {
-                MouseX: 0,
-                MouseY: 0,
-            };
+            this.InputDelta = {};
             // Map of touch ids to touch indices. In particular, Firefox assigns high
             // ints as ids. Chrome usually starts at 0, so id === index.
             this.InputTouches = {};
@@ -262,8 +256,6 @@
                     this.InputState[`Touch${index}X`] = touch.clientX;
                     this.InputState[`Touch${index}Y`] = touch.clientY;
                     this.InputDelta[`Touch${index}`] = 1;
-                    this.InputDelta[`Touch${index}X`] = 0;
-                    this.InputDelta[`Touch${index}Y`] = 0;
                 }
             });
             this.Ui.addEventListener("touchmove", (evt) => {
@@ -274,10 +266,6 @@
                 for (let i = 0; i < evt.changedTouches.length; i++) {
                     let touch = evt.changedTouches[i];
                     let index = this.InputTouches[touch.identifier];
-                    this.InputDelta[`Touch${index}X`] =
-                        touch.clientX - this.InputState[`Touch${index}X`];
-                    this.InputDelta[`Touch${index}Y`] =
-                        touch.clientY - this.InputState[`Touch${index}Y`];
                     this.InputState[`Touch${index}X`] = touch.clientX;
                     this.InputState[`Touch${index}Y`] = touch.clientY;
                 }

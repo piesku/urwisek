@@ -223,16 +223,10 @@ this.ViewportHeight = window.innerHeight;
 this.ViewportResized = true;
 
 
-this.InputState = {
-MouseX: 0,
-MouseY: 0,
-};
+this.InputState = {};
 
 
-this.InputDelta = {
-MouseX: 0,
-MouseY: 0,
-};
+this.InputDelta = {};
 
 
 this.InputTouches = {};
@@ -262,8 +256,6 @@ this.InputState[`Touch${index}`] = 1;
 this.InputState[`Touch${index}X`] = touch.clientX;
 this.InputState[`Touch${index}Y`] = touch.clientY;
 this.InputDelta[`Touch${index}`] = 1;
-this.InputDelta[`Touch${index}X`] = 0;
-this.InputDelta[`Touch${index}Y`] = 0;
 }
 });
 this.Ui.addEventListener("touchmove", (evt) => {
@@ -274,10 +266,6 @@ evt.preventDefault();
 for (let i = 0; i < evt.changedTouches.length; i++) {
 let touch = evt.changedTouches[i];
 let index = this.InputTouches[touch.identifier];
-this.InputDelta[`Touch${index}X`] =
-touch.clientX - this.InputState[`Touch${index}X`];
-this.InputDelta[`Touch${index}Y`] =
-touch.clientY - this.InputState[`Touch${index}Y`];
 this.InputState[`Touch${index}X`] = touch.clientX;
 this.InputState[`Touch${index}Y`] = touch.clientY;
 }
