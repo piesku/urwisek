@@ -214,7 +214,7 @@ const update_span = document.getElementById("update");
 const delta_span = document.getElementById("delta");
 const fps_span = document.getElementById("fps");
 const step = 1 / 60;
-class GameImpl {
+class Game3D {
 constructor() {
 this.Running = 0;
 this.Now = 0;
@@ -237,6 +237,9 @@ MouseY: 0,
 
 this.InputTouches = {};
 this.Ui = document.querySelector("main");
+this.Canvas3D = document.querySelector("canvas");
+this.Gl = this.Canvas3D.getContext("webgl2");
+this.Audio = new AudioContext();
 document.addEventListener("visibilitychange", () => document.hidden ? this.Stop() : this.Start());
 this.Ui.addEventListener("contextmenu", (evt) => evt.preventDefault());
 this.Ui.addEventListener("touchstart", (evt) => {
@@ -309,6 +312,9 @@ window.addEventListener("keyup", (evt) => {
 this.InputState[evt.code] = 0;
 this.InputDelta[evt.code] = -1;
 });
+this.Gl.enable(GL_DEPTH_TEST);
+this.Gl.enable(GL_CULL_FACE);
+this.Gl.frontFace(GL_CW);
 }
 Start() {
 let accumulator = 0;
@@ -356,17 +362,6 @@ delta_span.textContent = (delta * 1000).toFixed(1);
 if (fps_span) {
 fps_span.textContent = (1 / delta).toFixed();
 }
-}
-}
-class Game3D extends GameImpl {
-constructor() {
-super();
-this.Canvas3D = document.querySelector("canvas");
-this.Gl = this.Canvas3D.getContext("webgl2");
-this.Audio = new AudioContext();
-this.Gl.enable(GL_DEPTH_TEST);
-this.Gl.enable(GL_CULL_FACE);
-this.Gl.frontFace(GL_CW);
 }
 }
 function instantiate(game, blueprint) {
