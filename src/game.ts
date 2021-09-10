@@ -68,7 +68,6 @@ export class Game extends Game3D {
 
     // The rendering pipeline supports 8 lights.
     LightPositions = new Float32Array(4 * 8);
-    LightDetails = new Float32Array(4 * 8);
     Cameras: Array<Entity> = [];
 
     Quality = QualitySettings.High;
