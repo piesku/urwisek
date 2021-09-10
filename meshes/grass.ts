@@ -39,18 +39,18 @@ export function mesh_grass(gl: WebGLRenderingContext): Mesh {
 
 // prettier-ignore
 let vertex_arr = Float32Array.from([
-    -0.009, 0.009, 0.001,
-    0.000, -0.422, 0.012,
-    0.000, 0.405, 0.119,
-    0.008, 0.008, 0.001
+    -0.0, 0.0, 0.0,
+    0.0, -0.4, 0.0,
+    0.0, 0.4, 0.1,
+    0.0, 0.0, 0.0
 ]);
 
 // prettier-ignore
 let normal_arr = Float32Array.from([
-    -0.001, -0.138, 0.990,
-    0.010, 0.025, 1.000,
-    -0.010, -0.285, 0.959,
-    0.000, -0.125, 0.992
+    -0.0, -0.1, 1.0,
+    0.0, 0.0, 1.0,
+    -0.0, -0.3, 1.0,
+    0.0, -0.1, 1.0
 ]);
 
 // prettier-ignore
