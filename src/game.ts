@@ -24,7 +24,6 @@ import {sys_control_touch_move} from "./systems/sys_control_touch_move.js";
 import {sys_control_xbox} from "./systems/sys_control_xbox.js";
 import {sys_cull} from "./systems/sys_cull.js";
 import {sys_debug} from "./systems/sys_debug.js";
-import {sys_lifespan} from "./systems/sys_lifespan.js";
 import {sys_light} from "./systems/sys_light.js";
 import {sys_mimic} from "./systems/sys_mimic.js";
 import {sys_move} from "./systems/sys_move.js";
@@ -107,7 +106,6 @@ export class Game extends Game3D {
         sys_animate(this, delta);
         sys_move(this, delta);
         sys_mimic(this, delta);
-        sys_lifespan(this, delta);
         sys_shake(this, delta);
         sys_spawn(this, delta);
         sys_particles(this, delta);
