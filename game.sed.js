@@ -1818,7 +1818,7 @@ children(
 
 [
 named("mesh anchor"),
-transform([0, -0.42, 0], [0, 0.7, 0, 0.7]),
+transform([0, -0.42, 0], [0, 0.707, 0, 0.707]),
 control_player(2 /* Rotate */),
 children([
 transform([0, 0.5, 1], undefined, [0.1, 0.1, 0.1]),
@@ -1840,7 +1840,7 @@ transform([-0.4, -0.42, 0.2], [0, 0.707, 0, 0.707]),
 control_player(2 /* Rotate */),
 ], [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))], [named("sun anchor"), transform()], [
 named("pixie anchor"),
-transform([4, 1, 0], [0, 0.7, 0, 0.7]),
+transform([4, 1, 0], [0, 0.707, 0, 0.707]),
 
 
 
@@ -2023,7 +2023,7 @@ disable(2 /* AudioSource */),
 children(
 
 [
-transform(undefined, from_euler([0.7, 0, 0, 0.7], 0, -90, -90), [0.1, 0.1, 0.1]),
+transform(undefined, from_euler([0, 0, 0, 0], 0, -90, -90), [0.1, 0.1, 0.1]),
 ...prop_rocket(game),
 ], 
 
@@ -5689,12 +5689,12 @@ let transform = game.World.Transform[entity];
 if (!control.IsGrabbingEntity) {
 if (game.InputState["ArrowLeft"] && control.IsFacingRight) {
 control.IsFacingRight = false;
-set(transform.Rotation, 0, -0.7, 0.0, 0.7);
+set(transform.Rotation, 0, -0.707, 0.0, 0.707);
 transform.Dirty = true;
 }
 if (game.InputState["ArrowRight"] && !control.IsFacingRight) {
 control.IsFacingRight = true;
-set(transform.Rotation, 0, 0.7, 0.0, 0.7);
+set(transform.Rotation, 0, 0.707, 0.0, 0.707);
 transform.Dirty = true;
 }
 }
@@ -5801,12 +5801,12 @@ let transform = game.World.Transform[entity];
 if (!control.IsGrabbingEntity) {
 if (dx < 0 && control.IsFacingRight) {
 control.IsFacingRight = false;
-set(transform.Rotation, 0, -0.7, 0.0, 0.7);
+set(transform.Rotation, 0, -0.707, 0.0, 0.707);
 transform.Dirty = true;
 }
 if (dx > 0 && !control.IsFacingRight) {
 control.IsFacingRight = true;
-set(transform.Rotation, 0, 0.7, 0.0, 0.7);
+set(transform.Rotation, 0, 0.707, 0.0, 0.707);
 transform.Dirty = true;
 }
 }
