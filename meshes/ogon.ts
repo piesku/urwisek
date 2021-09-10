@@ -68,9 +68,6 @@ let normal_arr = Float32Array.from([
 ]);
 
 // prettier-ignore
-let texcoord_arr = Float32Array.from([]);
-
-// prettier-ignore
 let weights_arr = Float32Array.from([
     0.0, 0.9, 1.0, 0.1,
     0.0, 1.0, 0.0, 0.0,

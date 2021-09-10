@@ -147,9 +147,6 @@ let vertex_arr = Float32Array.from([${break_every(3, position_data, DEC)}]);
 let normal_arr = Float32Array.from([${break_every(3, normal_data, DEC)}]);
 
 // prettier-ignore
-let texcoord_arr = Float32Array.from([${break_every(2, [], DEC)}]);
-
-// prettier-ignore
 let weights_arr = Float32Array.from([${break_every(4, weighted_joints, DEC)}]);
 
 // prettier-ignore
