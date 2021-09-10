@@ -5,6 +5,7 @@ import {mimic} from "./components/com_mimic.js";
 import {find_first} from "./components/com_named.js";
 import {task_timeout} from "./components/com_task.js";
 import {Game} from "./game.js";
+import {scene_intro} from "./scenes/sce_intro.js";
 import {scene_level2} from "./scenes/sce_level2.js";
 import {scene_level3} from "./scenes/sce_level3.js";
 import {End, Play} from "./ui/App.js";
@@ -36,6 +37,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             game.World.Signature[trigger_entity] &= ~Has.Trigger;
 
             switch (game.CurrentScene) {
+                case scene_intro:
                 case scene_level2:
                     instantiate(game, [
                         task_timeout(2, () => {
@@ -49,6 +51,9 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             }
 
             switch (game.CurrentScene) {
+                case scene_intro:
+                    game.CurrentScene = scene_level2;
+                    break;
                 case scene_level2:
                     game.CurrentScene = scene_level3;
                     break;
