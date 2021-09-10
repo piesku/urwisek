@@ -5,7 +5,6 @@ import {transform} from "../components/com_transform.js";
 import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
 import {render_colored_shadows} from "../components/com_render.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
-import {blueprint_tree} from "../blueprints/blu_tree.js";
 import {blueprint_bush} from "../blueprints/blu_bush.js";
 import {prop_barn} from "../props/prop_barn.js";
 import {prop_fence} from "../props/prop_fence.js";
@@ -14,6 +13,7 @@ import {prop_slup} from "../props/prop_slup.js";
 import {prop_car2} from "../props/prop_car2.js";
 import {blueprint_obstacle_slup} from "../blueprints/blu_obstacle_slup.js";
 import {blueprint_box} from "../blueprints/blu_box.js";
+import {blueprint_tree} from "../blueprints/blu_tree.js";
 import {blueprint_obstacle_barn} from "../blueprints/blu_obstacle_barn.js";
 import {blueprint_obstacle_fence} from "../blueprints/blu_obstacle_fence.js";
 import {blueprint_exit} from "../blueprints/blu_exit.js";
@@ -30,18 +30,13 @@ export function map_farm(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([42.296, -0.498, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 35]),
+        transform([65.296, -0.498, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 81.11]),
         ...blueprint_ground(game),
     ]);
 
     instantiate(game, [
         transform([56.933, -1.5, -6.039], [0, 0.707, 0, 0.707], [10, 4, 120]),
         ...blueprint_ground(game),
-    ]);
-
-    instantiate(game, [
-        transform([66.274, 0.258, -4.179], undefined, undefined),
-        ...blueprint_tree(game),
     ]);
 
     instantiate(game, [
@@ -117,11 +112,6 @@ export function map_farm(game: Game) {
     instantiate(game, [
         transform([13.626, -0.537, -1.589], undefined, [2, 2, 2]),
         ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([13.791, 0.191, -3.014], undefined, undefined),
-        ...blueprint_tree(game),
     ]);
 
     instantiate(game, [
@@ -405,21 +395,6 @@ export function map_farm(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([59.503, 0.258, 0.928], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([54.898, 0.258, 1.47], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([50.294, 0.258, 1.16], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
         transform([53.834, 0.356, -3.705], [0, 0.194, 0, 0.981], undefined),
         ...prop_slup(game),
     ]);
@@ -455,11 +430,6 @@ export function map_farm(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([82.626, -0.498, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 35]),
-        ...blueprint_ground(game),
-    ]);
-
-    instantiate(game, [
         transform([72.227, 0.5, -1.567], [0, 0.175, 0, 0.985], undefined),
         ...prop_silo(game),
     ]);
@@ -487,31 +457,6 @@ export function map_farm(game: Game) {
     instantiate(game, [
         transform([77.575, 0.777, 2.871], undefined, undefined),
         ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([67.938, 0.258, 2.631], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([79.198, 0.258, -0.813], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([81.946, 0.258, -5.34], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([94.119, 0.258, -2.957], undefined, undefined),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([96.328, 0.258, 2.515], undefined, undefined),
-        ...blueprint_tree(game),
     ]);
 
     instantiate(game, [
@@ -600,11 +545,6 @@ export function map_farm(game: Game) {
     ]);
 
     instantiate(game, [transform([95, 0.5, 0]), ...blueprint_exit(game)]);
-
-    instantiate(game, [
-        transform([62.526, -0.798, 0.961], [0, 0.707, 0, 0.707], [4, 2.003, 5.75]),
-        ...blueprint_ground(game),
-    ]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 

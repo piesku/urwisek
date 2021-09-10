@@ -12,8 +12,8 @@ export function blueprint_exit(game: Game) {
         collide(false, Layer.Terrain, Layer.Player, [1, 100, 1]),
         trigger(Layer.Player, Action.NextScene),
         children(
-            [named("exit"), transform([1, 1, 0])],
-            [transform([1, 0, 0], [0, -0.707, 0, 0.707], [0.3, 0.3, 0.3]), ...blueprint_lisek(game)]
+            [named("exit"), transform([0, 1, 0])],
+            [transform([0, 0, 0], [0, -0.707, 0, 0.707], [0.3, 0.3, 0.3]), ...blueprint_lisek(game)]
         ),
     ];
 }

@@ -78,14 +78,12 @@ export function instantiate_player(game: Game, translation: Vec3, pups_found = g
         Bone1,
         Bone2,
         Bone3,
-        Bone4,
     }
 
     let tail_root: Entity = 0;
     let tail_bone1: Entity = 0;
     let tail_bone2: Entity = 0;
     let tail_bone3: Entity = 0;
-    let tail_bone4: Entity = 0;
 
     instantiate(game, [
         transform([-10, 0, 0.5]),
@@ -170,23 +168,6 @@ export function instantiate_player(game: Game, translation: Vec3, pups_found = g
         children([
             transform([0, 0.2, 0.1], undefined, [0.1, 0.1, 0.1]),
             callback((game, entity) => (tail_bone3 = entity)),
-            // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-        ]),
-    ]);
-
-    instantiate(game, [
-        transform(),
-        mimic(tail_bone3, 0.02),
-        bone(
-            TailBoneIndex.Bone4,
-            [
-                -1.0, 0.0, -0.0, 0.0, 0.0, -0.204, -0.979, 0.0, -0.0, -0.979, 0.204, 0.0, -0.0,
-                -2.224, 1.021, 1.0,
-            ]
-        ),
-        children([
-            transform([0, 0.2, 0.1], undefined, [0.1, 0.1, 0.1]),
-            callback((game, entity) => (tail_bone4 = entity)),
             // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
         ]),
     ]);
