@@ -39,18 +39,18 @@ export function mesh_quad(gl: WebGLRenderingContext): Mesh {
 
 // prettier-ignore
 let vertex_arr = Float32Array.from([
-    -1.000, -1.000, -0.000,
-    1.000, -1.000, -0.000,
-    -1.000, 1.000, 0.000,
-    1.000, 1.000, 0.000
+    -1.0, -1.0, -0.0,
+    1.0, -1.0, -0.0,
+    -1.0, 1.0, 0.0,
+    1.0, 1.0, 0.0
 ]);
 
 // prettier-ignore
 let normal_arr = Float32Array.from([
-    0.000, -0.000, 1.000,
-    0.000, -0.000, 1.000,
-    0.000, -0.000, 1.000,
-    0.000, -0.000, 1.000
+    0.0, -0.0, 1.0,
+    0.0, -0.0, 1.0,
+    0.0, -0.0, 1.0,
+    0.0, -0.0, 1.0
 ]);
 
 // prettier-ignore
