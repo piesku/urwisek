@@ -2116,7 +2116,7 @@ font-size: 16vw;
 font-weight: 600;
 "
 >
-NOAH
+EXODUS
 </div>
 <nav
 style="
@@ -2129,24 +2129,6 @@ line-height: 2;
 <div onclick="$(${2 /* NewGame */})">New Game</div>
 <div>${Settings(game)}</div>
 </nav>
-`;
-}
-function Intro(game) {
-return html `
-<div
-style="
-animation: 6s ease-out 1s forwards intro;
-"
->
-<div
-style="
-margin: 60vh 2vw 0;
-font-size: 4vw;
-"
->
-Humans have destroyed Earth and ran away.<br />Reach the Ark!
-</div>
-</div>
 `;
 }
 function Play(game) {
@@ -2950,7 +2932,7 @@ move(1.7, 0),
 ];
 
 instantiate(game, [
-task_until(() => game.CurrentView === Intro, () => {
+task_until(() => game.CurrentView === Play, () => {
 
 destroy_all(game.World, rocket_spawner_entity);
 instantiate(game, [
@@ -3908,7 +3890,7 @@ game.Quality = parseInt(select.value);
 break;
 }
 case 2 /* NewGame */: {
-game.CurrentView = Intro;
+game.CurrentView = Play;
 break;
 }
 case 3 /* NextScene */: {
