@@ -62,13 +62,13 @@ function check_collisions(collider: Collide, colliders: Collide[], length: numbe
                 let hit = penetrate_aabb(collider, other);
                 if (collider_can_intersect) {
                     collider.Collisions.push({
-                        Other: other.Entity,
+                        Other: other.EntityId,
                         Hit: hit,
                     });
                 }
                 if (other_can_intersect) {
                     other.Collisions.push({
-                        Other: collider.Entity,
+                        Other: collider.EntityId,
                         Hit: negate([0, 0, 0], hit),
                     });
                 }

@@ -11,7 +11,7 @@ import {Animate} from "./com_animate.js";
 export interface ControlAlways {
     Direction: Vec3 | null;
     Rotation: Quat | null;
-    Animation: Animate["Trigger"];
+    AnimationClip: Animate["Trigger"];
 }
 
 export function control_always(
@@ -24,7 +24,7 @@ export function control_always(
         game.World.ControlAlways[entity] = {
             Direction: direction,
             Rotation: rotation,
-            Animation: animation,
+            AnimationClip: animation,
         };
     };
 }

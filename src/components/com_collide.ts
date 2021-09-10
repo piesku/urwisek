@@ -9,7 +9,7 @@ import {Game, Layer} from "../game.js";
 import {Has} from "../world.js";
 
 export interface Collide extends AABB {
-    readonly Entity: Entity;
+    readonly EntityId: Entity;
     New: boolean;
     Dynamic: boolean;
     Layers: Layer;
@@ -30,7 +30,7 @@ export function collide(dynamic: boolean, layers: Layer, mask: Layer, size: Vec3
     return (game: Game, entity: Entity) => {
         game.World.Signature[entity] |= Has.Collide;
         game.World.Collide[entity] = {
-            Entity: entity,
+            EntityId: entity,
             New: true,
             Dynamic: dynamic,
             Layers: layers,

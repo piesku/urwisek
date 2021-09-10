@@ -7,8 +7,6 @@ export interface Mesh {
     VertexArray: Float32Array;
     NormalBuffer: WebGLBuffer;
     NormalArray: Float32Array;
-    TexCoordBuffer: WebGLBuffer;
-    TexCoordArray: Float32Array;
     WeightsBuffer: WebGLBuffer;
     WeightsArray: Float32Array;
     IndexBuffer: WebGLBuffer;

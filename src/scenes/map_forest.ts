@@ -13,6 +13,8 @@ import {blueprint_pushable_branch} from "../blueprints/blu_pushable_branch.js";
 import {blueprint_end} from "../blueprints/blu_end.js";
 import {blueprint_launchpad} from "../blueprints/blu_launchpad.js";
 import {float, element} from "../../common/random.js";
+import {blueprint_pup} from "../blueprints/blu_pup.js";
+import {blueprint_exit} from "../blueprints/blu_exit.js";
 
 export function map_forest(game: Game) {
     instantiate(game, [
@@ -148,7 +150,7 @@ export function map_forest(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([92.21, -2.25, 1.4], [0, 0.71, 0, 0.71], [4, 5, 57]),
+        transform([92.21, -2.5, 1.4], [0, 0.71, 0, 0.71], [4, 5, 57]),
         ...blueprint_ground(game),
     ]);
 
@@ -199,7 +201,7 @@ export function map_forest(game: Game) {
         ...blueprint_obstacle_branch(game),
     ]);
 
-    instantiate(game, [transform([120.2, 3, 0]), ...blueprint_end(game)]);
+    instantiate(game, [transform([120.2, 0, 0]), ...blueprint_end(game)]);
 
     instantiate(game, [
         transform([122.6, 0.2, 0], [0, 0.71, 0, -0.71]),
@@ -225,6 +227,10 @@ export function map_forest(game: Game) {
             ]);
         }
     }
+
+    instantiate(game, [transform([95.2, 0, 0]), ...blueprint_exit(game)]);
+
+    instantiate(game, [transform([95.2, 0, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 

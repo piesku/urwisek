@@ -119,10 +119,6 @@ export function mesh_${process.argv[2]}(gl: WebGLRenderingContext): Mesh {
     gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
     gl.bufferData(GL_ARRAY_BUFFER, normal_arr, GL_STATIC_DRAW);
 
-    let texcoord_buf = gl.createBuffer()!;
-    gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-    gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr, GL_STATIC_DRAW);
-
     let weights_buf = gl.createBuffer()!;
     gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
     gl.bufferData(GL_ARRAY_BUFFER, weights_arr, GL_STATIC_DRAW);
@@ -136,8 +132,6 @@ export function mesh_${process.argv[2]}(gl: WebGLRenderingContext): Mesh {
         VertexArray: vertex_arr,
         NormalBuffer: normal_buf,
         NormalArray: normal_arr,
-        TexCoordBuffer: texcoord_buf,
-        TexCoordArray: texcoord_arr,
         WeightsBuffer: weights_buf,
         WeightsArray: weights_arr,
         IndexBuffer: index_buf,
@@ -151,9 +145,6 @@ let vertex_arr = Float32Array.from([${break_every(3, position_data, DEC)}]);
 
 // prettier-ignore
 let normal_arr = Float32Array.from([${break_every(3, normal_data, DEC)}]);
-
-// prettier-ignore
-let texcoord_arr = Float32Array.from([${break_every(2, [], DEC)}]);
 
 // prettier-ignore
 let weights_arr = Float32Array.from([${break_every(4, weighted_joints, DEC)}]);

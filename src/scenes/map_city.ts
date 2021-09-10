@@ -12,6 +12,7 @@ import {blueprint_obstacle_house} from "../blueprints/blu_obstacle_house.js";
 import {blueprint_obstacle_car} from "../blueprints/blu_obstacle_car.js";
 import {blueprint_box} from "../blueprints/blu_box.js";
 import {prop_car2} from "../props/prop_car2.js";
+import {blueprint_pup} from "../blueprints/blu_pup.js";
 import {blueprint_exit} from "../blueprints/blu_exit.js";
 import {blueprint_bird} from "../blueprints/blu_bird.js";
 import {children} from "../components/com_children.js";
@@ -219,6 +220,8 @@ export function map_city(game: Game) {
     ]);
 
     instantiate(game, [transform([77, 1.5, 0]), ...blueprint_exit(game)]);
+
+    instantiate(game, [transform([77, 1.5, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
 
     instantiate(game, [
         transform([-3, 2, -2], [0.01, 0.76, 0.12, 0.64]),
