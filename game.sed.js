@@ -1,24 +1,6 @@
 (function () {
 
 
-/**
-* @module components/com_named
-*/
-function named(Name) {
-return (game, entity) => {
-game.World.Signature[entity] |= 16384 /* Named */;
-game.World.Named[entity] = { Name };
-};
-}
-function find_first(world, name, start_at = 0) {
-for (let i = start_at; i < world.Signature.length; i++) {
-if (world.Signature[i] & 16384 /* Named */ && world.Named[i].Name === name) {
-return i;
-}
-}
-throw `No entity named ${name}.`;
-}
-
 
 
 
@@ -357,6 +339,74 @@ for (let mixin of blueprint) {
 mixin(game, entity);
 }
 return entity;
+}
+
+function control_player(flags) {
+return (game, entity) => {
+game.World.Signature[entity] |= 128 /* ControlPlayer */;
+game.World.ControlPlayer[entity] = {
+Flags: flags,
+IsFacingRight: true,
+IsGrabbingEntity: null,
+};
+};
+}
+
+/**
+* @module components/com_mimic
+*/
+function mimic(Target, Stiffness = 0.1) {
+return (game, entity) => {
+game.World.Signature[entity] |= 4096 /* Mimic */;
+game.World.Mimic[entity] = {
+Target,
+Stiffness,
+};
+};
+}
+
+/**
+* @module components/com_named
+*/
+function named(Name) {
+return (game, entity) => {
+game.World.Signature[entity] |= 16384 /* Named */;
+game.World.Named[entity] = { Name };
+};
+}
+function find_first(world, name, start_at = 0) {
+for (let i = start_at; i < world.Signature.length; i++) {
+if (world.Signature[i] & 16384 /* Named */ && world.Named[i].Name === name) {
+return i;
+}
+}
+throw `No entity named ${name}.`;
+}
+
+/**
+* @module components/com_task
+*/
+/** A task that completes when the predicate returns true. */
+function task_until(predicate, on_done) {
+return (game, entity) => {
+game.World.Signature[entity] |= 524288 /* Task */;
+game.World.Task[entity] = {
+Kind: 0 /* Until */,
+Predicate: predicate,
+OnDone: on_done,
+};
+};
+}
+/** A task that completes after the specified duration (in seconds). */
+function task_timeout(duration, on_done) {
+return (game, entity) => {
+game.World.Signature[entity] |= 524288 /* Task */;
+game.World.Task[entity] = {
+Kind: 1 /* Timeout */,
+Remaining: duration,
+OnDone: on_done,
+};
+};
 }
 
 const EPSILON = 0.000001;
@@ -1612,19 +1662,6 @@ Intensity: range ** 2,
 }
 
 /**
-* @module components/com_mimic
-*/
-function mimic(Target, Stiffness = 0.1) {
-return (game, entity) => {
-game.World.Signature[entity] |= 4096 /* Mimic */;
-game.World.Mimic[entity] = {
-Target,
-Stiffness,
-};
-};
-}
-
-/**
 * @module components/com_shake
 */
 /**
@@ -1635,32 +1672,6 @@ return (game, entity) => {
 game.World.Signature[entity] |= 131072 /* Shake */;
 game.World.Shake[entity] = {
 Magnitude: magnitude,
-};
-};
-}
-
-/**
-* @module components/com_task
-*/
-/** A task that completes when the predicate returns true. */
-function task_until(predicate, on_done) {
-return (game, entity) => {
-game.World.Signature[entity] |= 524288 /* Task */;
-game.World.Task[entity] = {
-Kind: 0 /* Until */,
-Predicate: predicate,
-OnDone: on_done,
-};
-};
-}
-/** A task that completes after the specified duration (in seconds). */
-function task_timeout(duration, on_done) {
-return (game, entity) => {
-game.World.Signature[entity] |= 524288 /* Task */;
-game.World.Task[entity] = {
-Kind: 1 /* Timeout */,
-Remaining: duration,
-OnDone: on_done,
 };
 };
 }
@@ -1750,17 +1761,6 @@ game.World.ControlAlways[entity] = {
 Direction: direction,
 Rotation: rotation,
 AnimationClip: animation,
-};
-};
-}
-
-function control_player(flags) {
-return (game, entity) => {
-game.World.Signature[entity] |= 128 /* ControlPlayer */;
-game.World.ControlPlayer[entity] = {
-Flags: flags,
-IsFacingRight: true,
-IsGrabbingEntity: null,
 };
 };
 }
@@ -2454,6 +2454,13 @@ disable(4096 /* Mimic */),
 ];
 }
 
+function blueprint_pup(game) {
+return [
+named("pup"),
+children([transform(undefined, undefined, [0.3, 0.3, 0.3]), ...blueprint_lisek(game)]),
+];
+}
+
 /**
 * @module components/com_trigger
 */
@@ -2471,7 +2478,7 @@ function blueprint_exit(game) {
 return [
 collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
 trigger(1 /* Player */, 2 /* NextScene */),
-children([named("exit"), transform([0, 1, 0])], [transform([0, 0, 0], [0, -0.707, 0, 0.707], [0.3, 0.3, 0.3]), ...blueprint_lisek(game)]),
+children([transform([0, 1, 0]), named("exit")]),
 ];
 }
 
@@ -2779,7 +2786,8 @@ instantiate(game, [
 transform([56.4, 1, 0.3], [0.7, 0.15, 0.16, -0.68]),
 ...blueprint_obstacle_car(game),
 ]);
-instantiate(game, [transform([77, 1.5, 0]), ...blueprint_exit(game)]);
+instantiate(game, [transform([77, 1.5, 0]), ...blueprint_exit()]);
+instantiate(game, [transform([77, 1.5, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
 instantiate(game, [
 transform([-3, 2, -2], [0.01, 0.76, 0.12, 0.64]),
 children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
@@ -3400,7 +3408,8 @@ transform([89.73, 1.64, 0.15], [0, 1, 0, 0]),
 ...blueprint_obstacle_fence(game),
 ]);
 instantiate(game, [transform([89.73, 1.64, 2.07], [0, 1, 0, 0]), ...prop_fence(game)]);
-instantiate(game, [transform([95, 0.5, 0]), ...blueprint_exit(game)]);
+instantiate(game, [transform([95, 0.5, 0]), ...blueprint_exit()]);
+instantiate(game, [transform([95, 0.5, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
 instantiate(game, [...blueprint_sun_light(), transform()]);
 instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 }
@@ -3628,6 +3637,7 @@ transform([55.64, -0.76, 0.49], [0.7, 0.07, -0.07, 0.7], [0.5, 2, 0.5]),
 ...blueprint_obstacle_branch(game),
 ]);
 instantiate(game, [transform([120.2, 3, 0]), ...blueprint_end()]);
+instantiate(game, [transform([120.2, 3, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
 instantiate(game, [
 transform([122.6, 0.2, 0], [0, 0.71, 0, -0.71]),
 ...blueprint_launchpad(game),
@@ -3678,6 +3688,8 @@ game.CurrentView = Play;
 break;
 }
 case 2 /* NextScene */: {
+let [trigger_entity] = payload;
+game.World.Signature[trigger_entity] &= ~2097152 /* Trigger */;
 switch (game.CurrentScene) {
 case scene_intro:
 case scene_level1:
@@ -3687,9 +3699,20 @@ case scene_level2:
 game.CurrentScene = scene_level3;
 break;
 }
-game.PupsFound++;
+instantiate(game, [
+task_timeout(2, () => {
+requestAnimationFrame(() => {
 game.CurrentScene(game);
 game.CurrentView = Play;
+});
+}),
+]);
+let pup_entity = find_first(game.World, "pup");
+let pup_anchor = find_first(game.World, "pup anchor " + game.PupsFound);
+mimic(pup_anchor, 0.2)(game, pup_entity);
+let pup_lisek = game.World.Children[pup_entity].Children[0];
+control_player(4 /* Animate */)(game, pup_lisek);
+game.PupsFound++;
 break;
 }
 case 3 /* EndGame */: {
