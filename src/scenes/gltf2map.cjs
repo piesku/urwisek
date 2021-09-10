@@ -9,6 +9,10 @@ if (process.argv.length !== 3) {
     process.exit(1);
 }
 
+function float(min = 0, max = 1) {
+    return Math.random() * (max - min) + min;
+}
+
 process.stdin.resume();
 let json = readFileSync(process.stdin.fd, "utf8");
 process.stdin.pause();
@@ -51,6 +55,32 @@ let create_instance = (name, translation, rotation, scale) => {
         transform(${vec(translation)}),
         ...blueprint_${name}(game),
     ]);`;
+        case "flora":
+            imports.add(`import {blueprint_tree} from "../blueprints/blu_tree.js";`);
+            imports.add(`import {blueprint_bush} from "../blueprints/blu_bush.js";`);
+            imports.add(`import {float, element} from "../../common/random.js";`);
+            return `
+        {
+            let width = ${Math.round(scale[0])};
+            let depth = ${Math.round(scale[2])};
+            let centerX = ${translation[0].toFixed(2)};
+            let centerZ = ${translation[2].toFixed(2)};
+
+            let Xmin = centerX - ~~(width / 2);
+            let Xmax = centerX + ~~(width / 2);
+            let Zmin = centerZ - ~~(depth / 2);
+            let Zmax = centerZ + ~~(depth / 2);
+
+            let number_of_trees = ~~(width * 0.9);
+            for (let i = 0; i < number_of_trees; i++) {
+                instantiate(game, [
+                    transform([float(Xmin, Xmax), ${translation[1]}, float(Zmin, Zmax)]),
+                    ...element([blueprint_tree(game), blueprint_bush(game)]),
+                ]);
+            }
+        }
+            `;
+            break;
         case "ground":
         case "bush":
         case "tree":
