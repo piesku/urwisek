@@ -123,17 +123,21 @@ export abstract class GameImpl {
 
         let tick = (now: number) => {
             let delta = (now - last) / 1000;
-            this.FrameSetup(delta);
+            this.Now = performance.now(); // FrameSetup().
 
             accumulator += delta;
             while (accumulator >= step) {
                 accumulator -= step;
                 this.FixedUpdate(step);
-                this.InputReset();
+
+                // InputReset().
+                for (let name in this.InputDelta) {
+                    this.InputDelta[name] = 0;
+                }
             }
 
             this.FrameUpdate(delta);
-            this.FrameReset(delta);
+            this.ViewportResized = false; // FrameReset().
 
             last = now;
             this.Running = requestAnimationFrame(tick);
@@ -148,22 +152,8 @@ export abstract class GameImpl {
         this.Running = 0;
     }
 
-    FrameSetup(delta: number) {
-        this.Now = performance.now();
-    }
-
     FixedUpdate(step: number) {}
     FrameUpdate(delta: number) {}
-
-    InputReset() {
-        for (let name in this.InputDelta) {
-            this.InputDelta[name] = 0;
-        }
-    }
-
-    FrameReset(delta: number) {
-        this.ViewportResized = false;
-    }
 }
 
 export abstract class Game2D extends GameImpl {
