@@ -8,34 +8,12 @@
         {
             "name" : "Scene",
             "nodes" : [
-                6
+                5
             ]
         }
     ],
     "nodes" : [
         {
-            "name" : "Bone.004",
-            "rotation" : [
-                0.17039522528648376,
-                -4.2363922564186626e-14,
-                1.0697972641082742e-07,
-                0.9853758215904236
-            ],
-            "scale" : [
-                1,
-                0.9999998807907104,
-                1
-            ],
-            "translation" : [
-                -3.7414069967021046e-16,
-                0.4289308190345764,
-                -2.2351741790771484e-08
-            ]
-        },
-        {
-            "children" : [
-                0
-            ],
             "name" : "Bone.003",
             "rotation" : [
                 2.149682565288913e-08,
@@ -56,13 +34,13 @@
         },
         {
             "children" : [
-                1
+                0
             ],
             "name" : "Bone.002",
             "rotation" : [
                 -0.0662272647023201,
-                1.5750842351989732e-17,
-                3.0456234288830843e-17,
+                1.575081919093258e-17,
+                3.0456230980108393e-17,
                 0.997804582118988
             ],
             "scale" : [
@@ -71,20 +49,20 @@
                 0.9999999403953552
             ],
             "translation" : [
-                -1.1580528575742387e-23,
+                -1.4889251025954498e-23,
                 0.44345009326934814,
                 -3.725290298461914e-09
             ]
         },
         {
             "children" : [
-                2
+                1
             ],
             "name" : "Bone.001",
             "rotation" : [
                 0.06622724235057831,
-                -1.5750842351989732e-17,
-                -3.045622436266349e-17,
+                -1.575082249965503e-17,
+                -3.045621774521859e-17,
                 0.997804582118988
             ],
             "translation" : [
@@ -95,7 +73,7 @@
         },
         {
             "children" : [
-                3
+                2
             ],
             "name" : "Bone",
             "rotation" : [
@@ -112,8 +90,8 @@
         },
         {
             "children" : [
-                5,
-                4
+                4,
+                3
             ],
             "name" : "Ogon Rigged",
             "rotation" : [
@@ -149,7 +127,6 @@
         {
             "inverseBindMatrices" : 5,
             "joints" : [
-                4,
                 3,
                 2,
                 1,
@@ -162,7 +139,7 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 17,
+            "count" : 14,
             "max" : [
                 0.24207958579063416,
                 0.7926636338233948,
@@ -171,77 +148,77 @@
             "min" : [
                 -0.24694083631038666,
                 0.1407916247844696,
-                -2.917280435562134
+                -2.547823190689087
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 17,
+            "count" : 14,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5121,
-            "count" : 17,
+            "count" : 14,
             "type" : "VEC4"
         },
         {
             "bufferView" : 3,
             "componentType" : 5126,
-            "count" : 17,
+            "count" : 14,
             "type" : "VEC4"
         },
         {
             "bufferView" : 4,
             "componentType" : 5123,
-            "count" : 90,
+            "count" : 72,
             "type" : "SCALAR"
         },
         {
             "bufferView" : 5,
             "componentType" : 5126,
-            "count" : 5,
+            "count" : 4,
             "type" : "MAT4"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 204,
+            "byteLength" : 168,
             "byteOffset" : 0
         },
         {
             "buffer" : 0,
-            "byteLength" : 204,
-            "byteOffset" : 204
+            "byteLength" : 168,
+            "byteOffset" : 168
         },
         {
             "buffer" : 0,
-            "byteLength" : 68,
-            "byteOffset" : 408
+            "byteLength" : 56,
+            "byteOffset" : 336
         },
         {
             "buffer" : 0,
-            "byteLength" : 272,
-            "byteOffset" : 476
+            "byteLength" : 224,
+            "byteOffset" : 392
         },
         {
             "buffer" : 0,
-            "byteLength" : 180,
-            "byteOffset" : 748
+            "byteLength" : 144,
+            "byteOffset" : 616
         },
         {
             "buffer" : 0,
-            "byteLength" : 320,
-            "byteOffset" : 928
+            "byteLength" : 256,
+            "byteOffset" : 760
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 1248,
-            "uri" : "data:application/octet-stream;base64,fhDjvadKEz8Y2lu/DRRjpGHBxD4HSfa+DRRjpCF9gD6Wqly/P9MFPtGCBD9dqlG/5ZkbvlBoIj/FzZ+/JYL6uy92SD61Xqa/xjFdPtGCBD+Eepi/D958vgHsSj/ufeG/UPGppK4rED6t182/tuN3PnaGDD9M0OC/q1VVvnYNPT9oaAzAq72NpGWVbz6MeAbAZI8qPiyT/T6O8gzAtwmcvbBvJj8n1CfA1j4dpI+pwD7z1R7AOPQLPnB7AD9/hCLAtwkcvXL02T65tDrAaY4zvz7aJj/7uZM+vQL1vNjpJL7Sinw/J2PHvejFdr8CjH0+yApZP8mO2T4VbqI+dCw1v1ueLT++uko+BiIGvsn1er9JShc+krdwP0n2mT5sOiM+j2kpv8TbPz+AgaK878G1vbX8fr+YAZY70KV0P1iGlj4twou87a8kvx2WND/JWZi+RbPgvZ1xeL8z61u+YtF5PyZ6Hj4k2h2+6E7pvn1sRz/Ahty+ZbtPvvrtcr8MXHe+u1N3PyfD0D2py3K+XzkOvmtyer5fqnW/AAEAAAAAAAAAAQAAAAEAAAECAAABAgAAAQIAAAIDAAACAwAAAgMAAAMEAAADBAAAAwQAAAQDAAAEAwAABAMAAAQAAADM424/n+GIPQAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAB86cj8QXlw9AAAAAAAAAAD55XM/cKBBPQAAAAAAAAAAcRpxP/BYbj0AAAAAAAAAABaeYD9QD/s9AAAAAAAAAAClS3g/WIv2PAAAAAAAAAAAcYVbPz7qET4AAAAAAAAAACsiaT+n7rY9AAAAAAAAAABIfW4/wxWMPQAAAAAAAAAA/MJqPyLoqT0AAAAAAAAAAHbabz9NLIE9AAAAAAAAAAAQ0nE//N5iPQAAAAAAAAAAV4x7Pxt1jjwAAAAAAAAAABbGaj9Tz6k9AAAAAAAAAAAz13Q/z4wyPQAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAEAAAACAAIAAwABAAMAAAABAAYABQAIAAYACAAJAAAAAwAGAAAABgAEAAIAAAAEAAIABAAFAAMAAgAFAAMABQAGAAcACQAMAAcADAAKAAQABgAJAAQACQAHAAUABAAHAAUABwAIAAgABwAKAAgACgALAAkACAALAAkACwAMAAsACgANAAsADQAOAAwACwAOAAwADgAPAAoADAAPAAoADwANAA4ADQAQAA8ADgAQAA0ADwAQAAAAgD+ghYiY////pQAAAID///8laSGiMwAAgD8AAACAU6/lGQAAgL/XGwczAAAAgMd9IqUDaDO/yULbvgAAgD8AAIA///+/mYcZCaYAAACApuUHJu9VBz4cwX0/AAAAgPT0kCQbwX2/7FUHPgAAAIAtesek5caMv8oekr4AAIA/AACAP9BCRJn///+lAAAAgP///yXSQgQzAACAPwAAAIDRQqQZAACAv0BaiDAAAACApX9ApVD6vr+pRPm+AACAPwAAgL8CAMCoWYgotQAAAIC08yY1reoLPliZfb8AAACACjm4M1yZfb+q6gu+AAAAgB2BELSekwDAUYBbPgAAgD8AAIC/AwCAKFaIKLUAAACAeP0kNV3ZUL52nnq/AAAAAOd9CbR7nnq/Z9lQPgAAAACCACy1ZVwOwI+igj8AAIA/"
+            "byteLength" : 1016,
+            "uri" : "data:application/octet-stream;base64,fhDjvadKEz8Y2lu/DRRjpGHBxD4HSfa+DRRjpCF9gD6Wqly/P9MFPtGCBD9dqlG/5ZkbvlBoIj/FzZ+/JYL6uy92SD61Xqa/xjFdPtGCBD+Eepi/D958vgHsSj/ufeG/UPGppK4rED6t182/tuN3PnaGDD9M0OC/q1VVvnYNPT9oaAzAq72NpGWVbz6MeAbAZI8qPiyT/T6O8gzA9yilPKNqAj+JDyPAaY4zvz7aJj/7uZM+vQL1vNjpJL7Sinw/J2PHvejFdr8CjH0+yApZP8mO2T4VbqI+dCw1v1ueLT++uko+BiIGvsn1er9JShc+krdwP0n2mT5sOiM+j2kpv8TbPz+AgaK878G1vbX8fr+YAZY70KV0P1iGlj4twou8vwYbvwLlKT/71+C+uILMvT2Hc7/9WZW+A8JyP5+yHj5Z2o2+IdKHPW3CmjwAZH+/AAEAAAAAAAAAAQAAAAEAAAECAAABAgAAAQIAAAIDAAACAwAAAgMAAAMAAAADAAAAAwAAAAMAAADM424/n+GIPQAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAB86cj8QXlw9AAAAAAAAAAD55XM/cKBBPQAAAAAAAAAAcRpxP/BYbj0AAAAAAAAAABaeYD9QD/s9AAAAAAAAAAClS3g/WIv2PAAAAAAAAAAAcYVbPz7qET4AAAAAAAAAACsiaT+n7rY9AAAAAAAAAABIfW4/wxWMPQAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAEAAAACAAIAAwABAAMAAAABAAYABQAIAAYACAAJAAAAAwAGAAAABgAEAAIAAAAEAAIABAAFAAMAAgAFAAMABQAGAAcACQAMAAcADAAKAAQABgAJAAQACQAHAAUABAAHAAUABwAIAAgABwAKAAgACgALAAkACAALAAkACwAMAAsACgANAAwACwANAAoADAANAAAAgD+ghYiY////pQAAAID///8laSGiMwAAgD8AAACAU6/lGQAAgL/XGwczAAAAgMd9IqUDaDO/yULbvgAAgD8AAIA//v9/mYYZCaYAAACApeUHJu9VBz4cwX0/AAAAgPP0kCQbwX2/7FUHPgAAAIAqesek5caMv8oekr4AAIA/AACAP8D0bhgAAACmAAAAgP///yXSQgQzAACAPwAAAIDRQqQZAACAv0BaiDAAAACApX9ApVD6vr+pRPm+AACAPwAAgL8CAMCoWYgotQAAAIC08yY1reoLPliZfb8AAACACjm4M1yZfb+q6gu+AAAAgB2BELSekwDAUYBbPgAAgD8="
         }
     ]
 }
