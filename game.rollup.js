@@ -2225,28 +2225,14 @@
     }
 
     function blueprint_ground(game) {
-        let zdzblos = 100;
-        let zdz_scale = 0.5;
-        let zdz_offsets = [];
-        let zdz_rotations = [];
-        for (let i = 0; i < zdzblos; i++) {
-            zdz_offsets.push(float(-1 / 2 / zdz_scale, 1 / 2 / zdz_scale), 0.8, float(-1 / 4 / zdz_scale, 1 / 4 / zdz_scale), integer(0, 1));
-            zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, float(-180, 180), 0));
-        }
         return [
             collide(false, 2 /* Terrain */ | 16 /* SurfaceGround */, 0 /* None */),
             rigid_body(0 /* Static */),
-            children([
-                transform(),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [
-                    82 / 255,
-                    39 / 255,
-                    5 / 255,
-                    1,
-                ]),
-            ], [
-                transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
-                render_instanced(game.MeshGrass, Float32Array.from(zdz_offsets), Float32Array.from(zdz_rotations), [1, 0.54, 0, 1, 0.84, 0]),
+            render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [
+                82 / 255,
+                39 / 255,
+                5 / 255,
+                1,
             ]),
         ];
     }
@@ -4399,110 +4385,6 @@
     function mesh_cube(gl) {
         let vertex_buf = gl.createBuffer();
         gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$6, GL_STATIC_DRAW);
-        let normal_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, normal_arr$6, GL_STATIC_DRAW);
-        let texcoord_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$6, GL_STATIC_DRAW);
-        let weights_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-        gl.bufferData(GL_ARRAY_BUFFER, weights_arr$6, GL_STATIC_DRAW);
-        let index_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-        gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$6, GL_STATIC_DRAW);
-        return {
-            VertexBuffer: vertex_buf,
-            VertexArray: vertex_arr$6,
-            NormalBuffer: normal_buf,
-            NormalArray: normal_arr$6,
-            TexCoordBuffer: texcoord_buf,
-            TexCoordArray: texcoord_arr$6,
-            WeightsBuffer: weights_buf,
-            WeightsArray: weights_arr$6,
-            IndexBuffer: index_buf,
-            IndexArray: index_arr$6,
-            IndexCount: index_arr$6.length,
-        };
-    }
-    // prettier-ignore
-    let vertex_arr$6 = Float32Array.from([
-        -0.500, -0.500, 0.500,
-        -0.500, -0.500, 0.500,
-        -0.500, -0.500, 0.500,
-        -0.500, 0.500, 0.500,
-        -0.500, 0.500, 0.500,
-        -0.500, 0.500, 0.500,
-        -0.500, -0.500, -0.500,
-        -0.500, -0.500, -0.500,
-        -0.500, -0.500, -0.500,
-        -0.500, 0.500, -0.500,
-        -0.500, 0.500, -0.500,
-        -0.500, 0.500, -0.500,
-        0.500, -0.500, 0.500,
-        0.500, -0.500, 0.500,
-        0.500, -0.500, 0.500,
-        0.500, 0.500, 0.500,
-        0.500, 0.500, 0.500,
-        0.500, 0.500, 0.500,
-        0.500, -0.500, -0.500,
-        0.500, -0.500, -0.500,
-        0.500, -0.500, -0.500,
-        0.500, 0.500, -0.500,
-        0.500, 0.500, -0.500,
-        0.500, 0.500, -0.500
-    ]);
-    // prettier-ignore
-    let normal_arr$6 = Float32Array.from([
-        -1.000, 0.000, 0.000,
-        0.000, -1.000, 0.000,
-        0.000, 0.000, 1.000,
-        -1.000, 0.000, 0.000,
-        0.000, 0.000, 1.000,
-        0.000, 1.000, 0.000,
-        -1.000, 0.000, 0.000,
-        0.000, -1.000, 0.000,
-        0.000, 0.000, -1.000,
-        -1.000, 0.000, 0.000,
-        0.000, 0.000, -1.000,
-        0.000, 1.000, 0.000,
-        0.000, -1.000, 0.000,
-        0.000, 0.000, 1.000,
-        1.000, 0.000, 0.000,
-        0.000, 0.000, 1.000,
-        0.000, 1.000, 0.000,
-        1.000, 0.000, 0.000,
-        0.000, -1.000, 0.000,
-        0.000, 0.000, -1.000,
-        1.000, 0.000, 0.000,
-        0.000, 0.000, -1.000,
-        0.000, 1.000, 0.000,
-        1.000, 0.000, 0.000
-    ]);
-    // prettier-ignore
-    let texcoord_arr$6 = Float32Array.from([]);
-    // prettier-ignore
-    let weights_arr$6 = Float32Array.from([]);
-    // prettier-ignore
-    let index_arr$6 = Uint16Array.from([
-        16, 5, 22,
-        5, 11, 22,
-        1, 12, 7,
-        12, 18, 7,
-        2, 4, 13,
-        4, 15, 13,
-        14, 17, 20,
-        17, 23, 20,
-        19, 21, 8,
-        21, 10, 8,
-        6, 9, 0,
-        9, 3, 0
-    ]);
-
-    function mesh_cylinder(gl) {
-        let vertex_buf = gl.createBuffer();
-        gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
         gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$5, GL_STATIC_DRAW);
         let normal_buf = gl.createBuffer();
         gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
@@ -4532,41 +4414,57 @@
     }
     // prettier-ignore
     let vertex_arr$5 = Float32Array.from([
-        0.000, -0.500, -0.500,
-        0.000, 0.500, -0.500,
-        0.354, -0.500, -0.354,
-        0.354, 0.500, -0.354,
-        0.500, -0.500, 0.000,
-        0.500, 0.500, 0.000,
-        0.354, -0.500, 0.354,
-        0.354, 0.500, 0.354,
-        -0.000, -0.500, 0.500,
-        -0.000, 0.500, 0.500,
-        -0.354, -0.500, 0.354,
-        -0.354, 0.500, 0.354,
-        -0.500, -0.500, -0.000,
-        -0.500, 0.500, -0.000,
-        -0.354, -0.500, -0.354,
-        -0.354, 0.500, -0.354
+        -0.500, -0.500, 0.500,
+        -0.500, -0.500, 0.500,
+        -0.500, -0.500, 0.500,
+        -0.500, 0.500, 0.500,
+        -0.500, 0.500, 0.500,
+        -0.500, 0.500, 0.500,
+        -0.500, -0.500, -0.500,
+        -0.500, -0.500, -0.500,
+        -0.500, -0.500, -0.500,
+        -0.500, 0.500, -0.500,
+        -0.500, 0.500, -0.500,
+        -0.500, 0.500, -0.500,
+        0.500, -0.500, 0.500,
+        0.500, -0.500, 0.500,
+        0.500, -0.500, 0.500,
+        0.500, 0.500, 0.500,
+        0.500, 0.500, 0.500,
+        0.500, 0.500, 0.500,
+        0.500, -0.500, -0.500,
+        0.500, -0.500, -0.500,
+        0.500, -0.500, -0.500,
+        0.500, 0.500, -0.500,
+        0.500, 0.500, -0.500,
+        0.500, 0.500, -0.500
     ]);
     // prettier-ignore
     let normal_arr$5 = Float32Array.from([
-        0.000, -0.630, -0.776,
-        0.000, 0.630, -0.776,
-        0.549, -0.630, -0.549,
-        0.549, 0.630, -0.549,
-        0.776, -0.630, 0.000,
-        0.776, 0.630, 0.000,
-        0.549, -0.630, 0.549,
-        0.549, 0.630, 0.549,
-        0.000, -0.630, 0.776,
-        0.000, 0.630, 0.776,
-        -0.549, -0.630, 0.549,
-        -0.549, 0.630, 0.549,
-        -0.776, -0.630, 0.000,
-        -0.776, 0.630, 0.000,
-        -0.549, -0.630, -0.549,
-        -0.549, 0.630, -0.549
+        -1.000, 0.000, 0.000,
+        0.000, -1.000, 0.000,
+        0.000, 0.000, 1.000,
+        -1.000, 0.000, 0.000,
+        0.000, 0.000, 1.000,
+        0.000, 1.000, 0.000,
+        -1.000, 0.000, 0.000,
+        0.000, -1.000, 0.000,
+        0.000, 0.000, -1.000,
+        -1.000, 0.000, 0.000,
+        0.000, 0.000, -1.000,
+        0.000, 1.000, 0.000,
+        0.000, -1.000, 0.000,
+        0.000, 0.000, 1.000,
+        1.000, 0.000, 0.000,
+        0.000, 0.000, 1.000,
+        0.000, 1.000, 0.000,
+        1.000, 0.000, 0.000,
+        0.000, -1.000, 0.000,
+        0.000, 0.000, -1.000,
+        1.000, 0.000, 0.000,
+        0.000, 0.000, -1.000,
+        0.000, 1.000, 0.000,
+        1.000, 0.000, 0.000
     ]);
     // prettier-ignore
     let texcoord_arr$5 = Float32Array.from([]);
@@ -4574,37 +4472,21 @@
     let weights_arr$5 = Float32Array.from([]);
     // prettier-ignore
     let index_arr$5 = Uint16Array.from([
-        14, 10, 6,
-        6, 2, 14,
-        14, 12, 10,
-        10, 8, 6,
-        6, 4, 2,
-        2, 0, 14,
-        0, 1, 14,
-        1, 15, 14,
-        14, 15, 12,
-        15, 13, 12,
-        5, 9, 13,
-        13, 1, 5,
-        5, 7, 9,
-        9, 11, 13,
-        13, 15, 1,
-        1, 3, 5,
-        12, 13, 10,
-        13, 11, 10,
-        10, 11, 8,
-        11, 9, 8,
-        8, 9, 6,
-        9, 7, 6,
-        6, 7, 4,
-        7, 5, 4,
-        4, 5, 2,
-        5, 3, 2,
-        2, 3, 0,
-        3, 1, 0
+        16, 5, 22,
+        5, 11, 22,
+        1, 12, 7,
+        12, 18, 7,
+        2, 4, 13,
+        4, 15, 13,
+        14, 17, 20,
+        17, 23, 20,
+        19, 21, 8,
+        21, 10, 8,
+        6, 9, 0,
+        9, 3, 0
     ]);
 
-    function mesh_grass(gl) {
+    function mesh_cylinder(gl) {
         let vertex_buf = gl.createBuffer();
         gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
         gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$4, GL_STATIC_DRAW);
@@ -4636,17 +4518,41 @@
     }
     // prettier-ignore
     let vertex_arr$4 = Float32Array.from([
-        -0.009, 0.009, 0.001,
-        0.000, -0.422, 0.012,
-        0.000, 0.405, 0.119,
-        0.008, 0.008, 0.001
+        0.000, -0.500, -0.500,
+        0.000, 0.500, -0.500,
+        0.354, -0.500, -0.354,
+        0.354, 0.500, -0.354,
+        0.500, -0.500, 0.000,
+        0.500, 0.500, 0.000,
+        0.354, -0.500, 0.354,
+        0.354, 0.500, 0.354,
+        -0.000, -0.500, 0.500,
+        -0.000, 0.500, 0.500,
+        -0.354, -0.500, 0.354,
+        -0.354, 0.500, 0.354,
+        -0.500, -0.500, -0.000,
+        -0.500, 0.500, -0.000,
+        -0.354, -0.500, -0.354,
+        -0.354, 0.500, -0.354
     ]);
     // prettier-ignore
     let normal_arr$4 = Float32Array.from([
-        -0.001, -0.138, 0.990,
-        0.010, 0.025, 1.000,
-        -0.010, -0.285, 0.959,
-        0.000, -0.125, 0.992
+        0.000, -0.630, -0.776,
+        0.000, 0.630, -0.776,
+        0.549, -0.630, -0.549,
+        0.549, 0.630, -0.549,
+        0.776, -0.630, 0.000,
+        0.776, 0.630, 0.000,
+        0.549, -0.630, 0.549,
+        0.549, 0.630, 0.549,
+        0.000, -0.630, 0.776,
+        0.000, 0.630, 0.776,
+        -0.549, -0.630, 0.549,
+        -0.549, 0.630, 0.549,
+        -0.776, -0.630, 0.000,
+        -0.776, 0.630, 0.000,
+        -0.549, -0.630, -0.549,
+        -0.549, 0.630, -0.549
     ]);
     // prettier-ignore
     let texcoord_arr$4 = Float32Array.from([]);
@@ -4654,8 +4560,34 @@
     let weights_arr$4 = Float32Array.from([]);
     // prettier-ignore
     let index_arr$4 = Uint16Array.from([
-        3, 1, 0,
-        2, 3, 0
+        14, 10, 6,
+        6, 2, 14,
+        14, 12, 10,
+        10, 8, 6,
+        6, 4, 2,
+        2, 0, 14,
+        0, 1, 14,
+        1, 15, 14,
+        14, 15, 12,
+        15, 13, 12,
+        5, 9, 13,
+        13, 1, 5,
+        5, 7, 9,
+        9, 11, 13,
+        13, 15, 1,
+        1, 3, 5,
+        12, 13, 10,
+        13, 11, 10,
+        10, 11, 8,
+        11, 9, 8,
+        8, 9, 6,
+        9, 7, 6,
+        6, 7, 4,
+        7, 5, 4,
+        4, 5, 2,
+        5, 3, 2,
+        2, 3, 0,
+        3, 1, 0
     ]);
 
     function mesh_leaf(gl) {
@@ -6452,7 +6384,6 @@
             this.MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
             this.MaterialInstanced = mat_forward_instanced(this.Gl);
             this.MeshLeaf = mesh_leaf(this.Gl);
-            this.MeshGrass = mesh_grass(this.Gl);
             this.MeshPlane = mesh_plane(this.Gl);
             this.MeshCube = mesh_cube(this.Gl);
             this.MeshLisek = mesh_lisek(this.Gl);
