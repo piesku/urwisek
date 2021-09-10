@@ -15,7 +15,7 @@ export function prop_slup(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCylinder,
-                    [0.119, 0.027, 0.012, 1]
+                    [0.12, 0.03, 0.01, 1]
                 ),
             ],
 
@@ -25,7 +25,7 @@ export function prop_slup(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCube,
-                    [0.119, 0.027, 0.012, 1]
+                    [0.12, 0.03, 0.01, 1]
                 ),
             ],
 
@@ -35,17 +35,17 @@ export function prop_slup(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCube,
-                    [0.119, 0.027, 0.012, 1]
+                    [0.12, 0.03, 0.01, 1]
                 ),
             ],
 
             [
-                transform([0, 6.329, -0.25], undefined, [3, 0.45, 0.2]),
+                transform([0, 6.33, -0.25], undefined, [3, 0.45, 0.2]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCube,
-                    [0.119, 0.027, 0.012, 1]
+                    [0.12, 0.03, 0.01, 1]
                 ),
             ],
 
@@ -55,7 +55,7 @@ export function prop_slup(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCylinder,
-                    [0.367, 0.367, 0.367, 1]
+                    [0.37, 0.37, 0.37, 1]
                 ),
             ],
 
@@ -65,7 +65,7 @@ export function prop_slup(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCylinder,
-                    [0.367, 0.367, 0.367, 1]
+                    [0.37, 0.37, 0.37, 1]
                 ),
             ],
 
@@ -75,7 +75,7 @@ export function prop_slup(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCylinder,
-                    [0.367, 0.367, 0.367, 1]
+                    [0.37, 0.37, 0.37, 1]
                 ),
             ],
 
@@ -85,17 +85,17 @@ export function prop_slup(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCylinder,
-                    [0.367, 0.367, 0.367, 1]
+                    [0.37, 0.37, 0.37, 1]
                 ),
             ],
 
             [
-                transform([-0.34, 5.76, -0.24], [0, 0, -0.383, 0.924], [1.2, 0.2, 0.05]),
+                transform([-0.34, 5.76, -0.24], [0, 0, -0.38, 0.92], [1.2, 0.2, 0.05]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCube,
-                    [0.367, 0.367, 0.367, 1]
+                    [0.37, 0.37, 0.37, 1]
                 ),
             ],
 
@@ -105,7 +105,7 @@ export function prop_slup(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCylinder,
-                    [0.367, 0.367, 0.367, 1]
+                    [0.37, 0.37, 0.37, 1]
                 ),
             ],
 
@@ -115,7 +115,7 @@ export function prop_slup(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCylinder,
-                    [0.367, 0.367, 0.367, 1]
+                    [0.37, 0.37, 0.37, 1]
                 ),
             ]
         ),

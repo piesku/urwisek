@@ -26,7 +26,7 @@ let scene_name = process.argv[2]
     .replace(/-+$/, "");
 
 let vec = (arr) =>
-    arr ? "[" + arr.map((v) => parseFloat(v.toFixed(3))).join(", ") + "]" : "undefined";
+    arr ? "[" + arr.map((v) => parseFloat(v.toFixed(2))).join(", ") + "]" : "undefined";
 
 let imports = new Set([
     'import {instantiate} from "../../common/game.js";',
@@ -103,6 +103,7 @@ let create_instance = (name, translation, rotation, scale) => {
         case "obstacle_barn":
         case "obstacle_fence":
         case "launchpad":
+        case "fire":
             imports.add(`import {blueprint_${name}} from "../blueprints/blu_${name}.js";`);
             return `
     instantiate(game, [
@@ -156,7 +157,7 @@ let result = `\
 ${Array.from(imports).join("\n")}
 
 export function map_${scene_name}(game: Game) {
-${nodes}
+${nodes.replace(/\, undefined\, undefined\)/gi, ")").replace(/\, undefined\)/gi, ")")}
 
     instantiate(game, [
         ...blueprint_sun_light(game),

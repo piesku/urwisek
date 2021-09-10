@@ -19,7 +19,7 @@ import {spawn} from "../components/com_spawn.js";
 import {task_timeout, task_until} from "../components/com_task.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
-import {Intro} from "../ui/App.js";
+import {Play} from "../ui/App.js";
 import {Has, World} from "../world.js";
 import {map_city} from "./map_city.js";
 
@@ -77,7 +77,7 @@ export function scene_intro(game: Game) {
     // The into animation.
     instantiate(game, [
         task_until(
-            () => game.CurrentView === Intro,
+            () => game.CurrentView === Play,
             () => {
                 // No more rockets.
                 destroy_all(game.World, rocket_spawner_entity);
@@ -91,7 +91,7 @@ export function scene_intro(game: Game) {
                             }),
                         ],
                         [
-                            task_timeout(4, () => {
+                            task_timeout(5, () => {
                                 // The pups flee.
                                 for (let pup of pups) {
                                     control_always([0, 0, 1], null, "jump")(game, pup);
@@ -100,7 +100,7 @@ export function scene_intro(game: Game) {
                             }),
                         ],
                         [
-                            task_timeout(7, () => {
+                            task_timeout(6, () => {
                                 // No more stars.
                                 destroy_all(game.World, starfield_entity);
 
@@ -121,7 +121,7 @@ export function scene_intro(game: Game) {
                             }),
                         ],
                         [
-                            task_timeout(9, () => {
+                            task_timeout(8, () => {
                                 game.World.Signature[player_entity] |= Has.ControlPlayer;
                             }),
                         ]

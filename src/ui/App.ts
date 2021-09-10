@@ -16,7 +16,7 @@ export function Title(game: Game) {
                 font-weight: 600;
             "
         >
-            NOAH
+            EXODUS
         </div>
         <nav
             style="
@@ -29,25 +29,6 @@ export function Title(game: Game) {
             <div onclick="$(${Action.NewGame})">New Game</div>
             <div>${Settings(game)}</div>
         </nav>
-    `;
-}
-
-export function Intro(game: Game) {
-    return html`
-        <div
-            style="
-                animation: 6s ease-out 1s forwards intro;
-            "
-        >
-            <div
-                style="
-                    margin: 60vh 2vw 0;
-                    font-size: 4vw;
-                "
-            >
-                Humans have destroyed Earth and ran away.<br />Reach the Ark!
-            </div>
-        </div>
     `;
 }
 

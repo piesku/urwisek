@@ -32,7 +32,7 @@ function blueprint_player(game: Game) {
             // ],
             [
                 named("mesh anchor"),
-                transform([0, -0.42, 0], [0, 0.7, 0, 0.7]),
+                transform([0, -0.42, 0], [0, 0.707, 0, 0.707]),
                 control_player(Control.Rotate),
                 children([
                     transform([0, 0.5, 1], undefined, [0.1, 0.1, 0.1]),
@@ -60,7 +60,7 @@ function blueprint_player(game: Game) {
             [named("sun anchor"), transform()],
             [
                 named("pixie anchor"),
-                transform([4, 1, 0], [0, 0.7, 0, 0.7]),
+                transform([4, 1, 0], [0, 0.707, 0, 0.707]),
                 // children([
                 //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
                 //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
@@ -83,7 +83,7 @@ export function instantiate_player(game: Game, translation: Vec3, pups_found = g
     let tail_root: Entity = 0;
     let tail_bone1: Entity = 0;
     let tail_bone2: Entity = 0;
-    let tail_bone3: Entity = 0;
+    let tail_bone3: Entity;
 
     instantiate(game, [
         transform([-10, 0, 0.5]),

@@ -22,7 +22,7 @@ let blueprint_name = process.argv[2]
     .replace(/-+$/, "");
 
 let vec = (arr) =>
-    arr ? "[" + arr.map((v) => parseFloat(v.toFixed(3))).join(", ") + "]" : "undefined";
+    arr ? "[" + arr.map((v) => parseFloat(v.toFixed(2))).join(", ") + "]" : "undefined";
 
 let create_child = (mesh, translation, rotation, scale, color) => {
     return `

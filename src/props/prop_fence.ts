@@ -20,7 +20,7 @@ export function prop_fence(game: Game) {
             ],
 
             [
-                transform([0, 1.21, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
+                transform([0, 1.21, 0.5], [0.71, 0, 0, 0.71], [0.1, 2, 0.1]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,
@@ -40,7 +40,7 @@ export function prop_fence(game: Game) {
             ],
 
             [
-                transform([0, 0.8, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
+                transform([0, 0.8, 0.5], [0.71, 0, 0, 0.71], [0.1, 2, 0.1]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,
@@ -50,7 +50,7 @@ export function prop_fence(game: Game) {
             ],
 
             [
-                transform([0, 0.4, 0.5], [0.707, 0, 0, 0.707], [0.1, 2, 0.1]),
+                transform([0, 0.4, 0.5], [0.71, 0, 0, 0.71], [0.1, 2, 0.1]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,

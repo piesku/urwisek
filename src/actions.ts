@@ -5,7 +5,7 @@ import {scene_intro} from "./scenes/sce_intro.js";
 import {scene_level1} from "./scenes/sce_level1.js";
 import {scene_level2} from "./scenes/sce_level2.js";
 import {scene_level3} from "./scenes/sce_level3.js";
-import {End, Intro, Play} from "./ui/App.js";
+import {End, Play} from "./ui/App.js";
 import {Has} from "./world.js";
 
 export const enum Action {
@@ -35,7 +35,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         }
 
         case Action.NewGame: {
-            game.CurrentView = Intro;
+            game.CurrentView = Play;
             break;
         }
 
