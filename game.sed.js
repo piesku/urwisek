@@ -1788,7 +1788,6 @@ MoveSpeed: move_speed,
 RotationSpeed: rotation_speed,
 Directions: [],
 LocalRotations: [],
-SelfRotations: [],
 };
 };
 }
@@ -5690,10 +5689,6 @@ if (current_keyframe.Rotation && next_keyframe.Rotation) {
 slerp(transform.Rotation, current_keyframe.Rotation, next_keyframe.Rotation, interpolant);
 transform.Dirty = true;
 }
-if (current_keyframe.Scale && next_keyframe.Scale) {
-lerp(transform.Scale, current_keyframe.Scale, next_keyframe.Scale, interpolant);
-transform.Dirty = true;
-}
 }
 else if (current_keyframe) {
 if (current_keyframe.Translation) {
@@ -5702,10 +5697,6 @@ transform.Dirty = true;
 }
 if (current_keyframe.Rotation) {
 copy(transform.Rotation, current_keyframe.Rotation);
-transform.Dirty = true;
-}
-if (current_keyframe.Scale) {
-copy$1(transform.Scale, current_keyframe.Scale);
 transform.Dirty = true;
 }
 }
@@ -6543,10 +6534,6 @@ let amount = Math.min(1, length(direction));
 
 
 transform_direction(direction, direction, transform.World);
-if (transform.Parent !== undefined) {
-let parent = game.World.Transform[transform.Parent];
-transform_direction(direction, direction, parent.Self);
-}
 
 
 normalize(direction, direction);
@@ -6565,16 +6552,6 @@ slerp(rotation, NO_ROTATION, rotation, t);
 multiply(transform.Rotation, rotation, transform.Rotation);
 transform.Dirty = true;
 move.LocalRotations = [];
-}
-
-if (move.SelfRotations.length) {
-let rotation = move.SelfRotations.reduce(multiply_rotations);
-let t = Math.min(1, (move.RotationSpeed / Math.PI) * delta);
-slerp(rotation, NO_ROTATION, rotation, t);
-
-multiply(transform.Rotation, transform.Rotation, rotation);
-transform.Dirty = true;
-move.SelfRotations = [];
 }
 }
 function add_directions(acc, cur) {
