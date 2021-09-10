@@ -235,7 +235,6 @@ this.Canvas3D = document.querySelector("canvas");
 this.Gl = this.Canvas3D.getContext("webgl2");
 this.Audio = new AudioContext();
 document.addEventListener("visibilitychange", () => document.hidden ? this.Stop() : this.Start());
-this.Ui.addEventListener("contextmenu", (evt) => evt.preventDefault());
 this.Ui.addEventListener("touchstart", (evt) => {
 if (evt.target === this.Ui) {
 
@@ -1106,8 +1105,8 @@ InstanceRotationBuffer: instance_rotation_buffer,
 }
 
 const jump_keytime_1 = 0.2;
-const jump_keytime_2 = jump_keytime_1 + 0.4;
-const jump_keytime_3 = jump_keytime_2 + 0.4;
+const jump_keytime_2 = 0.6;
+const jump_keytime_3 = 1;
 const sit_keytime_1 = 9;
 const sit_keytime_2 = sit_keytime_1 + 1;
 const sit_keytime_3 = sit_keytime_2 + 5;
@@ -1726,7 +1725,7 @@ function collide(dynamic, layers, mask, size = [1, 1, 1]) {
 return (game, entity) => {
 game.World.Signature[entity] |= 32 /* Collide */;
 game.World.Collide[entity] = {
-Entity: entity,
+EntityId: entity,
 New: true,
 Dynamic: dynamic,
 Layers: layers,
@@ -1750,7 +1749,7 @@ game.World.Signature[entity] |= 64 /* ControlAlways */;
 game.World.ControlAlways[entity] = {
 Direction: direction,
 Rotation: rotation,
-Animation: animation,
+AnimationClip: animation,
 };
 };
 }
@@ -3671,7 +3670,7 @@ function dispatch(game, action, payload) {
 switch (action) {
 case 0 /* ChangeSettings */: {
 let select = payload;
-game.Quality = parseInt(select.value);
+game.Quality = select.value;
 break;
 }
 case 1 /* NewGame */: {
@@ -5159,13 +5158,13 @@ if (intersect_aabb(collider, other)) {
 let hit = penetrate_aabb(collider, other);
 if (collider_can_intersect) {
 collider.Collisions.push({
-Other: other.Entity,
+Other: other.EntityId,
 Hit: hit,
 });
 }
 if (other_can_intersect) {
 other.Collisions.push({
-Other: collider.Entity,
+Other: collider.EntityId,
 Hit: negate([0, 0, 0], hit),
 });
 }
@@ -5194,10 +5193,10 @@ move.Directions.push(control.Direction.slice());
 if (control.Rotation) {
 move.LocalRotations.push(control.Rotation.slice());
 }
-if (control.Animation) {
+if (control.AnimationClip) {
 for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
 let animate = game.World.Animate[ent];
-animate.Trigger = control.Animation;
+animate.Trigger = control.AnimationClip;
 }
 }
 }
