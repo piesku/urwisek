@@ -1621,22 +1621,11 @@ SinceLast: 0,
 /**
 * @module components/com_light
 */
-function light_directional(color = [1, 1, 1], range = 1) {
+function light(range) {
 return (game, entity) => {
 game.World.Signature[entity] |= 2048 /* Light */;
 game.World.Light[entity] = {
-Kind: 1 /* Directional */,
-Color: color,
-Intensity: range ** 2,
-};
-};
-}
-function light_point(color = [1, 1, 1], range = 1) {
-return (game, entity) => {
-game.World.Signature[entity] |= 2048 /* Light */;
-game.World.Light[entity] = {
-Kind: 2 /* Point */,
-Color: color,
+
 Intensity: range ** 2,
 };
 };
@@ -1699,7 +1688,7 @@ OnDone: on_done,
 function blueprint_pixie(game) {
 return [
 mimic(find_first(game.World, "pixie anchor"), 0.02),
-light_point([1, 1, 1], 1.5),
+light(1.5),
 children([
 transform(),
 shake(0.1),
@@ -2273,7 +2262,7 @@ this.Trigger = [];
 }
 
 function blueprint_sun_light(game) {
-return [children([transform([10, 10, 10]), light_directional([1, 1, 1], 0.9)])];
+return [children([transform([10, 10, 10]), light(0.9)])];
 }
 function blueprint_sun_shadow(game) {
 return [
@@ -2281,7 +2270,7 @@ mimic(find_first(game.World, "sun anchor"), 0.01),
 children([
 transform([10, 10, -10], from_euler([0, 0, 0, 1], -35, 135, 0)),
 camera_depth_ortho(game.Targets.Sun, 8, 1, 100),
-light_directional([1, 1, 1], 0.6),
+light(0.6),
 ]),
 ];
 }
@@ -4571,7 +4560,6 @@ const int MAX_LIGHTS = 8;
 uniform vec3 eye;
 uniform vec4 diffuse_color;
 uniform vec4 light_positions[MAX_LIGHTS];
-uniform vec4 light_details[MAX_LIGHTS];
 uniform vec4 fog_color;
 uniform float fog_distance;
 
@@ -4592,15 +4580,13 @@ vec3 world_normal = normalize(vert_normal);
 vec3 light_acc = diffuse_color.rgb * 0.5;
 
 for (int i = 0; i < MAX_LIGHTS; i++) {
-if (light_positions[i].w == 0.0) {
+float light_intensity = light_positions[i].w;
+if (light_intensity == 0.0) {
 break;
 }
 
-vec3 light_color = light_details[i].rgb;
-float light_intensity = light_details[i].a;
-
 vec3 light_normal;
-if (light_positions[i].w == 1.0) {
+if (light_intensity < 1.0) {
 
 light_normal = light_positions[i].xyz;
 } else {
@@ -4614,7 +4600,7 @@ light_intensity /= (light_dist * light_dist);
 float diffuse_factor = dot(world_normal, light_normal);
 if (diffuse_factor > 0.0) {
 
-light_acc += diffuse_color.rgb * light_color * posterize(diffuse_factor * light_intensity);
+light_acc += diffuse_color.rgb * posterize(diffuse_factor * light_intensity);
 }
 }
 
@@ -4637,7 +4623,6 @@ Self: gl.getUniformLocation(program, "self"),
 DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
 Eye: gl.getUniformLocation(program, "eye"),
 LightPositions: gl.getUniformLocation(program, "light_positions"),
-LightDetails: gl.getUniformLocation(program, "light_details"),
 VertexPosition: gl.getAttribLocation(program, "attr_position"),
 VertexNormal: gl.getAttribLocation(program, "attr_normal"),
 FogColor: gl.getUniformLocation(program, "fog_color"),
@@ -4676,7 +4661,6 @@ const int MAX_LIGHTS = 8;
 uniform vec3 eye;
 uniform vec4 diffuse_color;
 uniform vec4 light_positions[MAX_LIGHTS];
-uniform vec4 light_details[MAX_LIGHTS];
 uniform mat4 shadow_space;
 uniform sampler2DShadow shadow_map;
 uniform vec4 fog_color;
@@ -4708,15 +4692,13 @@ vec3 world_normal = normalize(vert_normal);
 vec3 light_acc = diffuse_color.rgb * 0.1;
 
 for (int i = 0; i < MAX_LIGHTS; i++) {
-if (light_positions[i].w == 0.0) {
+float light_intensity = light_positions[i].w;
+if (light_intensity == 0.0) {
 break;
 }
 
-vec3 light_color = light_details[i].rgb;
-float light_intensity = light_details[i].a;
-
 vec3 light_normal;
-if (light_positions[i].w == 1.0) {
+if (light_intensity < 1.0) {
 
 light_normal = light_positions[i].xyz;
 } else {
@@ -4730,7 +4712,7 @@ light_intensity /= (light_dist * light_dist);
 float diffuse_factor = dot(world_normal, light_normal);
 if (diffuse_factor > 0.0) {
 
-light_acc += diffuse_color.rgb * diffuse_factor * light_color * light_intensity;
+light_acc += diffuse_color.rgb * diffuse_factor * light_intensity;
 }
 }
 
@@ -4754,7 +4736,6 @@ Self: gl.getUniformLocation(program, "self"),
 DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
 Eye: gl.getUniformLocation(program, "eye"),
 LightPositions: gl.getUniformLocation(program, "light_positions"),
-LightDetails: gl.getUniformLocation(program, "light_details"),
 ShadowSpace: gl.getUniformLocation(program, "shadow_space"),
 ShadowMap: gl.getUniformLocation(program, "shadow_map"),
 FogColor: gl.getUniformLocation(program, "fog_color"),
@@ -6451,7 +6432,6 @@ destroy_all(game.World, entity);
 const QUERY$b = 1048576 /* Transform */ | 2048 /* Light */;
 function sys_light(game, delta) {
 game.LightPositions.fill(0);
-game.LightDetails.fill(0);
 let counter = 0;
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$b) === QUERY$b) {
@@ -6464,7 +6444,7 @@ function update$7(game, entity, idx) {
 let light = game.World.Light[entity];
 let transform = game.World.Transform[entity];
 get_translation(world_pos, transform.World);
-if (light.Kind === 1 /* Directional */) {
+if (light.Intensity < 1) {
 
 
 normalize(world_pos, world_pos);
@@ -6472,11 +6452,7 @@ normalize(world_pos, world_pos);
 game.LightPositions[4 * idx + 0] = world_pos[0];
 game.LightPositions[4 * idx + 1] = world_pos[1];
 game.LightPositions[4 * idx + 2] = world_pos[2];
-game.LightPositions[4 * idx + 3] = light.Kind;
-game.LightDetails[4 * idx + 0] = light.Color[0];
-game.LightDetails[4 * idx + 1] = light.Color[1];
-game.LightDetails[4 * idx + 2] = light.Color[2];
-game.LightDetails[4 * idx + 3] = light.Intensity;
+game.LightPositions[4 * idx + 3] = light.Intensity;
 }
 
 /**
@@ -6844,7 +6820,6 @@ game.Gl.useProgram(material.Program);
 game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
 game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
 game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
 game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 if (eye.Kind === 3 /* Depth */) {
@@ -6878,7 +6853,6 @@ game.Gl.useProgram(material.Program);
 game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
 game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
 game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
 game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
@@ -7097,7 +7071,6 @@ this.MeshOgon = mesh_ogon(this.Gl);
 this.MeshCylinder = mesh_cylinder(this.Gl);
 
 this.LightPositions = new Float32Array(4 * 8);
-this.LightDetails = new Float32Array(4 * 8);
 this.Cameras = [];
 this.Quality = 2048 /* High */;
 this.Targets = {
