@@ -22,6 +22,7 @@ import {Has} from "../world.js";
 import {blueprint_animal} from "../blueprints/blu_animal.js";
 import {blueprint_tree} from "../blueprints/blu_tree.js";
 import {float, element} from "../../common/random.js";
+import {blueprint_fire} from "../blueprints/blu_fire.js";
 
 export function map_city(game: Game) {
     instantiate(game, [
@@ -40,7 +41,7 @@ export function map_city(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([76.04, 0.52, 1.45], [0, 0.71, 0, 0.71], [8, 2, 7.05]),
+        transform([76.04, 0.52, 0.45], [0, 0.71, 0, 0.71], [5, 2, 7.05]),
         ...blueprint_ground(game),
     ]);
 
@@ -334,6 +335,8 @@ export function map_city(game: Game) {
         transform([-1.37, 0.44, -6.99], [0, 0.91, 0, 0.42], [0.5, 0.5, 0.5]),
         ...prop_house(game),
     ]);
+
+    instantiate(game, [transform([-2.6, 0.9, 0.6], undefined, undefined), ...blueprint_fire(game)]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 
