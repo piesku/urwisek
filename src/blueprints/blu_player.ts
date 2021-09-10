@@ -11,7 +11,7 @@ import {control_always} from "../components/com_control_always.js";
 import {Control, control_player} from "../components/com_control_player.js";
 import {mimic} from "../components/com_mimic.js";
 import {move} from "../components/com_move.js";
-import {find_first, named, Names} from "../components/com_named.js";
+import {find_first, named} from "../components/com_named.js";
 import {render_colored_skinned} from "../components/com_render.js";
 import {RigidKind, rigid_body} from "../components/com_rigid_body.js";
 import {transform} from "../components/com_transform.js";
@@ -31,7 +31,7 @@ function blueprint_player(game: Game) {
             //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
             // ],
             [
-                named(Names.MeshAnchor),
+                named("mesh anchor"),
                 transform([0, -0.42, 0], [0, 0.707, 0, 0.707]),
                 control_player(Control.Rotate),
                 children([
@@ -42,27 +42,24 @@ function blueprint_player(game: Game) {
                 ]),
             ],
             [
-                named(Names.PupAnchor0),
+                named("pup anchor 0"),
                 transform([0, -0.42, 0.2], [0, 0.707, 0, 0.707]),
                 control_player(Control.Rotate),
             ],
             [
-                named(Names.PupAnchor1),
+                named("pup anchor 1"),
                 transform([-0.2, -0.42, 0.2], [0, 0.707, 0, 0.707]),
                 control_player(Control.Rotate),
             ],
             [
-                named(Names.PupAnchor2),
+                named("pup anchor 2"),
                 transform([-0.4, -0.42, 0.2], [0, 0.707, 0, 0.707]),
                 control_player(Control.Rotate),
             ],
+            [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))],
+            [named("sun anchor"), transform()],
             [
-                named(Names.CameraAnchor),
-                transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0)),
-            ],
-            [named(Names.SunAnchor), transform()],
-            [
-                named(Names.PixieAnchor),
+                named("pixie anchor"),
                 transform([4, 1, 0], [0, 0.707, 0, 0.707]),
                 // children([
                 //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
@@ -90,7 +87,7 @@ export function instantiate_player(game: Game, translation: Vec3, pups_found = g
 
     instantiate(game, [
         transform([-10, 0, 0.5]),
-        mimic(find_first(game.World, Names.MeshAnchor), 0.2),
+        mimic(find_first(game.World, "mesh anchor"), 0.2),
         children(
             // The mesh, animated by the player.
             [...blueprint_lisek(game), transform(), control_player(Control.Animate)],
@@ -104,7 +101,7 @@ export function instantiate_player(game: Game, translation: Vec3, pups_found = g
 
     instantiate(game, [
         transform(),
-        mimic(find_first(game.World, Names.TailAnchor), 1),
+        mimic(find_first(game.World, "tail anchor"), 1),
         children([
             transform([0, -0.2, -0.05], [1, 0, 0, 0]),
             control_always(null, [0, -1, 0, 0]),
@@ -178,7 +175,7 @@ export function instantiate_player(game: Game, translation: Vec3, pups_found = g
     for (let i = 0; i < pups_found; i++) {
         instantiate(game, [
             transform(),
-            mimic(find_first(game.World, Names.PupAnchor0 + i), 0.2 - 0.02 * i),
+            mimic(find_first(game.World, "pup anchor " + i), 0.2 - 0.02 * i),
             children([
                 ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.7 + 0.1 * i),
                 transform(undefined, undefined, [0.3, 0.3, 0.3]),

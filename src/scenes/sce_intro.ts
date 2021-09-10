@@ -12,7 +12,7 @@ import {emit_particles} from "../components/com_emit_particles.js";
 import {lifespan} from "../components/com_lifespan.js";
 import {mimic} from "../components/com_mimic.js";
 import {move} from "../components/com_move.js";
-import {find_first, named, Names} from "../components/com_named.js";
+import {find_first, named} from "../components/com_named.js";
 import {render_particles_colored} from "../components/com_render.js";
 import {shake} from "../components/com_shake.js";
 import {spawn} from "../components/com_spawn.js";
@@ -27,7 +27,7 @@ export function scene_intro(game: Game) {
     game.World = new World();
     game.ViewportResized = true;
 
-    let camera_anchor_intro = instantiate(game, [transform([0, 1, -3]), named(Names.CameraAnchor)]);
+    let camera_anchor_intro = instantiate(game, [transform([0, 1, -3]), named("camera anchor")]);
 
     let player_entity = instantiate_player(game, [0, 0.774, 0]);
     game.World.Signature[player_entity] &= ~Has.ControlPlayer;
@@ -52,7 +52,7 @@ export function scene_intro(game: Game) {
     let camera_entity = instantiate(game, [
         ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
         transform([0, 15, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
-        mimic(find_first(game.World, Names.CameraAnchor), 0.02),
+        mimic(find_first(game.World, "camera anchor"), 0.02),
         disable(Has.Mimic),
     ]);
 
@@ -108,7 +108,7 @@ export function scene_intro(game: Game) {
                                 let mimic = game.World.Mimic[camera_entity];
                                 mimic.Target = find_first(
                                     game.World,
-                                    Names.CameraAnchor,
+                                    "camera anchor",
                                     camera_anchor_intro + 1
                                 );
                                 mimic.Stiffness = 0.05;
