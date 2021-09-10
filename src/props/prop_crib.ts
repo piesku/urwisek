@@ -16,7 +16,7 @@ export function prop_crib(game: Game) {
             ],
 
             [
-                transform([0, 0.25, 0], [0, 0, -0.707, 0.707], [0.5, 1, 1]),
+                transform([0, 0.25, 0], [0, 0, -0.71, 0.71], [0.5, 1, 1]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,
@@ -26,7 +26,7 @@ export function prop_crib(game: Game) {
             ],
 
             [
-                transform([0.25, 0.75, 0], [0, 0, -0.707, 0.707], [1, 0.5, 1]),
+                transform([0.25, 0.75, 0], [0, 0, -0.71, 0.71], [1, 0.5, 1]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,

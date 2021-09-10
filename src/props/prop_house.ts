@@ -15,7 +15,7 @@ export function prop_house(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCube,
-                    [0.095, 0.095, 0.095, 1]
+                    [0.1, 0.1, 0.1, 1]
                 ),
             ],
 
@@ -25,7 +25,7 @@ export function prop_house(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCube,
-                    [0.069, 0.154, 0.8, 1]
+                    [0.07, 0.15, 0.8, 1]
                 ),
             ],
 
@@ -35,7 +35,7 @@ export function prop_house(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCube,
-                    [0.095, 0.095, 0.095, 1]
+                    [0.1, 0.1, 0.1, 1]
                 ),
             ],
 
@@ -45,7 +45,7 @@ export function prop_house(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCube,
-                    [0.095, 0.095, 0.095, 1]
+                    [0.1, 0.1, 0.1, 1]
                 ),
             ]
         ),

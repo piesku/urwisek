@@ -16,199 +16,199 @@ import {float, element} from "../../common/random.js";
 
 export function map_forest(game: Game) {
     instantiate(game, [
-        transform([3.698, -4.7, 1.395], [0, 0.707, 0, 0.707], [4, 2.003, 20]),
+        transform([3.7, -4.7, 1.4], [0, 0.71, 0, 0.71], [4, 2, 20]),
         ...blueprint_ground(game),
     ]);
 
     instantiate(game, [
-        transform([33.685, -2.25, 1.395], [0, 0.707, 0, 0.707], [4, 5, 40]),
+        transform([33.68, -2.25, 1.4], [0, 0.71, 0, 0.71], [4, 5, 40]),
         ...blueprint_ground(game),
     ]);
 
     instantiate(game, [
-        transform([46.763, -1.75, -5.605], [0, 0.707, 0, 0.707], [10, 4, 105]),
+        transform([46.76, -1.75, -5.6], [0, 0.71, 0, 0.71], [10, 4, 105]),
         ...blueprint_ground(game),
     ]);
 
     instantiate(game, [
-        transform([-3.752, -1.042, -0.369], undefined, [3, 3, 3]),
+        transform([-3.75, -1.04, -0.37], undefined, [3, 3, 3]),
         ...blueprint_bush(game),
     ]);
 
     instantiate(game, [
-        transform([10.405, 0.547, -1.964], undefined, undefined),
+        transform([10.41, 0.55, -1.96], undefined, undefined),
         ...blueprint_bush(game),
     ]);
 
     instantiate(game, [
-        transform([-3.889, -3.873, 2.375], undefined, [20, 4, 20]),
+        transform([-3.89, -3.87, 2.38], undefined, [20, 4, 20]),
         ...blueprint_tree(game),
     ]);
 
     instantiate(game, [
-        transform([10.51, -3.953, -1.485], undefined, [10, 8, 10]),
+        transform([10.51, -3.95, -1.49], undefined, [10, 8, 10]),
         ...blueprint_tree(game),
     ]);
 
     instantiate(game, [
-        transform([37.639, 0.191, -1.219], undefined, [7.5, 3, 7.5]),
+        transform([37.64, 0.19, -1.22], undefined, [7.5, 3, 7.5]),
         ...blueprint_tree(game),
     ]);
 
     instantiate(game, [
-        transform([41.669, -0.324, -1.576], undefined, [10, 4, 10]),
+        transform([41.67, -0.32, -1.58], undefined, [10, 4, 10]),
         ...blueprint_tree(game),
     ]);
 
     instantiate(game, [
-        transform([46.723, -0.09, -1.525], undefined, [10, 8, 10]),
+        transform([46.72, -0.09, -1.53], undefined, [10, 8, 10]),
         ...blueprint_tree(game),
     ]);
 
     instantiate(game, [
-        transform([-3.794, -1.961, 0], [0, 0.707, 0, 0.707], [1.5, 6.144, 2]),
+        transform([-3.79, -1.96, 0], [0, 0.71, 0, 0.71], [1.5, 6.14, 2]),
         ...blueprint_ground(game),
     ]);
 
     instantiate(game, [
-        transform([-0.541, -0.873, -2.022], undefined, [3, 3, 3]),
+        transform([-0.54, -0.87, -2.02], undefined, [3, 3, 3]),
         ...blueprint_bush(game),
     ]);
 
     instantiate(game, [
-        transform([12.267, -0.436, -2.099], undefined, [3, 3, 3]),
+        transform([12.27, -0.44, -2.1], undefined, [3, 3, 3]),
         ...blueprint_bush(game),
     ]);
 
     instantiate(game, [
-        transform([10.124, -1.192, -0.696], [0.704, -0.07, 0.07, 0.704], [0.5, 4, 0.5]),
+        transform([10.12, -1.19, -0.7], [0.7, -0.07, 0.07, 0.7], [0.5, 4, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 
     instantiate(game, [
-        transform([12.816, -2.88, 0.162], undefined, [1.3, 1.3, 1.3]),
+        transform([12.82, -2.88, 0.16], undefined, [1.3, 1.3, 1.3]),
         ...blueprint_box(game),
     ]);
 
     instantiate(game, [
-        transform([11.491, -0.094, -0.654], [0.705, 0.056, -0.056, 0.705], [0.5, 4, 0.5]),
+        transform([11.49, -0.09, -0.65], [0.7, 0.06, -0.06, 0.7], [0.5, 4, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 
     instantiate(game, [
-        transform([19.142, -0.333, 2.004], undefined, [20, 4, 20]),
+        transform([19.14, -0.33, 2], undefined, [20, 4, 20]),
         ...blueprint_tree(game),
     ]);
 
     instantiate(game, [
-        transform([44.068, 1.007, 0], undefined, [1.3, 1.3, 1.3]),
+        transform([44.07, 1.01, 0], undefined, [1.3, 1.3, 1.3]),
         ...blueprint_box(game),
     ]);
 
     instantiate(game, [
-        transform([34.713, -0.331, -1.754], undefined, [10, 4, 10]),
+        transform([34.71, -0.33, -1.75], undefined, [10, 4, 10]),
         ...blueprint_tree(game),
     ]);
 
     instantiate(game, [
-        transform([34.042, 2.193, 0.619], [0.706, -0.045, 0.045, 0.706], [0.5, 4, 0.5]),
+        transform([34.04, 2.19, 0.62], [0.71, -0.05, 0.05, 0.71], [0.5, 4, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 
     instantiate(game, [
-        transform([35.14, 2.918, 0.012], [0.707, 0.006, -0.006, 0.707], [0.5, 2, 0.5]),
+        transform([35.14, 2.92, 0.01], [0.71, 0.01, -0.01, 0.71], [0.5, 2, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 
     instantiate(game, [
-        transform([37.71, 4.1, 0.044], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
+        transform([37.71, 4.1, 0.04], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 
     instantiate(game, [
-        transform([41.553, 5.419, -0.251], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
+        transform([41.55, 5.42, -0.25], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 
     instantiate(game, [
-        transform([38.853, 0.582, 0.005], undefined, [2.439, 1, 2.539]),
+        transform([38.85, 0.58, 0.01], undefined, [2.44, 1, 2.54]),
         ...blueprint_bush(game),
     ]);
 
     instantiate(game, [
-        transform([49.571, 0.582, 2.404], undefined, [2.439, 1, 2.539]),
+        transform([49.57, 0.58, 2.4], undefined, [2.44, 1, 2.54]),
         ...blueprint_bush(game),
     ]);
 
     instantiate(game, [
-        transform([61.489, 0.582, -1.736], undefined, [2.439, 1, 2.539]),
+        transform([61.49, 0.58, -1.74], undefined, [2.44, 1, 2.54]),
         ...blueprint_bush(game),
     ]);
 
     instantiate(game, [
-        transform([46.815, 6.495, 0], [0.5, 0.5, -0.5, 0.5], [0.5, 6, 0.5]),
+        transform([46.82, 6.49, 0], [0.5, 0.5, -0.5, 0.5], [0.5, 6, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 
     instantiate(game, [
-        transform([92.214, -2.25, 1.395], [0, 0.707, 0, 0.707], [4, 5, 57]),
+        transform([92.21, -2.25, 1.4], [0, 0.71, 0, 0.71], [4, 5, 57]),
         ...blueprint_ground(game),
     ]);
 
     instantiate(game, [
-        transform([48.271, 7.051, 0], undefined, undefined),
+        transform([48.27, 7.05, 0], undefined, undefined),
         ...blueprint_pushable_branch(game),
     ]);
 
     instantiate(game, [
-        transform([58.571, -3.256, 1.395], [0, 0.707, 0, 0.707], [4, 2, 10]),
+        transform([58.57, -3.26, 1.4], [0, 0.71, 0, 0.71], [4, 2, 10]),
         ...blueprint_ground(game),
     ]);
 
     instantiate(game, [
-        transform([55.291, -1.158, -1.698], undefined, [3, 3, 3]),
+        transform([55.29, -1.16, -1.7], undefined, [3, 3, 3]),
         ...blueprint_bush(game),
     ]);
 
     instantiate(game, [
-        transform([58.346, -1.41, -1.985], undefined, [3, 3, 3]),
+        transform([58.35, -1.41, -1.99], undefined, [3, 3, 3]),
         ...blueprint_bush(game),
     ]);
 
     instantiate(game, [
-        transform([59.944, 0.696, 1.773], [0, 0.66, 0, 0.751], undefined),
+        transform([59.94, 0.7, 1.77], [0, 0.66, 0, 0.75], undefined),
         ...blueprint_pushable_branch(game),
     ]);
 
     instantiate(game, [
-        transform([62.768, 0.65, 1.652], [0, 0.674, 0, 0.739], undefined),
+        transform([62.77, 0.65, 1.65], [0, 0.67, 0, 0.74], undefined),
         ...blueprint_pushable_branch(game),
     ]);
 
     instantiate(game, [
-        transform([58.433, 0.696, 1.773], [0, 0.708, 0, 0.706], undefined),
+        transform([58.43, 0.7, 1.77], [0, 0.71, 0, 0.71], undefined),
         ...blueprint_pushable_branch(game),
     ]);
 
     instantiate(game, [
-        transform([61.141, 0.682, 1.682], [0, 0.724, 0, 0.69], undefined),
+        transform([61.14, 0.68, 1.68], [0, 0.72, 0, 0.69], undefined),
         ...blueprint_pushable_branch(game),
     ]);
 
     instantiate(game, [
-        transform([54.119, -1.488, 0], [0.707, 0.006, -0.006, 0.707], [0.5, 2, 0.5]),
+        transform([54.12, -1.49, 0], [0.71, 0.01, -0.01, 0.71], [0.5, 2, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 
     instantiate(game, [
-        transform([55.644, -0.759, 0.49], [0.703, 0.075, -0.075, 0.703], [0.5, 2, 0.5]),
+        transform([55.64, -0.76, 0.49], [0.7, 0.07, -0.07, 0.7], [0.5, 2, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 
     instantiate(game, [transform([120.2, 3, 0]), ...blueprint_end(game)]);
 
     instantiate(game, [
-        transform([122.6, 0.2, 0], [0, 0.707, 0, -0.707], undefined),
+        transform([122.6, 0.2, 0], [0, 0.71, 0, -0.71], undefined),
         ...blueprint_launchpad(game),
     ]);
 

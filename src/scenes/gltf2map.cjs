@@ -26,7 +26,7 @@ let scene_name = process.argv[2]
     .replace(/-+$/, "");
 
 let vec = (arr) =>
-    arr ? "[" + arr.map((v) => parseFloat(v.toFixed(3))).join(", ") + "]" : "undefined";
+    arr ? "[" + arr.map((v) => parseFloat(v.toFixed(2))).join(", ") + "]" : "undefined";
 
 let imports = new Set([
     'import {instantiate} from "../../common/game.js";',
