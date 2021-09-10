@@ -65,39 +65,27 @@ export function map_city(game: Game) {
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
 
-    instantiate(game, [transform([11.67, 0.5, -2.49], undefined, undefined), ...prop_house(game)]);
+    instantiate(game, [transform([11.67, 0.5, -2.49]), ...prop_house(game)]);
 
     instantiate(game, [
         transform([-2.9, 0.44, -5.7], [0, 0.91, 0, 0.42], [0.5, 0.5, 0.5]),
         ...prop_house(game),
     ]);
 
-    instantiate(game, [
-        transform([8.58, 0.72, 0.59], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
+    instantiate(game, [transform([8.58, 0.72, 0.59]), ...blueprint_bush(game)]);
 
-    instantiate(game, [
-        transform([24.08, 0.38, -0.49], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
+    instantiate(game, [transform([24.08, 0.38, -0.49]), ...blueprint_bush(game)]);
 
-    instantiate(game, [
-        transform([13.37, 2.13, -1.2], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
+    instantiate(game, [transform([13.37, 2.13, -1.2]), ...blueprint_bush(game)]);
 
     instantiate(game, [
         transform([-1.27, 0.19, -3.2], undefined, [0.5, 0.5, 0.5]),
         ...blueprint_bush(game),
     ]);
 
-    instantiate(game, [
-        transform([-4.52, 0.69, 1.75], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
+    instantiate(game, [transform([-4.52, 0.69, 1.75]), ...blueprint_bush(game)]);
 
-    instantiate(game, [transform([2.69, 0.33, -2.79], undefined, undefined), ...prop_slup(game)]);
+    instantiate(game, [transform([2.69, 0.33, -2.79]), ...prop_slup(game)]);
 
     instantiate(game, [
         transform([-0.62, 3.32, -8.26], undefined, [0.2, 0.2, 0.2]),
@@ -109,32 +97,23 @@ export function map_city(game: Game) {
         ...prop_slup(game),
     ]);
 
-    instantiate(game, [transform([23.85, 0.11, -5.15], undefined, undefined), ...prop_slup(game)]);
+    instantiate(game, [transform([23.85, 0.11, -5.15]), ...prop_slup(game)]);
 
     instantiate(game, [
         transform([21.29, 5.84, -7.26], undefined, [0.2, 0.2, 0.2]),
         ...prop_slup(game),
     ]);
 
-    instantiate(game, [
-        transform([31.05, 0.74, -1.14], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
+    instantiate(game, [transform([31.05, 0.74, -1.14]), ...blueprint_bush(game)]);
+
+    instantiate(game, [transform([11.69, 0.5, 0.83]), ...blueprint_obstacle_house(game)]);
+
+    instantiate(game, [transform([11.58, 0.68, 2.02]), ...blueprint_bush(game)]);
+
+    instantiate(game, [transform([15.39, 0.11, -2.79]), ...prop_slup(game)]);
 
     instantiate(game, [
-        transform([11.69, 0.5, 0.83], undefined, undefined),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([11.58, 0.68, 2.02], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [transform([15.39, 0.11, -2.79], undefined, undefined), ...prop_slup(game)]);
-
-    instantiate(game, [
-        transform([-3.95, 0.5, 1.41], [0, 0.62, 0, 0.78], undefined),
+        transform([-3.95, 0.5, 1.41], [0, 0.62, 0, 0.78]),
         ...blueprint_obstacle_car(game),
     ]);
 
@@ -143,30 +122,24 @@ export function map_city(game: Game) {
         ...blueprint_obstacle_car(game),
     ]);
 
-    instantiate(game, [transform([14.31, 0.11, 3.18], undefined, undefined), ...prop_slup(game)]);
+    instantiate(game, [transform([14.31, 0.11, 3.18]), ...prop_slup(game)]);
 
-    instantiate(game, [
-        transform([22.34, 0.38, -0.91], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
+    instantiate(game, [transform([22.34, 0.38, -0.91]), ...blueprint_bush(game)]);
 
-    instantiate(game, [
-        transform([54.04, 0.5, 0.83], undefined, undefined),
-        ...blueprint_obstacle_house(game),
-    ]);
+    instantiate(game, [transform([54.04, 0.5, 0.83]), ...blueprint_obstacle_house(game)]);
 
-    instantiate(game, [transform([28.61, 0.97, 0], undefined, undefined), ...blueprint_box(game)]);
+    instantiate(game, [transform([28.61, 0.97, 0]), ...blueprint_box(game)]);
 
     instantiate(game, [
         transform([21.96, 1, -2.35], [-0.44, 0.55, 0.56, 0.43], [0.4, 0.4, 0.4]),
         ...prop_car2(game),
     ]);
 
-    instantiate(game, [transform([56.12, 0.24, 2.71], undefined, undefined), ...prop_slup(game)]);
+    instantiate(game, [transform([56.12, 0.24, 2.71]), ...prop_slup(game)]);
 
-    instantiate(game, [transform([54.23, 4.09, 0], undefined, undefined), ...blueprint_box(game)]);
+    instantiate(game, [transform([54.23, 4.09, 0]), ...blueprint_box(game)]);
 
-    instantiate(game, [transform([28.61, 2.41, 0], undefined, undefined), ...blueprint_box(game)]);
+    instantiate(game, [transform([28.61, 2.41, 0]), ...blueprint_box(game)]);
 
     instantiate(game, [
         transform([53.76, -0.5, 2.45], [0, 0.71, 0, 0.71], [8, 2, 30]),
@@ -188,10 +161,7 @@ export function map_city(game: Game) {
         ...prop_slup(game),
     ]);
 
-    instantiate(game, [
-        transform([46, 0.11, -1.52], [0, -0.73, 0, 0.69], undefined),
-        ...prop_slup(game),
-    ]);
+    instantiate(game, [transform([46, 0.11, -1.52], [0, -0.73, 0, 0.69]), ...prop_slup(game)]);
 
     instantiate(game, [
         transform([43.31, 1, -3.57], [-0.71, 0.06, 0.06, 0.7], [0.4, 0.4, 0.4]),
@@ -199,7 +169,7 @@ export function map_city(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([42.7, 0.93, -2.99], [0, -0.73, 0, 0.69], undefined),
+        transform([42.7, 0.93, -2.99], [0, -0.73, 0, 0.69]),
         ...blueprint_bush(game),
     ]);
 
@@ -219,41 +189,32 @@ export function map_city(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([60.15, 0.56, -3.88], [0, -0.73, 0, 0.69], undefined),
+        transform([60.15, 0.56, -3.88], [0, -0.73, 0, 0.69]),
         ...blueprint_bush(game),
     ]);
 
-    instantiate(game, [transform([41.7, 2.41, 0], undefined, undefined), ...blueprint_box(game)]);
+    instantiate(game, [transform([41.7, 2.41, 0]), ...blueprint_box(game)]);
+
+    instantiate(game, [transform([41.39, 2.41, 2.85]), ...blueprint_box(game)]);
 
     instantiate(game, [
-        transform([41.39, 2.41, 2.85], undefined, undefined),
+        transform([41.03, 2.95, -1.3], [0, 0, -0.71, 0.71]),
         ...blueprint_box(game),
     ]);
 
-    instantiate(game, [
-        transform([41.03, 2.95, -1.3], [0, 0, -0.71, 0.71], undefined),
-        ...blueprint_box(game),
-    ]);
-
-    instantiate(game, [
-        transform([61.98, 0.21, 2.78], undefined, undefined),
-        ...blueprint_bush(game),
-    ]);
+    instantiate(game, [transform([61.98, 0.21, 2.78]), ...blueprint_bush(game)]);
 
     instantiate(game, [
         transform([85.09, -10.27, -9.02], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 8]),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
 
-    instantiate(game, [transform([78.02, 0.24, -3.54], undefined, undefined), ...prop_slup(game)]);
+    instantiate(game, [transform([78.02, 0.24, -3.54]), ...prop_slup(game)]);
+
+    instantiate(game, [transform([56.16, 0.61, 0.39], [0, -1, 0, -0.02]), ...blueprint_bush(game)]);
 
     instantiate(game, [
-        transform([56.16, 0.61, 0.39], [0, -1, 0, -0.02], undefined),
-        ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([56.4, 1, 0.3], [0.7, 0.15, 0.16, -0.68], undefined),
+        transform([56.4, 1, 0.3], [0.7, 0.15, 0.16, -0.68]),
         ...blueprint_obstacle_car(game),
     ]);
 
@@ -336,7 +297,7 @@ export function map_city(game: Game) {
         ...prop_house(game),
     ]);
 
-    instantiate(game, [transform([-2.6, 0.9, 0.6], undefined, undefined), ...blueprint_fire(game)]);
+    instantiate(game, [transform([-2.6, 0.9, 0.6]), ...blueprint_fire(game)]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 

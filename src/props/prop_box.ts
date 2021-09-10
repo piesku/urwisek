@@ -1,4 +1,3 @@
-import {Vec4} from "../../common/math.js";
 import {children} from "../components/com_children.js";
 import {cull} from "../components/com_cull.js";
 import {render_colored_shadows} from "../components/com_render.js";
@@ -10,7 +9,7 @@ export function prop_box(game: Game) {
     return [
         children(
             [
-                transform(undefined, undefined, undefined),
+                transform(),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,
