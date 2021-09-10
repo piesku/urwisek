@@ -2458,7 +2458,7 @@ function blueprint_exit(game) {
 return [
 collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
 trigger(1 /* Player */, 3 /* NextScene */),
-children([named("exit"), transform([1, 1, 0])], [transform([1, 0, 0], [0, -0.707, 0, 0.707], [0.3, 0.3, 0.3]), ...blueprint_lisek(game)]),
+children([named("exit"), transform([0, 1, 0])], [transform([0, 0, 0], [0, -0.707, 0, 0.707], [0.3, 0.3, 0.3]), ...blueprint_lisek(game)]),
 ];
 }
 
@@ -3710,7 +3710,7 @@ transform([0, 0, 0], from_euler([0, 0, 0, 1], 0, 0, 90), [0.5, 6, 0.5]),
 function blueprint_end(game) {
 return [
 named("exit"),
-collide(false, 2 /* Terrain */, 1 /* Player */),
+collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
 trigger(1 /* Player */, 4 /* EndGame */),
 ];
 }
