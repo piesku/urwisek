@@ -1,27 +1,27 @@
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
-import {Game} from "../game.js";
-import {transform} from "../components/com_transform.js";
-import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
-import {render_colored_shadows} from "../components/com_render.js";
-import {blueprint_ground} from "../blueprints/blu_ground.js";
-import {prop_house} from "../props/prop_house.js";
-import {blueprint_bush} from "../blueprints/blu_bush.js";
-import {prop_slup} from "../props/prop_slup.js";
-import {blueprint_obstacle_house} from "../blueprints/blu_obstacle_house.js";
-import {blueprint_obstacle_car} from "../blueprints/blu_obstacle_car.js";
-import {blueprint_box} from "../blueprints/blu_box.js";
-import {prop_car2} from "../props/prop_car2.js";
-import {blueprint_exit} from "../blueprints/blu_exit.js";
+import {element, float} from "../../common/random.js";
+import {blueprint_animal} from "../blueprints/blu_animal.js";
 import {blueprint_bird} from "../blueprints/blu_bird.js";
+import {blueprint_box} from "../blueprints/blu_box.js";
+import {blueprint_bush} from "../blueprints/blu_bush.js";
+import {blueprint_exit} from "../blueprints/blu_exit.js";
+import {blueprint_ground} from "../blueprints/blu_ground.js";
+import {blueprint_obstacle_car} from "../blueprints/blu_obstacle_car.js";
+import {blueprint_obstacle_house} from "../blueprints/blu_obstacle_house.js";
+import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
+import {blueprint_tree} from "../blueprints/blu_tree.js";
 import {children} from "../components/com_children.js";
 import {cull} from "../components/com_cull.js";
+import {render_colored_shadows} from "../components/com_render.js";
 import {shake} from "../components/com_shake.js";
 import {spawn} from "../components/com_spawn.js";
+import {transform} from "../components/com_transform.js";
+import {Game} from "../game.js";
+import {prop_car2} from "../props/prop_car2.js";
+import {prop_house} from "../props/prop_house.js";
+import {prop_slup} from "../props/prop_slup.js";
 import {Has} from "../world.js";
-import {blueprint_animal} from "../blueprints/blu_animal.js";
-import {blueprint_tree} from "../blueprints/blu_tree.js";
-import {float, element} from "../../common/random.js";
 
 export function map_city(game: Game) {
     instantiate(game, [

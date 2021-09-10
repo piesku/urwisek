@@ -71,11 +71,17 @@ let create_instance = (name, translation, rotation, scale) => {
             let Zmin = centerZ - ~~(depth / 2);
             let Zmax = centerZ + ~~(depth / 2);
 
-            let number_of_trees = ~~(width * 0.9);
+            let number_of_trees = ~~(width * 0.6);
             for (let i = 0; i < number_of_trees; i++) {
                 instantiate(game, [
-                    transform([float(Xmin, Xmax), ${translation[1]}, float(Zmin, Zmax)]),
-                    ...element([blueprint_tree(game), blueprint_bush(game)]),
+                    transform([float(Xmin, Xmax), ${translation[1]}, float(Zmin, Zmax)]${
+                scale[1] > 1 ? `, undefined, [${scale[1]}, ${scale[1] / 2}, ${scale[1]}]` : ""
+            }),
+                    ...${
+                        scale[1] > 1
+                            ? `blueprint_tree(game)`
+                            : `element([blueprint_tree(game), blueprint_bush(game)])`
+                    },
                 ]);
             }
         }
