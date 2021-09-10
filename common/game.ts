@@ -6,7 +6,7 @@ const delta_span = document.getElementById("delta");
 const fps_span = document.getElementById("fps");
 const step = 1 / 60;
 
-export abstract class GameImpl {
+export abstract class Game3D {
     Running = 0;
     Now = 0;
 
@@ -33,6 +33,11 @@ export abstract class GameImpl {
     InputTouches: Record<string, number> = {};
 
     Ui = document.querySelector("main")!;
+
+    Canvas3D = document.querySelector("canvas")!;
+    Gl = this.Canvas3D.getContext("webgl2")!;
+
+    Audio = new AudioContext();
 
     constructor() {
         document.addEventListener("visibilitychange", () =>
@@ -115,6 +120,10 @@ export abstract class GameImpl {
             this.InputState[evt.code] = 0;
             this.InputDelta[evt.code] = -1;
         });
+
+        this.Gl.enable(GL_DEPTH_TEST);
+        this.Gl.enable(GL_CULL_FACE);
+        this.Gl.frontFace(GL_CW);
     }
 
     Start() {
@@ -177,39 +186,10 @@ export abstract class GameImpl {
     }
 }
 
-export abstract class Game2D extends GameImpl {
-    Canvas2D = document.querySelector("canvas")!;
-    Context2D = this.Canvas2D.getContext("2d")!;
-    Audio = new AudioContext();
+type Mixin<G extends Game3D> = (game: G, entity: Entity) => void;
+export type Blueprint<G extends Game3D> = Array<Mixin<G>>;
 
-    constructor() {
-        super();
-
-        this.Canvas2D.width = this.ViewportWidth;
-        this.Canvas2D.height = this.ViewportHeight;
-        this.Context2D = this.Canvas2D.getContext("2d")!;
-    }
-}
-
-export abstract class Game3D extends GameImpl {
-    Canvas3D = document.querySelector("canvas")!;
-    Gl = this.Canvas3D.getContext("webgl2")!;
-
-    Audio = new AudioContext();
-
-    constructor() {
-        super();
-
-        this.Gl.enable(GL_DEPTH_TEST);
-        this.Gl.enable(GL_CULL_FACE);
-        this.Gl.frontFace(GL_CW);
-    }
-}
-
-type Mixin<G extends GameImpl> = (game: G, entity: Entity) => void;
-export type Blueprint<G extends GameImpl> = Array<Mixin<G>>;
-
-export function instantiate<G extends GameImpl>(game: G, blueprint: Blueprint<G>) {
+export function instantiate<G extends Game3D>(game: G, blueprint: Blueprint<G>) {
     let entity = game.World.CreateEntity();
     for (let mixin of blueprint) {
         mixin(game, entity);
