@@ -1169,7 +1169,7 @@ transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74]),
 children([
 transform(),
 
-named(timescale === 1 ? 2 /* TailAnchor */ : 0 /* None */),
+named(timescale === 1 ? "tail anchor" : ""),
 bone(0 /* Root */, [
 1.0, 0.0, 0.0, 0.0, 0.0, 0.096, -0.995, 0.0, 0.0, 0.995, 0.096, 0.0, 0.0,
 0.433, 0.395, 1.0,
@@ -1678,7 +1678,7 @@ Magnitude: magnitude,
 
 function blueprint_pixie(game) {
 return [
-mimic(find_first(game.World, 3 /* PixieAnchor */), 0.02),
+mimic(find_first(game.World, "pixie anchor"), 0.02),
 light(1.5),
 children([
 transform(),
@@ -1688,7 +1688,7 @@ render_particles_colored([1, 1, 1, 1], 4, [0.5, 0.5, 1, 1], 1),
 ]),
 task_timeout(7, (entity) => {
 let mimic = game.World.Mimic[entity];
-mimic.Target = find_first(game.World, 11 /* Exit */);
+mimic.Target = find_first(game.World, "exit");
 }),
 ];
 }
@@ -1816,7 +1816,7 @@ children(
 
 
 [
-named(6 /* MeshAnchor */),
+named("mesh anchor"),
 transform([0, -0.42, 0], [0, 0.707, 0, 0.707]),
 control_player(2 /* Rotate */),
 children([
@@ -1826,22 +1826,19 @@ control_player(8 /* Grab */),
 //render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
 ]),
 ], [
-named(8 /* PupAnchor0 */),
+named("pup anchor 0"),
 transform([0, -0.42, 0.2], [0, 0.707, 0, 0.707]),
 control_player(2 /* Rotate */),
 ], [
-named(9 /* PupAnchor1 */),
+named("pup anchor 1"),
 transform([-0.2, -0.42, 0.2], [0, 0.707, 0, 0.707]),
 control_player(2 /* Rotate */),
 ], [
-named(10 /* PupAnchor2 */),
+named("pup anchor 2"),
 transform([-0.4, -0.42, 0.2], [0, 0.707, 0, 0.707]),
 control_player(2 /* Rotate */),
-], [
-named(4 /* CameraAnchor */),
-transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0)),
-], [named(1 /* SunAnchor */), transform()], [
-named(3 /* PixieAnchor */),
+], [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))], [named("sun anchor"), transform()], [
+named("pixie anchor"),
 transform([4, 1, 0], [0, 0.707, 0, 0.707]),
 
 
@@ -1857,7 +1854,7 @@ let tail_bone1 = 0;
 let tail_bone2 = 0;
 instantiate(game, [
 transform([-10, 0, 0.5]),
-mimic(find_first(game.World, 6 /* MeshAnchor */), 0.2),
+mimic(find_first(game.World, "mesh anchor"), 0.2),
 children(
 
 [...blueprint_lisek(game), transform(), control_player(4 /* Animate */)], 
@@ -1869,7 +1866,7 @@ render_colored_skinned(game.MaterialColoredSkinned, game.MeshOgon, [1, 0.5, 0, 1
 ]);
 instantiate(game, [
 transform(),
-mimic(find_first(game.World, 2 /* TailAnchor */), 1),
+mimic(find_first(game.World, "tail anchor"), 1),
 children([
 transform([0, -0.2, -0.05], [1, 0, 0, 0]),
 control_always(null, [0, -1, 0, 0]),
@@ -1927,7 +1924,7 @@ callback((game, entity) => (entity)),
 for (let i = 0; i < pups_found; i++) {
 instantiate(game, [
 transform(),
-mimic(find_first(game.World, 8 /* PupAnchor0 */ + i), 0.2 - 0.02 * i),
+mimic(find_first(game.World, "pup anchor " + i), 0.2 - 0.02 * i),
 children([
 ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.7 + 0.1 * i),
 transform(undefined, undefined, [0.3, 0.3, 0.3]),
@@ -2217,7 +2214,7 @@ return [children([transform([10, 10, 10]), light(0.9)])];
 }
 function blueprint_sun_shadow(game) {
 return [
-mimic(find_first(game.World, 1 /* SunAnchor */), 0.01),
+mimic(find_first(game.World, "sun anchor"), 0.01),
 children([
 transform([10, 10, -10], from_euler([0, 0, 0, 1], -35, 135, 0)),
 camera_depth_ortho(game.Targets.Sun, 8, 1, 100),
@@ -2459,7 +2456,7 @@ disable(4096 /* Mimic */),
 
 function blueprint_pup(game) {
 return [
-named(7 /* Pup */),
+named("pup"),
 children([transform(undefined, undefined, [0.3, 0.3, 0.3]), ...blueprint_lisek(game)]),
 ];
 }
@@ -2481,7 +2478,7 @@ function blueprint_exit(game) {
 return [
 collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
 trigger(1 /* Player */, 2 /* NextScene */),
-children([transform([0, 1, 0]), named(11 /* Exit */)]),
+children([transform([0, 1, 0]), named("exit")]),
 ];
 }
 
@@ -2862,7 +2859,7 @@ instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 function scene_intro(game) {
 game.World = new World();
 game.ViewportResized = true;
-let camera_anchor_intro = instantiate(game, [transform([0, 1, -3]), named(4 /* CameraAnchor */)]);
+let camera_anchor_intro = instantiate(game, [transform([0, 1, -3]), named("camera anchor")]);
 let player_entity = instantiate_player(game, [0, 0.774, 0]);
 game.World.Signature[player_entity] &= ~128 /* ControlPlayer */;
 map_city(game);
@@ -2882,7 +2879,7 @@ children([transform(), shake(3), spawn(blueprint_rocket, 3)]),
 let camera_entity = instantiate(game, [
 ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
 transform([0, 15, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
-mimic(find_first(game.World, 4 /* CameraAnchor */), 0.02),
+mimic(find_first(game.World, "camera anchor"), 0.02),
 disable(4096 /* Mimic */),
 ]);
 let pups = [
@@ -2927,7 +2924,7 @@ task_timeout(6, () => {
 destroy_all(game.World, starfield_entity);
 
 let mimic = game.World.Mimic[camera_entity];
-mimic.Target = find_first(game.World, 4 /* CameraAnchor */, camera_anchor_intro + 1);
+mimic.Target = find_first(game.World, "camera anchor", camera_anchor_intro + 1);
 mimic.Stiffness = 0.05;
 
 instantiate(game, [
@@ -2953,7 +2950,7 @@ map_city(game);
 instantiate(game, [
 ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
 transform([0, 10, 10]),
-mimic(find_first(game.World, 4 /* CameraAnchor */), 0.05),
+mimic(find_first(game.World, "camera anchor"), 0.05),
 ]);
 }
 
@@ -3427,7 +3424,7 @@ instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
 instantiate(game, [
 ...blueprint_camera(game, [255 / 255, 208 / 255, 0 / 255, 1]),
 transform([0, 10, 10]),
-mimic(find_first(game.World, 4 /* CameraAnchor */), 0.05),
+mimic(find_first(game.World, "camera anchor"), 0.05),
 ]);
 }
 
@@ -3463,7 +3460,7 @@ transform([0, 0, 0], from_euler([0, 0, 0, 1], 0, 0, 90), [0.5, 6, 0.5]),
 
 function blueprint_end(game) {
 return [
-named(11 /* Exit */),
+named("exit"),
 collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
 trigger(1 /* Player */, 3 /* EndGame */),
 ];
@@ -3471,7 +3468,7 @@ trigger(1 /* Player */, 3 /* EndGame */),
 
 function blueprint_launchpad(game) {
 return [
-named(5 /* Launchpad */),
+named("launchpad"),
 control_always([0, 1, 0], null),
 disable(64 /* ControlAlways */),
 move(5, 0),
@@ -3675,7 +3672,7 @@ map_forest(game);
 instantiate(game, [
 ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
 transform([0, 10, 10]),
-mimic(find_first(game.World, 4 /* CameraAnchor */), 0.05),
+mimic(find_first(game.World, "camera anchor"), 0.05),
 ]);
 }
 
@@ -3710,8 +3707,8 @@ game.CurrentView = Play;
 });
 }),
 ]);
-let pup_entity = find_first(game.World, 7 /* Pup */);
-let pup_anchor = find_first(game.World, 8 /* PupAnchor0 */ + game.PupsFound);
+let pup_entity = find_first(game.World, "pup");
+let pup_anchor = find_first(game.World, "pup anchor " + game.PupsFound);
 mimic(pup_anchor, 0.2)(game, pup_entity);
 let pup_lisek = game.World.Children[pup_entity].Children[0];
 control_player(4 /* Animate */)(game, pup_lisek);
@@ -3724,7 +3721,7 @@ game.World.Signature[trigger_entity] &= ~2097152 /* Trigger */;
 for (let i = 0; i < game.World.Signature.length; i++) {
 game.World.Signature[i] &= ~128 /* ControlPlayer */;
 }
-let launchpad_entity = find_first(game.World, 5 /* Launchpad */);
+let launchpad_entity = find_first(game.World, "launchpad");
 game.World.Signature[launchpad_entity] |= 64 /* ControlAlways */;
 let launchpad_shaker_entity = game.World.Children[launchpad_entity].Children[0];
 game.World.Signature[launchpad_shaker_entity] |= 131072 /* Shake */;
@@ -6277,7 +6274,7 @@ instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 instantiate(game, [
 ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
 transform([0, 0, 0], from_euler([0, 0, 0, 1], -30, 0, 0)),
-mimic(find_first(game.World, 4 /* CameraAnchor */), 0.05),
+mimic(find_first(game.World, "camera anchor"), 0.05),
 ]);
 }
 
