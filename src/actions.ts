@@ -2,7 +2,7 @@ import {instantiate} from "../common/game.js";
 import {Entity} from "../common/world.js";
 import {Control, control_player} from "./components/com_control_player.js";
 import {mimic} from "./components/com_mimic.js";
-import {find_first} from "./components/com_named.js";
+import {find_first, Names} from "./components/com_named.js";
 import {task_timeout} from "./components/com_task.js";
 import {Game} from "./game.js";
 import {scene_intro} from "./scenes/sce_intro.js";
@@ -56,8 +56,8 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 }),
             ]);
 
-            let pup_entity = find_first(game.World, "pup");
-            let pup_anchor = find_first(game.World, "pup anchor " + game.PupsFound);
+            let pup_entity = find_first(game.World, Names.Pup);
+            let pup_anchor = find_first(game.World, Names.PupAnchor0 + game.PupsFound);
 
             mimic(pup_anchor, 0.2)(game, pup_entity);
             let pup_lisek = game.World.Children[pup_entity].Children[0];
@@ -75,7 +75,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 game.World.Signature[i] &= ~Has.ControlPlayer;
             }
 
-            let launchpad_entity = find_first(game.World, "launchpad");
+            let launchpad_entity = find_first(game.World, Names.Launchpad);
             game.World.Signature[launchpad_entity] |= Has.ControlAlways;
 
             let launchpad_shaker_entity = game.World.Children[launchpad_entity].Children[0];

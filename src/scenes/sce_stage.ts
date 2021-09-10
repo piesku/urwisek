@@ -11,7 +11,7 @@ import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.j
 import {blueprint_tree} from "../blueprints/blu_tree.js";
 import {children} from "../components/com_children.js";
 import {mimic} from "../components/com_mimic.js";
-import {find_first} from "../components/com_named.js";
+import {find_first, Names} from "../components/com_named.js";
 import {render_colored_shadows} from "../components/com_render.js";
 import {shake} from "../components/com_shake.js";
 import {spawn} from "../components/com_spawn.js";
@@ -98,6 +98,6 @@ export function scene_stage(game: Game) {
     instantiate(game, [
         ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
         transform([0, 0, 0], from_euler([0, 0, 0, 1], -30, 0, 0)),
-        mimic(find_first(game.World, "camera anchor"), 0.05),
+        mimic(find_first(game.World, Names.CameraAnchor), 0.05),
     ]);
 }

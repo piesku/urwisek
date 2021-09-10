@@ -3,7 +3,7 @@ import {control_always} from "../components/com_control_always.js";
 import {disable} from "../components/com_disable.js";
 import {emit_particles} from "../components/com_emit_particles.js";
 import {move} from "../components/com_move.js";
-import {named} from "../components/com_named.js";
+import {named, Names} from "../components/com_named.js";
 import {render_particles_colored} from "../components/com_render.js";
 import {shake} from "../components/com_shake.js";
 import {transform} from "../components/com_transform.js";
@@ -13,7 +13,7 @@ import {Has} from "../world.js";
 
 export function blueprint_launchpad(game: Game) {
     return [
-        named("launchpad"),
+        named(Names.Launchpad),
         control_always([0, 1, 0], null),
         disable(Has.ControlAlways),
         move(5, 0),

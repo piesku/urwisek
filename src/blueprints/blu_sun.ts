@@ -3,7 +3,7 @@ import {camera_depth_ortho} from "../components/com_camera.js";
 import {children} from "../components/com_children.js";
 import {light} from "../components/com_light.js";
 import {mimic} from "../components/com_mimic.js";
-import {find_first} from "../components/com_named.js";
+import {find_first, Names} from "../components/com_named.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 
@@ -13,7 +13,7 @@ export function blueprint_sun_light(game: Game) {
 
 export function blueprint_sun_shadow(game: Game) {
     return [
-        mimic(find_first(game.World, "sun anchor"), 0.01),
+        mimic(find_first(game.World, Names.SunAnchor), 0.01),
         children([
             transform([10, 10, -10], from_euler([0, 0, 0, 1], -35, 135, 0)),
             camera_depth_ortho(game.Targets.Sun, 8, 1, 100),

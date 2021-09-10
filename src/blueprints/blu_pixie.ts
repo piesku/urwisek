@@ -2,7 +2,7 @@ import {children} from "../components/com_children.js";
 import {emit_particles} from "../components/com_emit_particles.js";
 import {light} from "../components/com_light.js";
 import {mimic} from "../components/com_mimic.js";
-import {find_first} from "../components/com_named.js";
+import {find_first, Names} from "../components/com_named.js";
 import {render_particles_colored} from "../components/com_render.js";
 import {shake} from "../components/com_shake.js";
 import {task_timeout} from "../components/com_task.js";
@@ -11,7 +11,7 @@ import {Game} from "../game.js";
 
 export function blueprint_pixie(game: Game) {
     return [
-        mimic(find_first(game.World, "pixie anchor"), 0.02),
+        mimic(find_first(game.World, Names.PixieAnchor), 0.02),
         light(1.5),
         children([
             transform(),
@@ -21,7 +21,7 @@ export function blueprint_pixie(game: Game) {
         ]),
         task_timeout(7, (entity) => {
             let mimic = game.World.Mimic[entity];
-            mimic.Target = find_first(game.World, "exit");
+            mimic.Target = find_first(game.World, Names.Exit);
         }),
     ];
 }

@@ -3,7 +3,7 @@ import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_pixie} from "../blueprints/blu_pixie.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
 import {mimic} from "../components/com_mimic.js";
-import {find_first} from "../components/com_named.js";
+import {find_first, Names} from "../components/com_named.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {World} from "../world.js";
@@ -23,6 +23,6 @@ export function scene_level2(game: Game) {
     instantiate(game, [
         ...blueprint_camera(game, [255 / 255, 208 / 255, 0 / 255, 1]),
         transform([0, 10, 10]),
-        mimic(find_first(game.World, "camera anchor"), 0.05),
+        mimic(find_first(game.World, Names.CameraAnchor), 0.05),
     ]);
 }
