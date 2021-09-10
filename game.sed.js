@@ -6630,7 +6630,7 @@ let game = new Game();
 
 window.scenes = [scene_intro, scene_level1, scene_level2, scene_level3, scene_stage];
 
-window.scenes[3](game);
+window.scenes[0](game);
 game.Start();
 
 window.$ = dispatch.bind(null, game);
