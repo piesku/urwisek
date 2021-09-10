@@ -1,5 +1,9 @@
+import {instantiate} from "../common/game.js";
 import {Entity} from "../common/world.js";
+import {Control, control_player} from "./components/com_control_player.js";
+import {mimic} from "./components/com_mimic.js";
 import {find_first} from "./components/com_named.js";
+import {task_timeout} from "./components/com_task.js";
 import {Game} from "./game.js";
 import {scene_intro} from "./scenes/sce_intro.js";
 import {scene_level1} from "./scenes/sce_level1.js";
@@ -30,6 +34,9 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         }
 
         case Action.NextScene: {
+            let [trigger_entity] = payload as [Entity, Entity];
+            game.World.Signature[trigger_entity] &= ~Has.Trigger;
+
             switch (game.CurrentScene) {
                 case scene_intro:
                 case scene_level1:
@@ -40,9 +47,23 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                     break;
             }
 
+            instantiate(game, [
+                task_timeout(2, () => {
+                    requestAnimationFrame(() => {
+                        game.CurrentScene(game);
+                        game.CurrentView = Play;
+                    });
+                }),
+            ]);
+
+            let pup_entity = find_first(game.World, "pup");
+            let pup_anchor = find_first(game.World, "pup anchor " + game.PupsFound);
+
+            mimic(pup_anchor, 0.2)(game, pup_entity);
+            let pup_lisek = game.World.Children[pup_entity].Children[0];
+            control_player(Control.Animate)(game, pup_lisek);
+
             game.PupsFound++;
-            game.CurrentScene(game);
-            game.CurrentView = Play;
             break;
         }
 

@@ -16,6 +16,7 @@ import {blueprint_box} from "../blueprints/blu_box.js";
 import {blueprint_tree} from "../blueprints/blu_tree.js";
 import {blueprint_obstacle_barn} from "../blueprints/blu_obstacle_barn.js";
 import {blueprint_obstacle_fence} from "../blueprints/blu_obstacle_fence.js";
+import {blueprint_pup} from "../blueprints/blu_pup.js";
 import {blueprint_exit} from "../blueprints/blu_exit.js";
 
 export function map_farm(game: Game) {
@@ -374,6 +375,8 @@ export function map_farm(game: Game) {
     instantiate(game, [transform([89.73, 1.64, 2.07], [0, 1, 0, 0]), ...prop_fence(game)]);
 
     instantiate(game, [transform([95, 0.5, 0]), ...blueprint_exit(game)]);
+
+    instantiate(game, [transform([95, 0.5, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 

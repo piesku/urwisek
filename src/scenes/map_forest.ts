@@ -10,6 +10,7 @@ import {blueprint_tree} from "../blueprints/blu_tree.js";
 import {blueprint_obstacle_branch} from "../blueprints/blu_obstacle_branch.js";
 import {blueprint_box} from "../blueprints/blu_box.js";
 import {blueprint_pushable_branch} from "../blueprints/blu_pushable_branch.js";
+import {blueprint_pup} from "../blueprints/blu_pup.js";
 import {blueprint_end} from "../blueprints/blu_end.js";
 import {blueprint_launchpad} from "../blueprints/blu_launchpad.js";
 import {float, element} from "../../common/random.js";
@@ -200,6 +201,8 @@ export function map_forest(game: Game) {
     ]);
 
     instantiate(game, [transform([120.2, 3, 0]), ...blueprint_end(game)]);
+
+    instantiate(game, [transform([120.2, 3, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
 
     instantiate(game, [
         transform([122.6, 0.2, 0], [0, 0.71, 0, -0.71]),
