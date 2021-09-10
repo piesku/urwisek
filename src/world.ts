@@ -9,6 +9,7 @@ import {ControlAlways} from "./components/com_control_always.js";
 import {ControlPlayer} from "./components/com_control_player.js";
 import {Cull} from "./components/com_cull.js";
 import {EmitParticles} from "./components/com_emit_particles.js";
+import {Lifespan} from "./components/com_lifespan.js";
 import {Light} from "./components/com_light.js";
 import {Mimic} from "./components/com_mimic.js";
 import {Move} from "./components/com_move.js";
@@ -32,6 +33,7 @@ const enum Component {
     ControlPlayer,
     Cull,
     EmitParticles,
+    Lifespan,
     Light,
     Mimic,
     Move,
@@ -57,6 +59,7 @@ export const enum Has {
     ControlPlayer = 1 << Component.ControlPlayer,
     Cull = 1 << Component.Cull,
     EmitParticles = 1 << Component.EmitParticles,
+    Lifespan = 1 << Component.Lifespan,
     Light = 1 << Component.Light,
     Mimic = 1 << Component.Mimic,
     Move = 1 << Component.Move,
@@ -81,6 +84,7 @@ export class World extends WorldImpl {
     ControlPlayer: Array<ControlPlayer> = [];
     Cull: Array<Cull> = [];
     EmitParticles: Array<EmitParticles> = [];
+    Lifespan: Array<Lifespan> = [];
     Light: Array<Light> = [];
     Mimic: Array<Mimic> = [];
     Move: Array<Move> = [];

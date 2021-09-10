@@ -46,11 +46,9 @@ export function sys_poll(game: Game, delta: number) {
             task.OnDone(entity);
         }
 
-        if (game.World.Signature[entity] > Has.None) {
-            game.World.Signature[entity] &= ~Has.Task;
-            if (game.World.Signature[entity] === Has.None) {
-                game.World.DestroyEntity(entity);
-            }
+        game.World.Signature[entity] &= ~Has.Task;
+        if (game.World.Signature[entity] === Has.None) {
+            game.World.DestroyEntity(entity);
         }
 
         // Explicitly delete the component data for this task to avoid memory
