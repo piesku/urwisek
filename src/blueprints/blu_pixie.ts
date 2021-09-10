@@ -10,7 +10,6 @@ import {Game} from "../game.js";
 
 export function blueprint_pixie(game: Game) {
     return [
-        //draw_text("Follow me", "Arial", "#fff"),
         mimic(find_first(game.World, "pixie anchor"), 0.02),
         children([
             transform(),

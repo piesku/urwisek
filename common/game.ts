@@ -1,4 +1,4 @@
-import {GL_CULL_FACE, GL_DEPTH_TEST} from "./webgl.js";
+import {GL_CULL_FACE, GL_CW, GL_DEPTH_TEST} from "./webgl.js";
 import {Entity, WorldImpl} from "./world.js";
 
 const update_span = document.getElementById("update");
@@ -192,10 +192,7 @@ export abstract class Game2D extends GameImpl {
 }
 
 export abstract class Game3D extends GameImpl {
-    Canvas2D = document.querySelector("#billboard")! as HTMLCanvasElement;
-    Context2D = this.Canvas2D.getContext("2d")!;
-
-    Canvas3D = document.querySelector("#scene")! as HTMLCanvasElement;
+    Canvas3D = document.querySelector("canvas")!;
     Gl = this.Canvas3D.getContext("webgl2")!;
 
     Audio = new AudioContext();
@@ -205,6 +202,7 @@ export abstract class Game3D extends GameImpl {
 
         this.Gl.enable(GL_DEPTH_TEST);
         this.Gl.enable(GL_CULL_FACE);
+        this.Gl.frontFace(GL_CW);
     }
 }
 

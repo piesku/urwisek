@@ -15,20 +15,13 @@ import {prop_rocket} from "../props/prop_rocket.js";
 import {snd_rocket} from "../sounds/snd_rocket.js";
 import {Has} from "../world.js";
 
-const story = [
-    "Humans have destroyed the Earth",
-    "They're running away to the stars",
-    "What will become of the wildlife?",
-];
-
 export function blueprint_rocket(game: Game) {
     return [
         control_always([0, 0, 1], null),
         move(float(1, 3), 0),
         lifespan(25),
-        audio_source(true, snd_rocket),
+        audio_source(snd_rocket),
         disable(Has.AudioSource),
-        //draw_text(story.shift() || "", "Arial", "#fff"),
         children(
             // Body 1.
             [

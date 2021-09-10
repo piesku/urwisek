@@ -40,8 +40,6 @@ let fragment = `#version 300 es\n
 
     uniform vec3 eye;
     uniform vec4 diffuse_color;
-    uniform vec4 specular_color;
-    uniform float shininess;
     uniform vec4 light_positions[MAX_LIGHTS];
     uniform vec4 light_details[MAX_LIGHTS];
     uniform vec4 fog_color;
@@ -59,9 +57,6 @@ let fragment = `#version 300 es\n
 
     void main() {
         vec3 world_normal = normalize(vert_normal);
-
-        vec3 view_dir = eye - vert_position.xyz;
-        vec3 view_normal = normalize(view_dir);
 
         // Ambient light.
         vec3 light_acc = diffuse_color.rgb * 0.5;
@@ -90,27 +85,12 @@ let fragment = `#version 300 es\n
             if (diffuse_factor > 0.0) {
                 // Diffuse color.
                 light_acc += diffuse_color.rgb * light_color * posterize(diffuse_factor * light_intensity);
-
-                if (shininess > 0.0) {
-                    // Phong reflection model.
-                    // vec3 r = reflect(-light_normal, world_normal);
-                    // float specular_angle = max(dot(r, view_normal), 0.0);
-                    // float specular_factor = pow(specular_angle, shininess);
-
-                    // Blinn-Phong reflection model.
-                    vec3 h = normalize(light_normal + view_normal);
-                    float specular_angle = max(dot(h, world_normal), 0.0);
-                    float specular_factor = pow(specular_angle, shininess);
-
-                    // Specular color.
-                    light_acc += specular_color.rgb * light_color * posterize(specular_factor * light_intensity);
-                }
             }
         }
 
         frag_color = vec4(light_acc, 1.0);
 
-        float eye_distance = length(view_dir);
+        float eye_distance = length(eye - vert_position.xyz);
         float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
         frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
     }
@@ -129,8 +109,6 @@ export function mat_forward_colored_phong_skinned(
             Self: gl.getUniformLocation(program, "self")!,
 
             DiffuseColor: gl.getUniformLocation(program, "diffuse_color")!,
-            SpecularColor: gl.getUniformLocation(program, "specular_color")!,
-            Shininess: gl.getUniformLocation(program, "shininess")!,
 
             Eye: gl.getUniformLocation(program, "eye")!,
             LightPositions: gl.getUniformLocation(program, "light_positions")!,

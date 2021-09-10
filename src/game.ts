@@ -15,7 +15,6 @@ import {mesh_ogon} from "../meshes/ogon.js";
 import {mesh_plane} from "../meshes/plane.js";
 import {scene_intro} from "./scenes/sce_intro.js";
 import {sys_animate} from "./systems/sys_animate.js";
-import {sys_audio_listener} from "./systems/sys_audio_listener.js";
 import {sys_audio_source} from "./systems/sys_audio_source.js";
 import {sys_camera} from "./systems/sys_camera.js";
 import {sys_collide} from "./systems/sys_collide.js";
@@ -25,21 +24,17 @@ import {sys_control_touch_move} from "./systems/sys_control_touch_move.js";
 import {sys_control_xbox} from "./systems/sys_control_xbox.js";
 import {sys_cull} from "./systems/sys_cull.js";
 import {sys_debug} from "./systems/sys_debug.js";
-import {sys_draw} from "./systems/sys_draw.js";
-import {sys_lifespan} from "./systems/sys_lifespan.js";
 import {sys_light} from "./systems/sys_light.js";
 import {sys_mimic} from "./systems/sys_mimic.js";
 import {sys_move} from "./systems/sys_move.js";
 import {sys_particles} from "./systems/sys_particles.js";
 import {sys_physics_integrate} from "./systems/sys_physics_integrate.js";
-import {sys_physics_kinematic} from "./systems/sys_physics_kinematic.js";
 import {sys_physics_resolve} from "./systems/sys_physics_resolve.js";
 import {sys_poll} from "./systems/sys_poll.js";
 import {sys_render_forward} from "./systems/sys_render_forward.js";
 import {sys_resize} from "./systems/sys_resize.js";
 import {sys_shake} from "./systems/sys_shake.js";
 import {sys_spawn} from "./systems/sys_spawn.js";
-import {sys_toggle} from "./systems/sys_toggle.js";
 import {sys_transform} from "./systems/sys_transform.js";
 import {sys_trigger} from "./systems/sys_trigger.js";
 import {sys_ui} from "./systems/sys_ui.js";
@@ -94,7 +89,6 @@ export class Game extends Game3D {
         // Collisions and physics.
         sys_physics_integrate(this, delta);
         sys_transform(this, delta);
-        sys_physics_kinematic(this, delta);
         sys_collide(this, delta);
         sys_physics_resolve(this, delta);
         sys_transform(this, delta);
@@ -112,9 +106,7 @@ export class Game extends Game3D {
         sys_animate(this, delta);
         sys_move(this, delta);
         sys_mimic(this, delta);
-        sys_lifespan(this, delta);
         sys_shake(this, delta);
-        sys_toggle(this, delta);
         sys_spawn(this, delta);
         sys_particles(this, delta);
         sys_transform(this, delta);
@@ -124,14 +116,12 @@ export class Game extends Game3D {
         }
 
         // Rendering.
-        sys_audio_listener(this, delta);
         sys_audio_source(this, delta);
         sys_resize(this, delta);
         sys_camera(this, delta);
         sys_cull(this, delta);
         sys_light(this, delta);
         sys_render_forward(this, delta);
-        sys_draw(this, delta);
         sys_ui(this, delta);
     }
 }

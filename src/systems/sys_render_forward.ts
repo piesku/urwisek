@@ -82,7 +82,6 @@ function render_depth(game: Game, camera: CameraDepth) {
 function render(game: Game, eye: CameraEye) {
     // Keep track of the current material to minimize switching.
     let current_material = null;
-    let current_front_face = null;
 
     for (let i = 0; i < game.World.Signature.length; i++) {
         if ((game.World.Signature[i] & QUERY) === QUERY) {
@@ -108,11 +107,6 @@ function render(game: Game, eye: CameraEye) {
                         use_instanced(game, render.Material, eye);
                         break;
                 }
-            }
-
-            if (render.FrontFace !== current_front_face) {
-                current_front_face = render.FrontFace;
-                game.Gl.frontFace(render.FrontFace);
             }
 
             switch (render.Kind) {
@@ -192,8 +186,6 @@ function draw_colored_shadows(game: Game, transform: Transform, render: RenderCo
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
     game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
     game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-    game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-    game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
     game.Gl.bindVertexArray(render.Vao);
     game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
     game.Gl.bindVertexArray(null);
@@ -224,8 +216,6 @@ function draw_colored_skinned(
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
     game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
     game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-    game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-    game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
 
     let bone_entities: Array<Entity> = [];
     if (game.World.Signature[entity] & Has.Children) {

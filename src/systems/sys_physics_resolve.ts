@@ -59,7 +59,6 @@ function update(game: Game, entity: Entity) {
                         add(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated, a);
                         break;
                     case RigidKind.Dynamic:
-                    case RigidKind.Kinematic:
                         copy(rigid_body.VelocityResolved, other_body.VelocityIntegrated);
                         break;
                 }

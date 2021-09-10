@@ -46,7 +46,6 @@ export function animate(clips: {idle: AnimationClip; [k: string]: AnimationClip}
 export interface AnimationKeyframe {
     readonly Translation?: Vec3;
     readonly Rotation?: Quat;
-    readonly Scale?: Vec3;
     Timestamp: number;
     /** Easing function used to transition to this keyframe. */
     readonly Ease?: (t: number) => number;

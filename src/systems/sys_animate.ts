@@ -84,11 +84,6 @@ function update(game: Game, entity: Entity, delta: number) {
             );
             transform.Dirty = true;
         }
-
-        if (current_keyframe.Scale && next_keyframe.Scale) {
-            lerp(transform.Scale, current_keyframe.Scale, next_keyframe.Scale, interpolant);
-            transform.Dirty = true;
-        }
     } else if (current_keyframe) {
         if (current_keyframe.Translation) {
             vec3_copy(transform.Translation, current_keyframe.Translation);
@@ -97,11 +92,6 @@ function update(game: Game, entity: Entity, delta: number) {
 
         if (current_keyframe.Rotation) {
             quat_copy(transform.Rotation, current_keyframe.Rotation);
-            transform.Dirty = true;
-        }
-
-        if (current_keyframe.Scale) {
-            vec3_copy(transform.Scale, current_keyframe.Scale);
             transform.Dirty = true;
         }
     }

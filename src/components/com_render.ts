@@ -7,7 +7,6 @@ import {Vec2, Vec4} from "../../common/math.js";
 import {Mesh} from "../../common/mesh.js";
 import {
     GL_ARRAY_BUFFER,
-    GL_CW,
     GL_DYNAMIC_DRAW,
     GL_ELEMENT_ARRAY_BUFFER,
     GL_FLOAT,
@@ -51,7 +50,6 @@ export interface RenderColoredUnlit {
     readonly Kind: RenderKind.ColoredUnlit;
     readonly Material: Material<ColoredUnlitLayout>;
     readonly Mesh: Mesh;
-    readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;
     Color: Vec4;
 }
@@ -89,7 +87,6 @@ export function render_colored_unlit(
             Kind: RenderKind.ColoredUnlit,
             Material: material,
             Mesh: mesh,
-            FrontFace: GL_CW,
             Vao: colored_unlit_vaos.get(mesh)!,
             Color: color,
         };
@@ -102,11 +99,8 @@ export interface RenderColoredShadows {
         ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout & FogLayout
     >;
     readonly Mesh: Mesh;
-    readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;
     DiffuseColor: Vec4;
-    SpecularColor: Vec4;
-    Shininess: number;
 }
 
 export function render_colored_shadows(
@@ -114,10 +108,7 @@ export function render_colored_shadows(
         ColoredShadedLayout & ForwardShadingLayout & ShadowMappingLayout & FogLayout
     >,
     mesh: Mesh,
-    diffuse_color: Vec4,
-    shininess: number = 0,
-    specular_color: Vec4 = [1, 1, 1, 1],
-    front_face: GLenum = GL_CW
+    diffuse_color: Vec4
 ) {
     return (game: Game, entity: Entity) => {
         if (!colored_shadows_vaos.has(mesh)) {
@@ -151,11 +142,8 @@ export function render_colored_shadows(
             Kind: RenderKind.ColoredShadows,
             Material: material,
             Mesh: mesh,
-            FrontFace: front_face,
             Vao: colored_shadows_vaos.get(mesh)!,
             DiffuseColor: diffuse_color,
-            SpecularColor: specular_color,
-            Shininess: shininess,
         };
     };
 }
@@ -166,20 +154,14 @@ export interface RenderColoredSkinned {
         ColoredShadedLayout & ForwardShadingLayout & SkinningLayout & FogLayout
     >;
     readonly Mesh: Mesh;
-    readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;
     DiffuseColor: Vec4;
-    SpecularColor: Vec4;
-    Shininess: number;
 }
 
 export function render_colored_skinned(
     material: Material<ColoredShadedLayout & ForwardShadingLayout & SkinningLayout & FogLayout>,
     mesh: Mesh,
-    diffuse_color: Vec4,
-    shininess: number = 0,
-    specular_color: Vec4 = [1, 1, 1, 1],
-    front_face: GLenum = GL_CW
+    diffuse_color: Vec4
 ) {
     return (game: Game, entity: Entity) => {
         if (!colored_skinned_vaos.has(mesh)) {
@@ -217,11 +199,8 @@ export function render_colored_skinned(
             Kind: RenderKind.ColoredSkinned,
             Material: material,
             Mesh: mesh,
-            FrontFace: front_face,
             Vao: colored_skinned_vaos.get(mesh)!,
             DiffuseColor: diffuse_color,
-            SpecularColor: specular_color,
-            Shininess: shininess,
         };
     };
 }
@@ -236,7 +215,6 @@ export interface RenderParticlesColored {
     readonly ColorStart: Vec4;
     readonly ColorEnd: Vec4;
     readonly Size: Vec2;
-    readonly FrontFace: GLenum;
 }
 
 export function render_particles_colored(
@@ -258,7 +236,6 @@ export function render_particles_colored(
             ColorStart: start_color,
             ColorEnd: end_color,
             Size: [start_size, end_size],
-            FrontFace: GL_CW,
         };
     };
 }
@@ -267,7 +244,6 @@ export interface RenderInstanced {
     readonly Kind: RenderKind.Instanced;
     readonly Material: Material<PaletteShadedLayout & InstancedLayout & FogLayout>;
     readonly Mesh: Mesh;
-    readonly FrontFace: GLenum;
     readonly Vao: WebGLVertexArrayObject;
     readonly InstanceCount: number;
     readonly Palette: Array<number>;
@@ -321,7 +297,6 @@ export function render_instanced(
             Kind: RenderKind.Instanced,
             Material: material,
             Mesh: mesh,
-            FrontFace: GL_CW,
             Vao: vao,
             InstanceCount: offsets.length / 4,
             Palette: palette,

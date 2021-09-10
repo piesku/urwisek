@@ -16,8 +16,6 @@ export interface ColoredShadedLayout {
     Self: WebGLUniformLocation;
 
     DiffuseColor: WebGLUniformLocation;
-    SpecularColor: WebGLUniformLocation;
-    Shininess: WebGLUniformLocation;
 
     // Attributes
     VertexPosition: GLint;

@@ -28,7 +28,7 @@ export function blueprint_bird(game: Game) {
         control_always([0, 0, 1], null, "walk"),
         move(1, 0),
         lifespan(10),
-        render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, element(colors), 0),
+        render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, element(colors)),
         children([
             transform(),
             children([
