@@ -19,7 +19,6 @@ import {RigidBody} from "./components/com_rigid_body.js";
 import {Shake} from "./components/com_shake.js";
 import {Spawn} from "./components/com_spawn.js";
 import {Task} from "./components/com_task.js";
-import {Toggle} from "./components/com_toggle.js";
 import {Transform} from "./components/com_transform.js";
 import {Trigger} from "./components/com_trigger.js";
 
@@ -44,7 +43,6 @@ const enum Component {
     Shake,
     Spawn,
     Task,
-    Toggle,
     Transform,
     Trigger,
 }
@@ -71,7 +69,6 @@ export const enum Has {
     Shake = 1 << Component.Shake,
     Spawn = 1 << Component.Spawn,
     Task = 1 << Component.Task,
-    Toggle = 1 << Component.Toggle,
     Transform = 1 << Component.Transform,
     Trigger = 1 << Component.Trigger,
 }
@@ -97,7 +94,6 @@ export class World extends WorldImpl {
     Shake: Array<Shake> = [];
     Spawn: Array<Spawn> = [];
     Task: Array<Task> = [];
-    Toggle: Array<Toggle> = [];
     Transform: Array<Transform> = [];
     Trigger: Array<Trigger> = [];
 }

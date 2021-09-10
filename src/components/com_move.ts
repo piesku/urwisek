@@ -16,8 +16,6 @@ export interface Move {
     Directions: Array<Vec3>;
     /** Rotations applied in the local space (pre-multiplied). */
     LocalRotations: Array<Quat>;
-    /** Rotations applied in the self space (post-multiplied). */
-    SelfRotations: Array<Quat>;
 }
 
 /**
@@ -34,7 +32,6 @@ export function move(move_speed: number, rotation_speed: number) {
             RotationSpeed: rotation_speed,
             Directions: [],
             LocalRotations: [],
-            SelfRotations: [],
         };
     };
 }

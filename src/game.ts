@@ -34,7 +34,6 @@ import {sys_render_forward} from "./systems/sys_render_forward.js";
 import {sys_resize} from "./systems/sys_resize.js";
 import {sys_shake} from "./systems/sys_shake.js";
 import {sys_spawn} from "./systems/sys_spawn.js";
-import {sys_toggle} from "./systems/sys_toggle.js";
 import {sys_transform} from "./systems/sys_transform.js";
 import {sys_trigger} from "./systems/sys_trigger.js";
 import {sys_ui} from "./systems/sys_ui.js";
@@ -107,7 +106,6 @@ export class Game extends Game3D {
         sys_mimic(this, delta);
         sys_lifespan(this, delta);
         sys_shake(this, delta);
-        sys_toggle(this, delta);
         sys_spawn(this, delta);
         sys_particles(this, delta);
         sys_transform(this, delta);
