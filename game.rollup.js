@@ -2942,18 +2942,6 @@
         ]);
     }
 
-    function scene_level1(game) {
-        game.World = new World();
-        game.ViewportResized = true;
-        instantiate_player(game, [0, 0.774, 0]);
-        map_city(game);
-        instantiate(game, [
-            ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
-            transform([0, 10, 10]),
-            mimic(find_first(game.World, "camera anchor"), 0.05),
-        ]);
-    }
-
     function prop_barn(game) {
         return [
             children([
@@ -3596,7 +3584,7 @@
             ...blueprint_obstacle_branch(game),
         ]);
         instantiate(game, [
-            transform([92.21, -2.25, 1.4], [0, 0.71, 0, 0.71], [4, 5, 57]),
+            transform([92.21, -2.5, 1.4], [0, 0.71, 0, 0.71], [4, 5, 57]),
             ...blueprint_ground(game),
         ]);
         instantiate(game, [transform([48.27, 7.05, 0]), ...blueprint_pushable_branch(game)]);
@@ -3636,8 +3624,7 @@
             transform([55.64, -0.76, 0.49], [0.7, 0.07, -0.07, 0.7], [0.5, 2, 0.5]),
             ...blueprint_obstacle_branch(game),
         ]);
-        instantiate(game, [transform([120.2, 3, 0]), ...blueprint_end()]);
-        instantiate(game, [transform([120.2, 3, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
+        instantiate(game, [transform([120.2, 0, 0]), ...blueprint_end()]);
         instantiate(game, [
             transform([122.6, 0.2, 0], [0, 0.71, 0, -0.71]),
             ...blueprint_launchpad(game),
@@ -3659,6 +3646,8 @@
                 ]);
             }
         }
+        instantiate(game, [transform([95.2, 0, 0]), ...blueprint_exit()]);
+        instantiate(game, [transform([95.2, 0, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
         instantiate(game, [...blueprint_sun_light(), transform()]);
         instantiate(game, [...blueprint_sun_shadow(game), transform()]);
     }
@@ -3692,21 +3681,25 @@
                 game.World.Signature[trigger_entity] &= ~2097152 /* Trigger */;
                 switch (game.CurrentScene) {
                     case scene_intro:
-                    case scene_level1:
+                    case scene_level2:
+                        instantiate(game, [
+                            task_timeout(2, () => {
+                                requestAnimationFrame(() => {
+                                    game.CurrentScene(game);
+                                    game.CurrentView = Play;
+                                });
+                            }),
+                        ]);
+                        break;
+                }
+                switch (game.CurrentScene) {
+                    case scene_intro:
                         game.CurrentScene = scene_level2;
                         break;
                     case scene_level2:
                         game.CurrentScene = scene_level3;
                         break;
                 }
-                instantiate(game, [
-                    task_timeout(2, () => {
-                        requestAnimationFrame(() => {
-                            game.CurrentScene(game);
-                            game.CurrentView = Play;
-                        });
-                    }),
-                ]);
                 let pup_entity = find_first(game.World, "pup");
                 let pup_anchor = find_first(game.World, "pup anchor " + game.PupsFound);
                 mimic(pup_anchor, 0.2)(game, pup_entity);
@@ -6215,6 +6208,18 @@
             sys_render_forward(this);
             sys_ui(this);
         }
+    }
+
+    function scene_level1(game) {
+        game.World = new World();
+        game.ViewportResized = true;
+        instantiate_player(game, [0, 0.774, 0]);
+        map_city(game);
+        instantiate(game, [
+            ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
+            transform([0, 10, 10]),
+            mimic(find_first(game.World, "camera anchor"), 0.05),
+        ]);
     }
 
     function scene_stage(game) {
