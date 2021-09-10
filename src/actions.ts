@@ -20,7 +20,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
     switch (action) {
         case Action.ChangeSettings: {
             let select = payload as HTMLSelectElement;
-            game.Quality = parseInt(select.value);
+            game.Quality = select.value as unknown as number;
             break;
         }
 

@@ -38,8 +38,6 @@ export abstract class Game3D {
             document.hidden ? this.Stop() : this.Start()
         );
 
-        this.Ui.addEventListener("contextmenu", (evt) => evt.preventDefault());
-
         this.Ui.addEventListener("touchstart", (evt) => {
             if (evt.target === this.Ui) {
                 // Prevent browsers from interpreting touch gestures as navigation input.

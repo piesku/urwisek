@@ -20,8 +20,8 @@ const enum BoneIndex {
 }
 
 const jump_keytime_1 = 0.2;
-const jump_keytime_2 = jump_keytime_1 + 0.4;
-const jump_keytime_3 = jump_keytime_2 + 0.4;
+const jump_keytime_2 = 0.6;
+const jump_keytime_3 = 1;
 
 const sit_keytime_1 = 9;
 const sit_keytime_2 = sit_keytime_1 + 1;

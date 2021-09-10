@@ -30,10 +30,10 @@ function update(game: Game, entity: Entity) {
         move.LocalRotations.push(control.Rotation.slice() as Quat);
     }
 
-    if (control.Animation) {
+    if (control.AnimationClip) {
         for (let ent of query_all(game.World, entity, Has.Animate)) {
             let animate = game.World.Animate[ent];
-            animate.Trigger = control.Animation;
+            animate.Trigger = control.AnimationClip;
         }
     }
 }
