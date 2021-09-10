@@ -1129,7 +1129,7 @@
     const sit_keytime_2 = sit_keytime_1 + 1;
     const sit_keytime_3 = sit_keytime_2 + 5;
     const sit_keytime_4 = sit_keytime_3 + 1;
-    function blueprint_lisek(game, color = [1, 0.5, 0, 1], timescale = 1, actionOnEachStep) {
+    function blueprint_lisek(game, color = [1, 0.5, 0, 1], timescale = 1) {
         return [
             render_colored_skinned(game.MaterialColoredSkinned, game.MeshLisek, color),
             children([
@@ -1351,12 +1351,10 @@
                                         {
                                             Timestamp: 0,
                                             Rotation: [-0.174, 0.0, 0.0, 0.985],
-                                            ActionOnEnd: actionOnEachStep,
                                         },
                                         {
                                             Timestamp: 0.2 * timescale,
                                             Rotation: [0.131, 0.0, 0.0, 0.991],
-                                            ActionOnEnd: actionOnEachStep,
                                         },
                                     ],
                                     Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
@@ -5680,9 +5678,6 @@
         else {
             // The animation has completed; reset its timer.
             animate.Current.Time = 0;
-            if (current_keyframe === null || current_keyframe === void 0 ? void 0 : current_keyframe.ActionOnEnd) {
-                console.log("YUP!");
-            }
         }
         // 5. The animation has completed. Loop it or switch to idle.
         if (animate.Current.Flags & 4 /* Alternate */) {
