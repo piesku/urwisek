@@ -1,6 +1,5 @@
 import {ease_in_out_quart, ease_out_quart} from "../../common/easing.js";
 import {Vec4} from "../../common/math.js";
-import {Action} from "../actions.js";
 import {animate, AnimationFlag} from "../components/com_animate.js";
 import {bone} from "../components/com_bone.js";
 import {children} from "../components/com_children.js";
@@ -29,12 +28,7 @@ const sit_keytime_2 = sit_keytime_1 + 1;
 const sit_keytime_3 = sit_keytime_2 + 5;
 const sit_keytime_4 = sit_keytime_3 + 1;
 
-export function blueprint_lisek(
-    game: Game,
-    color: Vec4 = [1, 0.5, 0, 1],
-    timescale = 1,
-    actionOnEachStep?: Action
-) {
+export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timescale = 1) {
     return [
         render_colored_skinned(game.MaterialColoredSkinned, game.MeshLisek, color),
         children([
@@ -267,12 +261,10 @@ export function blueprint_lisek(
                                         {
                                             Timestamp: 0,
                                             Rotation: [-0.174, 0.0, 0.0, 0.985],
-                                            ActionOnEnd: actionOnEachStep,
                                         },
                                         {
                                             Timestamp: 0.2 * timescale,
                                             Rotation: [0.131, 0.0, 0.0, 0.991],
-                                            ActionOnEnd: actionOnEachStep,
                                         },
                                     ],
                                     Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
