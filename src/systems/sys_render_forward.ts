@@ -162,7 +162,6 @@ function use_colored_shadows(
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
     game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 
     if (eye.Kind === CameraKind.Depth) {
         game.Gl.activeTexture(GL_TEXTURE0);
@@ -202,7 +201,6 @@ function use_colored_skinned(
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
     game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
 
 const bones = new Float32Array(16 * 6);
@@ -305,7 +303,6 @@ function use_instanced(
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
 
 function draw_instanced(game: Game, transform: Transform, render: RenderInstanced) {

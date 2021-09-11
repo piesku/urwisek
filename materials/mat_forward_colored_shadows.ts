@@ -39,7 +39,6 @@ let fragment = `#version 300 es\n
     uniform mat4 shadow_space;
     uniform sampler2DShadow shadow_map;
     uniform vec4 fog_color;
-    uniform float fog_distance;
 
     in vec4 vert_position;
     in vec3 vert_normal;
@@ -95,7 +94,7 @@ let fragment = `#version 300 es\n
         frag_color= vec4(shaded_rgb, 1.0);
 
         float eye_distance = length(eye - vert_position.xyz);
-        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+        float fog_amount = clamp(0.0, 1.0, eye_distance / 15.0);
         frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
     }
 `;
@@ -121,7 +120,6 @@ export function mat_forward_colored_shadows(
             ShadowMap: gl.getUniformLocation(program, "shadow_map")!,
 
             FogColor: gl.getUniformLocation(program, "fog_color")!,
-            FogDistance: gl.getUniformLocation(program, "fog_distance")!,
 
             VertexPosition: gl.getAttribLocation(program, "attr_position")!,
             VertexNormal: gl.getAttribLocation(program, "attr_normal")!,
