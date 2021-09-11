@@ -200,9 +200,11 @@
         constructor() {
             this.Running = 0;
             this.Now = 0;
-            // Start at Low to make sure the title screen runs smoothly. Action.NewGame
-            // changes this to Ultra; tick() will scale it down dynamically if necessary.
-            this.Quality = 512 /* Low */;
+            // Start at High to make sure the title screen runs smoothly; there's not
+            // much to render at that point but we need the rocket spawner to spawn
+            // frequently enough. Action.NewGame changes this to Ultra; tick() will
+            // scale it down dynamically if necessary.
+            this.Quality = 2048 /* High */;
             this.ViewportWidth = window.innerWidth;
             this.ViewportHeight = window.innerHeight;
             this.ViewportResized = true;
@@ -2069,27 +2071,11 @@
         };
     }
 
-    function shift(values) {
-        let value = values.shift();
-        if (typeof value === "boolean" || value == undefined) {
-            return "";
-        }
-        else if (Array.isArray(value)) {
-            return value.join("");
-        }
-        else {
-            return value;
-        }
-    }
-    function html(strings, ...values) {
-        return strings.reduce((out, cur) => out + shift(values) + cur);
-    }
-
     function App(game) {
         return game.CurrentView(game);
     }
     function Title(game) {
-        return html `
+        return `
         <div
             style="
                 margin: 40vh 2vw 0;
@@ -2115,7 +2101,7 @@
         return "";
     }
     function End(game) {
-        return html `
+        return `
         <div
             style="
                 margin: 20vh 2vw 0;

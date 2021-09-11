@@ -202,7 +202,9 @@ this.Running = 0;
 this.Now = 0;
 
 
-this.Quality = 512 /* Low */;
+
+
+this.Quality = 2048 /* High */;
 this.ViewportWidth = window.innerWidth;
 this.ViewportHeight = window.innerHeight;
 this.ViewportResized = true;
@@ -2069,27 +2071,11 @@ SinceLast: interval,
 };
 }
 
-function shift(values) {
-let value = values.shift();
-if (typeof value === "boolean" || value == undefined) {
-return "";
-}
-else if (Array.isArray(value)) {
-return value.join("");
-}
-else {
-return value;
-}
-}
-function html(strings, ...values) {
-return strings.reduce((out, cur) => out + shift(values) + cur);
-}
-
 function App(game) {
 return game.CurrentView(game);
 }
 function Title(game) {
-return html `
+return `
 <div
 style="
 margin: 40vh 2vw 0;
@@ -2115,7 +2101,7 @@ function Play(game) {
 return "";
 }
 function End(game) {
-return html `
+return `
 <div
 style="
 margin: 20vh 2vw 0;
