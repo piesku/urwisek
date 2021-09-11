@@ -12,7 +12,6 @@ export const enum QualitySettings {
 
 export abstract class Game3D {
     Running = 0;
-    Now = 0;
     // Start at High to make sure the title screen runs smoothly; there's not
     // much to render at that point but we need the rocket spawner to spawn
     // frequently enough. Action.NewGame changes this to Ultra; tick() will
@@ -130,7 +129,6 @@ export abstract class Game3D {
 
         let tick = (now: number) => {
             let delta = (now - last) / 1000;
-            this.Now = performance.now(); // FrameSetup().
 
             accumulator += delta;
             while (accumulator >= step) {
