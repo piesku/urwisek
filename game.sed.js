@@ -200,6 +200,9 @@ class Game3D {
 constructor() {
 this.Running = 0;
 this.Now = 0;
+
+
+this.Quality = 512 /* Low */;
 this.ViewportWidth = window.innerWidth;
 this.ViewportHeight = window.innerHeight;
 this.ViewportResized = true;
@@ -288,6 +291,8 @@ this.Gl.frontFace(GL_CW);
 Start() {
 let accumulator = 0;
 let last = performance.now();
+let delta_cma = 0;
+let frame_count = 0;
 let tick = (now) => {
 let delta = (now - last) / 1000;
 this.FrameSetup(delta);
@@ -301,6 +306,15 @@ this.FrameUpdate(delta);
 this.FrameReset(delta);
 last = now;
 this.Running = requestAnimationFrame(tick);
+if (frame_count++ > 100) {
+
+delta_cma += (delta - delta_cma) / frame_count;
+if (delta_cma > 0.018) {
+delta_cma = 0;
+frame_count = 0;
+this.Quality = Math.max(512 /* Low */, this.Quality / 2);
+}
+}
 };
 this.Stop();
 tick(last);
@@ -2071,38 +2085,6 @@ function html(strings, ...values) {
 return strings.reduce((out, cur) => out + shift(values) + cur);
 }
 
-function Settings(game) {
-return html `
-Quality:
-<select onchange="$(${0 /* ChangeSettings */}, this)">
-<option
-value="${512 /* Low */}"
-${game.Quality === 512 /* Low */ && "selected"}
->
-Low
-</option>
-<option
-value="${1024 /* Medium */}"
-${game.Quality === 1024 /* Medium */ && "selected"}
->
-Medium
-</option>
-<option
-value="${2048 /* High */}"
-${game.Quality === 2048 /* High */ && "selected"}
->
-High
-</option>
-<option
-value="${4096 /* Ultra */}"
-${game.Quality === 4096 /* Ultra */ && "selected"}
->
-Ultra
-</option>
-</select>
-`;
-}
-
 function App(game) {
 return game.CurrentView(game);
 }
@@ -2126,7 +2108,6 @@ line-height: 2;
 "
 >
 <div onclick="$(${1 /* NewGame */})">New Game</div>
-<div>${Settings(game)}</div>
 </nav>
 `;
 }
@@ -3645,6 +3626,8 @@ game.Quality = select.value;
 break;
 }
 case 1 /* NewGame */: {
+
+game.Quality = 4096 /* Ultra */;
 game.CurrentView = Play;
 break;
 }
@@ -6121,7 +6104,6 @@ this.MeshCylinder = mesh_cylinder(this.Gl);
 
 this.LightPositions = new Float32Array(4 * 8);
 this.Cameras = [];
-this.Quality = 2048 /* High */;
 this.Targets = {
 Noop: create_depth_target(this.Gl, 2, 2),
 Sun: create_depth_target(this.Gl, this.Quality, this.Quality),
