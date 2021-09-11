@@ -27,27 +27,12 @@ import {blueprint_fire} from "../blueprints/blu_fire.js";
 
 export function map_city(game: Game) {
     instantiate(game, [
-        transform([7.53, -0.5, 2.45], [0, 0.71, 0, 0.71], [8, 2, 30]),
+        transform([76.04, 1.52, 0.45], [0, 0.71, 0, 0.71], [5, 2, 7.05]),
         ...blueprint_ground(game),
     ]);
 
     instantiate(game, [
-        transform([30.68, -1.2, 2.45], [0, 0.71, 0, 0.71], [8, 2, 17.76]),
-        ...blueprint_ground(game),
-    ]);
-
-    instantiate(game, [
-        transform([71.79, -1.48, 2.45], [0, 0.71, 0, 0.71], [8, 2, 6.11]),
-        ...blueprint_ground(game),
-    ]);
-
-    instantiate(game, [
-        transform([76.04, 0.52, 0.45], [0, 0.71, 0, 0.71], [5, 2, 7.05]),
-        ...blueprint_ground(game),
-    ]);
-
-    instantiate(game, [
-        transform([49.73, -1.5, -6.55], [0, 0.71, 0, 0.71], [10, 4, 120]),
+        transform([49.73, -1.5, -5.55], [0, 0.71, 0, 0.71], [20, 4, 120]),
         ...blueprint_ground(game),
     ]);
 
@@ -62,7 +47,7 @@ export function map_city(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([40.24, -9.32, -9.02], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 8]),
+        transform([79.24, -10.32, -8.02], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 24.8]),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
 
@@ -143,23 +128,8 @@ export function map_city(game: Game) {
     instantiate(game, [transform([28.61, 2.41, 0]), ...blueprint_box(game)]);
 
     instantiate(game, [
-        transform([53.76, -0.5, 2.45], [0, 0.71, 0, 0.71], [8, 2, 30]),
-        ...blueprint_ground(game),
-    ]);
-
-    instantiate(game, [
-        transform([69.45, -3.41, -6.36], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
+        transform([96.21, -4.41, -10.12], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
-    ]);
-
-    instantiate(game, [
-        transform([51.79, 4.32, -5.26], undefined, [0.2, 0.2, 0.2]),
-        ...prop_slup(game),
-    ]);
-
-    instantiate(game, [
-        transform([47.74, 3.78, -5.4], undefined, [0.15, 0.15, 0.15]),
-        ...prop_slup(game),
     ]);
 
     instantiate(game, [transform([46, 0.11, -1.52], [0, -0.73, 0, 0.69]), ...prop_slup(game)]);
@@ -203,10 +173,10 @@ export function map_city(game: Game) {
         ...blueprint_box(game),
     ]);
 
-    instantiate(game, [transform([61.98, 0.21, 2.78]), ...blueprint_bush(game)]);
+    instantiate(game, [transform([60.98, 0.21, 3.78]), ...blueprint_bush(game)]);
 
     instantiate(game, [
-        transform([85.09, -10.27, -9.02], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 8]),
+        transform([85.09, -12.27, -9.02], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 8]),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
 
@@ -219,9 +189,9 @@ export function map_city(game: Game) {
         ...blueprint_obstacle_car(game),
     ]);
 
-    instantiate(game, [transform([77, 1.5, 0]), ...blueprint_exit(game)]);
+    instantiate(game, [transform([77, 2.5, 0]), ...blueprint_exit(game)]);
 
-    instantiate(game, [transform([77, 1.5, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
+    instantiate(game, [transform([77, 2.5, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
 
     instantiate(game, [
         transform([-3, 2, -2], [0.01, 0.76, 0.12, 0.64]),
@@ -244,7 +214,7 @@ export function map_city(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([73, 2, -2], [0.01, 0.76, 0.12, 0.64]),
+        transform([73, 3, -2], [0.01, 0.76, 0.12, 0.64]),
         children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
     ]);
 

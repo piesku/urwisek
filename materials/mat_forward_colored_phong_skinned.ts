@@ -1,16 +1,9 @@
 import {link, Material} from "../common/material.js";
 import {GL_TRIANGLES} from "../common/webgl.js";
-import {
-    ColoredShadedLayout,
-    FogLayout,
-    ForwardShadingLayout,
-    SkinningLayout,
-} from "../materials/layout.js";
+import {FogLayout, ForwardShadingLayout, SkinningLayout} from "../materials/layout.js";
 
 let vertex = `#version 300 es\n
     uniform mat4 pv;
-    uniform mat4 world;
-    uniform mat4 self;
     uniform mat4 bones[6];
 
     in vec3 attr_position;
@@ -42,7 +35,6 @@ let fragment = `#version 300 es\n
     uniform vec4 diffuse_color;
     uniform vec4 light_positions[MAX_LIGHTS];
     uniform vec4 fog_color;
-    uniform float fog_distance;
 
     in vec4 vert_position;
     in vec3 vert_normal;
@@ -88,22 +80,20 @@ let fragment = `#version 300 es\n
         frag_color = vec4(light_acc, 1.0);
 
         float eye_distance = length(eye - vert_position.xyz);
-        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+        float fog_amount = clamp(0.0, 1.0, eye_distance / 15.0);
         frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
     }
 `;
 
 export function mat_forward_colored_phong_skinned(
     gl: WebGL2RenderingContext
-): Material<ColoredShadedLayout & ForwardShadingLayout & SkinningLayout & FogLayout> {
+): Material<ForwardShadingLayout & SkinningLayout & FogLayout> {
     let program = link(gl, vertex, fragment);
     return {
         Mode: GL_TRIANGLES,
         Program: program,
         Locations: {
             Pv: gl.getUniformLocation(program, "pv")!,
-            World: gl.getUniformLocation(program, "world")!,
-            Self: gl.getUniformLocation(program, "self")!,
 
             DiffuseColor: gl.getUniformLocation(program, "diffuse_color")!,
 
@@ -114,7 +104,6 @@ export function mat_forward_colored_phong_skinned(
             VertexNormal: gl.getAttribLocation(program, "attr_normal")!,
 
             FogColor: gl.getUniformLocation(program, "fog_color")!,
-            FogDistance: gl.getUniformLocation(program, "fog_distance")!,
 
             Bones: gl.getUniformLocation(program, "bones")!,
             VertexWeights: gl.getAttribLocation(program, "attr_weights")!,

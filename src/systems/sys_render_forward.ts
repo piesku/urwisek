@@ -25,6 +25,7 @@ import {
     PaletteShadedLayout,
     ParticlesColoredLayout,
     ShadowMappingLayout,
+    SkinningLayout,
 } from "../../materials/layout.js";
 import {CameraDepth, CameraEye, CameraForward, CameraKind} from "../components/com_camera.js";
 import {query_all} from "../components/com_children.js";
@@ -139,7 +140,6 @@ function use_colored_shadows(
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
     game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 
     if (eye.Kind === CameraKind.Depth) {
         game.Gl.activeTexture(GL_TEXTURE0);
@@ -170,7 +170,7 @@ function draw_colored_shadows(game: Game, transform: Transform, render: RenderCo
 
 function use_colored_skinned(
     game: Game,
-    material: Material<ColoredShadedLayout & ForwardShadingLayout & FogLayout>,
+    material: Material<SkinningLayout & ForwardShadingLayout & FogLayout>,
     eye: CameraEye
 ) {
     game.Gl.enable(GL_CULL_FACE);
@@ -179,7 +179,6 @@ function use_colored_skinned(
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
     game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
 
 const bones = new Float32Array(16 * 6);
@@ -189,8 +188,6 @@ function draw_colored_skinned(
     transform: Transform,
     render: RenderColoredSkinned
 ) {
-    game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-    game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
     game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
 
     let bone_entities: Array<Entity> = [];
@@ -284,7 +281,6 @@ function use_instanced(
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
 
 function draw_instanced(game: Game, transform: Transform, render: RenderInstanced) {
