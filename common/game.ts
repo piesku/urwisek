@@ -1,9 +1,6 @@
 import {GL_CULL_FACE, GL_CW, GL_DEPTH_TEST} from "./webgl.js";
 import {Entity, WorldImpl} from "./world.js";
 
-const update_span = document.getElementById("update");
-const delta_span = document.getElementById("delta");
-const fps_span = document.getElementById("fps");
 const step = 1 / 60;
 
 export abstract class Game3D {
