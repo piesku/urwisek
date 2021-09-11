@@ -3760,8 +3760,6 @@ return shader;
 
 let vertex$4 = `#version 300 es\n
 uniform mat4 pv;
-uniform mat4 world;
-uniform mat4 self;
 uniform mat4 bones[6];
 
 in vec3 attr_position;
@@ -3792,7 +3790,6 @@ uniform vec3 eye;
 uniform vec4 diffuse_color;
 uniform vec4 light_positions[MAX_LIGHTS];
 uniform vec4 fog_color;
-uniform float fog_distance;
 
 in vec4 vert_position;
 in vec3 vert_normal;
@@ -3838,7 +3835,7 @@ light_acc += diffuse_color.rgb * posterize(diffuse_factor * light_intensity);
 frag_color = vec4(light_acc, 1.0);
 
 float eye_distance = length(eye - vert_position.xyz);
-float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+float fog_amount = clamp(0.0, 1.0, eye_distance / 15.0);
 frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
 }
 `;
@@ -3849,15 +3846,12 @@ Mode: GL_TRIANGLES,
 Program: program,
 Locations: {
 Pv: gl.getUniformLocation(program, "pv"),
-World: gl.getUniformLocation(program, "world"),
-Self: gl.getUniformLocation(program, "self"),
 DiffuseColor: gl.getUniformLocation(program, "diffuse_color"),
 Eye: gl.getUniformLocation(program, "eye"),
 LightPositions: gl.getUniformLocation(program, "light_positions"),
 VertexPosition: gl.getAttribLocation(program, "attr_position"),
 VertexNormal: gl.getAttribLocation(program, "attr_normal"),
 FogColor: gl.getUniformLocation(program, "fog_color"),
-FogDistance: gl.getUniformLocation(program, "fog_distance"),
 Bones: gl.getUniformLocation(program, "bones"),
 VertexWeights: gl.getAttribLocation(program, "attr_weights"),
 },
@@ -3895,7 +3889,6 @@ uniform vec4 light_positions[MAX_LIGHTS];
 uniform mat4 shadow_space;
 uniform sampler2DShadow shadow_map;
 uniform vec4 fog_color;
-uniform float fog_distance;
 
 in vec4 vert_position;
 in vec3 vert_normal;
@@ -3951,7 +3944,7 @@ vec3 shaded_rgb = light_acc * shadow_factor(vert_position, 0.5);
 frag_color= vec4(shaded_rgb, 1.0);
 
 float eye_distance = length(eye - vert_position.xyz);
-float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+float fog_amount = clamp(0.0, 1.0, eye_distance / 15.0);
 frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
 }
 `;
@@ -3970,7 +3963,6 @@ LightPositions: gl.getUniformLocation(program, "light_positions"),
 ShadowSpace: gl.getUniformLocation(program, "shadow_space"),
 ShadowMap: gl.getUniformLocation(program, "shadow_map"),
 FogColor: gl.getUniformLocation(program, "fog_color"),
-FogDistance: gl.getUniformLocation(program, "fog_distance"),
 VertexPosition: gl.getAttribLocation(program, "attr_position"),
 VertexNormal: gl.getAttribLocation(program, "attr_normal"),
 },
@@ -4023,7 +4015,6 @@ uniform vec3 palette[16];
 
 uniform vec3 eye;
 uniform vec4 fog_color;
-uniform float fog_distance;
 
 in vec3 attr_position;
 in vec4 attr_offset;
@@ -4082,7 +4073,7 @@ vec3 color = palette[int(attr_offset[3])];
 vert_color = vec4(color * 0.1, 1.0);
 
 float eye_distance = length(eye - world_position.xyz);
-float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+float fog_amount = clamp(0.0, 1.0, eye_distance / 15.0);
 vert_color = mix(vert_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
 }
 
@@ -4109,7 +4100,6 @@ World: gl.getUniformLocation(program, "world"),
 Palette: gl.getUniformLocation(program, "palette"),
 Eye: gl.getUniformLocation(program, "eye"),
 FogColor: gl.getUniformLocation(program, "fog_color"),
-FogDistance: gl.getUniformLocation(program, "fog_distance"),
 VertexPosition: gl.getAttribLocation(program, "attr_position"),
 InstanceOffset: gl.getAttribLocation(program, "attr_offset"),
 InstanceRotation: gl.getAttribLocation(program, "attr_rotation"),
@@ -5886,7 +5876,6 @@ game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
 game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
 game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 if (eye.Kind === 3 /* Depth */) {
 game.Gl.activeTexture(GL_TEXTURE0);
 game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Noop.DepthTexture);
@@ -5919,12 +5908,9 @@ game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
 game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
 game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
 const bones = new Float32Array(16 * 6);
 function draw_colored_skinned(game, entity, transform, render) {
-game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
 game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
 let bone_entities = [];
 if (game.World.Signature[entity] & 16 /* Children */) {
@@ -5979,7 +5965,6 @@ game.Gl.useProgram(material.Program);
 game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
 game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
 function draw_instanced(game, transform, render) {
 game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
