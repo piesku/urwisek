@@ -45,11 +45,6 @@ export function map_forest(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([10.51, -3.95, -1.49], undefined, [10, 8, 10]),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
         transform([37.64, 0.19, -1.22], undefined, [7.5, 3, 7.5]),
         ...blueprint_tree(game),
     ]);
@@ -75,7 +70,7 @@ export function map_forest(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([12.27, -0.44, -2.1], undefined, [3, 3, 3]),
+        transform([12.27, -0.44, -1.1], undefined, [3, 3, 3]),
         ...blueprint_bush(game),
     ]);
 
