@@ -1,16 +1,9 @@
 import {link, Material} from "../common/material.js";
 import {GL_TRIANGLES} from "../common/webgl.js";
-import {
-    ColoredShadedLayout,
-    FogLayout,
-    ForwardShadingLayout,
-    SkinningLayout,
-} from "../materials/layout.js";
+import {FogLayout, ForwardShadingLayout, SkinningLayout} from "../materials/layout.js";
 
 let vertex = `#version 300 es\n
     uniform mat4 pv;
-    uniform mat4 world;
-    uniform mat4 self;
     uniform mat4 bones[6];
 
     in vec3 attr_position;
@@ -95,15 +88,13 @@ let fragment = `#version 300 es\n
 
 export function mat_forward_colored_phong_skinned(
     gl: WebGL2RenderingContext
-): Material<ColoredShadedLayout & ForwardShadingLayout & SkinningLayout & FogLayout> {
+): Material<ForwardShadingLayout & SkinningLayout & FogLayout> {
     let program = link(gl, vertex, fragment);
     return {
         Mode: GL_TRIANGLES,
         Program: program,
         Locations: {
             Pv: gl.getUniformLocation(program, "pv")!,
-            World: gl.getUniformLocation(program, "world")!,
-            Self: gl.getUniformLocation(program, "self")!,
 
             DiffuseColor: gl.getUniformLocation(program, "diffuse_color")!,
 

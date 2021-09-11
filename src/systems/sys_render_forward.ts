@@ -26,6 +26,7 @@ import {
     PaletteShadedLayout,
     ParticlesColoredLayout,
     ShadowMappingLayout,
+    SkinningLayout,
 } from "../../materials/layout.js";
 import {CameraDepth, CameraEye, CameraForward, CameraKind} from "../components/com_camera.js";
 import {query_all} from "../components/com_children.js";
@@ -192,7 +193,7 @@ function draw_colored_shadows(game: Game, transform: Transform, render: RenderCo
 
 function use_colored_skinned(
     game: Game,
-    material: Material<ColoredShadedLayout & ForwardShadingLayout & FogLayout>,
+    material: Material<SkinningLayout & ForwardShadingLayout & FogLayout>,
     eye: CameraEye
 ) {
     game.Gl.enable(GL_CULL_FACE);
@@ -211,8 +212,6 @@ function draw_colored_skinned(
     transform: Transform,
     render: RenderColoredSkinned
 ) {
-    game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-    game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
     game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
 
     let bone_entities: Array<Entity> = [];

@@ -150,16 +150,14 @@ export function render_colored_shadows(
 
 export interface RenderColoredSkinned {
     readonly Kind: RenderKind.ColoredSkinned;
-    readonly Material: Material<
-        ColoredShadedLayout & ForwardShadingLayout & SkinningLayout & FogLayout
-    >;
+    readonly Material: Material<ForwardShadingLayout & SkinningLayout & FogLayout>;
     readonly Mesh: Mesh;
     readonly Vao: WebGLVertexArrayObject;
     DiffuseColor: Vec4;
 }
 
 export function render_colored_skinned(
-    material: Material<ColoredShadedLayout & ForwardShadingLayout & SkinningLayout & FogLayout>,
+    material: Material<ForwardShadingLayout & SkinningLayout & FogLayout>,
     mesh: Mesh,
     diffuse_color: Vec4
 ) {

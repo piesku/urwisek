@@ -22,55 +22,6 @@ export interface ColoredShadedLayout {
     VertexNormal: GLint;
 }
 
-export interface TexturedUnlitLayout {
-    // Uniforms
-    Pv: WebGLUniformLocation;
-    World: WebGLUniformLocation;
-
-    TextureMap: WebGLUniformLocation;
-    Color: WebGLUniformLocation;
-
-    // Attributes
-    VertexPosition: GLint;
-    VertexTexCoord: GLint;
-}
-
-export interface TexturedShadedLayout {
-    // Uniforms
-    Pv: WebGLUniformLocation;
-    World: WebGLUniformLocation;
-    Self: WebGLUniformLocation;
-
-    DiffuseMap: WebGLUniformLocation;
-    DiffuseColor: WebGLUniformLocation;
-    SpecularColor: WebGLUniformLocation;
-    Shininess: WebGLUniformLocation;
-
-    // Attributes
-    VertexPosition: GLint;
-    VertexTexCoord: GLint;
-    VertexNormal: GLint;
-}
-
-export interface MappedShadedLayout {
-    // Uniforms
-    Pv: WebGLUniformLocation;
-    World: WebGLUniformLocation;
-    Self: WebGLUniformLocation;
-
-    DiffuseMap: WebGLUniformLocation;
-    DiffuseColor: WebGLUniformLocation;
-    NormalMap: WebGLUniformLocation;
-    RoughnessMap: WebGLUniformLocation;
-
-    // Attributes
-    VertexPosition: GLint;
-    VertexTexCoord: GLint;
-    VertexNormal: GLint;
-    VertexTangent: GLint;
-    VertexBitangent: GLint;
-}
-
 export interface PaletteShadedLayout {
     // Uniforms
     Pv: WebGLUniformLocation;
@@ -103,24 +54,16 @@ export interface DepthMappingLayout {
     VertexPosition: GLint;
 }
 
-export interface DeferredPostprocessLayout {
+export interface SkinningLayout {
     // Uniforms
-    DiffuseMap: WebGLUniformLocation;
-    SpecularMap: WebGLUniformLocation;
-    PositionMap: WebGLUniformLocation;
-    NormalMap: WebGLUniformLocation;
-    DepthMap: WebGLUniformLocation;
+    Pv: WebGLUniformLocation;
+    Bones: WebGLUniformLocation;
+
+    DiffuseColor: WebGLUniformLocation;
 
     // Attributes
     VertexPosition: GLint;
-    VertexTexcoord: GLint;
-}
-
-export interface SkinningLayout {
-    // Uniforms
-    Bones: WebGLUniformLocation;
-
-    // Attributes
+    VertexNormal: GLint;
     VertexWeights: GLint;
 }
 
@@ -135,20 +78,6 @@ export interface ParticlesColoredLayout {
     // Attributes
     OriginAge: GLint;
     Direction: GLint;
-}
-
-export interface ParticlesTexturedLayout {
-    // Uniforms
-    Pv: WebGLUniformLocation;
-
-    TextureMap: WebGLUniformLocation;
-    ColorStart: WebGLUniformLocation;
-    ColorEnd: WebGLUniformLocation;
-    Details: WebGLUniformLocation;
-
-    // Attributes
-    OriginAge: GLint;
-    DirectionSeed: GLint;
 }
 
 export interface InstancedLayout {
