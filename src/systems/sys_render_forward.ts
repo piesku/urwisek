@@ -3,6 +3,7 @@
  */
 
 import {resize_depth_target} from "../../common/framebuffer.js";
+import {QualitySettings} from "../../common/game.js";
 import {multiply} from "../../common/mat4.js";
 import {Material} from "../../common/material.js";
 import {
@@ -41,7 +42,7 @@ import {
     RenderParticlesColored,
 } from "../components/com_render.js";
 import {Transform} from "../components/com_transform.js";
-import {Game, QualitySettings} from "../game.js";
+import {Game} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Transform | Has.Render;
