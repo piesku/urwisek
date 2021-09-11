@@ -1,6 +1,7 @@
+import {QualitySettings} from "../../common/game.js";
 import {html} from "../../common/html.js";
 import {Action} from "../actions.js";
-import {Game, QualitySettings} from "../game.js";
+import {Game} from "../game.js";
 
 export function Settings(game: Game) {
     return html`

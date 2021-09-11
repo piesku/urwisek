@@ -1,14 +1,12 @@
-import {html} from "../../common/html.js";
 import {Action} from "../actions.js";
 import {Game} from "../game.js";
-import {Settings} from "./Settings.js";
 
 export function App(game: Game) {
     return game.CurrentView(game);
 }
 
 export function Title(game: Game) {
-    return html`
+    return `
         <div
             style="
                 margin: 40vh 2vw 0;
@@ -27,7 +25,6 @@ export function Title(game: Game) {
             "
         >
             <div onclick="$(${Action.NewGame})">New Game</div>
-            <div>${Settings(game)}</div>
         </nav>
     `;
 }
@@ -37,7 +34,7 @@ export function Play(game: Game) {
 }
 
 export function End(game: Game) {
-    return html`
+    return `
         <div
             style="
                 margin: 20vh 2vw 0;

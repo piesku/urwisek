@@ -38,13 +38,6 @@ import {sys_ui} from "./systems/sys_ui.js";
 import {Title} from "./ui/App.js";
 import {World} from "./world.js";
 
-export const enum QualitySettings {
-    Low = 512,
-    Medium = 1024,
-    High = 2048,
-    Ultra = 4096,
-}
-
 export class Game extends Game3D {
     World = new World();
 
@@ -64,7 +57,6 @@ export class Game extends Game3D {
     LightPositions = new Float32Array(4 * 8);
     Cameras: Array<Entity> = [];
 
-    Quality = QualitySettings.High;
     Targets = {
         Noop: create_depth_target(this.Gl, 2, 2),
         Sun: create_depth_target(this.Gl, this.Quality, this.Quality),

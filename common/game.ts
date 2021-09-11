@@ -3,9 +3,21 @@ import {Entity, WorldImpl} from "./world.js";
 
 const step = 1 / 60;
 
+export const enum QualitySettings {
+    Low = 512,
+    Medium = 1024,
+    High = 2048,
+    Ultra = 4096,
+}
+
 export abstract class Game3D {
     Running = 0;
     Now = 0;
+    // Start at High to make sure the title screen runs smoothly; there's not
+    // much to render at that point but we need the rocket spawner to spawn
+    // frequently enough. Action.NewGame changes this to Ultra; tick() will
+    // scale it down dynamically if necessary.
+    Quality = QualitySettings.High;
 
     abstract World: WorldImpl;
 
@@ -113,6 +125,9 @@ export abstract class Game3D {
         let accumulator = 0;
         let last = performance.now();
 
+        let delta_cma = 0;
+        let frame_count = 0;
+
         let tick = (now: number) => {
             let delta = (now - last) / 1000;
             this.Now = performance.now(); // FrameSetup().
@@ -133,6 +148,16 @@ export abstract class Game3D {
 
             last = now;
             this.Running = requestAnimationFrame(tick);
+
+            if (frame_count++ > 100) {
+                // Compute the cumulative moving average of deltas.
+                delta_cma += (delta - delta_cma) / frame_count;
+                if (delta_cma > 0.018) {
+                    delta_cma = 0;
+                    frame_count = 0;
+                    this.Quality = Math.max(QualitySettings.Low, this.Quality / 2);
+                }
+            }
         };
 
         this.Stop();

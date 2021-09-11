@@ -2,12 +2,12 @@
  * @module systems/sys_spawn
  */
 
-import {instantiate} from "../../common/game.js";
+import {instantiate, QualitySettings} from "../../common/game.js";
 import {get_rotation, get_translation} from "../../common/mat4.js";
 import {Quat, Vec3} from "../../common/math.js";
 import {Entity} from "../../common/world.js";
 import {transform} from "../components/com_transform.js";
-import {Game, QualitySettings} from "../game.js";
+import {Game} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Transform | Has.Spawn;
