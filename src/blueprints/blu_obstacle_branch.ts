@@ -7,13 +7,11 @@ import {blueprint_branch} from "./blu_branch.js";
 
 export function blueprint_obstacle_branch(game: Game) {
     return [
-        children(
-            [transform(), ...blueprint_branch(game)],
-            [
-                transform(undefined, undefined, [0.5, 1, 0.25]),
-                collide(false, Layer.Terrain | Layer.SurfaceWood, Layer.None),
-                rigid_body(RigidKind.Static),
-            ]
-        ),
+        children([
+            transform(),
+            collide(false, Layer.Terrain | Layer.SurfaceWood, Layer.None),
+            rigid_body(RigidKind.Static),
+            ...blueprint_branch(game),
+        ]),
     ];
 }

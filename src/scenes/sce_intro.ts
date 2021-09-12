@@ -24,7 +24,7 @@ import {snd_chirp1} from "../sounds/snd_chirp1.js";
 import {snd_wind} from "../sounds/snd_wind.js";
 import {Play} from "../ui/App.js";
 import {Has, World} from "../world.js";
-import {map_city} from "./map_city.js";
+import {map_forest} from "./map_forest.js";
 
 export function scene_intro(game: Game) {
     game.World = new World();
@@ -37,10 +37,10 @@ export function scene_intro(game: Game) {
     let player_entity = instantiate_player(game, [0, 0.774, 0]);
     game.World.Signature[player_entity] &= ~Has.ControlPlayer;
 
-    map_city(game);
+    map_forest(game);
 
     let starfield_entity = instantiate(game, [
-        transform([0, 16, -5], from_euler([0, 0, 0, 1], 10, 0, 0), [17, 10, 1]),
+        transform([0, 56, -5], from_euler([0, 0, 0, 1], 10, 0, 0), [17, 10, 1]),
         children([
             transform(),
             shake(0.5),
@@ -50,13 +50,13 @@ export function scene_intro(game: Game) {
     ]);
 
     let rocket_spawner_entity = instantiate(game, [
-        transform([-5, 10, -3], from_euler([0, 0, 0, 1], -45, 110, 0)),
+        transform([-5, 48, -3], from_euler([0, 0, 0, 1], -45, 110, 0)),
         children([transform(), shake(3), spawn(blueprint_rocket, 3)]),
     ]);
 
     let camera_entity = instantiate(game, [
-        ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
-        transform([0, 15, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
+        ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
+        transform([0, 50, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
         mimic(find_first(game.World, "camera anchor"), 0.02),
         disable(Has.Mimic),
     ]);

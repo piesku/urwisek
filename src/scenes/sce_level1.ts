@@ -6,7 +6,7 @@ import {find_first} from "../components/com_named.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {World} from "../world.js";
-import {map_city} from "./map_city.js";
+import {map_forest} from "./map_forest.js";
 
 export function scene_level1(game: Game) {
     game.World = new World();
@@ -14,10 +14,10 @@ export function scene_level1(game: Game) {
 
     instantiate_player(game, [0, 0.774, 0]);
 
-    map_city(game);
+    map_forest(game);
 
     instantiate(game, [
-        ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
+        ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
         transform([0, 10, 10]),
         mimic(find_first(game.World, "camera anchor"), 0.05),
     ]);

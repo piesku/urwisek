@@ -83,17 +83,13 @@ let create_instance = (name, translation, rotation, scale) => {
             let Zmin = centerZ - ~~(depth / 2);
             let Zmax = centerZ + ~~(depth / 2);
 
-            let number_of_trees = ~~(width * 0.6);
+            let number_of_trees = ~~((width * depth)/${scale[1]} * 0.8);
             for (let i = 0; i < number_of_trees; i++) {
                 instantiate(game, [
                     transform([float(Xmin, Xmax), ${translation[1]}, float(Zmin, Zmax)]${
                 scale[1] > 1 ? `, undefined, [${scale[1]}, ${scale[1] / 2}, ${scale[1]}]` : ""
             }),
-                    ...${
-                        scale[1] > 1
-                            ? `blueprint_tree(game)`
-                            : `element([blueprint_tree(game), blueprint_bush(game)])`
-                    },
+                    ...element([blueprint_tree(game), blueprint_bush(game)])
                 ]);
             }
         }
@@ -131,7 +127,7 @@ let create_instance = (name, translation, rotation, scale) => {
             imports.add(`import {Has} from "../world.js";`);
             return `
     instantiate(game, [
-        transform(${vec(translation)}, ${vec(rotation)}),
+        transform(${vec(translation)}, ${vec(rotation)}, ${vec(scale)}),
         children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
     ]);`;
         case "spawn_animal":
@@ -140,7 +136,7 @@ let create_instance = (name, translation, rotation, scale) => {
             imports.add(`import {Has} from "../world.js";`);
             return `
     instantiate(game, [
-        transform(${vec(translation)}, ${vec(rotation)}),
+        transform(${vec(translation)}, ${vec(rotation)}, ${vec(scale)}),
         spawn(blueprint_animal, 1),
     ]);`;
         default:
