@@ -23,9 +23,9 @@ import {
     FogLayout,
     ForwardShadingLayout,
     InstancedLayout,
-    PaletteShadedLayout,
     ParticlesColoredLayout,
     ShadowMappingLayout,
+    SingleColorLayout,
     SkinningLayout,
 } from "../../materials/layout.js";
 import {CameraDepth, CameraEye, CameraForward, CameraKind} from "../components/com_camera.js";
@@ -274,7 +274,7 @@ function draw_particles_colored(
 
 function use_instanced(
     game: Game,
-    material: Material<PaletteShadedLayout & InstancedLayout & FogLayout>,
+    material: Material<SingleColorLayout & InstancedLayout & FogLayout>,
     eye: CameraEye
 ) {
     game.Gl.disable(GL_CULL_FACE);
@@ -286,7 +286,6 @@ function use_instanced(
 
 function draw_instanced(game: Game, transform: Transform, render: RenderInstanced) {
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-    game.Gl.uniform3fv(render.Material.Locations.Palette, render.Palette);
     game.Gl.bindVertexArray(render.Vao);
 
     let quality_factor = game.Quality / QualitySettings.Ultra;

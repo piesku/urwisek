@@ -22,12 +22,10 @@ export interface ColoredShadedLayout {
     VertexNormal: GLint;
 }
 
-export interface PaletteShadedLayout {
+export interface SingleColorLayout {
     // Uniforms
     Pv: WebGLUniformLocation;
     World: WebGLUniformLocation;
-
-    Palette: WebGLUniformLocation;
 
     // Attributes
     VertexPosition: GLint;
@@ -81,8 +79,10 @@ export interface ParticlesColoredLayout {
 }
 
 export interface InstancedLayout {
-    InstanceOffset: GLint;
-    InstanceRotation: GLint;
+    InstanceColumn1: GLint;
+    InstanceColumn2: GLint;
+    InstanceColumn3: GLint;
+    InstanceColumn4: GLint;
 }
 
 export interface FogLayout {
