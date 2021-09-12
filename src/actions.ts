@@ -86,7 +86,12 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             let launchpad_shaker_entity = game.World.Children[launchpad_entity].Children[0];
             game.World.Signature[launchpad_shaker_entity] |= Has.Shake;
 
-            game.CurrentView = End;
+            instantiate(game, [
+                task_timeout(2, () => {
+                    game.CurrentView = End;
+                }),
+            ]);
+
             break;
         }
     }

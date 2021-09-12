@@ -9,23 +9,19 @@ export function Title(game: Game) {
     return `
         <div
             style="
-                margin: 40vh 2vw 0;
+                margin: 40vh -1vw 0;
                 font-size: 16vw;
                 font-weight: 600;
             "
         >
-            EXODUS
+            ESCAPE
         </div>
-        <nav
-            style="
-                margin: 2vh 3vw;
-                font-size: 1rem;
-                font-style: italic;
-                line-height: 2;
-            "
-        >
-            <div onclick="$(${Action.NewGame})">New Game</div>
-        </nav>
+        <div>
+            Earth has become uninhabitable.<br>
+            Humans are leaving.<br>
+            Find the Ark!<br><br>
+            <em onclick="$(${Action.NewGame})">Play Now</em>
+        </div>
     `;
 }
 
@@ -37,14 +33,16 @@ export function End(game: Game) {
     return `
         <div
             style="
-                margin: 20vh 2vw 0;
+                margin: 20vh -1vw 0;
                 font-size: 12vw;
                 font-weight: 600;
-                opacity: 0;
-                animation: 1s 4s forwards fadein;
             "
         >
             THE END
+        </div>
+        <div>
+            Not all of us will make it.<br>
+            Stop climate change now.<br>
         </div>
     `;
 }
