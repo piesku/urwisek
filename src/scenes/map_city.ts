@@ -5,7 +5,6 @@ import {transform} from "../components/com_transform.js";
 import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
 import {render_colored_shadows} from "../components/com_render.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
-import {prop_house} from "../props/prop_house.js";
 import {blueprint_bush} from "../blueprints/blu_bush.js";
 import {prop_slup} from "../props/prop_slup.js";
 import {blueprint_obstacle_house} from "../blueprints/blu_obstacle_house.js";
@@ -37,25 +36,13 @@ export function map_city(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([17.04, -4.41, -9.36], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
+        transform([23.04, -4.41, -11.36], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
     ]);
 
     instantiate(game, [
-        transform([29.07, -2.85, -9.2], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
+        transform([79.24, -10.32, -13.02], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 24.8]),
         render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
-    ]);
-
-    instantiate(game, [
-        transform([79.24, -10.32, -8.02], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 24.8]),
-        render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
-    ]);
-
-    instantiate(game, [transform([11.67, 0.5, -2.49]), ...prop_house(game)]);
-
-    instantiate(game, [
-        transform([-2.9, 0.44, -5.7], [0, 0.91, 0, 0.42], [0.5, 0.5, 0.5]),
-        ...prop_house(game),
     ]);
 
     instantiate(game, [transform([8.58, 0.72, 0.59]), ...blueprint_bush(game)]);
@@ -92,7 +79,7 @@ export function map_city(game: Game) {
 
     instantiate(game, [transform([31.05, 0.74, -1.14]), ...blueprint_bush(game)]);
 
-    instantiate(game, [transform([11.69, 0.5, 0.83]), ...blueprint_obstacle_house(game)]);
+    instantiate(game, [transform([11.69, 0.5, -0.17]), ...blueprint_obstacle_house(game)]);
 
     instantiate(game, [transform([11.58, 0.68, 2.02]), ...blueprint_bush(game)]);
 
@@ -111,8 +98,6 @@ export function map_city(game: Game) {
     instantiate(game, [transform([14.31, 0.11, 3.18]), ...prop_slup(game)]);
 
     instantiate(game, [transform([22.34, 0.38, -0.91]), ...blueprint_bush(game)]);
-
-    instantiate(game, [transform([54.04, 0.5, 0.83]), ...blueprint_obstacle_house(game)]);
 
     instantiate(game, [transform([28.61, 0.97, 0]), ...blueprint_box(game)]);
 
@@ -142,21 +127,6 @@ export function map_city(game: Game) {
     instantiate(game, [
         transform([42.7, 0.93, -2.99], [0, -0.73, 0, 0.69]),
         ...blueprint_bush(game),
-    ]);
-
-    instantiate(game, [
-        transform([59.59, 0.44, -4.68], [0, 0.71, 0, 0.71], [0.5, 0.5, 0.5]),
-        ...prop_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([61.26, 0.44, -4.68], [0, 0.71, 0, 0.71], [0.5, 0.5, 0.5]),
-        ...prop_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([62.93, 0.44, -4.68], [0, 0.71, 0, 0.71], [0.5, 0.5, 0.5]),
-        ...prop_house(game),
     ]);
 
     instantiate(game, [
@@ -260,17 +230,152 @@ export function map_city(game: Game) {
         }
     }
 
-    instantiate(game, [
-        transform([-4.43, 0.44, -4.42], [0, 0.91, 0, 0.42], [0.5, 0.5, 0.5]),
-        ...prop_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([-1.37, 0.44, -6.99], [0, 0.91, 0, 0.42], [0.5, 0.5, 0.5]),
-        ...prop_house(game),
-    ]);
-
     instantiate(game, [transform([-2.6, 0.9, 0.6]), ...blueprint_fire(game)]);
+
+    instantiate(game, [
+        transform([53.69, 0.5, 0.83], [0, 0.34, 0, 0.94]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([-2.47, 0.5, -5.58], [0, 0.26, 0, 0.97], [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([-2.47, 2.2, -5.58], [0, 0.26, 0, 0.97], [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([-2.47, 3.9, -5.58], [0, 0.26, 0, 0.97], [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([1.53, 0.5, -7.58], [0, 0.26, 0, 0.97], [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([1.53, 2.2, -7.58], [0, 0.26, 0, 0.97], [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([1.53, 3.9, -7.58], [0, 0.26, 0, 0.97], [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([36.53, 0.5, -8.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([36.53, 2.2, -8.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([36.53, 3.9, -8.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([40.53, 0.5, -8.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([40.53, 2.2, -8.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([40.53, 3.9, -8.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([44.53, 0.5, -8.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([44.53, 2.2, -8.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([44.53, 3.9, -8.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([48.53, 0.5, -8.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([48.53, 2.2, -8.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([48.53, 3.9, -8.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([38.53, 0.5, -4.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([38.53, 2.2, -4.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([38.53, 3.9, -4.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([42.53, 0.5, -4.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([42.53, 2.2, -4.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    instantiate(game, [
+        transform([42.53, 3.9, -4.71], undefined, [0.8, 0.8, 0.8]),
+        ...blueprint_obstacle_house(game),
+    ]);
+
+    {
+        let width = 28;
+        let depth = 6;
+        let centerX = 41.0;
+        let centerZ = -7.0;
+
+        let Xmin = centerX - ~~(width / 2);
+        let Xmax = centerX + ~~(width / 2);
+        let Zmin = centerZ - ~~(depth / 2);
+        let Zmax = centerZ + ~~(depth / 2);
+
+        let number_of_trees = ~~(width * 0.6);
+        for (let i = 0; i < number_of_trees; i++) {
+            instantiate(game, [
+                transform([float(Xmin, Xmax), 0, float(Zmin, Zmax)]),
+                ...element([blueprint_tree(game), blueprint_bush(game)]),
+            ]);
+        }
+    }
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 
