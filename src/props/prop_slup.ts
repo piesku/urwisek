@@ -50,37 +50,7 @@ export function prop_slup(game: Game) {
             ],
 
             [
-                transform([1.3, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
-                cull(Has.Render),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCylinder,
-                    [0.37, 0.37, 0.37, 1]
-                ),
-            ],
-
-            [
-                transform([1, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
-                cull(Has.Render),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCylinder,
-                    [0.37, 0.37, 0.37, 1]
-                ),
-            ],
-
-            [
                 transform([1.3, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
-                cull(Has.Render),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCylinder,
-                    [0.37, 0.37, 0.37, 1]
-                ),
-            ],
-
-            [
-                transform([1, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,

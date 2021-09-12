@@ -90,16 +90,6 @@ export function prop_car2(game: Game) {
             ],
 
             [
-                transform([-2, 1, -0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
-                cull(Has.Render),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCylinder,
-                    [0.8, 0.78, 0.02, 1]
-                ),
-            ],
-
-            [
                 transform([-2, 1, 0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
                 cull(Has.Render),
                 render_colored_shadows(
@@ -107,18 +97,6 @@ export function prop_car2(game: Game) {
                     game.MeshCylinder,
                     [0.8, 0.78, 0.02, 1]
                 ),
-            ],
-
-            [
-                transform([0.26, 1.55, 0.55], undefined, [0.2, 0.5, 0.8]),
-                cull(Has.Render),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
-            ],
-
-            [
-                transform([0.26, 1.55, -0.55], undefined, [0.2, 0.5, 0.8]),
-                cull(Has.Render),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
             ]
         ),
     ];
