@@ -3,85 +3,68 @@ import {GL_TRIANGLES} from "../common/webgl.js";
 import {FogLayout, ForwardShadingLayout, SkinningLayout} from "../materials/layout.js";
 
 let vertex = `#version 300 es\n
-    uniform mat4 pv;
-    uniform mat4 bones[6];
+    uniform mat4 A;
+    uniform mat4 F[6];
 
-    in vec3 attr_position;
-    in vec3 attr_normal;
-    in vec4 attr_weights;
+    in vec3 a;
+    in vec3 b;
+    in vec4 c;
 
-    out vec4 vert_position;
-    out vec3 vert_normal;
-
-    mat4 world_weighted(vec4 weights) {
-        return weights[1] * bones[int(weights[0])] + weights[3] * bones[int(weights[2])];
-    }
+    out vec4 j;
+    out vec3 k;
 
     void main() {
-        mat4 bone_world = world_weighted(attr_weights);
-        vert_position = bone_world * vec4(attr_position, 1.0);
-        vert_normal = normalize(mat3(bone_world) * attr_normal);
-        gl_Position = pv * vert_position;
+        mat4 p = c[1] * F[int(c[0])] + c[3] * F[int(c[2])];
+        j = p * vec4(a, 1.0);
+        k = normalize(mat3(p) * b);
+        gl_Position = A * j;
     }
 `;
 
 let fragment = `#version 300 es\n
     precision mediump float;
 
-    // See Game.LightPositions and Game.LightDetails.
-    const int MAX_LIGHTS = 8;
+    uniform vec3 C;
+    uniform vec4 B;
+    uniform vec4 D[8];
+    uniform vec4 E;
 
-    uniform vec3 eye;
-    uniform vec4 diffuse_color;
-    uniform vec4 light_positions[MAX_LIGHTS];
-    uniform vec4 fog_color;
+    in vec4 j;
+    in vec3 k;
 
-    in vec4 vert_position;
-    in vec3 vert_normal;
-
-    out vec4 frag_color;
-
-    const float bands = 2.0;
-    float posterize(float factor) {
-        return floor(factor * bands) / bands;
-    }
+    out vec4 f;
 
     void main() {
-        vec3 world_normal = normalize(vert_normal);
-
         // Ambient light.
-        vec3 light_acc = diffuse_color.rgb * 0.5;
+        vec3 p = B.xyz * .5;
 
-        for (int i = 0; i < MAX_LIGHTS; i++) {
-            float light_intensity = light_positions[i].w;
-            if (light_intensity == 0.0) {
+        for (int i = 0; i < 8; i++) {
+            float q = D[i].w;
+            if (q == 0.0) {
                 break;
             }
 
-            vec3 light_normal;
-            if (light_intensity < 1.0) {
+            vec3 r;
+            if (q < 1.0) {
                 // Directional light.
-                light_normal = light_positions[i].xyz;
+                r = D[i].xyz;
             } else {
-                vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
-                float light_dist = length(light_dir);
-                light_normal = light_dir / light_dist;
+                vec3 s = D[i].xyz - j.xyz;
+                float t = length(s);
+                r = s / t;
                 // Distance attenuation.
-                light_intensity /= (light_dist * light_dist);
+                q /= (t * t);
             }
 
-            float diffuse_factor = dot(world_normal, light_normal);
-            if (diffuse_factor > 0.0) {
+            float u = dot(normalize(k), r);
+            if (u > 0.0) {
                 // Diffuse color. Light is always white.
-                light_acc += diffuse_color.rgb * posterize(diffuse_factor * light_intensity);
+                p += B.xyz * floor(u * q * 2.) / 2.;
             }
         }
 
-        frag_color = vec4(light_acc, 1.0);
-
-        float eye_distance = length(eye - vert_position.xyz);
-        float fog_amount = clamp(0.0, 1.0, eye_distance / 15.0);
-        frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
+        f = mix(vec4(p, 1.0), E,
+                        smoothstep(0., 1., clamp(0., 1., length(C - j.xyz) / 15.)));
     }
 `;
 
@@ -93,20 +76,20 @@ export function mat_forward_colored_phong_skinned(
         Mode: GL_TRIANGLES,
         Program: program,
         Locations: {
-            Pv: gl.getUniformLocation(program, "pv")!,
+            Pv: gl.getUniformLocation(program, "A")!,
 
-            DiffuseColor: gl.getUniformLocation(program, "diffuse_color")!,
+            DiffuseColor: gl.getUniformLocation(program, "B")!,
 
-            Eye: gl.getUniformLocation(program, "eye")!,
-            LightPositions: gl.getUniformLocation(program, "light_positions")!,
+            Eye: gl.getUniformLocation(program, "C")!,
+            LightPositions: gl.getUniformLocation(program, "D")!,
 
-            VertexPosition: gl.getAttribLocation(program, "attr_position")!,
-            VertexNormal: gl.getAttribLocation(program, "attr_normal")!,
+            VertexPosition: gl.getAttribLocation(program, "a")!,
+            VertexNormal: gl.getAttribLocation(program, "b")!,
 
-            FogColor: gl.getUniformLocation(program, "fog_color")!,
+            FogColor: gl.getUniformLocation(program, "E")!,
 
-            Bones: gl.getUniformLocation(program, "bones")!,
-            VertexWeights: gl.getAttribLocation(program, "attr_weights")!,
+            Bones: gl.getUniformLocation(program, "F")!,
+            VertexWeights: gl.getAttribLocation(program, "c")!,
         },
     };
 }
