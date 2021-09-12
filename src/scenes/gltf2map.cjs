@@ -96,6 +96,12 @@ let create_instance = (name, translation, rotation, scale) => {
             `;
             break;
         case "ground":
+            imports.add(`import {blueprint_${name}} from "../blueprints/blu_${name}.js";`);
+            return `
+    instantiate(game, [
+        transform(${vec(translation)}, ${vec(rotation)}, ${vec(scale)}),
+        ...blueprint_${name}(game, ground_color),
+    ]);`;
         case "bush":
         case "tree":
         case "rock":
@@ -165,7 +171,12 @@ let nodes = gltf.nodes
 let result = `\
 ${Array.from(imports).join("\n")}
 
-export function map_${scene_name}(game: Game) {
+export function map_${scene_name}(game: Game, ground_color: Vec4 = [
+            82 / 255,
+            39 / 255,
+            5 / 255,
+            1,
+        ]) {
 ${nodes.replace(/\, undefined\, undefined\)/gi, ")").replace(/\, undefined\)/gi, ")")}
 
     instantiate(game, [
