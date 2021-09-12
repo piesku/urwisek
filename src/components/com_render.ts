@@ -19,9 +19,9 @@ import {
     FogLayout,
     ForwardShadingLayout,
     InstancedLayout,
-    PaletteShadedLayout,
     ParticlesColoredLayout,
     ShadowMappingLayout,
+    SingleColorLayout,
     SkinningLayout,
 } from "../../materials/layout.js";
 import {Game} from "../game.js";
@@ -240,17 +240,16 @@ export function render_particles_colored(
 
 export interface RenderInstanced {
     readonly Kind: RenderKind.Instanced;
-    readonly Material: Material<PaletteShadedLayout & InstancedLayout & FogLayout>;
+    readonly Material: Material<SingleColorLayout & InstancedLayout & FogLayout>;
     readonly Mesh: Mesh;
     readonly Vao: WebGLVertexArrayObject;
     readonly InstanceCount: number;
-    readonly Palette: Array<number>;
     readonly InstanceBuffer: WebGLBuffer;
 }
 
 export type InstancedData = Float32Array;
 
-export function render_instanced(mesh: Mesh, offsets: InstancedData, palette: Array<number>) {
+export function render_instanced(mesh: Mesh, offsets: InstancedData) {
     return (game: Game, entity: Entity) => {
         let material = game.MaterialInstanced;
 
@@ -274,7 +273,7 @@ export function render_instanced(mesh: Mesh, offsets: InstancedData, palette: Ar
         game.Gl.enableVertexAttribArray(material.Locations.InstanceColumn1);
         game.Gl.vertexAttribPointer(
             material.Locations.InstanceColumn1,
-            4,
+            3,
             GL_FLOAT,
             false,
             4 * 16,
@@ -285,7 +284,7 @@ export function render_instanced(mesh: Mesh, offsets: InstancedData, palette: Ar
         game.Gl.enableVertexAttribArray(material.Locations.InstanceColumn2);
         game.Gl.vertexAttribPointer(
             material.Locations.InstanceColumn2,
-            4,
+            3,
             GL_FLOAT,
             false,
             4 * 16,
@@ -296,7 +295,7 @@ export function render_instanced(mesh: Mesh, offsets: InstancedData, palette: Ar
         game.Gl.enableVertexAttribArray(material.Locations.InstanceColumn3);
         game.Gl.vertexAttribPointer(
             material.Locations.InstanceColumn3,
-            4,
+            3,
             GL_FLOAT,
             false,
             4 * 16,
@@ -307,7 +306,7 @@ export function render_instanced(mesh: Mesh, offsets: InstancedData, palette: Ar
         game.Gl.enableVertexAttribArray(material.Locations.InstanceColumn4);
         game.Gl.vertexAttribPointer(
             material.Locations.InstanceColumn4,
-            4,
+            3,
             GL_FLOAT,
             false,
             4 * 16,
@@ -325,7 +324,6 @@ export function render_instanced(mesh: Mesh, offsets: InstancedData, palette: Ar
             Mesh: mesh,
             Vao: vao,
             InstanceCount: offsets.length / 16,
-            Palette: palette,
             InstanceBuffer: instance_buffer,
         };
     };

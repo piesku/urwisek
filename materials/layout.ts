@@ -22,12 +22,10 @@ export interface ColoredShadedLayout {
     VertexNormal: GLint;
 }
 
-export interface PaletteShadedLayout {
+export interface SingleColorLayout {
     // Uniforms
     Pv: WebGLUniformLocation;
     World: WebGLUniformLocation;
-
-    Palette: WebGLUniformLocation;
 
     // Attributes
     VertexPosition: GLint;

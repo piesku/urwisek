@@ -7,17 +7,6 @@ import {Game} from "../game.js";
 import {Has} from "../world.js";
 import {blueprint_bush} from "./blu_bush.js";
 
-// prettier-ignore
-export const leaft_colors = [
-    0, 1, 0,
-    0, 0.36, 0,
-    0, 0.5, 0,
-    0.48, 0.98, 0,
-    1, 0.84, 0,
-    1, 0.54, 0,
-    0.84, 0.21, 0.21,
-];
-
 export function blueprint_tree(game: Game, min = 2, max = 4) {
     let height = float(min, max);
 

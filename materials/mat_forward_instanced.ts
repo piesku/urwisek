@@ -1,39 +1,35 @@
 import {link, Material} from "../common/material.js";
 import {GL_TRIANGLES} from "../common/webgl.js";
-import {FogLayout, InstancedLayout, PaletteShadedLayout} from "./layout.js";
+import {FogLayout, InstancedLayout, SingleColorLayout} from "./layout.js";
 
 let vertex = `#version 300 es\n
 
     uniform mat4 pv;
     uniform mat4 world;
-    uniform vec3 palette[16];
 
     uniform vec3 eye;
     uniform vec4 fog_color;
 
     in vec3 attr_position;
-    in vec4 attr_column1;
-    in vec4 attr_column2;
-    in vec4 attr_column3;
-    in vec4 attr_column4;
+    in vec3 attr_column1;
+    in vec3 attr_column2;
+    in vec3 attr_column3;
+    in vec3 attr_column4;
 
     out vec4 vert_color;
 
     void main() {
-        vec3 color = palette[int(attr_column4.w)];
-
-        mat4 local = mat4(
+        mat3 rotation = mat3(
             attr_column1,
             attr_column2,
-            attr_column3,
-            attr_column4.xyz, 1.0
+            attr_column3
         );
 
-        vec4 world_position = world * mat4(mat3(local)) * vec4(attr_position + attr_column4.xyz, 1.0);
+        vec4 world_position = world * mat4(rotation) * vec4(attr_position + attr_column4, 1.0);
         gl_Position = pv * world_position;
 
         // Ambient light only.
-        vert_color = vec4(color * 0.1, 1.0);
+        vert_color = vec4(0.02, 0.06, 0.04, 1.0);
 
         float eye_distance = length(eye - world_position.xyz);
         float fog_amount = clamp(0.0, 1.0, eye_distance / 15.0);
@@ -56,7 +52,7 @@ let fragment = `#version 300 es\n
 
 export function mat_forward_instanced(
     gl: WebGL2RenderingContext
-): Material<PaletteShadedLayout & InstancedLayout & FogLayout> {
+): Material<SingleColorLayout & InstancedLayout & FogLayout> {
     let program = link(gl, vertex, fragment);
     return {
         Mode: GL_TRIANGLES,
@@ -64,7 +60,6 @@ export function mat_forward_instanced(
         Locations: {
             Pv: gl.getUniformLocation(program, "pv")!,
             World: gl.getUniformLocation(program, "world")!,
-            Palette: gl.getUniformLocation(program, "palette")!,
             Eye: gl.getUniformLocation(program, "eye")!,
             FogColor: gl.getUniformLocation(program, "fog_color")!,
 
