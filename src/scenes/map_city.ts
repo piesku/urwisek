@@ -167,15 +167,11 @@ export function map_city(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
 
     instantiate(game, [transform([57.6, 0.5, 0.7]), ...blueprint_obstacle_house(game)]);
 
-    instantiate(game, [transform([57.6, 2.7, 0.7]), ...blueprint_obstacle_house(game)]);
-
     instantiate(game, [transform([48.2, 0.5, -2.6]), ...blueprint_blok(game)]);
 
     instantiate(game, [transform([38.2, 0.5, -2.6]), ...blueprint_blok(game)]);
 
     instantiate(game, [transform([33.2, 0.5, -2.6]), ...blueprint_blok(game)]);
-
-    instantiate(game, [transform([57.6, 4.9, 0.7]), ...blueprint_obstacle_house(game)]);
 
     instantiate(game, [
         transform([41.2, 0.5, 2.9], undefined, [1, 1, 0.8]),
@@ -241,6 +237,11 @@ export function map_city(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
     instantiate(game, [transform([40.4, 0.9, 3.6]), ...blueprint_fire(game)]);
 
     instantiate(game, [transform([66, 2, 0.5]), ...blueprint_box(game)]);
+
+    instantiate(game, [
+        transform([57.6, 4.8, 0.7], undefined, [4, 4.2, 4]),
+        ...blueprint_ground(game, ground_color),
+    ]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 

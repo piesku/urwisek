@@ -46,12 +46,6 @@ export function prop_barn(game: Game) {
             ],
 
             [
-                transform([1.5, 1, -1.5], undefined, [0.1, 2, 0.1]),
-                cull(Has.Render),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 1, 1]),
-            ],
-
-            [
                 transform([1.5, 1, 1.5], undefined, [0.1, 2, 0.1]),
                 cull(Has.Render),
                 render_colored_shadows(
@@ -112,16 +106,6 @@ export function prop_barn(game: Game) {
             ],
 
             [
-                transform([-1.28, 2.52, -1.49], [0, 0, 0.55, 0.84], [1.16, 0.1, 0.1]),
-                cull(Has.Render),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCube,
-                    [0.8, 0.8, 0.8, 1]
-                ),
-            ],
-
-            [
                 transform([1.27, 2.52, 1.49], [0, 0, -0.55, 0.84], [1.16, 0.1, 0.1]),
                 cull(Has.Render),
                 render_colored_shadows(
@@ -132,47 +116,7 @@ export function prop_barn(game: Game) {
             ],
 
             [
-                transform([1.27, 2.52, -1.52], [0, 0, -0.55, 0.84], [1.16, 0.1, 0.1]),
-                cull(Has.Render),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCube,
-                    [0.8, 0.8, 0.8, 1]
-                ),
-            ],
-
-            [
-                transform([0.51, 3.27, -1.52], [0, 0, -0.19, 0.98], [1.16, 0.1, 0.1]),
-                cull(Has.Render),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCube,
-                    [0.8, 0.8, 0.8, 1]
-                ),
-            ],
-
-            [
                 transform([0.51, 3.27, 1.53], [0, 0, -0.19, 0.98], [1.16, 0.1, 0.1]),
-                cull(Has.Render),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCube,
-                    [0.8, 0.8, 0.8, 1]
-                ),
-            ],
-
-            [
-                transform([-0.52, 3.27, 1.53], [0, 0, 0.19, 0.98], [1.16, 0.1, 0.1]),
-                cull(Has.Render),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCube,
-                    [0.8, 0.8, 0.8, 1]
-                ),
-            ],
-
-            [
-                transform([-0.52, 3.27, -1.52], [0, 0, 0.19, 0.98], [1.16, 0.1, 0.1]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,
@@ -243,16 +187,6 @@ export function prop_barn(game: Game) {
 
             [
                 transform([1.24, 2.52, -0.01], [0, 0, -0.55, 0.84], [1.16, 0.1, 2.99]),
-                cull(Has.Render),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCube,
-                    [0.07, 0.07, 0.07, 1]
-                ),
-            ],
-
-            [
-                transform([0.51, 3.24, -0.01], [0, 0, -0.19, 0.98], [1.16, 0.1, 2.99]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,
