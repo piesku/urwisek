@@ -20,13 +20,9 @@ export function mesh_grass(gl: WebGLRenderingContext): Mesh {
 
     return {
         VertexBuffer: vertex_buf,
-        VertexArray: vertex_arr,
         NormalBuffer: normal_buf,
-        NormalArray: normal_arr,
         WeightsBuffer: weights_buf,
-        WeightsArray: weights_arr,
         IndexBuffer: index_buf,
-        IndexArray: index_arr,
         IndexCount: index_arr.length,
     };
 }

@@ -8,7 +8,7 @@ if (process.argv.length !== 3) {
     process.exit(1);
 }
 
-const DEC = 3;
+const DEC = 2;
 process.stdin.resume();
 let json = readFileSync(process.stdin.fd, "utf8");
 process.stdin.pause();
@@ -129,13 +129,9 @@ export function mesh_${process.argv[2]}(gl: WebGLRenderingContext): Mesh {
 
     return {
         VertexBuffer: vertex_buf,
-        VertexArray: vertex_arr,
         NormalBuffer: normal_buf,
-        NormalArray: normal_arr,
         WeightsBuffer: weights_buf,
-        WeightsArray: weights_arr,
         IndexBuffer: index_buf,
-        IndexArray: index_arr,
         IndexCount: index_arr.length,
     };
 }
