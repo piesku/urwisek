@@ -1,29 +1,31 @@
 import {instantiate} from "../../common/game.js";
-import {element, float} from "../../common/random.js";
-import {blueprint_animal} from "../blueprints/blu_animal.js";
-import {blueprint_bird} from "../blueprints/blu_bird.js";
-import {blueprint_blok} from "../blueprints/blu_blok.js";
-import {blueprint_box} from "../blueprints/blu_box.js";
-import {blueprint_bush} from "../blueprints/blu_bush.js";
-import {blueprint_end} from "../blueprints/blu_end.js";
-import {blueprint_exit} from "../blueprints/blu_exit.js";
-import {blueprint_fire} from "../blueprints/blu_fire.js";
-import {blueprint_ground} from "../blueprints/blu_ground.js";
-import {blueprint_launchpad} from "../blueprints/blu_launchpad.js";
-import {blueprint_obstacle_car} from "../blueprints/blu_obstacle_car.js";
-import {blueprint_obstacle_house} from "../blueprints/blu_obstacle_house.js";
-import {blueprint_pup} from "../blueprints/blu_pup.js";
+import {from_euler} from "../../common/quat.js";
+import {Game} from "../game.js";
+import {transform} from "../components/com_transform.js";
 import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
-import {blueprint_tree} from "../blueprints/blu_tree.js";
+import {render_colored_shadows} from "../components/com_render.js";
+import {blueprint_ground} from "../blueprints/blu_ground.js";
+import {blueprint_bush} from "../blueprints/blu_bush.js";
+import {prop_slup} from "../props/prop_slup.js";
+import {blueprint_obstacle_house} from "../blueprints/blu_obstacle_house.js";
+import {blueprint_obstacle_car} from "../blueprints/blu_obstacle_car.js";
+import {prop_car2} from "../props/prop_car2.js";
+import {blueprint_box} from "../blueprints/blu_box.js";
+import {blueprint_pup} from "../blueprints/blu_pup.js";
+import {blueprint_exit} from "../blueprints/blu_exit.js";
+import {blueprint_bird} from "../blueprints/blu_bird.js";
 import {children} from "../components/com_children.js";
 import {cull} from "../components/com_cull.js";
 import {shake} from "../components/com_shake.js";
 import {spawn} from "../components/com_spawn.js";
-import {transform} from "../components/com_transform.js";
-import {Game} from "../game.js";
-import {prop_car2} from "../props/prop_car2.js";
-import {prop_slup} from "../props/prop_slup.js";
 import {Has} from "../world.js";
+import {blueprint_animal} from "../blueprints/blu_animal.js";
+import {blueprint_tree} from "../blueprints/blu_tree.js";
+import {float, element} from "../../common/random.js";
+import {blueprint_fire} from "../blueprints/blu_fire.js";
+import {blueprint_end} from "../blueprints/blu_end.js";
+import {blueprint_launchpad} from "../blueprints/blu_launchpad.js";
+import {blueprint_blok} from "../blueprints/blu_blok.js";
 
 export function map_city(game: Game) {
     instantiate(game, [
@@ -197,126 +199,6 @@ export function map_city(game: Game) {
         ...blueprint_obstacle_house(game),
     ]);
 
-    instantiate(game, [
-        transform([-2.47, 0.5, -5.58], [0, 0.26, 0, 0.97], [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([-2.47, 2.2, -5.58], [0, 0.97, 0, -0.26], [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([-2.47, 3.9, -5.58], [0, 0.26, 0, 0.97], [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([1.53, 0.5, -7.58], [0, 0.26, 0, 0.97], [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([1.53, 2.2, -7.58], [0, 0.26, 0, 0.97], [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([1.53, 3.9, -7.58], [0, 0.26, 0, 0.97], [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([36.53, 0.5, -8.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([36.53, 2.2, -8.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([36.53, 3.9, -8.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([40.53, 0.5, -8.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([40.53, 2.2, -8.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([40.53, 3.9, -8.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([44.53, 0.5, -8.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([44.53, 2.2, -8.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([44.53, 3.9, -8.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([48.53, 0.5, -8.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([48.53, 2.2, -8.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([48.53, 3.9, -8.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([38.53, 0.5, -4.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([38.53, 2.2, -4.71], [0, 1, 0, 0], [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([38.53, 3.9, -4.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([42.53, 0.5, -4.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([42.53, 2.2, -4.71], [0, 1, 0, 0], [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
-    instantiate(game, [
-        transform([42.53, 3.9, -4.71], undefined, [0.8, 0.8, 0.8]),
-        ...blueprint_obstacle_house(game),
-    ]);
-
     {
         let width = 28;
         let depth = 6;
@@ -341,10 +223,45 @@ export function map_city(game: Game) {
 
     instantiate(game, [transform([95.97, 1.5, 0.44]), ...blueprint_launchpad(game)]);
 
+    instantiate(game, [transform([9.24, 0.5, -9.03], [0, 0.17, 0, 0.98]), ...blueprint_blok(game)]);
+
+    instantiate(game, [transform([4.54, 0.5, -7.32], [0, 0.17, 0, 0.98]), ...blueprint_blok(game)]);
+
     instantiate(game, [
-        transform([6.69, 0.5, -4.17], undefined, [1, 1, 0.2]),
+        transform([-0.16, 0.5, -5.61], [0, 0.17, 0, 0.98]),
         ...blueprint_blok(game),
     ]);
+
+    instantiate(game, [
+        transform([7.53, 0.5, -13.73], [0, 0.17, 0, 0.98]),
+        ...blueprint_blok(game),
+    ]);
+
+    instantiate(game, [
+        transform([2.83, 0.5, -12.02], [0, 0.17, 0, 0.98]),
+        ...blueprint_blok(game),
+    ]);
+
+    instantiate(game, [
+        transform([-1.87, 0.5, -10.31], [0, 0.17, 0, 0.98]),
+        ...blueprint_blok(game),
+    ]);
+
+    instantiate(game, [transform([49.93, 0.5, -6.96], [0, -0.09, 0, 1]), ...blueprint_blok(game)]);
+
+    instantiate(game, [transform([45.01, 0.5, -7.83], [0, -0.09, 0, 1]), ...blueprint_blok(game)]);
+
+    instantiate(game, [transform([40.08, 0.5, -8.7], [0, -0.09, 0, 1]), ...blueprint_blok(game)]);
+
+    instantiate(game, [transform([82.26, -0.31, -6.49]), ...blueprint_blok(game)]);
+
+    instantiate(game, [transform([77.26, -0.31, -6.49]), ...blueprint_blok(game)]);
+
+    instantiate(game, [transform([35.16, 0.5, -9.57], [0, -0.09, 0, 1]), ...blueprint_blok(game)]);
+
+    instantiate(game, [transform([30.24, 0.5, -10.44], [0, -0.09, 0, 1]), ...blueprint_blok(game)]);
+
+    instantiate(game, [transform([25.31, 0.5, -11.31], [0, -0.09, 0, 1]), ...blueprint_blok(game)]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 
