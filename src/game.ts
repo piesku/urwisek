@@ -11,7 +11,6 @@ import {mesh_cylinder} from "../meshes/cylinder.js";
 import {mesh_leaf} from "../meshes/leaf.js";
 import {mesh_lisek} from "../meshes/lisek.js";
 import {mesh_ogon} from "../meshes/ogon.js";
-import {mesh_plane} from "../meshes/plane.js";
 import {scene_intro} from "./scenes/sce_intro.js";
 import {sys_animate} from "./systems/sys_animate.js";
 import {sys_audio_source} from "./systems/sys_audio_source.js";
@@ -50,7 +49,6 @@ export class Game extends Game3D {
     MaterialInstanced = mat_forward_instanced(this.Gl);
 
     MeshLeaf = mesh_leaf(this.Gl);
-    MeshPlane = mesh_plane(this.Gl);
     MeshCube = mesh_cube(this.Gl);
     MeshLisek = mesh_lisek(this.Gl);
     MeshOgon = mesh_ogon(this.Gl);
