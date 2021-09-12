@@ -21,6 +21,7 @@ import {task_timeout, task_until} from "../components/com_task.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {snd_chirp1} from "../sounds/snd_chirp1.js";
+import {snd_horn} from "../sounds/snd_horn.js";
 import {snd_wind} from "../sounds/snd_wind.js";
 import {Play} from "../ui/App.js";
 import {Has, World} from "../world.js";
@@ -30,7 +31,9 @@ export function scene_intro(game: Game) {
     game.World = new World();
     game.ViewportResized = true;
 
-    instantiate(game, [children([audio_source(snd_wind)], [audio_source(snd_chirp1)])]);
+    instantiate(game, [
+        children([audio_source(snd_wind)], [audio_source(snd_chirp1)], [audio_source(snd_horn)]),
+    ]);
 
     let camera_anchor_intro = instantiate(game, [transform([0, 1, -3]), named("camera anchor")]);
 
