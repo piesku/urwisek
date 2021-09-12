@@ -2280,7 +2280,7 @@
 
     function blueprint_box(game) {
         return [
-            collide(true, 4 /* Movable */ | 32 /* SurfaceWood */, 2 /* Terrain */ | 4 /* Movable */ | 1 /* Player */),
+            collide(true, 4 /* Movable */ | 32 /* SurfaceWood */, 2 /* Terrain */ | 4 /* Movable */),
             rigid_body(1 /* Dynamic */),
             mimic(0),
             disable(4096 /* Mimic */),
@@ -5606,6 +5606,7 @@
         let collide = game.World.Collide[entity];
         let rigid_body = game.World.RigidBody[entity];
         if (rigid_body.Kind === 1 /* Dynamic */) {
+            rigid_body.IsAirborne = true;
             let has_collision = false;
             for (let i = 0; i < collide.Collisions.length; i++) {
                 let collision = collide.Collisions[i];
@@ -5648,7 +5649,6 @@
             }
             if (!has_collision) {
                 copy$1(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated);
-                rigid_body.IsAirborne = true;
             }
         }
     }
