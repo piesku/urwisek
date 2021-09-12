@@ -2078,23 +2078,19 @@ function Title(game) {
 return `
 <div
 style="
-margin: 40vh 2vw 0;
+margin: 40vh -1vw 0;
 font-size: 16vw;
 font-weight: 600;
 "
 >
-EXODUS
+ESCAPE
 </div>
-<nav
-style="
-margin: 2vh 3vw;
-font-size: 1rem;
-font-style: italic;
-line-height: 2;
-"
->
-<div onclick="$(${1 /* NewGame */})">New Game</div>
-</nav>
+<div>
+Earth has become uninhabitable.<br>
+Humans are leaving.<br>
+Find the Ark!<br><br>
+<em onclick="$(${1 /* NewGame */})">Play Now</em>
+</div>
 `;
 }
 function Play(game) {
@@ -2104,14 +2100,16 @@ function End(game) {
 return `
 <div
 style="
-margin: 20vh 2vw 0;
+margin: 20vh -1vw 0;
 font-size: 12vw;
 font-weight: 600;
-opacity: 0;
-animation: 1s 4s forwards fadein;
 "
 >
 THE END
+</div>
+<div>
+Not all of us will make it.<br>
+Stop climate change now.<br>
 </div>
 `;
 }
@@ -3606,11 +3604,11 @@ mimic(find_first(game.World, "camera anchor"), 0.05),
 
 function dispatch(game, action, payload) {
 switch (action) {
-case 0 /* ChangeSettings */: {
-let select = payload;
-game.Quality = select.value;
-break;
-}
+
+
+
+
+
 case 1 /* NewGame */: {
 
 game.Quality = 4096 /* Ultra */;
@@ -3659,7 +3657,11 @@ let launchpad_entity = find_first(game.World, "launchpad");
 game.World.Signature[launchpad_entity] |= 64 /* ControlAlways */;
 let launchpad_shaker_entity = game.World.Children[launchpad_entity].Children[0];
 game.World.Signature[launchpad_shaker_entity] |= 131072 /* Shake */;
+instantiate(game, [
+task_timeout(2, () => {
 game.CurrentView = End;
+}),
+]);
 break;
 }
 }
