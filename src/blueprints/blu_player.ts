@@ -32,7 +32,7 @@ function blueprint_player(game: Game) {
             // ],
             [
                 named("mesh anchor"),
-                transform([0, -0.42, 0], [0, 0.707, 0, 0.707]),
+                transform([0, -0.42, 0], [0, 0.71, 0, 0.71]),
                 control_player(Control.Rotate),
                 children([
                     transform([0, 0.5, 1], undefined, [0.1, 0.1, 0.1]),
@@ -43,24 +43,24 @@ function blueprint_player(game: Game) {
             ],
             [
                 named("pup anchor 0"),
-                transform([0, -0.42, 0.2], [0, 0.707, 0, 0.707]),
+                transform([0, -0.42, 0.2], [0, 0.71, 0, 0.71]),
                 control_player(Control.Rotate),
             ],
             [
                 named("pup anchor 1"),
-                transform([-0.2, -0.42, 0.2], [0, 0.707, 0, 0.707]),
+                transform([-0.2, -0.42, 0.2], [0, 0.71, 0, 0.71]),
                 control_player(Control.Rotate),
             ],
             [
                 named("pup anchor 2"),
-                transform([-0.4, -0.42, 0.2], [0, 0.707, 0, 0.707]),
+                transform([-0.4, -0.42, 0.2], [0, 0.71, 0, 0.71]),
                 control_player(Control.Rotate),
             ],
             [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))],
             [named("sun anchor"), transform()],
             [
                 named("pixie anchor"),
-                transform([4, 1, 0], [0, 0.707, 0, 0.707]),
+                transform([4, 1, 0], [0, 0.71, 0, 0.71]),
                 // children([
                 //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
                 //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),

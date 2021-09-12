@@ -64,17 +64,17 @@ export function scene_intro(game: Game) {
     let pups = [
         instantiate(game, [
             ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.7),
-            transform([1, 0.5, 0], [0, 0.707, 0, 0.707], [0.3, 0.3, 0.3]),
+            transform([1, 0.5, 0], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
             move(1.5, 0),
         ]),
         instantiate(game, [
             ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.8),
-            transform([0.3, 0.5, -0.5], [0, 0.707, 0, 0.707], [0.3, 0.3, 0.3]),
+            transform([0.3, 0.5, -0.5], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
             move(1.6, 0),
         ]),
         instantiate(game, [
             ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.9),
-            transform([-0.2, 0.5, 0.3], [0, 0.707, 0, 0.707], [0.3, 0.3, 0.3]),
+            transform([-0.2, 0.5, 0.3], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
             move(1.7, 0),
         ]),
     ];

@@ -28,7 +28,7 @@ export function blueprint_launchpad(game: Game) {
             children(
                 [transform([0, -30, 0], undefined, [3, 3, 3]), ...prop_rocket(game)],
                 [
-                    transform([0, -30, 0], [0.707, 0, 0, 0.707]),
+                    transform([0, -30, 0], [0.71, 0, 0, 0.71]),
                     children([
                         transform(),
                         shake(0.1),
