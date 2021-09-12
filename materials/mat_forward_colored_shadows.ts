@@ -9,20 +9,20 @@ import {
 
 let vertex = `#version 300 es\n
 
-    uniform mat4 pv;
-    uniform mat4 world;
-    uniform mat4 self;
+    uniform mat4 A;
+    uniform mat4 B;
+    uniform mat4 C;
 
-    in vec3 attr_position;
-    in vec3 attr_normal;
+    in vec3 a;
+    in vec3 b;
 
-    out vec4 vert_position;
-    out vec3 vert_normal;
+    out vec4 j;
+    out vec3 k;
 
     void main() {
-        vert_position = world * vec4(attr_position, 1.0);
-        vert_normal = (vec4(attr_normal, 1.0) * self).xyz;
-        gl_Position = pv * vert_position;
+        j = B * vec4(a, 1.0);
+        k = (vec4(b, 1.0) * C).xyz;
+        gl_Position = A * j;
     }
 `;
 
@@ -30,72 +30,57 @@ let fragment = `#version 300 es\n
     precision mediump float;
     precision lowp sampler2DShadow;
 
-    // See Game.LightPositions and Game.LightDetails.
-    const int MAX_LIGHTS = 8;
+    uniform vec3 E;
+    uniform vec4 D;
+    uniform vec4 F[8];
+    uniform mat4 G;
+    uniform sampler2DShadow H;
+    uniform vec4 I;
 
-    uniform vec3 eye;
-    uniform vec4 diffuse_color;
-    uniform vec4 light_positions[MAX_LIGHTS];
-    uniform mat4 shadow_space;
-    uniform sampler2DShadow shadow_map;
-    uniform vec4 fog_color;
+    in vec4 j;
+    in vec3 k;
 
-    in vec4 vert_position;
-    in vec3 vert_normal;
+    out vec4 f;
 
-    out vec4 frag_color;
+    float w(vec4 o) {
+        vec4 p = G * o;
+        vec3 q = p.xyz / p.w;
+        q = q * 0.5 + 0.5;
+        q.z -= 0.001;
 
-    // How much shadow to apply at world_pos, expressed as [min, 1]:
-    // min = completely in shadow, 1 = completely not in shadow
-    float shadow_factor(vec4 world_pos, float min) {
-        vec4 shadow_space_pos = shadow_space * world_pos;
-        vec3 shadow_space_ndc = shadow_space_pos.xyz / shadow_space_pos.w;
-        // Transform the [-1, 1] NDC to [0, 1] to match the shadow texture data.
-        shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
-
-        // Add shadow bias to avoid shadow acne.
-        shadow_space_ndc.z -= 0.001;
-
-        return texture(shadow_map, shadow_space_ndc) * (1.0 - min) + min;
+        return texture(H, q) * 0.5 + 0.5;
     }
 
     void main() {
-        vec3 world_normal = normalize(vert_normal);
+        vec3 o = normalize(k);
 
         // Ambient light.
-        vec3 light_acc = diffuse_color.rgb * 0.1;
+        vec3 p = D.rgb * 0.1;
 
-        for (int i = 0; i < MAX_LIGHTS; i++) {
-            float light_intensity = light_positions[i].w;
-            if (light_intensity == 0.0) {
+        for (int i = 0; i < 8; i++) {
+            float q = F[i].w;
+            if (q == 0.0) {
                 break;
             }
 
-            vec3 light_normal;
-            if (light_intensity < 1.0) {
-                // Directional light.
-                light_normal = light_positions[i].xyz;
+            vec3 r;
+            if (q < 1.0) {
+                r = F[i].xyz;
             } else {
-                vec3 light_dir = light_positions[i].xyz - vert_position.xyz;
-                float light_dist = length(light_dir);
-                light_normal = light_dir / light_dist;
-                // Distance attenuation.
-                light_intensity /= (light_dist * light_dist);
+                vec3 s = F[i].xyz - j.xyz;
+                float t = length(s);
+                r = s / t;
+                q /= (t * t);
             }
 
-            float diffuse_factor = dot(world_normal, light_normal);
-            if (diffuse_factor > 0.0) {
-                // Diffuse color. Light is always white.
-                light_acc += diffuse_color.rgb * diffuse_factor * light_intensity;
+            float u = dot(o, r);
+            if (u > 0.0) {
+                p += D.rgb * u * q;
             }
         }
 
-        vec3 shaded_rgb = light_acc * shadow_factor(vert_position, 0.5);
-        frag_color= vec4(shaded_rgb, 1.0);
-
-        float eye_distance = length(eye - vert_position.xyz);
-        float fog_amount = clamp(0.0, 1.0, eye_distance / 15.0);
-        frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
+        f = mix(vec4(p * w(j), 1.0), I,
+                        smoothstep(0.0, 1.0, clamp(0.0, 1.0, length(E - j.xyz) / 15.0)));
     }
 `;
 
@@ -107,22 +92,22 @@ export function mat_forward_colored_shadows(
         Mode: GL_TRIANGLES,
         Program: program,
         Locations: {
-            Pv: gl.getUniformLocation(program, "pv")!,
-            World: gl.getUniformLocation(program, "world")!,
-            Self: gl.getUniformLocation(program, "self")!,
+            Pv: gl.getUniformLocation(program, "A")!,
+            World: gl.getUniformLocation(program, "B")!,
+            Self: gl.getUniformLocation(program, "C")!,
 
-            DiffuseColor: gl.getUniformLocation(program, "diffuse_color")!,
+            DiffuseColor: gl.getUniformLocation(program, "D")!,
 
-            Eye: gl.getUniformLocation(program, "eye")!,
-            LightPositions: gl.getUniformLocation(program, "light_positions")!,
+            Eye: gl.getUniformLocation(program, "E")!,
+            LightPositions: gl.getUniformLocation(program, "F")!,
 
-            ShadowSpace: gl.getUniformLocation(program, "shadow_space")!,
-            ShadowMap: gl.getUniformLocation(program, "shadow_map")!,
+            ShadowSpace: gl.getUniformLocation(program, "G")!,
+            ShadowMap: gl.getUniformLocation(program, "H")!,
 
-            FogColor: gl.getUniformLocation(program, "fog_color")!,
+            FogColor: gl.getUniformLocation(program, "I")!,
 
-            VertexPosition: gl.getAttribLocation(program, "attr_position")!,
-            VertexNormal: gl.getAttribLocation(program, "attr_normal")!,
+            VertexPosition: gl.getAttribLocation(program, "a")!,
+            VertexNormal: gl.getAttribLocation(program, "b")!,
         },
     };
 }
