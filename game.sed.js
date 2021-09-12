@@ -1128,7 +1128,7 @@ Size: [start_size, end_size],
 };
 };
 }
-function render_instanced(mesh, offsets, rotation_offsets, palette) {
+function render_instanced(mesh, offsets) {
 return (game, entity) => {
 let material = game.MaterialInstanced;
 
@@ -1142,18 +1142,21 @@ game.Gl.bindVertexArray(vao);
 game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
 game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
 game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-let instance_offset_buffer = game.Gl.createBuffer();
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_offset_buffer);
+let instance_buffer = game.Gl.createBuffer();
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_buffer);
 game.Gl.bufferData(GL_ARRAY_BUFFER, offsets, GL_STATIC_DRAW);
-game.Gl.enableVertexAttribArray(material.Locations.InstanceOffset);
-game.Gl.vertexAttribPointer(material.Locations.InstanceOffset, 4, GL_FLOAT, false, 0, 0);
-game.Gl.vertexAttribDivisor(material.Locations.InstanceOffset, 1);
-let instance_rotation_buffer = game.Gl.createBuffer();
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_rotation_buffer);
-game.Gl.bufferData(GL_ARRAY_BUFFER, rotation_offsets, GL_STATIC_DRAW);
-game.Gl.enableVertexAttribArray(material.Locations.InstanceRotation);
-game.Gl.vertexAttribPointer(material.Locations.InstanceRotation, 4, GL_FLOAT, false, 0, 0);
-game.Gl.vertexAttribDivisor(material.Locations.InstanceRotation, 1);
+game.Gl.enableVertexAttribArray(material.Locations.InstanceColumn1);
+game.Gl.vertexAttribPointer(material.Locations.InstanceColumn1, 3, GL_FLOAT, false, 4 * 16, 0);
+game.Gl.vertexAttribDivisor(material.Locations.InstanceColumn1, 1);
+game.Gl.enableVertexAttribArray(material.Locations.InstanceColumn2);
+game.Gl.vertexAttribPointer(material.Locations.InstanceColumn2, 3, GL_FLOAT, false, 4 * 16, 4 * 4);
+game.Gl.vertexAttribDivisor(material.Locations.InstanceColumn2, 1);
+game.Gl.enableVertexAttribArray(material.Locations.InstanceColumn3);
+game.Gl.vertexAttribPointer(material.Locations.InstanceColumn3, 3, GL_FLOAT, false, 4 * 16, 4 * 8);
+game.Gl.vertexAttribDivisor(material.Locations.InstanceColumn3, 1);
+game.Gl.enableVertexAttribArray(material.Locations.InstanceColumn4);
+game.Gl.vertexAttribPointer(material.Locations.InstanceColumn4, 3, GL_FLOAT, false, 4 * 16, 4 * 12);
+game.Gl.vertexAttribDivisor(material.Locations.InstanceColumn4, 1);
 game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.Gl.bindVertexArray(null);
 game.World.Signature[entity] |= 32768 /* Render */;
@@ -1162,10 +1165,8 @@ Kind: 4 /* Instanced */,
 Material: material,
 Mesh: mesh,
 Vao: vao,
-InstanceCount: offsets.length / 4,
-Palette: palette,
-InstanceOffsetBuffer: instance_offset_buffer,
-InstanceRotationBuffer: instance_rotation_buffer,
+InstanceCount: offsets.length / 16,
+InstanceBuffer: instance_buffer,
 };
 };
 }
@@ -2223,40 +2224,17 @@ render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.1, 0.1, 0.
 ];
 }
 
-
-const leaft_colors = [
-0, 1, 0,
-0, 0.36, 0,
-0, 0.5, 0,
-0.48, 0.98, 0,
-1, 0.84, 0,
-1, 0.54, 0,
-0.84, 0.21, 0.21,
-];
-function blueprint_tree(game, min = 2, max = 4) {
-let height = float(min, max);
-return [
-children([
-transform([0, height / 2, 0], undefined, [0.25, height, 0.25]),
-cull(32768 /* Render */),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.2, 0.2, 1]),
-], [transform([0, height, 0]), cull(32768 /* Render */), ...blueprint_bush(game)]),
-];
-}
-
 function blueprint_bush(game) {
 let radius = float(0.5, 0.9);
-let leaf_count = integer(400, 600);
-let offsets = [];
-let rotations = [];
+let leaf_count = 600;
+let matrices = new Float32Array(leaf_count * 16);
 for (let i = 0; i < leaf_count; i++) {
-offsets.push(float(-radius, radius), float(-radius, radius), float(-radius, radius), integer(0, 7));
-rotations.push(...from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90)));
+let offset = [float(-radius, radius), float(-radius, radius), float(-radius, radius)];
+let rotation = from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90));
+let view = new Float32Array(matrices.buffer, i * 4 * 16, 16);
+from_rotation_translation_scale(view, rotation, offset, [1, 1, 1]);
 }
-return [
-cull(32768 /* Render */),
-render_instanced(game.MeshLeaf, Float32Array.from(offsets), Float32Array.from(rotations), leaft_colors),
-];
+return [cull(32768 /* Render */), render_instanced(game.MeshLeaf, matrices)];
 }
 
 function prop_slup(game) {
@@ -2593,6 +2571,17 @@ transform(undefined, undefined, [0.5, 0.5, 1]),
 cull(32768 /* Render */ | 16 /* Children */),
 ...blueprint_lisek(game, element(colors), 0.8),
 ]),
+];
+}
+
+function blueprint_tree(game, min = 2, max = 4) {
+let height = float(min, max);
+return [
+children([
+transform([0, height / 2, 0], undefined, [0.25, height, 0.25]),
+cull(32768 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.2, 0.2, 1]),
+], [transform([0, height, 0]), cull(32768 /* Render */), ...blueprint_bush(game)]),
 ];
 }
 
@@ -3982,66 +3971,30 @@ let vertex$1 = `#version 300 es\n
 
 uniform mat4 pv;
 uniform mat4 world;
-uniform vec3 palette[16];
 
 uniform vec3 eye;
 uniform vec4 fog_color;
 
 in vec3 attr_position;
-in vec4 attr_offset;
-in vec4 attr_rotation;
+in vec3 attr_column1;
+in vec3 attr_column2;
+in vec3 attr_column3;
+in vec3 attr_column4;
 
 out vec4 vert_color;
 
 void main() {
-float x = attr_rotation.x;
-float y = attr_rotation.y;
-float z = attr_rotation.z;
-float w = attr_rotation.w;
-
-float x2 = x + x;
-float y2 = y + y;
-float z2 = z + z;
-float xx = x * x2;
-float yx = y * x2;
-float yy = y * y2;
-float zx = z * x2;
-float zy = z * y2;
-float zz = z * z2;
-float wx = w * x2;
-float wy = w * y2;
-float wz = w * z2;
-
-float m0 = 1.0 - yy - zz;
-float m1 = yx + wz;
-float m2 = zx - wy;
-float m3 = 0.0;
-float m4 = yx - wz;
-float m5 = 1.0 - xx - zz;
-float m6 = zy + wx;
-float m7 = 0.0;
-float m8 = zx + wy;
-float m9 = zy - wx;
-float m10 = 1.0 - xx - yy;
-float m11 = 0.0;
-float m12 = 0.0;
-float m13 = 0.0;
-float m14 = 0.0;
-float m15 = 1.0;
-
-mat4 rotation = mat4(
-m0, m1, m2, m3,
-m4, m5, m6, m7,
-m8, m9, m10, m11,
-m12, m13, m14, m15
+mat3 rotation = mat3(
+attr_column1,
+attr_column2,
+attr_column3
 );
 
-vec4 world_position = world * rotation * vec4(attr_position + attr_offset.xyz, 1.0);
+vec4 world_position = world * mat4(rotation) * vec4(attr_position + attr_column4, 1.0);
 gl_Position = pv * world_position;
 
 
-vec3 color = palette[int(attr_offset[3])];
-vert_color = vec4(color * 0.1, 1.0);
+vert_color = vec4(0.02, 0.06, 0.04, 1.0);
 
 float eye_distance = length(eye - world_position.xyz);
 float fog_amount = clamp(0.0, 1.0, eye_distance / 15.0);
@@ -4068,12 +4021,13 @@ Program: program,
 Locations: {
 Pv: gl.getUniformLocation(program, "pv"),
 World: gl.getUniformLocation(program, "world"),
-Palette: gl.getUniformLocation(program, "palette"),
 Eye: gl.getUniformLocation(program, "eye"),
 FogColor: gl.getUniformLocation(program, "fog_color"),
 VertexPosition: gl.getAttribLocation(program, "attr_position"),
-InstanceOffset: gl.getAttribLocation(program, "attr_offset"),
-InstanceRotation: gl.getAttribLocation(program, "attr_rotation"),
+InstanceColumn1: gl.getAttribLocation(program, "attr_column1"),
+InstanceColumn2: gl.getAttribLocation(program, "attr_column2"),
+InstanceColumn3: gl.getAttribLocation(program, "attr_column3"),
+InstanceColumn4: gl.getAttribLocation(program, "attr_column4"),
 },
 };
 }
@@ -5939,7 +5893,6 @@ game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
 }
 function draw_instanced(game, transform, render) {
 game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-game.Gl.uniform3fv(render.Material.Locations.Palette, render.Palette);
 game.Gl.bindVertexArray(render.Vao);
 let quality_factor = game.Quality / 4096 /* Ultra */;
 let instance_count = Math.floor(render.InstanceCount * quality_factor);
