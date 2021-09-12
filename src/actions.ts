@@ -1,4 +1,4 @@
-import {instantiate, QualitySettings} from "../common/game.js";
+import {instantiate} from "../common/game.js";
 import {Entity} from "../common/world.js";
 import {Control, control_player} from "./components/com_control_player.js";
 import {mimic} from "./components/com_mimic.js";
@@ -28,8 +28,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         // }
 
         case Action.NewGame: {
-            // Start at Ultra to allow Game's tick() to callibrate the framerate.
-            game.Quality = QualitySettings.Ultra;
             game.CurrentView = Play;
             break;
         }
