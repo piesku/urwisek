@@ -72,12 +72,12 @@ function update(game: Game, entity: Entity, dx: number, dy: number) {
         if (!control.IsGrabbingEntity) {
             if (dx < 0 && control.IsFacingRight) {
                 control.IsFacingRight = false;
-                set(transform.Rotation, 0, -0.707, 0.0, 0.707);
+                set(transform.Rotation, 0, -0.71, 0.0, 0.71);
                 transform.Dirty = true;
             }
             if (dx > 0 && !control.IsFacingRight) {
                 control.IsFacingRight = true;
-                set(transform.Rotation, 0, 0.707, 0.0, 0.707);
+                set(transform.Rotation, 0, 0.71, 0.0, 0.71);
                 transform.Dirty = true;
             }
         }

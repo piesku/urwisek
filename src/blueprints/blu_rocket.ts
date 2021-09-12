@@ -25,7 +25,7 @@ export function blueprint_rocket(game: Game) {
         children(
             // Body 1.
             [
-                transform(undefined, from_euler([0, 0, 0, 0], 0, -90, -90), [0.1, 0.1, 0.1]),
+                transform(undefined, from_euler([0, 0, 0, 1], 0, -90, -90), [0.1, 0.1, 0.1]),
                 ...prop_rocket(game),
             ],
             // Jet exhaust.

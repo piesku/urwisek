@@ -157,7 +157,7 @@ export const MAX_PARTICLES = 200;
 
 export interface RenderParticlesColored {
     readonly Kind: RenderKind.ParticlesColored;
-    readonly Material: Material<ParticlesColoredLayout>;
+    readonly Material: Material<ParticlesColoredLayout & FogLayout>;
     readonly Buffer: WebGLBuffer;
     readonly ColorStart: Vec4;
     readonly ColorEnd: Vec4;

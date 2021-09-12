@@ -66,12 +66,12 @@ function update(game: Game, entity: Entity) {
         if (!control.IsGrabbingEntity) {
             if (game.InputState["ArrowLeft"] && control.IsFacingRight) {
                 control.IsFacingRight = false;
-                set(transform.Rotation, 0, -0.707, 0.0, 0.707);
+                set(transform.Rotation, 0, -0.71, 0.0, 0.71);
                 transform.Dirty = true;
             }
             if (game.InputState["ArrowRight"] && !control.IsFacingRight) {
                 control.IsFacingRight = true;
-                set(transform.Rotation, 0, 0.707, 0.0, 0.707);
+                set(transform.Rotation, 0, 0.71, 0.0, 0.71);
                 transform.Dirty = true;
             }
         }

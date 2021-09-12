@@ -223,12 +223,14 @@ function draw_colored_skinned(
 
 function use_particles_colored(
     game: Game,
-    material: Material<ParticlesColoredLayout>,
+    material: Material<ParticlesColoredLayout & FogLayout>,
     eye: CameraEye
 ) {
     game.Gl.enable(GL_CULL_FACE);
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+    game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
+    game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
 }
 
 function draw_particles_colored(

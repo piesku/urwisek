@@ -322,21 +322,16 @@ export function get_scaling(out: Vec3, mat: Mat4) {
 }
 
 export function get_rotation(out: Quat, mat: Mat4) {
-    let scaling = get_scaling([0, 0, 0], mat);
-
-    let is1 = 1 / scaling[0];
-    let is2 = 1 / scaling[1];
-    let is3 = 1 / scaling[2];
-
-    let sm11 = mat[0] * is1;
-    let sm12 = mat[1] * is2;
-    let sm13 = mat[2] * is3;
-    let sm21 = mat[4] * is1;
-    let sm22 = mat[5] * is2;
-    let sm23 = mat[6] * is3;
-    let sm31 = mat[8] * is1;
-    let sm32 = mat[9] * is2;
-    let sm33 = mat[10] * is3;
+    // XXX Assumes scale = [1, 1, 1].
+    let sm11 = mat[0];
+    let sm12 = mat[1];
+    let sm13 = mat[2];
+    let sm21 = mat[4];
+    let sm22 = mat[5];
+    let sm23 = mat[6];
+    let sm31 = mat[8];
+    let sm32 = mat[9];
+    let sm33 = mat[10];
 
     let trace = sm11 + sm22 + sm33;
     let S = 0;
