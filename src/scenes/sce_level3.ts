@@ -7,7 +7,7 @@ import {mimic} from "../components/com_mimic.js";
 import {find_first} from "../components/com_named.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
-import {snd_helicopter} from "../sounds/snd_helicopter.js";
+import {snd_horn} from "../sounds/snd_horn.js";
 import {snd_wind} from "../sounds/snd_wind.js";
 import {World} from "../world.js";
 import {map_city} from "./map_city.js";
@@ -27,5 +27,5 @@ export function scene_level3(game: Game) {
         mimic(find_first(game.World, "camera anchor"), 0.05),
     ]);
 
-    instantiate(game, [children([audio_source(snd_wind)], [audio_source(snd_helicopter)])]);
+    instantiate(game, [children([audio_source(snd_wind)], [audio_source(snd_horn)])]);
 }

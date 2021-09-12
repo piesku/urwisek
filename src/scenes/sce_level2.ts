@@ -9,6 +9,7 @@ import {find_first} from "../components/com_named.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {snd_gust} from "../sounds/snd_gust.js";
+import {snd_horn} from "../sounds/snd_horn.js";
 import {snd_neigh} from "../sounds/snd_neigh.js";
 import {World} from "../world.js";
 import {map_farm} from "./map_farm.js";
@@ -30,5 +31,7 @@ export function scene_level2(game: Game) {
         mimic(find_first(game.World, "camera anchor"), 0.05),
     ]);
 
-    instantiate(game, [children([audio_source(snd_gust)], [audio_source(snd_neigh)])]);
+    instantiate(game, [
+        children([audio_source(snd_gust)], [audio_source(snd_neigh)], [audio_source(snd_horn)]),
+    ]);
 }
