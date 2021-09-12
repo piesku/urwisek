@@ -2100,8 +2100,7 @@ ESCAPE
 </div>
 <div>
 Earth has become uninhabitable.<br>
-Humans are leaving.<br>
-Find the Ark!<br><br>
+Humans are leaving.<br><br>
 <em onclick="$(${1 /* NewGame */})">Play Now</em>
 </div>
 `;
@@ -2322,7 +2321,7 @@ if (r < 0.1) {
 return [
 control_always([0, 0, 1], null, "walk"),
 move(float(1, 1.2), 0),
-lifespan(100),
+lifespan(200),
 children([
 transform(undefined, undefined, [2, 2, 2]),
 cull(32768 /* Render */ | 16 /* Children */),
@@ -2334,7 +2333,7 @@ if (r < 0.5) {
 return [
 control_always([0, 0, 1], null, "walk"),
 move(float(2, 2.2), 0),
-lifespan(50),
+lifespan(100),
 children([
 transform(undefined, undefined, [1, 1.5, 1]),
 cull(32768 /* Render */ | 16 /* Children */),
@@ -2345,7 +2344,7 @@ cull(32768 /* Render */ | 16 /* Children */),
 return [
 control_always([0, 0, 1], null, "jump"),
 move(float(3, 3.2), 0),
-lifespan(30),
+lifespan(100),
 children([
 transform(undefined, undefined, [0.5, 0.5, 1]),
 cull(32768 /* Render */ | 16 /* Children */),
@@ -2539,10 +2538,6 @@ transform([float(Xmin, Xmax), -3, float(Zmin, Zmax)], undefined, [10, 5, 10]),
 }
 }
 instantiate(game, [
-transform([-5, 0.2, -0.4], [0.71, 0, 0, 0.71], [1, 4, 1]),
-...blueprint_obstacle_branch(game),
-]);
-instantiate(game, [
 transform([25, 0.5, 0], [0.71, 0, 0, 0.71], [1, 4, 1]),
 ...blueprint_obstacle_branch(game),
 ]);
@@ -2560,24 +2555,12 @@ transform([26.5, 1.2, 0], [0.71, 0, 0, 0.71], [1, 4, 1]),
 ]);
 instantiate(game, [transform([95, 4, 0]), ...blueprint_exit()]);
 instantiate(game, [transform([95, 4, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
-instantiate(game, [
-transform([-5, 1.2, -0.4], [0.71, 0, 0, 0.71], [1, 4, 1]),
-...blueprint_obstacle_branch(game),
-]);
-instantiate(game, [
-transform([-5, 2.2, -0.4], [0.71, 0, 0, 0.71], [1, 4, 1]),
-...blueprint_obstacle_branch(game),
-]);
-instantiate(game, [
-transform([-5, 3.2, -0.4], [0.71, 0, 0, 0.71], [1, 4, 1]),
-...blueprint_obstacle_branch(game),
-]);
 instantiate(game, [transform([-4, 0.5, -6], [0, 0.71, 0, 0.71]), spawn(blueprint_animal, 1)]);
 instantiate(game, [
-transform([-3, 3.5, -2], [0, 0.71, 0, 0.71]),
+transform([29, 3.5, -2], [0.01, 0.76, 0.12, 0.64]),
 children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
 ]);
-instantiate(game, [transform([-1.5, 0, 0]), ...blueprint_fire()]);
+instantiate(game, [transform([-1.5, 0, 0], undefined, [2, 2, 2]), ...blueprint_fire()]);
 instantiate(game, [transform([50, 1, -1]), ...blueprint_box(game)]);
 instantiate(game, [transform([45, 1, 3]), ...blueprint_box(game)]);
 instantiate(game, [transform([51, 1, 3]), ...blueprint_box(game)]);
@@ -2588,6 +2571,16 @@ instantiate(game, [
 transform([91, 2, 0.6], undefined, [14, 4, 7.5]),
 ...blueprint_ground(game),
 ]);
+instantiate(game, [
+transform([-4, 3.5, -2], [0.01, 0.76, 0.12, 0.64]),
+children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
+]);
+instantiate(game, [
+transform([76, 3.5, -2], [0.01, 0.76, 0.12, 0.64]),
+children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
+]);
+instantiate(game, [transform([45, 0.5, -9], [0, 0.71, 0, 0.71]), spawn(blueprint_animal, 1)]);
+instantiate(game, [transform([74, 1, 0]), ...blueprint_box(game)]);
 instantiate(game, [...blueprint_sun_light(), transform()]);
 instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 }
@@ -2597,26 +2590,26 @@ game.World = new World();
 game.ViewportResized = true;
 instantiate(game, [children([audio_source(snd_wind)], [audio_source(snd_chirp1)])]);
 let camera_anchor_intro = instantiate(game, [transform([0, 1, -3]), named("camera anchor")]);
-let player_entity = instantiate_player(game, [0, 0.774, 0]);
+let player_entity = instantiate_player(game, [2, 2, 0]);
 game.World.Signature[player_entity] &= ~128 /* ControlPlayer */;
 map_forest(game);
 let starfield_entity = instantiate(game, [
-transform([0, 56, -5], from_euler([0, 0, 0, 1], 10, 0, 0), [17, 10, 1]),
+transform([0, 26, -2], from_euler([0, 0, 0, 1], 10, 0, 0), [17, 10, 1]),
 children([
 transform(),
 shake(0.5),
 emit_particles(20, 0.1, 0),
-render_particles_colored([1, 1, 1, 1], 2, [0.5, 0.5, 1, 1], 1),
+render_particles_colored([1, 1, 1, 1], 5, [0.5, 0.5, 1, 1], 2),
 ]),
 ]);
 let rocket_spawner_entity = instantiate(game, [
-transform([-5, 48, -3], from_euler([0, 0, 0, 1], -45, 110, 0)),
+transform([-5, 20, -1], from_euler([0, 0, 0, 1], -45, 110, 0)),
 children([transform(), shake(3), spawn(blueprint_rocket, 3)]),
 ]);
 let camera_entity = instantiate(game, [
 ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
-transform([0, 50, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
-mimic(find_first(game.World, "camera anchor"), 0.02),
+transform([0, 25, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
+mimic(find_first(game.World, "camera anchor"), 0.01),
 disable(4096 /* Mimic */),
 ]);
 let pups = [
@@ -3017,7 +3010,7 @@ transform([19.35, -2.5, 0.96], [0, 0.71, 0, 0.71], [4, 2, 14]),
 ...blueprint_ground(game),
 ]);
 instantiate(game, [
-transform([65.3, -0.5, 0.96], [0, 0.71, 0, 0.71], [4, 2, 81.11]),
+transform([65, -0.5, 1], [0, 0.71, 0, 0.71], [4, 2, 81.11]),
 ...blueprint_ground(game),
 ]);
 instantiate(game, [
@@ -3259,6 +3252,7 @@ transform([89.73, 1.64, 0.15], [0, 1, 0, 0]),
 instantiate(game, [transform([89.73, 1.64, 2.07], [0, 1, 0, 0]), ...prop_fence(game)]);
 instantiate(game, [transform([95, 0.5, 0]), ...blueprint_exit()]);
 instantiate(game, [transform([95, 0.5, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
+instantiate(game, [transform([0, 0.5, -8], [0, 0.71, 0, 0.71]), spawn(blueprint_animal, 1)]);
 instantiate(game, [...blueprint_sun_light(), transform()]);
 instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 }
@@ -3326,12 +3320,40 @@ render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.2, 0.2, 0.
 ];
 }
 
-function blueprint_obstacle_house(game) {
+function blueprint_blok(game) {
 return [
-children([transform(), ...prop_panelki(game)], [
-transform([0, 0, 0], undefined, [4, 4.4, 4]),
-collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
-rigid_body(0 /* Static */),
+children([transform(), ...prop_panelki(game)], [transform([0, 2.2, 0], [0, 1, 0, 0]), ...prop_panelki(game)], [transform([0, 2.2 * 2, 0]), ...prop_panelki(game)]),
+];
+}
+
+function blueprint_end(game) {
+return [
+named("exit"),
+collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
+trigger(1 /* Player */, 3 /* EndGame */),
+];
+}
+
+function blueprint_launchpad(game) {
+return [
+named("launchpad"),
+control_always([0, 1, 0], null),
+audio_source(snd_rocket),
+lifespan(25),
+disable(64 /* ControlAlways */ | 2 /* AudioSource */ | 1024 /* Lifespan */),
+move(5, 0),
+children([
+transform(),
+shake(0.01),
+children([transform([0, -30, 0], undefined, [3, 3, 3]), ...prop_rocket(game)], [
+transform([0, -30, 0], [0.71, 0, 0, 0.71]),
+children([
+transform(),
+shake(0.1),
+emit_particles(2, 0.01, 5),
+render_particles_colored([1, 1, 1, 1], 200, [1, 0.5, 0, 1], 500),
+]),
+]),
 ]),
 ];
 }
@@ -3346,22 +3368,24 @@ rigid_body(0 /* Static */),
 ];
 }
 
+function blueprint_obstacle_house(game) {
+return [
+children([transform(), ...prop_panelki(game)], [
+transform([0, 0, 0], undefined, [4, 4.4, 4]),
+collide(false, 2 /* Terrain */ | 32 /* SurfaceWood */, 0 /* None */),
+rigid_body(0 /* Static */),
+]),
+];
+}
+
 function map_city(game) {
 instantiate(game, [
-transform([76.04, 1.52, 0.45], [0, 0.71, 0, 0.71], [5, 2, 7.05]),
+transform([87.04, 1.52, 0.45], [0, 0.71, 0, 0.71], [5, 2, 15]),
 ...blueprint_ground(game),
 ]);
 instantiate(game, [
 transform([49.73, -1.5, -5.55], [0, 0.71, 0, 0.71], [20, 4, 120]),
 ...blueprint_ground(game),
-]);
-instantiate(game, [
-transform([23.04, -4.41, -11.36], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
-]);
-instantiate(game, [
-transform([79.24, -10.32, -13.02], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 24.8]),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
 ]);
 instantiate(game, [transform([8.58, 0.72, 0.59]), ...blueprint_bush(game)]);
 instantiate(game, [transform([24.08, 0.38, -0.49]), ...blueprint_bush(game)]);
@@ -3381,10 +3405,6 @@ transform([-4.67, 2.78, -8.4], undefined, [0.15, 0.15, 0.15]),
 ...prop_slup(game),
 ]);
 instantiate(game, [transform([23.85, 0.11, -5.15]), ...prop_slup(game)]);
-instantiate(game, [
-transform([21.29, 5.84, -7.26], undefined, [0.2, 0.2, 0.2]),
-...prop_slup(game),
-]);
 instantiate(game, [transform([31.05, 0.74, -1.14]), ...blueprint_bush(game)]);
 instantiate(game, [transform([11.69, 0.5, -0.17]), ...blueprint_obstacle_house(game)]);
 instantiate(game, [transform([11.58, 0.68, 2.02]), ...blueprint_bush(game)]);
@@ -3399,7 +3419,6 @@ transform([7.69, 1, -0.1], [-0.15, 0.68, 0.7, 0.14], [0.4, 0.4, 0.4]),
 ]);
 instantiate(game, [transform([14.31, 0.11, 3.18]), ...prop_slup(game)]);
 instantiate(game, [transform([22.34, 0.38, -0.91]), ...blueprint_bush(game)]);
-instantiate(game, [transform([28.61, 0.97, 0]), ...blueprint_box(game)]);
 instantiate(game, [
 transform([21.96, 1, -2.35], [-0.44, 0.55, 0.56, 0.43], [0.4, 0.4, 0.4]),
 ...prop_car2(game),
@@ -3407,42 +3426,24 @@ transform([21.96, 1, -2.35], [-0.44, 0.55, 0.56, 0.43], [0.4, 0.4, 0.4]),
 instantiate(game, [transform([56.12, 0.24, 2.71]), ...prop_slup(game)]);
 instantiate(game, [transform([54.23, 4.09, 0]), ...blueprint_box(game)]);
 instantiate(game, [transform([28.61, 2.41, 0]), ...blueprint_box(game)]);
-instantiate(game, [
-transform([96.21, -4.41, -10.12], from_euler([0, 0, 0, 1], 0, 90, 0), [5, 10, 10]),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
-]);
 instantiate(game, [transform([46, 0.11, -1.52], [0, -0.73, 0, 0.69]), ...prop_slup(game)]);
 instantiate(game, [
 transform([43.31, 1, -3.57], [-0.71, 0.06, 0.06, 0.7], [0.4, 0.4, 0.4]),
 ...prop_car2(game),
 ]);
 instantiate(game, [
-transform([42.7, 0.93, -2.99], [0, -0.73, 0, 0.69]),
-...blueprint_bush(game),
-]);
-instantiate(game, [
 transform([60.15, 0.56, -3.88], [0, -0.73, 0, 0.69]),
 ...blueprint_bush(game),
 ]);
-instantiate(game, [transform([41.7, 2.41, 0]), ...blueprint_box(game)]);
-instantiate(game, [transform([41.39, 2.41, 2.85]), ...blueprint_box(game)]);
-instantiate(game, [
-transform([41.03, 2.95, -1.3], [0, 0, -0.71, 0.71]),
-...blueprint_box(game),
-]);
 instantiate(game, [transform([60.98, 0.21, 3.78]), ...blueprint_bush(game)]);
-instantiate(game, [
-transform([85.09, -12.27, -9.02], from_euler([0, 0, 0, 1], 0, 90, 0), [12, 22, 8]),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshOgon, [0.5, 0.5, 0.5, 1]),
-]);
 instantiate(game, [transform([78.02, 0.24, -3.54]), ...prop_slup(game)]);
 instantiate(game, [transform([56.16, 0.61, 0.39], [0, -1, 0, -0.02]), ...blueprint_bush(game)]);
 instantiate(game, [
 transform([56.4, 1, 0.3], [0.7, 0.15, 0.16, -0.68]),
 ...blueprint_obstacle_car(game),
 ]);
-instantiate(game, [transform([77, 2.5, 0]), ...blueprint_exit()]);
-instantiate(game, [transform([77, 2.5, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
+instantiate(game, [transform([87, 2.5, 0]), ...blueprint_exit()]);
+instantiate(game, [transform([87, 2.5, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
 instantiate(game, [
 transform([-3, 2, -2], [0.01, 0.76, 0.12, 0.64]),
 children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
@@ -3473,7 +3474,7 @@ let Xmin = centerX - ~~(width / 2);
 let Xmax = centerX + ~~(width / 2);
 let Zmin = centerZ - ~~(depth / 2);
 let Zmax = centerZ + ~~(depth / 2);
-let number_of_trees = ~~(width * 0.6);
+let number_of_trees = ~~(((width * depth) / 1) * 0.8);
 for (let i = 0; i < number_of_trees; i++) {
 instantiate(game, [
 transform([float(Xmin, Xmax), 0, float(Zmin, Zmax)]),
@@ -3490,7 +3491,7 @@ let Xmin = centerX - ~~(width / 2);
 let Xmax = centerX + ~~(width / 2);
 let Zmin = centerZ - ~~(depth / 2);
 let Zmax = centerZ + ~~(depth / 2);
-let number_of_trees = ~~(width * 0.6);
+let number_of_trees = ~~(((width * depth) / 1) * 0.8);
 for (let i = 0; i < number_of_trees; i++) {
 instantiate(game, [
 transform([float(Xmin, Xmax), 0, float(Zmin, Zmax)]),
@@ -3580,7 +3581,7 @@ transform([38.53, 0.5, -4.71], undefined, [0.8, 0.8, 0.8]),
 ...blueprint_obstacle_house(game),
 ]);
 instantiate(game, [
-transform([38.53, 2.2, -4.71], undefined, [0.8, 0.8, 0.8]),
+transform([38.53, 2.2, -4.71], [0, 1, 0, 0], [0.8, 0.8, 0.8]),
 ...blueprint_obstacle_house(game),
 ]);
 instantiate(game, [
@@ -3592,7 +3593,7 @@ transform([42.53, 0.5, -4.71], undefined, [0.8, 0.8, 0.8]),
 ...blueprint_obstacle_house(game),
 ]);
 instantiate(game, [
-transform([42.53, 2.2, -4.71], undefined, [0.8, 0.8, 0.8]),
+transform([42.53, 2.2, -4.71], [0, 1, 0, 0], [0.8, 0.8, 0.8]),
 ...blueprint_obstacle_house(game),
 ]);
 instantiate(game, [
@@ -3608,7 +3609,7 @@ let Xmin = centerX - ~~(width / 2);
 let Xmax = centerX + ~~(width / 2);
 let Zmin = centerZ - ~~(depth / 2);
 let Zmax = centerZ + ~~(depth / 2);
-let number_of_trees = ~~(width * 0.6);
+let number_of_trees = ~~(((width * depth) / 1) * 0.8);
 for (let i = 0; i < number_of_trees; i++) {
 instantiate(game, [
 transform([float(Xmin, Xmax), 0, float(Zmin, Zmax)]),
@@ -3616,6 +3617,12 @@ transform([float(Xmin, Xmax), 0, float(Zmin, Zmax)]),
 ]);
 }
 }
+instantiate(game, [transform([93, 2.5, 0]), ...blueprint_end()]);
+instantiate(game, [transform([95.97, 1.5, 0.44]), ...blueprint_launchpad(game)]);
+instantiate(game, [
+transform([6.69, 0.5, -4.17], undefined, [1, 1, 0.2]),
+...blueprint_blok(game),
+]);
 instantiate(game, [...blueprint_sun_light(), transform()]);
 instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 }
@@ -3623,7 +3630,7 @@ instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 function scene_level3(game) {
 game.World = new World();
 game.ViewportResized = true;
-instantiate_player(game, [0, -2, 0]);
+instantiate_player(game, [0, 2, 0]);
 map_city(game);
 
 instantiate(game, [
@@ -6243,7 +6250,7 @@ let game = new Game();
 
 window.scenes = [scene_intro, scene_level1, scene_level2, scene_level3, scene_stage];
 
-window.scenes[0](game);
+window.scenes[3](game);
 game.Start();
 
 window.$ = dispatch.bind(null, game);
