@@ -19,7 +19,7 @@ export function scene_level3(game: Game) {
 
     instantiate_player(game, [0, 2, 0]);
 
-    map_city(game);
+    map_city(game, [0.2, 0.2, 0.2, 1]);
 
     instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
 

@@ -97,6 +97,7 @@ let create_instance = (name, translation, rotation, scale) => {
             break;
         case "ground":
             imports.add(`import {blueprint_${name}} from "../blueprints/blu_${name}.js";`);
+            imports.add(`import {Vec4} from "../../common/math.js";`);
             return `
     instantiate(game, [
         transform(${vec(translation)}, ${vec(rotation)}, ${vec(scale)}),
