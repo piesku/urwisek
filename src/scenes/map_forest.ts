@@ -29,16 +29,6 @@ export function map_forest(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255,
     ]);
 
     instantiate(game, [
-        transform([73.64, -0.06, -1.22], undefined, [7.5, 3, 7.5]),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
-        transform([77.67, -0.57, -1.58], undefined, [10, 4, 10]),
-        ...blueprint_tree(game),
-    ]);
-
-    instantiate(game, [
         transform([82.72, -0.34, -1.53], undefined, [10, 8, 10]),
         ...blueprint_tree(game),
     ]);
@@ -48,32 +38,22 @@ export function map_forest(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255,
     instantiate(game, [transform([48.2, 0.75, 0]), ...blueprint_box(game)]);
 
     instantiate(game, [
-        transform([70.71, -0.58, -1.75], undefined, [10, 4, 10]),
+        transform([78.71, -0.58, -1.75], undefined, [10, 4, 10]),
         ...blueprint_tree(game),
     ]);
 
     instantiate(game, [
-        transform([70.04, 1.94, 0.62], [0.71, -0.05, 0.05, 0.71], [0.5, 4, 0.5]),
+        transform([78.04, 1.94, 0.62], [0.71, -0.05, 0.05, 0.71], [0.5, 4, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 
     instantiate(game, [
-        transform([71.14, 2.67, 0.01], [0.71, 0.01, -0.01, 0.71], [0.5, 2, 0.5]),
+        transform([79.14, 2.67, 0.01], [0.71, 0.01, -0.01, 0.71], [0.5, 2, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 
     instantiate(game, [
-        transform([73.71, 3.85, 0.04], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
-        ...blueprint_obstacle_branch(game),
-    ]);
-
-    instantiate(game, [
-        transform([77.55, 5.17, -0.25], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
-        ...blueprint_obstacle_branch(game),
-    ]);
-
-    instantiate(game, [
-        transform([82.82, 6.24, 0], [0.5, 0.5, -0.5, 0.5], [0.5, 6, 0.5]),
+        transform([81.71, 3.85, 0.04], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
         ...blueprint_obstacle_branch(game),
     ]);
 
@@ -124,7 +104,7 @@ export function map_forest(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255,
     instantiate(game, [transform([-4, 0.25, -6], [0, 0.71, 0, 0.71]), spawn(blueprint_animal, 1)]);
 
     instantiate(game, [
-        transform([65, 2.25, -2], [0.01, 0.76, 0.12, 0.64]),
+        transform([74, 2.25, -2], [0.01, 0.76, 0.12, 0.64]),
         children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
     ]);
 
@@ -152,7 +132,7 @@ export function map_forest(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255,
         children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
     ]);
 
-    instantiate(game, [transform([74, 0.75, 0]), ...blueprint_box(game)]);
+    instantiate(game, [transform([80, 0.75, 0]), ...blueprint_box(game)]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 
