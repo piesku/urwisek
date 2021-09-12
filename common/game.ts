@@ -14,8 +14,7 @@ export abstract class Game3D {
     Running = 0;
     // Start at High to make sure the title screen runs smoothly; there's not
     // much to render at that point but we need the rocket spawner to spawn
-    // frequently enough. Action.NewGame changes this to Ultra; tick() will
-    // scale it down dynamically if necessary.
+    // frequently enough. tick() will scale it down dynamically if necessary.
     Quality = QualitySettings.High;
 
     abstract World: WorldImpl;

@@ -35,9 +35,9 @@ export function scene_intro(game: Game) {
         children([audio_source(snd_wind)], [audio_source(snd_chirp1)], [audio_source(snd_horn)]),
     ]);
 
-    let camera_anchor_intro = instantiate(game, [transform([0, 1, -3]), named("camera anchor")]);
+    let camera_anchor_intro = instantiate(game, [transform([0, 0.5, -3]), named("camera anchor")]);
 
-    let player_entity = instantiate_player(game, [2, 2, 0]);
+    let player_entity = instantiate_player(game, [0, 1, 0]);
     game.World.Signature[player_entity] &= ~Has.ControlPlayer;
 
     map_forest(game);
@@ -60,25 +60,25 @@ export function scene_intro(game: Game) {
     let camera_entity = instantiate(game, [
         ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
         transform([0, 25, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
-        mimic(find_first(game.World, "camera anchor"), 0.01),
+        mimic(find_first(game.World, "camera anchor"), 0.02),
         disable(Has.Mimic),
     ]);
 
     let pups = [
         instantiate(game, [
             ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.7),
-            transform([1, 0.5, 0], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
-            move(1.5, 0),
+            transform([1, 0, 0], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
+            move(2.5, 0),
         ]),
         instantiate(game, [
             ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.8),
-            transform([0.3, 0.5, -0.5], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
-            move(1.6, 0),
+            transform([0.3, 0, -0.5], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
+            move(2.6, 0),
         ]),
         instantiate(game, [
             ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.9),
-            transform([-0.2, 0.5, 0.3], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
-            move(1.7, 0),
+            transform([-0.2, 0, 0.3], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
+            move(2.7, 0),
         ]),
     ];
 
@@ -99,7 +99,7 @@ export function scene_intro(game: Game) {
                             }),
                         ],
                         [
-                            task_timeout(5, () => {
+                            task_timeout(6, () => {
                                 // The pups flee.
                                 for (let pup of pups) {
                                     control_always([0, 0, 1], null, "jump")(game, pup);
@@ -108,7 +108,7 @@ export function scene_intro(game: Game) {
                             }),
                         ],
                         [
-                            task_timeout(6, () => {
+                            task_timeout(8, () => {
                                 // No more stars.
                                 destroy_all(game.World, starfield_entity);
 
@@ -129,7 +129,7 @@ export function scene_intro(game: Game) {
                             }),
                         ],
                         [
-                            task_timeout(8, () => {
+                            task_timeout(9, () => {
                                 game.World.Signature[player_entity] |= Has.ControlPlayer;
                             }),
                         ]

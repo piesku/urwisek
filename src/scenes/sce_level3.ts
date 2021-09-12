@@ -1,5 +1,6 @@
 import {instantiate} from "../../common/game.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {blueprint_pixie} from "../blueprints/blu_pixie.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
 import {audio_source} from "../components/com_audio_source.js";
 import {children} from "../components/com_children.js";
@@ -18,7 +19,9 @@ export function scene_level3(game: Game) {
 
     instantiate_player(game, [0, 2, 0]);
 
-    map_city(game);
+    map_city(game, [0.2, 0.2, 0.2, 1]);
+
+    instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
 
     // Camera.
     instantiate(game, [

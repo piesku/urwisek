@@ -5,6 +5,7 @@ import {transform} from "../components/com_transform.js";
 import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
 import {render_colored_shadows} from "../components/com_render.js";
 import {blueprint_ground} from "../blueprints/blu_ground.js";
+import {Vec4} from "../../common/math.js";
 import {blueprint_bush} from "../blueprints/blu_bush.js";
 import {prop_barn} from "../props/prop_barn.js";
 import {prop_fence} from "../props/prop_fence.js";
@@ -22,25 +23,25 @@ import {blueprint_animal} from "../blueprints/blu_animal.js";
 import {spawn} from "../components/com_spawn.js";
 import {Has} from "../world.js";
 
-export function map_farm(game: Game) {
+export function map_farm(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5 / 255, 1]) {
     instantiate(game, [
         transform([5.4, -0.5, 0.96], [0, 0.71, 0, 0.71], [4, 2, 15]),
-        ...blueprint_ground(game),
+        ...blueprint_ground(game, ground_color),
     ]);
 
     instantiate(game, [
         transform([19.35, -2.5, 0.96], [0, 0.71, 0, 0.71], [4, 2, 14]),
-        ...blueprint_ground(game),
+        ...blueprint_ground(game, ground_color),
     ]);
 
     instantiate(game, [
         transform([65, -0.5, 1], [0, 0.71, 0, 0.71], [4, 2, 81.11]),
-        ...blueprint_ground(game),
+        ...blueprint_ground(game, ground_color),
     ]);
 
     instantiate(game, [
         transform([56.93, -1.5, -6.04], [0, 0.71, 0, 0.71], [10, 4, 120]),
-        ...blueprint_ground(game),
+        ...blueprint_ground(game, ground_color),
     ]);
 
     instantiate(game, [transform([32.71, 0.39, -4.35]), ...blueprint_bush(game)]);

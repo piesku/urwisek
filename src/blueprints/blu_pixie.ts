@@ -17,7 +17,7 @@ export function blueprint_pixie(game: Game) {
             transform(),
             shake(0.1),
             emit_particles(1, 0.1, 0.1),
-            render_particles_colored([1, 1, 1, 1], 4, [0.5, 0.5, 1, 1], 1),
+            render_particles_colored([1, 1, 1, 1], 8, [0.5, 0.5, 1, 1], 1),
         ]),
         task_timeout(7, (entity) => {
             let mimic = game.World.Mimic[entity];

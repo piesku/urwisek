@@ -28,6 +28,7 @@ function update(game: Game, entity: Entity) {
     let rigid_body = game.World.RigidBody[entity];
 
     if (rigid_body.Kind === RigidKind.Dynamic) {
+        rigid_body.IsAirborne = true;
         let has_collision = false;
 
         for (let i = 0; i < collide.Collisions.length; i++) {
@@ -80,7 +81,6 @@ function update(game: Game, entity: Entity) {
 
         if (!has_collision) {
             copy(rigid_body.VelocityResolved, rigid_body.VelocityIntegrated);
-            rigid_body.IsAirborne = true;
         }
     }
 }

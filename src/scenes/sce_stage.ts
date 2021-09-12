@@ -31,7 +31,7 @@ export function scene_stage(game: Game) {
     let ground_height = 5;
     instantiate(game, [
         transform([0, -ground_height / 2, 0], undefined, [ground_size, ground_height, ground_size]),
-        ...blueprint_ground(game),
+        ...blueprint_ground(game, [0, 0, 0, 1]),
     ]);
 
     let slups = 2;
