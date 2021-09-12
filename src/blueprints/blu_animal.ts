@@ -22,7 +22,7 @@ export function blueprint_animal(game: Game) {
         return [
             control_always([0, 0, 1], null, "walk"),
             move(float(1, 1.2), 0),
-            lifespan(100),
+            lifespan(200),
             children([
                 transform(undefined, undefined, [2, 2, 2]),
                 cull(Has.Render | Has.Children),
@@ -35,7 +35,7 @@ export function blueprint_animal(game: Game) {
         return [
             control_always([0, 0, 1], null, "walk"),
             move(float(2, 2.2), 0),
-            lifespan(50),
+            lifespan(100),
             children([
                 transform(undefined, undefined, [1, 1.5, 1]),
                 cull(Has.Render | Has.Children),
@@ -47,7 +47,7 @@ export function blueprint_animal(game: Game) {
     return [
         control_always([0, 0, 1], null, "jump"),
         move(float(3, 3.2), 0),
-        lifespan(30),
+        lifespan(100),
         children([
             transform(undefined, undefined, [0.5, 0.5, 1]),
             cull(Has.Render | Has.Children),

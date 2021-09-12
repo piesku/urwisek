@@ -34,30 +34,30 @@ export function scene_intro(game: Game) {
 
     let camera_anchor_intro = instantiate(game, [transform([0, 1, -3]), named("camera anchor")]);
 
-    let player_entity = instantiate_player(game, [0, 0.774, 0]);
+    let player_entity = instantiate_player(game, [2, 2, 0]);
     game.World.Signature[player_entity] &= ~Has.ControlPlayer;
 
     map_forest(game);
 
     let starfield_entity = instantiate(game, [
-        transform([0, 56, -5], from_euler([0, 0, 0, 1], 10, 0, 0), [17, 10, 1]),
+        transform([0, 26, -2], from_euler([0, 0, 0, 1], 10, 0, 0), [17, 10, 1]),
         children([
             transform(),
             shake(0.5),
             emit_particles(20, 0.1, 0),
-            render_particles_colored([1, 1, 1, 1], 2, [0.5, 0.5, 1, 1], 1),
+            render_particles_colored([1, 1, 1, 1], 5, [0.5, 0.5, 1, 1], 2),
         ]),
     ]);
 
     let rocket_spawner_entity = instantiate(game, [
-        transform([-5, 48, -3], from_euler([0, 0, 0, 1], -45, 110, 0)),
+        transform([-5, 20, -1], from_euler([0, 0, 0, 1], -45, 110, 0)),
         children([transform(), shake(3), spawn(blueprint_rocket, 3)]),
     ]);
 
     let camera_entity = instantiate(game, [
         ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
-        transform([0, 50, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
-        mimic(find_first(game.World, "camera anchor"), 0.02),
+        transform([0, 25, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
+        mimic(find_first(game.World, "camera anchor"), 0.01),
         disable(Has.Mimic),
     ]);
 

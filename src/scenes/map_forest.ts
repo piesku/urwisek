@@ -100,11 +100,6 @@ export function map_forest(game: Game) {
     }
 
     instantiate(game, [
-        transform([-5, 0.2, -0.4], [0.71, 0, 0, 0.71], [1, 4, 1]),
-        ...blueprint_obstacle_branch(game),
-    ]);
-
-    instantiate(game, [
         transform([25, 0.5, 0], [0.71, 0, 0, 0.71], [1, 4, 1]),
         ...blueprint_obstacle_branch(game),
     ]);
@@ -128,29 +123,14 @@ export function map_forest(game: Game) {
 
     instantiate(game, [transform([95, 4, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
 
-    instantiate(game, [
-        transform([-5, 1.2, -0.4], [0.71, 0, 0, 0.71], [1, 4, 1]),
-        ...blueprint_obstacle_branch(game),
-    ]);
-
-    instantiate(game, [
-        transform([-5, 2.2, -0.4], [0.71, 0, 0, 0.71], [1, 4, 1]),
-        ...blueprint_obstacle_branch(game),
-    ]);
-
-    instantiate(game, [
-        transform([-5, 3.2, -0.4], [0.71, 0, 0, 0.71], [1, 4, 1]),
-        ...blueprint_obstacle_branch(game),
-    ]);
-
     instantiate(game, [transform([-4, 0.5, -6], [0, 0.71, 0, 0.71]), spawn(blueprint_animal, 1)]);
 
     instantiate(game, [
-        transform([-3, 3.5, -2], [0, 0.71, 0, 0.71]),
+        transform([29, 3.5, -2], [0.01, 0.76, 0.12, 0.64]),
         children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
     ]);
 
-    instantiate(game, [transform([-1.5, 0, 0]), ...blueprint_fire(game)]);
+    instantiate(game, [transform([-1.5, 0, 0], undefined, [2, 2, 2]), ...blueprint_fire(game)]);
 
     instantiate(game, [transform([50, 1, -1]), ...blueprint_box(game)]);
 
@@ -168,6 +148,20 @@ export function map_forest(game: Game) {
         transform([91, 2, 0.6], undefined, [14, 4, 7.5]),
         ...blueprint_ground(game),
     ]);
+
+    instantiate(game, [
+        transform([-4, 3.5, -2], [0.01, 0.76, 0.12, 0.64]),
+        children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
+    ]);
+
+    instantiate(game, [
+        transform([76, 3.5, -2], [0.01, 0.76, 0.12, 0.64]),
+        children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
+    ]);
+
+    instantiate(game, [transform([45, 0.5, -9], [0, 0.71, 0, 0.71]), spawn(blueprint_animal, 1)]);
+
+    instantiate(game, [transform([74, 1, 0]), ...blueprint_box(game)]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 

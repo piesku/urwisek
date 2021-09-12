@@ -18,6 +18,9 @@ import {blueprint_obstacle_barn} from "../blueprints/blu_obstacle_barn.js";
 import {blueprint_obstacle_fence} from "../blueprints/blu_obstacle_fence.js";
 import {blueprint_pup} from "../blueprints/blu_pup.js";
 import {blueprint_exit} from "../blueprints/blu_exit.js";
+import {blueprint_animal} from "../blueprints/blu_animal.js";
+import {spawn} from "../components/com_spawn.js";
+import {Has} from "../world.js";
 
 export function map_farm(game: Game) {
     instantiate(game, [
@@ -31,7 +34,7 @@ export function map_farm(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([65.3, -0.5, 0.96], [0, 0.71, 0, 0.71], [4, 2, 81.11]),
+        transform([65, -0.5, 1], [0, 0.71, 0, 0.71], [4, 2, 81.11]),
         ...blueprint_ground(game),
     ]);
 
@@ -377,6 +380,8 @@ export function map_farm(game: Game) {
     instantiate(game, [transform([95, 0.5, 0]), ...blueprint_exit(game)]);
 
     instantiate(game, [transform([95, 0.5, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
+
+    instantiate(game, [transform([0, 0.5, -8], [0, 0.71, 0, 0.71]), spawn(blueprint_animal, 1)]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 
