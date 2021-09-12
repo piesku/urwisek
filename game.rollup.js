@@ -2280,7 +2280,7 @@
 
     function blueprint_box(game) {
         return [
-            collide(true, 4 /* Movable */ | 32 /* SurfaceWood */, 2 /* Terrain */ | 4 /* Movable */),
+            collide(true, 4 /* Movable */ | 32 /* SurfaceWood */, 2 /* Terrain */ | 4 /* Movable */ | 1 /* Player */),
             rigid_body(1 /* Dynamic */),
             mimic(0),
             disable(4096 /* Mimic */),
