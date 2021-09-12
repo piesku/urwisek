@@ -2054,6 +2054,36 @@
         };
     }
 
+    let snd_chirp1 = {
+        Tracks: [
+            {
+                Instrument: [
+                    5,
+                    "highpass",
+                    11,
+                    0,
+                    true,
+                    "sine",
+                    4,
+                    7,
+                    [["sine", 8, 2, 8, 5, 8, true, false, 3, 8, 7]],
+                ],
+                Notes: [79],
+            },
+        ],
+        Exit: 9,
+    };
+
+    let snd_wind = {
+        Tracks: [
+            {
+                Instrument: [7, "lowpass", 8, 6, true, "sine", 9, 2, [[false, 3, 6, 4, 13]]],
+                Notes: [57],
+            },
+        ],
+        Exit: 13,
+    };
+
     function App(game) {
         return game.CurrentView(game);
     }
@@ -2771,6 +2801,7 @@
     function scene_intro(game) {
         game.World = new World();
         game.ViewportResized = true;
+        instantiate(game, [children([audio_source(snd_wind)], [audio_source(snd_chirp1)])]);
         let camera_anchor_intro = instantiate(game, [transform([0, 1, -3]), named("camera anchor")]);
         let player_entity = instantiate_player(game, [0, 0.774, 0]);
         game.World.Signature[player_entity] &= ~128 /* ControlPlayer */;
@@ -2853,6 +2884,26 @@
             }),
         ]);
     }
+
+    let snd_gust = {
+        Tracks: [
+            {
+                Instrument: [7, "lowpass", 10, 6, true, "sine", 8, 2, [[false, 3, 4, 2, 9]]],
+                Notes: [57],
+            },
+        ],
+        Exit: 23,
+    };
+
+    let snd_neigh = {
+        Tracks: [
+            {
+                Instrument: [4, "lowpass", 9, 5, true, "sawtooth", 7, 9, [[false, 7, 3, 3, 7]]],
+                Notes: [57],
+            },
+        ],
+        Exit: 9,
+    };
 
     function prop_barn(game) {
         return [
@@ -3326,7 +3377,18 @@
             transform([0, 10, 10]),
             mimic(find_first(game.World, "camera anchor"), 0.05),
         ]);
+        instantiate(game, [children([audio_source(snd_gust)], [audio_source(snd_neigh)])]);
     }
+
+    let snd_helicopter = {
+        Tracks: [
+            {
+                Instrument: [6, "lowpass", 8, 4, true, "sine", 8, 8, [[false, 8, 5, 18, 10]]],
+                Notes: [77],
+            },
+        ],
+        Exit: 99,
+    };
 
     function blueprint_branch(game) {
         return [
@@ -3571,6 +3633,7 @@
             transform([0, 10, 10]),
             mimic(find_first(game.World, "camera anchor"), 0.05),
         ]);
+        instantiate(game, [children([audio_source(snd_wind)], [audio_source(snd_helicopter)])]);
     }
 
     function dispatch(game, action, payload) {
