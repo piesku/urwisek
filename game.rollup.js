@@ -2706,10 +2706,6 @@
                 cull(32768 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
-                transform([1.5, 1, -1.5], undefined, [0.1, 2, 0.1]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [1, 1, 1, 1]),
-            ], [
                 transform([1.5, 1, 1.5], undefined, [0.1, 2, 0.1]),
                 cull(32768 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
@@ -2734,31 +2730,11 @@
                 cull(32768 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
-                transform([-1.28, 2.52, -1.49], [0, 0, 0.55, 0.84], [1.16, 0.1, 0.1]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-            ], [
                 transform([1.27, 2.52, 1.49], [0, 0, -0.55, 0.84], [1.16, 0.1, 0.1]),
                 cull(32768 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
-                transform([1.27, 2.52, -1.52], [0, 0, -0.55, 0.84], [1.16, 0.1, 0.1]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-            ], [
-                transform([0.51, 3.27, -1.52], [0, 0, -0.19, 0.98], [1.16, 0.1, 0.1]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-            ], [
                 transform([0.51, 3.27, 1.53], [0, 0, -0.19, 0.98], [1.16, 0.1, 0.1]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-            ], [
-                transform([-0.52, 3.27, 1.53], [0, 0, 0.19, 0.98], [1.16, 0.1, 0.1]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
-            ], [
-                transform([-0.52, 3.27, -1.52], [0, 0, 0.19, 0.98], [1.16, 0.1, 0.1]),
                 cull(32768 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.8, 0.8, 1]),
             ], [
@@ -2787,10 +2763,6 @@
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
             ], [
                 transform([1.24, 2.52, -0.01], [0, 0, -0.55, 0.84], [1.16, 0.1, 2.99]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
-            ], [
-                transform([0.51, 3.24, -0.01], [0, 0, -0.19, 0.98], [1.16, 0.1, 2.99]),
                 cull(32768 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.07, 0.07, 0.07, 1]),
             ], [
@@ -2834,23 +2806,11 @@
                 cull(32768 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.41, 0, 0, 1]),
             ], [
-                transform([0, 0, 0], undefined, [2.6, 0.2, 2.6]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
-            ], [
                 transform([0, 6, 0], undefined, [2.6, 0.2, 2.6]),
                 cull(32768 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
             ], [
                 transform([0, 3, 0], undefined, [2.6, 0.2, 2.6]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
-            ], [
-                transform([0, 1.5, 0], undefined, [2.6, 0.2, 2.6]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
-            ], [
-                transform([0, 4.5, 0], undefined, [2.6, 0.2, 2.6]),
                 cull(32768 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.8, 0.8, 1]),
             ], [
@@ -2880,19 +2840,7 @@
                 cull(32768 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.12, 0.03, 0.01, 1]),
             ], [
-                transform([1.3, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.37, 0.37, 0.37, 1]),
-            ], [
-                transform([1, 7.75, -0.25], undefined, [0.2, 0.3, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.37, 0.37, 0.37, 1]),
-            ], [
                 transform([1.3, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.37, 0.37, 0.37, 1]),
-            ], [
-                transform([1, 6.7, -0.25], undefined, [0.2, 0.3, 0.2]),
                 cull(32768 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.37, 0.37, 0.37, 1]),
             ], [
@@ -2946,21 +2894,9 @@
                 cull(32768 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.8, 0.02, 0.02, 1]),
             ], [
-                transform([-2, 1, -0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.78, 0.02, 1]),
-            ], [
                 transform([-2, 1, 0.6], [0.5, 0.5, -0.5, 0.5], [0.4, 0.2, 0.4]),
                 cull(32768 /* Render */),
                 render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0.8, 0.78, 0.02, 1]),
-            ], [
-                transform([0.26, 1.55, 0.55], undefined, [0.2, 0.5, 0.8]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
-            ], [
-                transform([0.26, 1.55, -0.55], undefined, [0.2, 0.5, 0.8]),
-                cull(32768 /* Render */),
-                render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0, 0, 0, 1]),
             ]),
         ];
     }
@@ -3425,11 +3361,9 @@
         instantiate(game, [transform([82.26, -0.31, -6.49]), ...blueprint_blok(game)]);
         instantiate(game, [transform([77.26, -0.31, -6.49]), ...blueprint_blok(game)]);
         instantiate(game, [transform([57.6, 0.5, 0.7]), ...blueprint_obstacle_house(game)]);
-        instantiate(game, [transform([57.6, 2.7, 0.7]), ...blueprint_obstacle_house(game)]);
         instantiate(game, [transform([48.2, 0.5, -2.6]), ...blueprint_blok(game)]);
         instantiate(game, [transform([38.2, 0.5, -2.6]), ...blueprint_blok(game)]);
         instantiate(game, [transform([33.2, 0.5, -2.6]), ...blueprint_blok(game)]);
-        instantiate(game, [transform([57.6, 4.9, 0.7]), ...blueprint_obstacle_house(game)]);
         instantiate(game, [
             transform([41.2, 0.5, 2.9], undefined, [1, 1, 0.8]),
             ...blueprint_blok(game),
@@ -3479,6 +3413,10 @@
         instantiate(game, [transform([57.6, 6.9, 0.7], [0, 0.71, 0, 0.71]), ...blueprint_blok(game)]);
         instantiate(game, [transform([40.4, 0.9, 3.6]), ...blueprint_fire()]);
         instantiate(game, [transform([66, 2, 0.5]), ...blueprint_box(game)]);
+        instantiate(game, [
+            transform([57.6, 4.8, 0.7], undefined, [4, 4.2, 4]),
+            ...blueprint_ground(game, ground_color),
+        ]);
         instantiate(game, [...blueprint_sun_light(), transform()]);
         instantiate(game, [...blueprint_sun_shadow(game), transform()]);
     }
@@ -6032,7 +5970,7 @@
     // @ts-ignore
     window.scenes = [scene_intro, scene_level1, scene_level2, scene_level3, scene_stage];
     // @ts-ignore ⮮ CHANGE ME HERE.
-    window.scenes[0](game);
+    window.scenes[2](game);
     game.Start();
     // @ts-ignore
     window.$ = dispatch.bind(null, game);
