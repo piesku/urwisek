@@ -7,82 +7,11 @@ import {
     ShadowMappingLayout,
 } from "./layout.js";
 
-let vertex = `#version 300 es\n
+let vertex =
+    "#version 300 es\nuniform mat4 A;uniform mat4 B;uniform mat4 C;in vec3 a,b;out vec4 j;out vec3 k;void main(){j=B*vec4(a,1.);k=(vec4(b,1.)*C).xyz;gl_Position=A*j;}";
 
-    uniform mat4 A;
-    uniform mat4 B;
-    uniform mat4 C;
-
-    in vec3 a;
-    in vec3 b;
-
-    out vec4 j;
-    out vec3 k;
-
-    void main() {
-        j = B * vec4(a, 1.0);
-        k = (vec4(b, 1.0) * C).xyz;
-        gl_Position = A * j;
-    }
-`;
-
-let fragment = `#version 300 es\n
-    precision mediump float;
-    precision lowp sampler2DShadow;
-
-    uniform vec3 E;
-    uniform vec4 D;
-    uniform vec4 F[8];
-    uniform mat4 G;
-    uniform sampler2DShadow H;
-    uniform vec4 I;
-
-    in vec4 j;
-    in vec3 k;
-
-    out vec4 f;
-
-    float w(vec4 o) {
-        vec4 p = G * o;
-        vec3 q = p.xyz / p.w;
-        q = q * 0.5 + 0.5;
-        q.z -= 0.001;
-
-        return texture(H, q) * 0.5 + 0.5;
-    }
-
-    void main() {
-        vec3 o = normalize(k);
-
-        // Ambient light.
-        vec3 p = D.rgb * 0.1;
-
-        for (int i = 0; i < 8; i++) {
-            float q = F[i].w;
-            if (q == 0.0) {
-                break;
-            }
-
-            vec3 r;
-            if (q < 1.0) {
-                r = F[i].xyz;
-            } else {
-                vec3 s = F[i].xyz - j.xyz;
-                float t = length(s);
-                r = s / t;
-                q /= (t * t);
-            }
-
-            float u = dot(o, r);
-            if (u > 0.0) {
-                p += D.rgb * u * q;
-            }
-        }
-
-        f = mix(vec4(p * w(j), 1.0), I,
-                        smoothstep(0.0, 1.0, clamp(0.0, 1.0, length(E - j.xyz) / 15.0)));
-    }
-`;
+let fragment =
+    "#version 300 es\nprecision mediump float;precision lowp sampler2DShadow;uniform vec3 E;uniform vec4 D,I;uniform vec4 F[8];uniform mat4 G;uniform sampler2DShadow H;in vec4 j;in vec3 k;out vec4 f;float w(vec4 o){vec4 p=G*o;vec3 q=p.xyz/p.w;q=q*.5+.5;q.z-=.001;return texture(H,q)*.5+.5;}void main(){vec3 o=normalize(k);vec3 p=D.xyz*.1;for(int i=0;i<8;i++){float q=F[i].w;if(q==0.)break;vec3 r;if(q<1.){r= F[i].xyz;}else{vec3 s=F[i].xyz-j.xyz;float t=length(s);r=s/t;q/=(t*t);}float u=dot(o,r);if(u>0.){p+=D.xyz*u*q;}}f=mix(vec4(p*w(j),1.),I,smoothstep(0.,1.,clamp(0.,1.,length(E-j.xyz)/15.)));}";
 
 export function mat_forward_colored_shadows(
     gl: WebGL2RenderingContext
