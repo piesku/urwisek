@@ -4,7 +4,7 @@ export let snd_chirp1: AudioSynthClip = {
     Tracks: [
         {
             Instrument: [
-                5,
+                3,
                 "highpass",
                 11,
                 0,
@@ -17,5 +17,5 @@ export let snd_chirp1: AudioSynthClip = {
             Notes: [79],
         },
     ],
-    Exit: 9,
+    Exit: 19,
 };
