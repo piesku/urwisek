@@ -243,7 +243,7 @@ export function map_city(game: Game) {
     ]);
 
     instantiate(game, [
-        transform([-2.47, 2.2, -5.58], [0, 0.26, 0, 0.97], [0.8, 0.8, 0.8]),
+        transform([-2.47, 2.2, -5.58], [0, 0.97, 0, -0.26], [0.8, 0.8, 0.8]),
         ...blueprint_obstacle_house(game),
     ]);
 
