@@ -34,10 +34,6 @@ interface Oscillator {
     [SourceParam.GainRelease]: number;
     [SourceParam.DetuneAmount]: number;
     [SourceParam.DetuneLFO]?: boolean;
-    [SourceParam.FreqEnabled]?: boolean;
-    [SourceParam.FreqAttack]?: number;
-    [SourceParam.FreqSustain]?: number;
-    [SourceParam.FreqRelease]?: number;
 }
 
 interface Buffer {
@@ -68,10 +64,6 @@ export const enum SourceParam {
     GainRelease,
     DetuneAmount,
     DetuneLFO,
-    FreqEnabled,
-    FreqAttack,
-    FreqSustain,
-    FreqRelease,
 }
 
 export function play_note(audio: AudioContext, instr: Instrument, note: number, offset: number) {
@@ -145,20 +137,7 @@ export function play_note(audio: AudioContext, instr: Instrument, note: number, 
 
             // Frequency from note number
             let freq = 440 * 2 ** ((note - 69) / 12);
-            if (source[SourceParam.FreqEnabled]) {
-                let freq_attack = (source[SourceParam.FreqAttack]! / 9) ** 3;
-                let freq_sustain = (source[SourceParam.FreqSustain]! / 9) ** 3;
-                let freq_release = (source[SourceParam.FreqRelease]! / 6) ** 3;
-                hfo.frequency.linearRampToValueAtTime(0, time);
-                hfo.frequency.linearRampToValueAtTime(freq, time + freq_attack);
-                hfo.frequency.setValueAtTime(freq, time + freq_attack + freq_sustain);
-                hfo.frequency.exponentialRampToValueAtTime(
-                    0.00001,
-                    time + freq_attack + freq_sustain + freq_release
-                );
-            } else {
-                hfo.frequency.setValueAtTime(freq, time);
-            }
+            hfo.frequency.setValueAtTime(freq, time);
 
             hfo.start(time);
             hfo.stop(time + gain_duration);
