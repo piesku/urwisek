@@ -1816,7 +1816,7 @@
             // ],
             [
                 named("mesh anchor"),
-                transform([0, -0.42, 0], [0, 0.707, 0, 0.707]),
+                transform([0, -0.42, 0], [0, 0.71, 0, 0.71]),
                 control_player(2 /* Rotate */),
                 children([
                     transform([0, 0.5, 1], undefined, [0.1, 0.1, 0.1]),
@@ -1826,19 +1826,19 @@
                 ]),
             ], [
                 named("pup anchor 0"),
-                transform([0, -0.42, 0.2], [0, 0.707, 0, 0.707]),
+                transform([0, -0.42, 0.2], [0, 0.71, 0, 0.71]),
                 control_player(2 /* Rotate */),
             ], [
                 named("pup anchor 1"),
-                transform([-0.2, -0.42, 0.2], [0, 0.707, 0, 0.707]),
+                transform([-0.2, -0.42, 0.2], [0, 0.71, 0, 0.71]),
                 control_player(2 /* Rotate */),
             ], [
                 named("pup anchor 2"),
-                transform([-0.4, -0.42, 0.2], [0, 0.707, 0, 0.707]),
+                transform([-0.4, -0.42, 0.2], [0, 0.71, 0, 0.71]),
                 control_player(2 /* Rotate */),
             ], [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))], [named("sun anchor"), transform()], [
                 named("pixie anchor"),
-                transform([4, 1, 0], [0, 0.707, 0, 0.707]),
+                transform([4, 1, 0], [0, 0.71, 0, 0.71]),
                 // children([
                 //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
                 //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
@@ -2004,11 +2004,11 @@
     let snd_rocket = {
         Tracks: [
             {
-                Instrument: [8, "lowpass", 9, 8, false, false, 8, 1, [[false, 8, 5, 0, 9]]],
+                Instrument: [8, "lowpass", 9, 8, false, false, 8, 1, [[false, 8, 15, 15, 15]]],
                 Notes: [77],
             },
         ],
-        Exit: 0.1,
+        Exit: 99,
     };
 
     function blueprint_rocket(game) {
@@ -2021,7 +2021,7 @@
             children(
             // Body 1.
             [
-                transform(undefined, from_euler([0, 0, 0, 0], 0, -90, -90), [0.1, 0.1, 0.1]),
+                transform(undefined, from_euler([0, 0, 0, 1], 0, -90, -90), [0.1, 0.1, 0.1]),
                 ...prop_rocket(game),
             ], 
             // Jet exhaust.
@@ -2058,7 +2058,7 @@
         Tracks: [
             {
                 Instrument: [
-                    5,
+                    3,
                     "highpass",
                     11,
                     0,
@@ -2071,7 +2071,7 @@
                 Notes: [79],
             },
         ],
-        Exit: 9,
+        Exit: 19,
     };
 
     let snd_wind = {
@@ -2242,7 +2242,7 @@
         let matrices = new Float32Array(leaf_count * 16);
         for (let i = 0; i < leaf_count; i++) {
             let offset = [float(-radius, radius), float(-radius, radius), float(-radius, radius)];
-            let rotation = from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90));
+            let rotation = from_euler([0, 0, 0, 1], float(-90, 90), float(-90, 90), float(-90, 90));
             let view = new Float32Array(matrices.buffer, i * 4 * 16, 16);
             from_rotation_translation_scale(view, rotation, offset, [1, 1, 1]);
         }
@@ -2602,7 +2602,7 @@
             collide(false, 2 /* Terrain */, 0 /* None */, [1, 4, 1]),
             rigid_body(0 /* Static */),
             children([
-                transform(undefined, from_euler([0, 0, 0, 0], -90, 0, 0)),
+                transform(undefined, from_euler([0, 0, 0, 1], -90, 0, 0)),
                 emit_particles(2, 0.05, 1),
                 render_particles_colored([1, 1, 0, 1], 50, [1, 0, 0, 1], 10),
                 shake(0.5),
@@ -2828,17 +2828,17 @@
         let pups = [
             instantiate(game, [
                 ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.7),
-                transform([1, 0.5, 0], [0, 0.707, 0, 0.707], [0.3, 0.3, 0.3]),
+                transform([1, 0.5, 0], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
                 move(1.5, 0),
             ]),
             instantiate(game, [
                 ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.8),
-                transform([0.3, 0.5, -0.5], [0, 0.707, 0, 0.707], [0.3, 0.3, 0.3]),
+                transform([0.3, 0.5, -0.5], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
                 move(1.6, 0),
             ]),
             instantiate(game, [
                 ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.9),
-                transform([-0.2, 0.5, 0.3], [0, 0.707, 0, 0.707], [0.3, 0.3, 0.3]),
+                transform([-0.2, 0.5, 0.3], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
                 move(1.7, 0),
             ]),
         ];
@@ -3432,14 +3432,15 @@
         return [
             named("launchpad"),
             control_always([0, 1, 0], null),
-            disable(64 /* ControlAlways */),
+            audio_source(snd_rocket),
+            lifespan(25),
+            disable(64 /* ControlAlways */ | 2 /* AudioSource */ | 1024 /* Lifespan */),
             move(5, 0),
             children([
                 transform(),
                 shake(0.01),
-                disable(131072 /* Shake */),
                 children([transform([0, -30, 0], undefined, [3, 3, 3]), ...prop_rocket(game)], [
-                    transform([0, -30, 0], [0.707, 0, 0, 0.707]),
+                    transform([0, -30, 0], [0.71, 0, 0, 0.71]),
                     children([
                         transform(),
                         shake(0.1),
@@ -3688,9 +3689,8 @@
                     game.World.Signature[i] &= ~128 /* ControlPlayer */;
                 }
                 let launchpad_entity = find_first(game.World, "launchpad");
-                game.World.Signature[launchpad_entity] |= 64 /* ControlAlways */;
-                let launchpad_shaker_entity = game.World.Children[launchpad_entity].Children[0];
-                game.World.Signature[launchpad_shaker_entity] |= 131072 /* Shake */;
+                game.World.Signature[launchpad_entity] |=
+                    64 /* ControlAlways */ | 2 /* AudioSource */ | 1024 /* Lifespan */;
                 instantiate(game, [
                     task_timeout(2, () => {
                         game.CurrentView = End;
@@ -5268,12 +5268,12 @@
             if (!control.IsGrabbingEntity) {
                 if (game.InputState["ArrowLeft"] && control.IsFacingRight) {
                     control.IsFacingRight = false;
-                    set(transform.Rotation, 0, -0.707, 0.0, 0.707);
+                    set(transform.Rotation, 0, -0.71, 0.0, 0.71);
                     transform.Dirty = true;
                 }
                 if (game.InputState["ArrowRight"] && !control.IsFacingRight) {
                     control.IsFacingRight = true;
-                    set(transform.Rotation, 0, 0.707, 0.0, 0.707);
+                    set(transform.Rotation, 0, 0.71, 0.0, 0.71);
                     transform.Dirty = true;
                 }
             }
@@ -5380,12 +5380,12 @@
             if (!control.IsGrabbingEntity) {
                 if (dx < 0 && control.IsFacingRight) {
                     control.IsFacingRight = false;
-                    set(transform.Rotation, 0, -0.707, 0.0, 0.707);
+                    set(transform.Rotation, 0, -0.71, 0.0, 0.71);
                     transform.Dirty = true;
                 }
                 if (dx > 0 && !control.IsFacingRight) {
                     control.IsFacingRight = true;
-                    set(transform.Rotation, 0, 0.707, 0.0, 0.707);
+                    set(transform.Rotation, 0, 0.71, 0.0, 0.71);
                     transform.Dirty = true;
                 }
             }
