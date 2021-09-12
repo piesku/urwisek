@@ -81,10 +81,8 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             }
 
             let launchpad_entity = find_first(game.World, "launchpad");
-            game.World.Signature[launchpad_entity] |= Has.ControlAlways;
-
-            let launchpad_shaker_entity = game.World.Children[launchpad_entity].Children[0];
-            game.World.Signature[launchpad_shaker_entity] |= Has.Shake;
+            game.World.Signature[launchpad_entity] |=
+                Has.ControlAlways | Has.AudioSource | Has.Lifespan;
 
             instantiate(game, [
                 task_timeout(2, () => {
