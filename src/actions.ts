@@ -21,11 +21,11 @@ export const enum Action {
 
 export function dispatch(game: Game, action: Action, payload: unknown) {
     switch (action) {
-        case Action.ChangeSettings: {
-            let select = payload as HTMLSelectElement;
-            game.Quality = select.value as unknown as number;
-            break;
-        }
+        // case Action.ChangeSettings: {
+        //     let select = payload as HTMLSelectElement;
+        //     game.Quality = select.value as unknown as number;
+        //     break;
+        // }
 
         case Action.NewGame: {
             // Start at Ultra to allow Game's tick() to callibrate the framerate.
@@ -86,7 +86,12 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             let launchpad_shaker_entity = game.World.Children[launchpad_entity].Children[0];
             game.World.Signature[launchpad_shaker_entity] |= Has.Shake;
 
-            game.CurrentView = End;
+            instantiate(game, [
+                task_timeout(2, () => {
+                    game.CurrentView = End;
+                }),
+            ]);
+
             break;
         }
     }

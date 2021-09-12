@@ -16,33 +16,16 @@ main {
     touch-action: none;
 }
 
-nav div {
-    opacity: 0.5;
-    transition: opacity 0.2s;
-}
-
-nav div:hover {
-    opacity: 1;
+main {
+    padding: 2vh 3vw;
 }
 
 [onclick] {
     cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
 }
 
-@keyframes intro {
-    from {
-        transform: translateY(0);
-    }
-    to {
-        transform: translateY(-100vh);
-    }
-}
-
-@keyframes fadein {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+[onclick]:hover {
+    opacity: 1;
 }
