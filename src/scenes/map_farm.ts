@@ -62,10 +62,6 @@ export function map_farm(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
 
     instantiate(game, [transform([7.95, 0.5, -5.44], [0, 0.17, 0, 0.98]), ...prop_silo(game)]);
 
-    instantiate(game, [transform([8.46, 0.5, -7.56], [0, 0.71, 0, 0.71]), ...prop_fence(game)]);
-
-    instantiate(game, [transform([10.46, 0.5, -7.56], [0, 0.71, 0, 0.71]), ...prop_fence(game)]);
-
     instantiate(game, [transform([12.46, 0.5, -7.56], [0, 0.71, 0, 0.71]), ...prop_fence(game)]);
 
     instantiate(game, [transform([14.46, 0.5, -7.56], [0, 0.71, 0, 0.71]), ...prop_fence(game)]);
@@ -98,14 +94,7 @@ export function map_farm(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
         ...prop_silo(game),
     ]);
 
-    instantiate(game, [
-        transform([66.14, 0.5, -7.33], [0, 0.17, 0, 0.98], [0.6, 0.6, 0.6]),
-        ...prop_silo(game),
-    ]);
-
     instantiate(game, [transform([62.6, 0.58, -7]), ...blueprint_bush(game)]);
-
-    instantiate(game, [transform([66.02, 3.59, -7.08]), ...blueprint_bush(game)]);
 
     instantiate(game, [
         transform([70.27, 0.36, -8.29], [0, 0.95, 0, 0.31], [0.7, 0.7, 0.7]),
@@ -118,41 +107,11 @@ export function map_farm(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
     ]);
 
     instantiate(game, [
-        transform([74.69, 0.5, -3.81], [0, 0.82, 0, 0.58], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
         transform([11.78, 0.9, -6.81], [0.68, 0.19, -0.19, 0.68], [0.4, 0.4, 0.4]),
         ...prop_car2(game),
     ]);
 
     instantiate(game, [transform([11.41, 0.61, -5.83]), ...blueprint_bush(game)]);
-
-    instantiate(game, [
-        transform([73.83, 0.5, -3.49], [0, 0.82, 0, 0.58], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([72.94, 0.5, -3.3], [0, 0.74, 0, 0.67], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([72.02, 0.5, -3.24], [0, 0.72, 0, 0.69], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([71.07, 0.5, -3.19], [0, 0.72, 0, 0.69], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
-
-    instantiate(game, [
-        transform([70.14, 0.5, -3.3], [0, 0.6, 0, 0.8], [0.5, 0.5, 0.5]),
-        ...prop_fence(game),
-    ]);
 
     instantiate(game, [
         transform([69.34, 0.5, -3.74], [0, 0.41, 0, 0.91], [0.5, 0.5, 0.5]),
@@ -302,11 +261,7 @@ export function map_farm(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
 
     instantiate(game, [transform([53.83, 0.36, -3.7], [0, 0.19, 0, 0.98]), ...prop_slup(game)]);
 
-    instantiate(game, [transform([59.06, 0.36, -10.05], [0, 0.56, 0, 0.83]), ...prop_slup(game)]);
-
     instantiate(game, [transform([47.85, 0.33, 2.41]), ...blueprint_bush(game)]);
-
-    instantiate(game, [transform([54.83, 0.5, 2.69], [0, 0.71, 0, 0.71]), ...prop_fence(game)]);
 
     instantiate(game, [transform([56.83, 0.5, 2.69], [0, 0.71, 0, 0.71]), ...prop_fence(game)]);
 
@@ -364,10 +319,6 @@ export function map_farm(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
     ]);
 
     instantiate(game, [transform([89.73, 0.5, 2.07], [0, 1, 0, 0]), ...prop_fence(game)]);
-
-    instantiate(game, [transform([89.69, 1.64, -5.27], [0, 1, 0, 0]), ...prop_fence(game)]);
-
-    instantiate(game, [transform([89.7, 1.64, -3.44], [0, 1, 0, 0]), ...prop_fence(game)]);
 
     instantiate(game, [transform([89.71, 1.64, -1.64], [0, 1, 0, 0]), ...prop_fence(game)]);
 
