@@ -203,7 +203,6 @@ this.Now = 0;
 
 
 
-
 this.Quality = 2048 /* High */;
 this.ViewportWidth = window.innerWidth;
 this.ViewportHeight = window.innerHeight;
@@ -3592,8 +3591,6 @@ switch (action) {
 
 
 case 1 /* NewGame */: {
-
-game.Quality = 4096 /* Ultra */;
 game.CurrentView = Play;
 break;
 }

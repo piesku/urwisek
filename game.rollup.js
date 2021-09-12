@@ -202,8 +202,7 @@
             this.Now = 0;
             // Start at High to make sure the title screen runs smoothly; there's not
             // much to render at that point but we need the rocket spawner to spawn
-            // frequently enough. Action.NewGame changes this to Ultra; tick() will
-            // scale it down dynamically if necessary.
+            // frequently enough. tick() will scale it down dynamically if necessary.
             this.Quality = 2048 /* High */;
             this.ViewportWidth = window.innerWidth;
             this.ViewportHeight = window.innerHeight;
@@ -3592,8 +3591,6 @@
             //     break;
             // }
             case 1 /* NewGame */: {
-                // Start at Ultra to allow Game's tick() to callibrate the framerate.
-                game.Quality = 4096 /* Ultra */;
                 game.CurrentView = Play;
                 break;
             }
