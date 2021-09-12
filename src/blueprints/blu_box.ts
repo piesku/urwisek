@@ -8,7 +8,11 @@ import {Has} from "../world.js";
 
 export function blueprint_box(game: Game) {
     return [
-        collide(true, Layer.Movable | Layer.SurfaceWood, Layer.Terrain | Layer.Movable),
+        collide(
+            true,
+            Layer.Movable | Layer.SurfaceWood,
+            Layer.Terrain | Layer.Movable | Layer.Player
+        ),
         rigid_body(RigidKind.Dynamic),
         mimic(0),
         disable(Has.Mimic),
