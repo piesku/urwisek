@@ -24,13 +24,8 @@ import {blueprint_fire} from "../blueprints/blu_fire.js";
 
 export function map_forest(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5 / 255, 1]) {
     instantiate(game, [
-<<<<<<< HEAD
         transform([46, -2, -5.6], [0, 0.71, 0, 0.71], [20, 4, 105]),
-        ...blueprint_ground(game),
-=======
-        transform([46, -1.75, -5.6], [0, 0.71, 0, 0.71], [20, 4, 105]),
         ...blueprint_ground(game, ground_color),
->>>>>>> bf8ed4f (city map)
     ]);
 
     instantiate(game, [
@@ -129,11 +124,7 @@ export function map_forest(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255,
     instantiate(game, [transform([-4, 0.25, -6], [0, 0.71, 0, 0.71]), spawn(blueprint_animal, 1)]);
 
     instantiate(game, [
-<<<<<<< HEAD
         transform([65, 2.25, -2], [0.01, 0.76, 0.12, 0.64]),
-=======
-        transform([65, 2.5, -2], [0.01, 0.76, 0.12, 0.64]),
->>>>>>> bf8ed4f (city map)
         children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
     ]);
 
@@ -152,9 +143,8 @@ export function map_forest(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255,
     instantiate(game, [transform([48.2, 2.75, 0]), ...blueprint_box(game)]);
 
     instantiate(game, [
-<<<<<<< HEAD
         transform([91, 1.75, 0.6], undefined, [14, 4, 7.5]),
-        ...blueprint_ground(game),
+        ...blueprint_ground(game, ground_color),
     ]);
 
     instantiate(game, [
@@ -163,18 +153,6 @@ export function map_forest(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255,
     ]);
 
     instantiate(game, [transform([74, 0.75, 0]), ...blueprint_box(game)]);
-=======
-        transform([91, 2, 0.6], undefined, [14, 4, 7.5]),
-        ...blueprint_ground(game, ground_color),
-    ]);
-
-    instantiate(game, [
-        transform([-4, 3.5, -2], [0.01, 0.76, 0.12, 0.64]),
-        children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
-    ]);
-
-    instantiate(game, [transform([74, 1, 0]), ...blueprint_box(game)]);
->>>>>>> bf8ed4f (city map)
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 
