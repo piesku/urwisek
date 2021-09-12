@@ -1682,7 +1682,7 @@ children([
 transform(),
 shake(0.1),
 emit_particles(1, 0.1, 0.1),
-render_particles_colored([1, 1, 1, 1], 4, [0.5, 0.5, 1, 1], 1),
+render_particles_colored([1, 1, 1, 1], 8, [0.5, 0.5, 1, 1], 1),
 ]),
 task_timeout(7, (entity) => {
 let mimic = game.World.Mimic[entity];
@@ -2498,48 +2498,45 @@ cull(32768 /* Render */ | 131072 /* Shake */ | 512 /* EmitParticles */),
 
 function map_forest(game) {
 instantiate(game, [
-transform([46, -1.75, -5.6], [0, 0.71, 0, 0.71], [20, 4, 105]),
+transform([46, -2, -5.6], [0, 0.71, 0, 0.71], [20, 4, 105]),
 ...blueprint_ground(game),
 ]);
 instantiate(game, [
-transform([73.64, 0.19, -1.22], undefined, [7.5, 3, 7.5]),
+transform([73.64, -0.06, -1.22], undefined, [7.5, 3, 7.5]),
 ...blueprint_tree(game),
 ]);
 instantiate(game, [
-transform([77.67, -0.32, -1.58], undefined, [10, 4, 10]),
+transform([77.67, -0.57, -1.58], undefined, [10, 4, 10]),
 ...blueprint_tree(game),
 ]);
 instantiate(game, [
-transform([82.72, -0.09, -1.53], undefined, [10, 8, 10]),
+transform([82.72, -0.34, -1.53], undefined, [10, 8, 10]),
+...blueprint_tree(game),
+]);
+instantiate(game, [transform([-5, -1, 2], undefined, [20, 4, 20]), ...blueprint_tree(game)]);
+instantiate(game, [transform([48.2, 0.75, 0]), ...blueprint_box(game)]);
+instantiate(game, [
+transform([70.71, -0.58, -1.75], undefined, [10, 4, 10]),
 ...blueprint_tree(game),
 ]);
 instantiate(game, [
-transform([-3.86, -0.33, 2], undefined, [20, 4, 20]),
-...blueprint_tree(game),
-]);
-instantiate(game, [transform([48.2, 1, 0]), ...blueprint_box(game)]);
-instantiate(game, [
-transform([70.71, -0.33, -1.75], undefined, [10, 4, 10]),
-...blueprint_tree(game),
-]);
-instantiate(game, [
-transform([70.04, 2.19, 0.62], [0.71, -0.05, 0.05, 0.71], [0.5, 4, 0.5]),
+transform([70.04, 1.94, 0.62], [0.71, -0.05, 0.05, 0.71], [0.5, 4, 0.5]),
 ...blueprint_obstacle_branch(game),
 ]);
 instantiate(game, [
-transform([71.14, 2.92, 0.01], [0.71, 0.01, -0.01, 0.71], [0.5, 2, 0.5]),
+transform([71.14, 2.67, 0.01], [0.71, 0.01, -0.01, 0.71], [0.5, 2, 0.5]),
 ...blueprint_obstacle_branch(game),
 ]);
 instantiate(game, [
-transform([73.71, 4.1, 0.04], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
+transform([73.71, 3.85, 0.04], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
 ...blueprint_obstacle_branch(game),
 ]);
 instantiate(game, [
-transform([77.55, 5.42, -0.25], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
+transform([77.55, 5.17, -0.25], [0.5, 0.5, -0.5, 0.5], [0.5, 4, 0.5]),
 ...blueprint_obstacle_branch(game),
 ]);
 instantiate(game, [
-transform([82.82, 6.49, 0], [0.5, 0.5, -0.5, 0.5], [0.5, 6, 0.5]),
+transform([82.82, 6.24, 0], [0.5, 0.5, -0.5, 0.5], [0.5, 6, 0.5]),
 ...blueprint_obstacle_branch(game),
 ]);
 {
@@ -2554,55 +2551,50 @@ let Zmax = centerZ + ~~(depth / 2);
 let number_of_trees = ~~(((width * depth) / 10) * 0.8);
 for (let i = 0; i < number_of_trees; i++) {
 instantiate(game, [
-transform([float(Xmin, Xmax), -3, float(Zmin, Zmax)], undefined, [10, 5, 10]),
+transform([float(Xmin, Xmax), -3.25, float(Zmin, Zmax)], undefined, [10, 5, 10]),
 ...element([blueprint_tree(game), blueprint_bush(game)]),
 ]);
 }
 }
 instantiate(game, [
-transform([25, 0.5, 0], [0.71, 0, 0, 0.71], [1, 4, 1]),
+transform([25, 0.25, 0], [0.71, 0, 0, 0.71], [1, 4, 1]),
 ...blueprint_obstacle_branch(game),
 ]);
 instantiate(game, [
-transform([26, 0.5, 0], [0.71, 0, 0, 0.71], [1, 4, 1]),
+transform([26, 0.25, 0], [0.71, 0, 0, 0.71], [1, 4, 1]),
 ...blueprint_obstacle_branch(game),
 ]);
 instantiate(game, [
-transform([27, 0.5, 0], [0.71, 0, 0, 0.71], [1, 4, 1]),
+transform([27, 0.25, 0], [0.71, 0, 0, 0.71], [1, 4, 1]),
 ...blueprint_obstacle_branch(game),
 ]);
 instantiate(game, [
-transform([26.5, 1.2, 0], [0.71, 0, 0, 0.71], [1, 4, 1]),
+transform([26.5, 0.95, 0], [0.71, 0, 0, 0.71], [1, 4, 1]),
 ...blueprint_obstacle_branch(game),
 ]);
-instantiate(game, [transform([95, 4, 0]), ...blueprint_exit()]);
-instantiate(game, [transform([95, 4, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
-instantiate(game, [transform([-4, 0.5, -6], [0, 0.71, 0, 0.71]), spawn(blueprint_animal, 1)]);
+instantiate(game, [transform([95, 3.75, 0]), ...blueprint_exit()]);
+instantiate(game, [transform([95, 3.75, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
+instantiate(game, [transform([-4, 0.25, -6], [0, 0.71, 0, 0.71]), spawn(blueprint_animal, 1)]);
 instantiate(game, [
-transform([29, 3.5, -2], [0.01, 0.76, 0.12, 0.64]),
+transform([65, 2.25, -2], [0.01, 0.76, 0.12, 0.64]),
 children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
 ]);
-instantiate(game, [transform([-1.5, 0, 0], undefined, [2, 2, 2]), ...blueprint_fire()]);
-instantiate(game, [transform([50, 1, -1]), ...blueprint_box(game)]);
-instantiate(game, [transform([45, 1, 3]), ...blueprint_box(game)]);
-instantiate(game, [transform([51, 1, 3]), ...blueprint_box(game)]);
-instantiate(game, [transform([47, 1, 2]), ...blueprint_box(game)]);
-instantiate(game, [transform([48, 2, -0.1]), ...blueprint_box(game)]);
-instantiate(game, [transform([48.2, 3, 0]), ...blueprint_box(game)]);
+instantiate(game, [transform([-2.5, -0.25, 0], undefined, [2, 2, 2]), ...blueprint_fire()]);
+instantiate(game, [transform([50, 0.75, -1]), ...blueprint_box(game)]);
+instantiate(game, [transform([45, 0.75, 3]), ...blueprint_box(game)]);
+instantiate(game, [transform([51, 0.75, 3]), ...blueprint_box(game)]);
+instantiate(game, [transform([47, 0.75, 2]), ...blueprint_box(game)]);
+instantiate(game, [transform([48, 1.75, -0.1]), ...blueprint_box(game)]);
+instantiate(game, [transform([48.2, 2.75, 0]), ...blueprint_box(game)]);
 instantiate(game, [
-transform([91, 2, 0.6], undefined, [14, 4, 7.5]),
+transform([91, 1.75, 0.6], undefined, [14, 4, 7.5]),
 ...blueprint_ground(game),
 ]);
 instantiate(game, [
-transform([-4, 3.5, -2], [0.01, 0.76, 0.12, 0.64]),
+transform([-4, 3.25, -2], [0.01, 0.76, 0.12, 0.64]),
 children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
 ]);
-instantiate(game, [
-transform([76, 3.5, -2], [0.01, 0.76, 0.12, 0.64]),
-children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
-]);
-instantiate(game, [transform([45, 0.5, -9], [0, 0.71, 0, 0.71]), spawn(blueprint_animal, 1)]);
-instantiate(game, [transform([74, 1, 0]), ...blueprint_box(game)]);
+instantiate(game, [transform([74, 0.75, 0]), ...blueprint_box(game)]);
 instantiate(game, [...blueprint_sun_light(), transform()]);
 instantiate(game, [...blueprint_sun_shadow(game), transform()]);
 }
@@ -2613,8 +2605,8 @@ game.ViewportResized = true;
 instantiate(game, [
 children([audio_source(snd_wind)], [audio_source(snd_chirp1)], [audio_source(snd_horn)]),
 ]);
-let camera_anchor_intro = instantiate(game, [transform([0, 1, -3]), named("camera anchor")]);
-let player_entity = instantiate_player(game, [2, 2, 0]);
+let camera_anchor_intro = instantiate(game, [transform([0, 0.5, -3]), named("camera anchor")]);
+let player_entity = instantiate_player(game, [0, 1, 0]);
 game.World.Signature[player_entity] &= ~128 /* ControlPlayer */;
 map_forest(game);
 let starfield_entity = instantiate(game, [
@@ -2633,24 +2625,24 @@ children([transform(), shake(3), spawn(blueprint_rocket, 3)]),
 let camera_entity = instantiate(game, [
 ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
 transform([0, 25, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
-mimic(find_first(game.World, "camera anchor"), 0.01),
+mimic(find_first(game.World, "camera anchor"), 0.02),
 disable(4096 /* Mimic */),
 ]);
 let pups = [
 instantiate(game, [
 ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.7),
-transform([1, 0.5, 0], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
-move(1.5, 0),
+transform([1, 0, 0], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
+move(2.5, 0),
 ]),
 instantiate(game, [
 ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.8),
-transform([0.3, 0.5, -0.5], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
-move(1.6, 0),
+transform([0.3, 0, -0.5], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
+move(2.6, 0),
 ]),
 instantiate(game, [
 ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.9),
-transform([-0.2, 0.5, 0.3], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
-move(1.7, 0),
+transform([-0.2, 0, 0.3], [0, 0.71, 0, 0.71], [0.3, 0.3, 0.3]),
+move(2.7, 0),
 ]),
 ];
 
@@ -2665,7 +2657,7 @@ task_timeout(1, () => {
 game.World.Signature[camera_entity] |= 4096 /* Mimic */;
 }),
 ], [
-task_timeout(5, () => {
+task_timeout(6, () => {
 
 for (let pup of pups) {
 control_always([0, 0, 1], null, "jump")(game, pup);
@@ -2673,7 +2665,7 @@ lifespan(7)(game, pup);
 }
 }),
 ], [
-task_timeout(6, () => {
+task_timeout(8, () => {
 
 destroy_all(game.World, starfield_entity);
 
@@ -2687,7 +2679,7 @@ transform([-20, 5, 0]),
 ]);
 }),
 ], [
-task_timeout(8, () => {
+task_timeout(9, () => {
 game.World.Signature[player_entity] |= 128 /* ControlPlayer */;
 }),
 ]),
@@ -3574,6 +3566,7 @@ game.World = new World();
 game.ViewportResized = true;
 instantiate_player(game, [0, 2, 0]);
 map_city(game);
+instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
 
 instantiate(game, [
 ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
