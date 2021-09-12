@@ -81,8 +81,10 @@ export interface ParticlesColoredLayout {
 }
 
 export interface InstancedLayout {
-    InstanceOffset: GLint;
-    InstanceRotation: GLint;
+    InstanceColumn1: GLint;
+    InstanceColumn2: GLint;
+    InstanceColumn3: GLint;
+    InstanceColumn4: GLint;
 }
 
 export interface FogLayout {

@@ -12,59 +12,27 @@ let vertex = `#version 300 es\n
     uniform vec4 fog_color;
 
     in vec3 attr_position;
-    in vec4 attr_offset;
-    in vec4 attr_rotation;
+    in vec4 attr_column1;
+    in vec4 attr_column2;
+    in vec4 attr_column3;
+    in vec4 attr_column4;
 
     out vec4 vert_color;
 
     void main() {
-        float x = attr_rotation.x;
-        float y = attr_rotation.y;
-        float z = attr_rotation.z;
-        float w = attr_rotation.w;
+        vec3 color = palette[int(attr_column4.w)];
 
-        float x2 = x + x;
-        float y2 = y + y;
-        float z2 = z + z;
-        float xx = x * x2;
-        float yx = y * x2;
-        float yy = y * y2;
-        float zx = z * x2;
-        float zy = z * y2;
-        float zz = z * z2;
-        float wx = w * x2;
-        float wy = w * y2;
-        float wz = w * z2;
-
-        float m0 = 1.0 - yy - zz;
-        float m1 = yx + wz;
-        float m2 = zx - wy;
-        float m3 = 0.0;
-        float m4 = yx - wz;
-        float m5 = 1.0 - xx - zz;
-        float m6 = zy + wx;
-        float m7 = 0.0;
-        float m8 = zx + wy;
-        float m9 = zy - wx;
-        float m10 = 1.0 - xx - yy;
-        float m11 = 0.0;
-        float m12 = 0.0;
-        float m13 = 0.0;
-        float m14 = 0.0;
-        float m15 = 1.0;
-
-        mat4 rotation = mat4(
-            m0, m1, m2, m3,
-            m4, m5, m6, m7,
-            m8, m9, m10, m11,
-            m12, m13, m14, m15
+        mat4 local = mat4(
+            attr_column1,
+            attr_column2,
+            attr_column3,
+            attr_column4.xyz, 1.0
         );
 
-        vec4 world_position = world * rotation * vec4(attr_position + attr_offset.xyz, 1.0);
+        vec4 world_position = world * mat4(mat3(local)) * vec4(attr_position + attr_column4.xyz, 1.0);
         gl_Position = pv * world_position;
 
         // Ambient light only.
-        vec3 color = palette[int(attr_offset[3])];
         vert_color = vec4(color * 0.1, 1.0);
 
         float eye_distance = length(eye - world_position.xyz);
@@ -101,8 +69,11 @@ export function mat_forward_instanced(
             FogColor: gl.getUniformLocation(program, "fog_color")!,
 
             VertexPosition: gl.getAttribLocation(program, "attr_position")!,
-            InstanceOffset: gl.getAttribLocation(program, "attr_offset")!,
-            InstanceRotation: gl.getAttribLocation(program, "attr_rotation")!,
+
+            InstanceColumn1: gl.getAttribLocation(program, "attr_column1")!,
+            InstanceColumn2: gl.getAttribLocation(program, "attr_column2")!,
+            InstanceColumn3: gl.getAttribLocation(program, "attr_column3")!,
+            InstanceColumn4: gl.getAttribLocation(program, "attr_column4")!,
         },
     };
 }

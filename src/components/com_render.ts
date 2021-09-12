@@ -245,18 +245,12 @@ export interface RenderInstanced {
     readonly Vao: WebGLVertexArrayObject;
     readonly InstanceCount: number;
     readonly Palette: Array<number>;
-    readonly InstanceOffsetBuffer: WebGLBuffer;
-    readonly InstanceRotationBuffer: WebGLBuffer;
+    readonly InstanceBuffer: WebGLBuffer;
 }
 
 export type InstancedData = Float32Array;
 
-export function render_instanced(
-    mesh: Mesh,
-    offsets: InstancedData,
-    rotation_offsets: InstancedData,
-    palette: Array<number>
-) {
+export function render_instanced(mesh: Mesh, offsets: InstancedData, palette: Array<number>) {
     return (game: Game, entity: Entity) => {
         let material = game.MaterialInstanced;
 
@@ -273,19 +267,53 @@ export function render_instanced(
         game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
         game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
 
-        let instance_offset_buffer = game.Gl.createBuffer()!;
-        game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_offset_buffer);
+        let instance_buffer = game.Gl.createBuffer()!;
+        game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_buffer);
         game.Gl.bufferData(GL_ARRAY_BUFFER, offsets, GL_STATIC_DRAW);
-        game.Gl.enableVertexAttribArray(material.Locations.InstanceOffset);
-        game.Gl.vertexAttribPointer(material.Locations.InstanceOffset, 4, GL_FLOAT, false, 0, 0);
-        game.Gl.vertexAttribDivisor(material.Locations.InstanceOffset, 1);
 
-        let instance_rotation_buffer = game.Gl.createBuffer()!;
-        game.Gl.bindBuffer(GL_ARRAY_BUFFER, instance_rotation_buffer);
-        game.Gl.bufferData(GL_ARRAY_BUFFER, rotation_offsets, GL_STATIC_DRAW);
-        game.Gl.enableVertexAttribArray(material.Locations.InstanceRotation);
-        game.Gl.vertexAttribPointer(material.Locations.InstanceRotation, 4, GL_FLOAT, false, 0, 0);
-        game.Gl.vertexAttribDivisor(material.Locations.InstanceRotation, 1);
+        game.Gl.enableVertexAttribArray(material.Locations.InstanceColumn1);
+        game.Gl.vertexAttribPointer(
+            material.Locations.InstanceColumn1,
+            4,
+            GL_FLOAT,
+            false,
+            4 * 16,
+            0
+        );
+        game.Gl.vertexAttribDivisor(material.Locations.InstanceColumn1, 1);
+
+        game.Gl.enableVertexAttribArray(material.Locations.InstanceColumn2);
+        game.Gl.vertexAttribPointer(
+            material.Locations.InstanceColumn2,
+            4,
+            GL_FLOAT,
+            false,
+            4 * 16,
+            4 * 4
+        );
+        game.Gl.vertexAttribDivisor(material.Locations.InstanceColumn2, 1);
+
+        game.Gl.enableVertexAttribArray(material.Locations.InstanceColumn3);
+        game.Gl.vertexAttribPointer(
+            material.Locations.InstanceColumn3,
+            4,
+            GL_FLOAT,
+            false,
+            4 * 16,
+            4 * 8
+        );
+        game.Gl.vertexAttribDivisor(material.Locations.InstanceColumn3, 1);
+
+        game.Gl.enableVertexAttribArray(material.Locations.InstanceColumn4);
+        game.Gl.vertexAttribPointer(
+            material.Locations.InstanceColumn4,
+            4,
+            GL_FLOAT,
+            false,
+            4 * 16,
+            4 * 12
+        );
+        game.Gl.vertexAttribDivisor(material.Locations.InstanceColumn4, 1);
 
         game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 
@@ -296,10 +324,9 @@ export function render_instanced(
             Material: material,
             Mesh: mesh,
             Vao: vao,
-            InstanceCount: offsets.length / 4,
+            InstanceCount: offsets.length / 16,
             Palette: palette,
-            InstanceOffsetBuffer: instance_offset_buffer,
-            InstanceRotationBuffer: instance_rotation_buffer,
+            InstanceBuffer: instance_buffer,
         };
     };
 }
