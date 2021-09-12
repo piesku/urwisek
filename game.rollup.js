@@ -2074,6 +2074,29 @@
         Exit: 19,
     };
 
+    let snd_horn = {
+        Tracks: [
+            {
+                Instrument: [
+                    5,
+                    "lowpass",
+                    8,
+                    0,
+                    true,
+                    "triangle",
+                    4,
+                    4,
+                    [
+                        ["sine", 8, 8, 12, 14, 8, false, false, 8, 8, 8],
+                        ["triangle", 6, 7, 12, 15, 15, false, false, 8, 8, 8],
+                    ],
+                ],
+                Notes: [24, 26, 28, 29, 31, 33, 35, 36, 38, 40, 0, 0, 0, 0],
+            },
+        ],
+        Exit: 6,
+    };
+
     let snd_wind = {
         Tracks: [
             {
@@ -2588,7 +2611,9 @@
     function scene_intro(game) {
         game.World = new World();
         game.ViewportResized = true;
-        instantiate(game, [children([audio_source(snd_wind)], [audio_source(snd_chirp1)])]);
+        instantiate(game, [
+            children([audio_source(snd_wind)], [audio_source(snd_chirp1)], [audio_source(snd_horn)]),
+        ]);
         let camera_anchor_intro = instantiate(game, [transform([0, 1, -3]), named("camera anchor")]);
         let player_entity = instantiate_player(game, [2, 2, 0]);
         game.World.Signature[player_entity] &= ~128 /* ControlPlayer */;
@@ -3269,18 +3294,10 @@
             transform([0, 10, 10]),
             mimic(find_first(game.World, "camera anchor"), 0.05),
         ]);
-        instantiate(game, [children([audio_source(snd_gust)], [audio_source(snd_neigh)])]);
+        instantiate(game, [
+            children([audio_source(snd_gust)], [audio_source(snd_neigh)], [audio_source(snd_horn)]),
+        ]);
     }
-
-    let snd_helicopter = {
-        Tracks: [
-            {
-                Instrument: [6, "lowpass", 8, 4, true, "sine", 8, 8, [[false, 8, 5, 18, 10]]],
-                Notes: [77],
-            },
-        ],
-        Exit: 99,
-    };
 
     function prop_panelki(game) {
         return [
@@ -3564,7 +3581,7 @@
             transform([0, 10, 10]),
             mimic(find_first(game.World, "camera anchor"), 0.05),
         ]);
-        instantiate(game, [children([audio_source(snd_wind)], [audio_source(snd_helicopter)])]);
+        instantiate(game, [children([audio_source(snd_wind)], [audio_source(snd_horn)])]);
     }
 
     function dispatch(game, action, payload) {
@@ -4811,16 +4828,11 @@
         }
         return noise_buffer;
     }
-    function play_synth_clip(audio, clip) {
-        // Seconds per beat, corresponding to a quarter note.
-        let spb = 60 / (clip.BPM || 120);
-        // Track timing is based on sixteenth notes.
-        let interval = spb / 4;
+    function play_synth_random(audio, clip) {
         for (let track of clip.Tracks) {
-            for (let i = 0; i < track.Notes.length; i++) {
-                if (track.Notes[i]) {
-                    play_note(audio, track.Instrument, track.Notes[i], i * interval);
-                }
+            let note = element(track.Notes);
+            if (note) {
+                play_note(audio, track.Instrument, note, 0);
             }
         }
     }
@@ -4849,7 +4861,7 @@
             }
         }
         if (audio_source.Trigger && !audio_source.Current) {
-            play_synth_clip(game.Audio, audio_source.Trigger);
+            play_synth_random(game.Audio, audio_source.Trigger);
             audio_source.Current = audio_source.Trigger;
             audio_source.Time = 0;
         }
@@ -6176,7 +6188,7 @@
     // @ts-ignore
     window.scenes = [scene_intro, scene_level1, scene_level2, scene_level3, scene_stage];
     // @ts-ignore ⮮ CHANGE ME HERE.
-    window.scenes[3](game);
+    window.scenes[0](game);
     game.Start();
     // @ts-ignore
     window.$ = dispatch.bind(null, game);
