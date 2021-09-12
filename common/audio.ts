@@ -1,3 +1,5 @@
+import {element} from "./random.js";
+
 export interface AudioSynthClip {
     /** Audio tracks making up this clip. */
     Tracks: Array<AudioTrack>;
@@ -203,6 +205,15 @@ export function play_synth_clip(audio: AudioContext, clip: AudioSynthClip) {
             if (track.Notes[i]) {
                 play_note(audio, track.Instrument, track.Notes[i], i * interval);
             }
+        }
+    }
+}
+
+export function play_synth_random(audio: AudioContext, clip: AudioSynthClip) {
+    for (let track of clip.Tracks) {
+        let note = element(track.Notes);
+        if (note) {
+            play_note(audio, track.Instrument, note, 0);
         }
     }
 }
