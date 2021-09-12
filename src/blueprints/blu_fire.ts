@@ -15,7 +15,7 @@ export function blueprint_fire(game: Game) {
         collide(false, Layer.Terrain, Layer.None, [1, 4, 1]),
         rigid_body(RigidKind.Static),
         children([
-            transform(undefined, from_euler([0, 0, 0, 0], -90, 0, 0)),
+            transform(undefined, from_euler([0, 0, 0, 1], -90, 0, 0)),
             emit_particles(2, 0.05, 1),
             render_particles_colored([1, 1, 0, 1], 50, [1, 0, 0, 1], 10),
             shake(0.5),

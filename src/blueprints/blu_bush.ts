@@ -13,7 +13,7 @@ export function blueprint_bush(game: Game) {
     let matrices = new Float32Array(leaf_count * 16);
     for (let i = 0; i < leaf_count; i++) {
         let offset: Vec3 = [float(-radius, radius), float(-radius, radius), float(-radius, radius)];
-        let rotation = from_euler([0, 0, 0, 0], float(-90, 90), float(-90, 90), float(-90, 90));
+        let rotation = from_euler([0, 0, 0, 1], float(-90, 90), float(-90, 90), float(-90, 90));
         let view = new Float32Array(matrices.buffer, i * 4 * 16, 16);
         from_rotation_translation_scale(view, rotation, offset, [1, 1, 1]);
     }
