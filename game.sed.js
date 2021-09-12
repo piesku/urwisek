@@ -2056,17 +2056,7 @@ SinceLast: interval,
 let snd_chirp1 = {
 Tracks: [
 {
-Instrument: [
-3,
-"highpass",
-11,
-0,
-true,
-"sine",
-4,
-7,
-[["sine", 8, 2, 8, 5, 8, true, false, 3, 8, 7]],
-],
+Instrument: [3, "highpass", 11, 0, true, "sine", 4, 7, [["sine", 8, 2, 8, 5, 8, true]]],
 Notes: [79],
 },
 ],
@@ -2086,8 +2076,8 @@ true,
 4,
 4,
 [
-["sine", 8, 8, 12, 14, 8, false, false, 8, 8, 8],
-["triangle", 6, 7, 12, 15, 15, false, false, 8, 8, 8],
+["sine", 8, 8, 12, 14, 8, false],
+["triangle", 6, 7, 12, 15, 15, false],
 ],
 ],
 Notes: [24, 26, 28, 29, 31, 33, 35, 36, 38, 40, 0, 0, 0, 0],
@@ -4568,18 +4558,7 @@ lfa.connect(hfo.detune);
 
 
 let freq = 440 * 2 ** ((note - 69) / 12);
-if (source[7 /* FreqEnabled */]) {
-let freq_attack = (source[8 /* FreqAttack */] / 9) ** 3;
-let freq_sustain = (source[9 /* FreqSustain */] / 9) ** 3;
-let freq_release = (source[10 /* FreqRelease */] / 6) ** 3;
-hfo.frequency.linearRampToValueAtTime(0, time);
-hfo.frequency.linearRampToValueAtTime(freq, time + freq_attack);
-hfo.frequency.setValueAtTime(freq, time + freq_attack + freq_sustain);
-hfo.frequency.exponentialRampToValueAtTime(0.00001, time + freq_attack + freq_sustain + freq_release);
-}
-else {
 hfo.frequency.setValueAtTime(freq, time);
-}
 hfo.start(time);
 hfo.stop(time + gain_duration);
 }
@@ -4896,7 +4875,7 @@ false,
 8,
 8,
 [
-["sine", 8, 1, 1, 3, 8, false, false, 8, 8, 8],
+["sine", 8, 1, 1, 3, 8, false],
 [false, 8, 2, 2, 2],
 ],
 ],
@@ -4919,7 +4898,7 @@ false,
 8,
 8,
 [
-["sine", 8, 1, 1, 3, 8, false, false, 8, 8, 8],
+["sine", 8, 1, 1, 3, 8, false],
 [false, 8, 1, 2, 3],
 ],
 ],
@@ -4942,7 +4921,7 @@ false,
 8,
 8,
 [
-["square", 3, 1, 1, 2, 8, false, false, 7, 7, 8],
+["square", 3, 1, 1, 2, 8, false],
 [false, 3, 2, 2, 3],
 ],
 ],
