@@ -4034,30 +4034,26 @@ Direction: gl.getAttribLocation(program, "attr_direction"),
 function mesh_cube(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$5, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$4, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$5, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$4, GL_STATIC_DRAW);
 let weights_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-gl.bufferData(GL_ARRAY_BUFFER, weights_arr$5, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, weights_arr$4, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$5, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$4, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$5,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$5,
 WeightsBuffer: weights_buf,
-WeightsArray: weights_arr$5,
 IndexBuffer: index_buf,
-IndexArray: index_arr$5,
-IndexCount: index_arr$5.length,
+IndexCount: index_arr$4.length,
 };
 }
 
-let vertex_arr$5 = Float32Array.from([
+let vertex_arr$4 = Float32Array.from([
 -0.5, -0.5, 0.5,
 -0.5, -0.5, 0.5,
 -0.5, -0.5, 0.5,
@@ -4084,7 +4080,7 @@ let vertex_arr$5 = Float32Array.from([
 0.5, 0.5, -0.5
 ]);
 
-let normal_arr$5 = Float32Array.from([
+let normal_arr$4 = Float32Array.from([
 -1.0, 0.0, 0.0,
 0.0, -1.0, 0.0,
 0.0, 0.0, 1.0,
@@ -4111,9 +4107,9 @@ let normal_arr$5 = Float32Array.from([
 1.0, 0.0, 0.0
 ]);
 
-let weights_arr$5 = Float32Array.from([]);
+let weights_arr$4 = Float32Array.from([]);
 
-let index_arr$5 = Uint16Array.from([
+let index_arr$4 = Uint16Array.from([
 16, 5, 22,
 5, 11, 22,
 1, 12, 7,
@@ -4131,70 +4127,66 @@ let index_arr$5 = Uint16Array.from([
 function mesh_cylinder(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$4, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$3, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$4, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$3, GL_STATIC_DRAW);
 let weights_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-gl.bufferData(GL_ARRAY_BUFFER, weights_arr$4, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, weights_arr$3, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$4, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$3, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$4,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$4,
 WeightsBuffer: weights_buf,
-WeightsArray: weights_arr$4,
 IndexBuffer: index_buf,
-IndexArray: index_arr$4,
-IndexCount: index_arr$4.length,
+IndexCount: index_arr$3.length,
 };
 }
 
-let vertex_arr$4 = Float32Array.from([
-0.000, -0.500, -0.500,
-0.000, 0.500, -0.500,
-0.354, -0.500, -0.354,
-0.354, 0.500, -0.354,
-0.500, -0.500, 0.000,
-0.500, 0.500, 0.000,
-0.354, -0.500, 0.354,
-0.354, 0.500, 0.354,
--0.000, -0.500, 0.500,
--0.000, 0.500, 0.500,
--0.354, -0.500, 0.354,
--0.354, 0.500, 0.354,
--0.500, -0.500, -0.000,
--0.500, 0.500, -0.000,
--0.354, -0.500, -0.354,
--0.354, 0.500, -0.354
+let vertex_arr$3 = Float32Array.from([
+0.00, -0.50, -0.50,
+0.00, 0.50, -0.50,
+0.35, -0.50, -0.35,
+0.35, 0.50, -0.35,
+0.50, -0.50, 0.00,
+0.50, 0.50, 0.00,
+0.35, -0.50, 0.35,
+0.35, 0.50, 0.35,
+-0.00, -0.50, 0.50,
+-0.00, 0.50, 0.50,
+-0.35, -0.50, 0.35,
+-0.35, 0.50, 0.35,
+-0.50, -0.50, -0.00,
+-0.50, 0.50, -0.00,
+-0.35, -0.50, -0.35,
+-0.35, 0.50, -0.35
 ]);
 
-let normal_arr$4 = Float32Array.from([
-0.000, -0.630, -0.776,
-0.000, 0.630, -0.776,
-0.549, -0.630, -0.549,
-0.549, 0.630, -0.549,
-0.776, -0.630, 0.000,
-0.776, 0.630, 0.000,
-0.549, -0.630, 0.549,
-0.549, 0.630, 0.549,
-0.000, -0.630, 0.776,
-0.000, 0.630, 0.776,
--0.549, -0.630, 0.549,
--0.549, 0.630, 0.549,
--0.776, -0.630, 0.000,
--0.776, 0.630, 0.000,
--0.549, -0.630, -0.549,
--0.549, 0.630, -0.549
+let normal_arr$3 = Float32Array.from([
+0.00, -0.63, -0.78,
+0.00, 0.63, -0.78,
+0.55, -0.63, -0.55,
+0.55, 0.63, -0.55,
+0.78, -0.63, 0.00,
+0.78, 0.63, 0.00,
+0.55, -0.63, 0.55,
+0.55, 0.63, 0.55,
+0.00, -0.63, 0.78,
+0.00, 0.63, 0.78,
+-0.55, -0.63, 0.55,
+-0.55, 0.63, 0.55,
+-0.78, -0.63, 0.00,
+-0.78, 0.63, 0.00,
+-0.55, -0.63, -0.55,
+-0.55, 0.63, -0.55
 ]);
 
-let weights_arr$4 = Float32Array.from([]);
+let weights_arr$3 = Float32Array.from([]);
 
-let index_arr$4 = Uint16Array.from([
+let index_arr$3 = Uint16Array.from([
 14, 10, 6,
 6, 2, 14,
 14, 12, 10,
@@ -4228,63 +4220,6 @@ let index_arr$4 = Uint16Array.from([
 function mesh_leaf(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$3, GL_STATIC_DRAW);
-let normal_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$3, GL_STATIC_DRAW);
-let weights_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-gl.bufferData(GL_ARRAY_BUFFER, weights_arr$3, GL_STATIC_DRAW);
-let index_buf = gl.createBuffer();
-gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$3, GL_STATIC_DRAW);
-return {
-VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$3,
-NormalBuffer: normal_buf,
-NormalArray: normal_arr$3,
-WeightsBuffer: weights_buf,
-WeightsArray: weights_arr$3,
-IndexBuffer: index_buf,
-IndexArray: index_arr$3,
-IndexCount: index_arr$3.length,
-};
-}
-
-let vertex_arr$3 = Float32Array.from([
--0.2, 0.0, 0.0,
-0.0, 0.0, 0.1,
--0.0, 0.0, -0.1,
-0.2, 0.0, -0.0
-]);
-
-let normal_arr$3 = Float32Array.from([
-0.1, 1.0, 0.0,
--0.0, 1.0, 0.0,
--0.0, 1.0, 0.0,
--0.1, 1.0, 0.0
-]);
-
-let weights_arr$3 = Float32Array.from([
-2.0, 1.0, 0.0, 0.0,
-0.0, 1.0, 0.0, 0.0,
-0.0, 1.0, 0.0, 0.0,
-1.0, 1.0, 0.0, 0.0
-]);
-
-let index_arr$3 = Uint16Array.from([
-2, 3, 1,
-0, 2, 1
-]);
-/*
-1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0
-0.1, 1.0, 0.0, 0.0, -1.0, 0.1, -0.0, 0.0, -0.0, -0.0, 1.0, 0.0, -0.0, -0.0, -0.0, 1.0
-0.1, -1.0, -0.0, 0.0, 1.0, 0.1, -0.0, 0.0, 0.0, -0.0, 1.0, 0.0, 0.0, -0.0, -0.0, 1.0
-*/
-
-function mesh_lisek(gl) {
-let vertex_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$2, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
@@ -4297,18 +4232,67 @@ gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
 gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$2, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$2,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$2,
 WeightsBuffer: weights_buf,
-WeightsArray: weights_arr$2,
 IndexBuffer: index_buf,
-IndexArray: index_arr$2,
 IndexCount: index_arr$2.length,
 };
 }
 
 let vertex_arr$2 = Float32Array.from([
+-0.2, 0.0, 0.0,
+0.0, 0.0, 0.1,
+-0.0, 0.0, -0.1,
+0.2, 0.0, -0.0
+]);
+
+let normal_arr$2 = Float32Array.from([
+0.1, 1.0, 0.0,
+-0.0, 1.0, 0.0,
+-0.0, 1.0, 0.0,
+-0.1, 1.0, 0.0
+]);
+
+let weights_arr$2 = Float32Array.from([
+2.0, 1.0, 0.0, 0.0,
+0.0, 1.0, 0.0, 0.0,
+0.0, 1.0, 0.0, 0.0,
+1.0, 1.0, 0.0, 0.0
+]);
+
+let index_arr$2 = Uint16Array.from([
+2, 3, 1,
+0, 2, 1
+]);
+/*
+1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0
+0.1, 1.0, 0.0, 0.0, -1.0, 0.1, -0.0, 0.0, -0.0, -0.0, 1.0, 0.0, -0.0, -0.0, -0.0, 1.0
+0.1, -1.0, -0.0, 0.0, 1.0, 0.1, -0.0, 0.0, 0.0, -0.0, 1.0, 0.0, 0.0, -0.0, -0.0, 1.0
+*/
+
+function mesh_lisek(gl) {
+let vertex_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$1, GL_STATIC_DRAW);
+let normal_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$1, GL_STATIC_DRAW);
+let weights_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
+gl.bufferData(GL_ARRAY_BUFFER, weights_arr$1, GL_STATIC_DRAW);
+let index_buf = gl.createBuffer();
+gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$1, GL_STATIC_DRAW);
+return {
+VertexBuffer: vertex_buf,
+NormalBuffer: normal_buf,
+WeightsBuffer: weights_buf,
+IndexBuffer: index_buf,
+IndexCount: index_arr$1.length,
+};
+}
+
+let vertex_arr$1 = Float32Array.from([
 0.1, 0.4, 0.0,
 0.1, -0.0, -0.0,
 0.1, 0.2, -0.3,
@@ -4331,7 +4315,7 @@ let vertex_arr$2 = Float32Array.from([
 0.0, 0.7, 0.2
 ]);
 
-let normal_arr$2 = Float32Array.from([
+let normal_arr$1 = Float32Array.from([
 1.0, 0.0, 0.1,
 -0.0, -1.0, 0.3,
 0.8, -0.6, -0.1,
@@ -4354,7 +4338,7 @@ let normal_arr$2 = Float32Array.from([
 0.0, 0.9, 0.4
 ]);
 
-let weights_arr$2 = Float32Array.from([
+let weights_arr$1 = Float32Array.from([
 2.0, 0.9, 1.0, 0.1,
 2.0, 1.0, 0.0, 0.0,
 4.0, 0.5, 2.0, 0.5,
@@ -4377,7 +4361,7 @@ let weights_arr$2 = Float32Array.from([
 1.0, 1.0, 0.0, 0.0
 ]);
 
-let index_arr$2 = Uint16Array.from([
+let index_arr$1 = Uint16Array.from([
 18, 19, 16,
 19, 17, 16,
 7, 13, 8,
@@ -4427,30 +4411,26 @@ let index_arr$2 = Uint16Array.from([
 function mesh_ogon(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$1, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$1, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr, GL_STATIC_DRAW);
 let weights_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-gl.bufferData(GL_ARRAY_BUFFER, weights_arr$1, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, weights_arr, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$1, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$1,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$1,
 WeightsBuffer: weights_buf,
-WeightsArray: weights_arr$1,
 IndexBuffer: index_buf,
-IndexArray: index_arr$1,
-IndexCount: index_arr$1.length,
+IndexCount: index_arr.length,
 };
 }
 
-let vertex_arr$1 = Float32Array.from([
+let vertex_arr = Float32Array.from([
 -0.1, 0.6, -0.9,
 -0.0, 0.4, -0.5,
 -0.0, 0.3, -0.9,
@@ -4467,7 +4447,7 @@ let vertex_arr$1 = Float32Array.from([
 0.0, 0.5, -2.5
 ]);
 
-let normal_arr$1 = Float32Array.from([
+let normal_arr = Float32Array.from([
 -0.7, 0.7, 0.3,
 -0.0, -0.2, 1.0,
 -0.1, -1.0, 0.2,
@@ -4484,7 +4464,7 @@ let normal_arr$1 = Float32Array.from([
 0.1, 0.0, -1.0
 ]);
 
-let weights_arr$1 = Float32Array.from([
+let weights_arr = Float32Array.from([
 0.0, 0.9, 1.0, 0.1,
 0.0, 1.0, 0.0, 0.0,
 0.0, 0.9, 1.0, 0.1,
@@ -4501,7 +4481,7 @@ let weights_arr$1 = Float32Array.from([
 3.0, 1.0, 0.0, 0.0
 ]);
 
-let index_arr$1 = Uint16Array.from([
+let index_arr = Uint16Array.from([
 13, 12, 10,
 13, 11, 12,
 13, 10, 11,
@@ -4533,53 +4513,6 @@ let index_arr$1 = Uint16Array.from([
 1.0, 0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -1.5, -0.5, 1.0
 -1.0, -0.0, -0.0, 0.0, 0.0, 0.1, -1.0, 0.0, 0.0, -1.0, -0.1, 0.0, -0.0, -2.0, 0.2, 1.0
 */
-
-function mesh_plane(gl) {
-let vertex_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr, GL_STATIC_DRAW);
-let normal_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr, GL_STATIC_DRAW);
-let weights_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, weights_buf);
-gl.bufferData(GL_ARRAY_BUFFER, weights_arr, GL_STATIC_DRAW);
-let index_buf = gl.createBuffer();
-gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr, GL_STATIC_DRAW);
-return {
-VertexBuffer: vertex_buf,
-VertexArray: vertex_arr,
-NormalBuffer: normal_buf,
-NormalArray: normal_arr,
-WeightsBuffer: weights_buf,
-WeightsArray: weights_arr,
-IndexBuffer: index_buf,
-IndexArray: index_arr,
-IndexCount: index_arr.length,
-};
-}
-
-let vertex_arr = Float32Array.from([
--0.5, 0.0, 0.5,
-0.5, 0.0, 0.5,
--0.5, 0.0, -0.5,
-0.5, 0.0, -0.5
-]);
-
-let normal_arr = Float32Array.from([
-0.0, 1.0, 0.0,
-0.0, 1.0, 0.0,
-0.0, 1.0, 0.0,
-0.0, 1.0, 0.0
-]);
-
-let weights_arr = Float32Array.from([]);
-
-let index_arr = Uint16Array.from([
-2, 3, 0,
-3, 1, 0
-]);
 
 /**
 * @module systems/sys_animate
@@ -5982,7 +5915,6 @@ this.MaterialColoredSkinned = mat_forward_colored_phong_skinned(this.Gl);
 this.MaterialParticlesColored = mat_forward_particles_colored(this.Gl);
 this.MaterialInstanced = mat_forward_instanced(this.Gl);
 this.MeshLeaf = mesh_leaf(this.Gl);
-this.MeshPlane = mesh_plane(this.Gl);
 this.MeshCube = mesh_cube(this.Gl);
 this.MeshLisek = mesh_lisek(this.Gl);
 this.MeshOgon = mesh_ogon(this.Gl);
