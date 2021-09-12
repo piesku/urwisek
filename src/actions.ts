@@ -21,11 +21,11 @@ export const enum Action {
 
 export function dispatch(game: Game, action: Action, payload: unknown) {
     switch (action) {
-        case Action.ChangeSettings: {
-            let select = payload as HTMLSelectElement;
-            game.Quality = select.value as unknown as number;
-            break;
-        }
+        // case Action.ChangeSettings: {
+        //     let select = payload as HTMLSelectElement;
+        //     game.Quality = select.value as unknown as number;
+        //     break;
+        // }
 
         case Action.NewGame: {
             // Start at Ultra to allow Game's tick() to callibrate the framerate.
