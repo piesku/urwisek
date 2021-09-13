@@ -3295,10 +3295,6 @@ transform([14, 2, -2], [0.01, 0.76, 0.12, 0.64]),
 children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
 ]);
 instantiate(game, [
-transform([53, 2, -2], [0.01, 0.76, 0.12, 0.64]),
-children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
-]);
-instantiate(game, [
 transform([39, 7, -2], [0.01, 0.76, 0.12, 0.64]),
 children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
 ]);
