@@ -1,14 +1,14 @@
-import {ease_in_out_quart, ease_out_quart} from "../../common/easing.js";
-import {Vec4} from "../../common/math.js";
-import {animate, AnimationFlag} from "../components/com_animate.js";
-import {bone} from "../components/com_bone.js";
-import {children} from "../components/com_children.js";
-import {cull} from "../components/com_cull.js";
-import {named} from "../components/com_named.js";
-import {render_colored_skinned} from "../components/com_render.js";
-import {transform} from "../components/com_transform.js";
-import {Game} from "../game.js";
-import {Has} from "../world.js";
+import { ease_in_out_quart, ease_out_quart } from "../../common/easing.js";
+import { Vec4 } from "../../common/math.js";
+import { animate, AnimationFlag } from "../components/com_animate.js";
+import { bone } from "../components/com_bone.js";
+import { children } from "../components/com_children.js";
+import { cull } from "../components/com_cull.js";
+import { named } from "../components/com_named.js";
+import { render_colored_skinned } from "../components/com_render.js";
+import { transform } from "../components/com_transform.js";
+import { Game } from "../game.js";
+import { Has } from "../world.js";
 
 const enum BoneIndex {
     Root = 0,
@@ -36,7 +36,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
             children([
                 transform(),
                 // Only the player's lisek has the tail, and only it has timescale=1.
-                named(timescale === 1 ? "tail anchor" : ""),
+                named(timescale === 1 ? "ta" : ""),
                 bone(
                     BoneIndex.Root,
                     [

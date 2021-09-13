@@ -102,7 +102,7 @@ export function instantiate_player(game: Game, translation: Vec3, pups_found = g
 
     instantiate(game, [
         transform(),
-        mimic(find_first(game.World, "tail anchor"), 1),
+        mimic(find_first(game.World, "ta"), 1),
         children([
             transform([0, -0.2, -0.05], [1, 0, 0, 0]),
             control_always(null, [0, -1, 0, 0]),
