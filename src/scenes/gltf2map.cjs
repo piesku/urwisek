@@ -71,6 +71,12 @@ let create_instance = (name, translation, rotation, scale) => {
             imports.add(`import {blueprint_tree} from "../blueprints/blu_tree.js";`);
             imports.add(`import {blueprint_bush} from "../blueprints/blu_bush.js";`);
             imports.add(`import {float, element} from "../../common/random.js";`);
+            const FORESTIVITIES = {
+                forest: 0.8,
+                city: 0.3,
+                farm: 0.5,
+            };
+            const forestivity = FORESTIVITIES[scene_name];
             return `
         {
             let width = ${Math.round(scale[0])};
@@ -83,7 +89,7 @@ let create_instance = (name, translation, rotation, scale) => {
             let Zmin = centerZ - ~~(depth / 2);
             let Zmax = centerZ + ~~(depth / 2);
 
-            let number_of_trees = ~~((width * depth)/${scale[1]} * 0.8);
+            let number_of_trees = ~~((width * depth)/${scale[1]} * ${forestivity});
             for (let i = 0; i < number_of_trees; i++) {
                 instantiate(game, [
                     transform([float(Xmin, Xmax), ${translation[1]}, float(Zmin, Zmax)]${

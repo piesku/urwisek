@@ -1,5 +1,3 @@
-import {Vec4} from "../../common/math.js";
-import {element} from "../../common/random.js";
 import {animate} from "../components/com_animate.js";
 import {bone} from "../components/com_bone.js";
 import {children} from "../components/com_children.js";
@@ -17,18 +15,13 @@ const enum BoneIndex {
 }
 
 const fly_keytime_1 = 0.6;
-const colors: Array<Vec4> = [
-    [0.1, 0.1, 0.1, 1],
-    [0.2, 0.2, 0.2, 1],
-    [0.3, 0.3, 0.3, 1],
-];
 
 export function blueprint_bird(game: Game) {
     return [
         control_always([0, 0, 1], null, "walk"),
         move(1, 0),
         lifespan(10),
-        render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, element(colors)),
+        render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, [0.1, 0.2, 0.3, 1]),
         children([
             transform(),
             children([
