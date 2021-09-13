@@ -1006,7 +1006,7 @@
             game.World.Signature[entity] |= 1 /* Animate */;
             game.World.Animate[entity] = {
                 States,
-                Current: States["idle"],
+                Current: States["i"],
             };
         };
     }
@@ -1167,14 +1167,14 @@
                 children([
                     transform(),
                     // Only the player's lisek has the tail, and only it has timescale=1.
-                    named(timescale === 1 ? "tail anchor" : ""),
+                    named(timescale === 1 ? "ta" : ""),
                     bone(0 /* Root */, [
                         1.0, 0.0, 0.0, 0.0, 0.0, 0.096, -0.995, 0.0, 0.0, 0.995, 0.096, 0.0, 0.0,
                         0.433, 0.395, 1.0,
                     ]),
                     cull(1 /* Animate */),
                     animate({
-                        idle: {
+                        i: {
                             Keyframes: [
                                 {
                                     Timestamp: 0,
@@ -1206,7 +1206,7 @@
                             ],
                             Flags: 2 /* Loop */ | 1 /* EarlyExit */,
                         },
-                        walk: {
+                        w: {
                             Keyframes: [
                                 {
                                     Timestamp: 0,
@@ -1216,7 +1216,7 @@
                             ],
                             Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
                         },
-                        jump: {
+                        j: {
                             Keyframes: [
                                 {
                                     Timestamp: 0.0,
@@ -1247,11 +1247,11 @@
                     children([
                         transform([0, 0.46, 0], [-0.4, 0, 0, 0.92]),
                         children([
-                            // An intermediate joint to allow two idle cycles for the head.
+                            // An intermediate joint to allow two i cycles for the head.
                             transform(),
                             cull(1 /* Animate */),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -1278,7 +1278,7 @@
                                     ],
                                     Flags: 2 /* Loop */ | 1 /* EarlyExit */,
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -1287,7 +1287,7 @@
                                     ],
                                     Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
                                 },
-                                jump: {
+                                j: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -1305,7 +1305,7 @@
                                 ]),
                                 cull(1 /* Animate */),
                                 animate({
-                                    idle: {
+                                    i: {
                                         Keyframes: [
                                             {
                                                 Timestamp: 0.0,
@@ -1319,7 +1319,7 @@
                                             },
                                         ],
                                     },
-                                    walk: {
+                                    w: {
                                         Keyframes: [
                                             {
                                                 Timestamp: 0.0,
@@ -1332,7 +1332,7 @@
                                         ],
                                         Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
                                     },
-                                    jump: {
+                                    j: {
                                         Keyframes: [
                                             {
                                                 Timestamp: 0.0,
@@ -1368,7 +1368,7 @@
                             ]),
                             cull(1 /* Animate */),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -1376,7 +1376,7 @@
                                         },
                                     ],
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -1389,7 +1389,7 @@
                                     ],
                                     Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
                                 },
-                                jump: {
+                                j: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0.0,
@@ -1424,7 +1424,7 @@
                             ]),
                             cull(1 /* Animate */),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -1432,7 +1432,7 @@
                                         },
                                     ],
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -1445,7 +1445,7 @@
                                     ],
                                     Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
                                 },
-                                jump: {
+                                j: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0.0,
@@ -1480,7 +1480,7 @@
                             ]),
                             cull(1 /* Animate */),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -1507,7 +1507,7 @@
                                     ],
                                     Flags: 2 /* Loop */ | 1 /* EarlyExit */,
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -1520,7 +1520,7 @@
                                     ],
                                     Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
                                 },
-                                jump: {
+                                j: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0.0,
@@ -1555,7 +1555,7 @@
                             ]),
                             cull(1 /* Animate */),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -1582,7 +1582,7 @@
                                     ],
                                     Flags: 2 /* Loop */ | 1 /* EarlyExit */,
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -1595,7 +1595,7 @@
                                     ],
                                     Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
                                 },
-                                jump: {
+                                j: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0.0,
@@ -1698,13 +1698,13 @@
     /**
      * Add the AudioSource component.
      *
-     * @param idle The name of the clip to play by default, in a loop.
+     * @param i The name of the clip to play by default, in a loop.
      */
-    function audio_source(idle) {
+    function audio_source(i) {
         return (game, entity) => {
             game.World.Signature[entity] |= 2 /* AudioSource */;
             game.World.AudioSource[entity] = {
-                Idle: idle,
+                Idle: i,
                 Time: 0,
             };
         };
@@ -1866,7 +1866,7 @@
         ]);
         instantiate(game, [
             transform(),
-            mimic(find_first(game.World, "tail anchor"), 1),
+            mimic(find_first(game.World, "ta"), 1),
             children([
                 transform([0, -0.2, -0.05], [1, 0, 0, 0]),
                 control_always(null, [0, -1, 0, 0]),
@@ -2315,7 +2315,7 @@
         let r = float();
         if (r < 0.1) {
             return [
-                control_always([0, 0, 1], null, "walk"),
+                control_always([0, 0, 1], null, "w"),
                 move(float(1, 1.2), 0),
                 lifespan(200),
                 children([
@@ -2327,7 +2327,7 @@
         }
         if (r < 0.5) {
             return [
-                control_always([0, 0, 1], null, "walk"),
+                control_always([0, 0, 1], null, "w"),
                 move(float(2, 2.2), 0),
                 lifespan(100),
                 children([
@@ -2338,7 +2338,7 @@
             ];
         }
         return [
-            control_always([0, 0, 1], null, "jump"),
+            control_always([0, 0, 1], null, "j"),
             move(float(3, 3.2), 0),
             lifespan(100),
             children([
@@ -2352,7 +2352,7 @@
     const fly_keytime_1 = 0.6;
     function blueprint_bird(game) {
         return [
-            control_always([0, 0, 1], null, "walk"),
+            control_always([0, 0, 1], null, "w"),
             move(1, 0),
             lifespan(10),
             render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, [0.1, 0.2, 0.3, 1]),
@@ -2362,7 +2362,7 @@
                     transform(),
                     bone(0 /* Root */, [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]),
                     animate({
-                        idle: {
+                        i: {
                             Keyframes: [
                                 {
                                     Timestamp: 0,
@@ -2370,7 +2370,7 @@
                                 },
                             ],
                         },
-                        walk: {
+                        w: {
                             Keyframes: [
                                 {
                                     Timestamp: 0,
@@ -2392,7 +2392,7 @@
                                 1.0, 0.0, -0.0, -0.0, -0.0, 1.0,
                             ]),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -2400,7 +2400,7 @@
                                         },
                                     ],
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -2423,7 +2423,7 @@
                                 1.0, 0.0, 0.0, -0.0, -0.0, 1.0,
                             ]),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -2431,7 +2431,7 @@
                                         },
                                     ],
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -2613,7 +2613,7 @@
                         task_timeout(6, () => {
                             // The pups flee.
                             for (let pup of pups) {
-                                control_always([0, 0, 1], null, "jump")(game, pup);
+                                control_always([0, 0, 1], null, "j")(game, pup);
                                 lifespan(7)(game, pup);
                             }
                         }),
@@ -4479,7 +4479,7 @@
             // The animation has completed; reset its timer.
             animate.Current.Time = 0;
         }
-        // 5. The animation has completed. Loop it or switch to idle.
+        // 5. The animation has completed. Loop it or switch to i.
         if (animate.Current.Flags & 4 /* Alternate */) {
             // Reverse the keyframes of the clip and recalculate their timestamps.
             for (let keyframe of animate.Current.Keyframes.reverse()) {
@@ -4487,7 +4487,7 @@
             }
         }
         if (!(animate.Current.Flags & 2 /* Loop */)) {
-            animate.Current = animate.States["idle"];
+            animate.Current = animate.States["i"];
         }
     }
 
@@ -5007,7 +5007,7 @@
         if (control.Flags & 4 /* Animate */) {
             let anim_name;
             if (game.InputState["ArrowLeft"] || game.InputState["ArrowRight"]) {
-                anim_name = "walk";
+                anim_name = "w";
             }
             let parent_entity = game.World.Transform[entity].Parent;
             if (parent_entity !== undefined) {
@@ -5017,7 +5017,7 @@
                 if (anchor_parent !== undefined) {
                     let rigid_body = game.World.RigidBody[anchor_parent];
                     if (rigid_body.IsAirborne) {
-                        anim_name = "jump";
+                        anim_name = "j";
                     }
                 }
             }
@@ -5121,7 +5121,7 @@
             if (dx !== 0) {
                 for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
                     let animate = game.World.Animate[ent];
-                    animate.Trigger = "walk";
+                    animate.Trigger = "w";
                 }
             }
         }

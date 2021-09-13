@@ -1006,7 +1006,7 @@ Time: 0,
 game.World.Signature[entity] |= 1 /* Animate */;
 game.World.Animate[entity] = {
 States,
-Current: States["idle"],
+Current: States["i"],
 };
 };
 }
@@ -1167,14 +1167,14 @@ transform([0, 0.35, -0.47], [0.672, 0, 0, 0.74]),
 children([
 transform(),
 
-named(timescale === 1 ? "tail anchor" : ""),
+named(timescale === 1 ? "ta" : ""),
 bone(0 /* Root */, [
 1.0, 0.0, 0.0, 0.0, 0.0, 0.096, -0.995, 0.0, 0.0, 0.995, 0.096, 0.0, 0.0,
 0.433, 0.395, 1.0,
 ]),
 cull(1 /* Animate */),
 animate({
-idle: {
+i: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -1206,7 +1206,7 @@ Ease: ease_in_out_quart,
 ],
 Flags: 2 /* Loop */ | 1 /* EarlyExit */,
 },
-walk: {
+w: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -1216,7 +1216,7 @@ Rotation: [0, 0, 0, 1],
 ],
 Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
-jump: {
+j: {
 Keyframes: [
 {
 Timestamp: 0.0,
@@ -1251,7 +1251,7 @@ children([
 transform(),
 cull(1 /* Animate */),
 animate({
-idle: {
+i: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -1278,7 +1278,7 @@ Ease: ease_in_out_quart,
 ],
 Flags: 2 /* Loop */ | 1 /* EarlyExit */,
 },
-walk: {
+w: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -1287,7 +1287,7 @@ Rotation: [0, 0, 0, 1],
 ],
 Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
-jump: {
+j: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -1305,7 +1305,7 @@ bone(1 /* Head */, [
 ]),
 cull(1 /* Animate */),
 animate({
-idle: {
+i: {
 Keyframes: [
 {
 Timestamp: 0.0,
@@ -1319,7 +1319,7 @@ Ease: ease_in_out_quart,
 },
 ],
 },
-walk: {
+w: {
 Keyframes: [
 {
 Timestamp: 0.0,
@@ -1332,7 +1332,7 @@ Rotation: [0, 0.0, 0.0, 1],
 ],
 Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
-jump: {
+j: {
 Keyframes: [
 {
 Timestamp: 0.0,
@@ -1368,7 +1368,7 @@ bone(2 /* ArmL */, [
 ]),
 cull(1 /* Animate */),
 animate({
-idle: {
+i: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -1376,7 +1376,7 @@ Rotation: [0, 0, 0, 1],
 },
 ],
 },
-walk: {
+w: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -1389,7 +1389,7 @@ Rotation: [0.131, 0.0, 0.0, 0.991],
 ],
 Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
-jump: {
+j: {
 Keyframes: [
 {
 Timestamp: 0.0,
@@ -1424,7 +1424,7 @@ bone(3 /* ArmR */, [
 ]),
 cull(1 /* Animate */),
 animate({
-idle: {
+i: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -1432,7 +1432,7 @@ Rotation: [0, 0, 0, 1],
 },
 ],
 },
-walk: {
+w: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -1445,7 +1445,7 @@ Rotation: [-0.174, 0.0, 0.0, 0.985],
 ],
 Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
-jump: {
+j: {
 Keyframes: [
 {
 Timestamp: 0.0,
@@ -1480,7 +1480,7 @@ bone(4 /* HipL */, [
 ]),
 cull(1 /* Animate */),
 animate({
-idle: {
+i: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -1507,7 +1507,7 @@ Ease: ease_in_out_quart,
 ],
 Flags: 2 /* Loop */ | 1 /* EarlyExit */,
 },
-walk: {
+w: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -1520,7 +1520,7 @@ Rotation: [-0.131, 0.0, 0.0, 0.991],
 ],
 Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
-jump: {
+j: {
 Keyframes: [
 {
 Timestamp: 0.0,
@@ -1555,7 +1555,7 @@ bone(5 /* HipR */, [
 ]),
 cull(1 /* Animate */),
 animate({
-idle: {
+i: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -1582,7 +1582,7 @@ Ease: ease_in_out_quart,
 ],
 Flags: 2 /* Loop */ | 1 /* EarlyExit */,
 },
-walk: {
+w: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -1595,7 +1595,7 @@ Rotation: [0.131, 0.0, 0.0, 0.991],
 ],
 Flags: 1 /* EarlyExit */ | 4 /* Alternate */,
 },
-jump: {
+j: {
 Keyframes: [
 {
 Timestamp: 0.0,
@@ -1698,13 +1698,13 @@ mimic.Target = find_first(game.World, "exit");
 /**
 * Add the AudioSource component.
 *
-* @param idle The name of the clip to play by default, in a loop.
+* @param i The name of the clip to play by default, in a loop.
 */
-function audio_source(idle) {
+function audio_source(i) {
 return (game, entity) => {
 game.World.Signature[entity] |= 2 /* AudioSource */;
 game.World.AudioSource[entity] = {
-Idle: idle,
+Idle: i,
 Time: 0,
 };
 };
@@ -1866,7 +1866,7 @@ render_colored_skinned(game.MaterialColoredSkinned, game.MeshOgon, [1, 0.5, 0, 1
 ]);
 instantiate(game, [
 transform(),
-mimic(find_first(game.World, "tail anchor"), 1),
+mimic(find_first(game.World, "ta"), 1),
 children([
 transform([0, -0.2, -0.05], [1, 0, 0, 0]),
 control_always(null, [0, -1, 0, 0]),
@@ -2315,7 +2315,7 @@ function blueprint_animal(game) {
 let r = float();
 if (r < 0.1) {
 return [
-control_always([0, 0, 1], null, "walk"),
+control_always([0, 0, 1], null, "w"),
 move(float(1, 1.2), 0),
 lifespan(200),
 children([
@@ -2327,7 +2327,7 @@ cull(32768 /* Render */ | 16 /* Children */),
 }
 if (r < 0.5) {
 return [
-control_always([0, 0, 1], null, "walk"),
+control_always([0, 0, 1], null, "w"),
 move(float(2, 2.2), 0),
 lifespan(100),
 children([
@@ -2338,7 +2338,7 @@ cull(32768 /* Render */ | 16 /* Children */),
 ];
 }
 return [
-control_always([0, 0, 1], null, "jump"),
+control_always([0, 0, 1], null, "j"),
 move(float(3, 3.2), 0),
 lifespan(100),
 children([
@@ -2352,7 +2352,7 @@ cull(32768 /* Render */ | 16 /* Children */),
 const fly_keytime_1 = 0.6;
 function blueprint_bird(game) {
 return [
-control_always([0, 0, 1], null, "walk"),
+control_always([0, 0, 1], null, "w"),
 move(1, 0),
 lifespan(10),
 render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, [0.1, 0.2, 0.3, 1]),
@@ -2362,7 +2362,7 @@ children([
 transform(),
 bone(0 /* Root */, [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]),
 animate({
-idle: {
+i: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -2370,7 +2370,7 @@ Translation: [0, 0, 0],
 },
 ],
 },
-walk: {
+w: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -2392,7 +2392,7 @@ bone(1 /* WingL */, [
 1.0, 0.0, -0.0, -0.0, -0.0, 1.0,
 ]),
 animate({
-idle: {
+i: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -2400,7 +2400,7 @@ Rotation: [0, 0, 0, 1],
 },
 ],
 },
-walk: {
+w: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -2423,7 +2423,7 @@ bone(2 /* WingR */, [
 1.0, 0.0, 0.0, -0.0, -0.0, 1.0,
 ]),
 animate({
-idle: {
+i: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -2431,7 +2431,7 @@ Rotation: [0, 0, 0, 1],
 },
 ],
 },
-walk: {
+w: {
 Keyframes: [
 {
 Timestamp: 0,
@@ -2613,7 +2613,7 @@ game.World.Signature[camera_entity] |= 4096 /* Mimic */;
 task_timeout(6, () => {
 
 for (let pup of pups) {
-control_always([0, 0, 1], null, "jump")(game, pup);
+control_always([0, 0, 1], null, "j")(game, pup);
 lifespan(7)(game, pup);
 }
 }),
@@ -4487,7 +4487,7 @@ keyframe.Timestamp = animate.Current.Duration - keyframe.Timestamp;
 }
 }
 if (!(animate.Current.Flags & 2 /* Loop */)) {
-animate.Current = animate.States["idle"];
+animate.Current = animate.States["i"];
 }
 }
 
@@ -5007,7 +5007,7 @@ control.IsGrabbingEntity = null;
 if (control.Flags & 4 /* Animate */) {
 let anim_name;
 if (game.InputState["ArrowLeft"] || game.InputState["ArrowRight"]) {
-anim_name = "walk";
+anim_name = "w";
 }
 let parent_entity = game.World.Transform[entity].Parent;
 if (parent_entity !== undefined) {
@@ -5017,7 +5017,7 @@ let anchor_parent = game.World.Transform[anchor_entity].Parent;
 if (anchor_parent !== undefined) {
 let rigid_body = game.World.RigidBody[anchor_parent];
 if (rigid_body.IsAirborne) {
-anim_name = "jump";
+anim_name = "j";
 }
 }
 }
@@ -5121,7 +5121,7 @@ if (control.Flags & 4 /* Animate */) {
 if (dx !== 0) {
 for (let ent of query_all(game.World, entity, 1 /* Animate */)) {
 let animate = game.World.Animate[ent];
-animate.Trigger = "walk";
+animate.Trigger = "w";
 }
 }
 }
