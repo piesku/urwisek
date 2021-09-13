@@ -140,7 +140,7 @@ export function map_city(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
         let Zmin = centerZ - ~~(depth / 2);
         let Zmax = centerZ + ~~(depth / 2);
 
-        let number_of_trees = ~~(((width * depth) / 1) * 0.8);
+        let number_of_trees = ~~(((width * depth) / 1) * 0.3);
         for (let i = 0; i < number_of_trees; i++) {
             instantiate(game, [
                 transform([float(Xmin, Xmax), 0, float(Zmin, Zmax)]),
@@ -181,7 +181,7 @@ export function map_city(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
     instantiate(game, [transform([23.2, 0.5, -9.1]), ...blueprint_blok(game)]);
 
     instantiate(game, [
-        transform([48.2, 2.9, 0], undefined, [4, 0.2, 1.2]),
+        transform([48.2, 2.7, 0], undefined, [4, 0.2, 1.2]),
         ...blueprint_ground(game, ground_color),
     ]);
 
@@ -196,12 +196,12 @@ export function map_city(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
     ]);
 
     instantiate(game, [
-        transform([38.2, 2.9, 0], undefined, [4, 0.2, 1.2]),
+        transform([38.2, 2.7, 0], undefined, [4, 0.2, 1.2]),
         ...blueprint_ground(game, ground_color),
     ]);
 
     instantiate(game, [
-        transform([36.3, 3.5, 0], undefined, [0.2, 1, 1.2]),
+        transform([36.3, 3.4, 0], undefined, [0.2, 1.2, 1.2]),
         ...blueprint_ground(game, ground_color),
     ]);
 
