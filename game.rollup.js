@@ -1876,10 +1876,6 @@
                     1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -0.701,
                     -0.428, 1.0,
                 ]),
-                // children([
-                //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-                //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-                // ]),
             ]),
         ]);
         instantiate(game, [
@@ -1889,11 +1885,7 @@
                 1.0, -0.0, -0.0, 0.0, 0.0, 0.132, 0.991, 0.0, 0.0, -0.991, 0.132, 0.0, -0.0, -1.1,
                 -0.285, 1.0,
             ]),
-            children([
-                transform([0, 0.2, 0.1], undefined, [0.1, 0.1, 0.1]),
-                callback((game, entity) => (tail_bone1 = entity)),
-                // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-            ]),
+            children([transform([0, 0.2, 0.1]), callback((game, entity) => (tail_bone1 = entity))]),
         ]);
         instantiate(game, [
             transform(),
@@ -1902,11 +1894,7 @@
                 1.0, -0.0, -0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -0.0, -1.492, -0.487,
                 1.0,
             ]),
-            children([
-                transform([0, 0.2, 0.1], undefined, [0.1, 0.1, 0.1]),
-                callback((game, entity) => (tail_bone2 = entity)),
-                // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-            ]),
+            children([transform([0, 0.2, 0.1]), callback((game, entity) => (tail_bone2 = entity))]),
         ]);
         instantiate(game, [
             transform(),
@@ -1915,11 +1903,7 @@
                 -1.0, -0.0, -0.0, 0.0, 0.0, 0.137, -0.991, 0.0, 0.0, -0.991, -0.137, 0.0, -0.0,
                 -2.009, 0.214, 1.0,
             ]),
-            children([
-                transform([0, 0.2, 0.1], undefined, [0.1, 0.1, 0.1]),
-                callback((game, entity) => (entity)),
-                // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-            ]),
+            children([transform([0, 0.2, 0.1]), callback((game, entity) => (entity))]),
         ]);
         for (let i = 0; i < game.PupsFound; i++) {
             instantiate(game, [
