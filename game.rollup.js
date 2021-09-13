@@ -2027,45 +2027,33 @@
     }
 
     let snd_chirp1 = {
-        Tracks: [
-            {
-                Instrument: [3, "highpass", 11, 0, true, "sine", 4, 7, [["sine", 8, 2, 8, 5, 8, true]]],
-                Notes: [79],
-            },
-        ],
+        Instrument: [3, "highpass", 11, 0, true, "sine", 4, 7, [["sine", 8, 2, 8, 5, 8, true]]],
+        Notes: [79],
         Exit: 19,
     };
 
     let snd_horn = {
-        Tracks: [
-            {
-                Instrument: [
-                    5,
-                    "lowpass",
-                    8,
-                    0,
-                    true,
-                    "triangle",
-                    4,
-                    4,
-                    [
-                        ["sine", 8, 8, 12, 14, 8, false],
-                        ["triangle", 6, 7, 12, 15, 15, false],
-                    ],
-                ],
-                Notes: [24, 26, 28, 29, 31, 33, 35, 36, 38, 40, 0, 0, 0, 0],
-            },
+        Instrument: [
+            5,
+            "lowpass",
+            8,
+            0,
+            true,
+            "triangle",
+            4,
+            4,
+            [
+                ["sine", 8, 8, 12, 14, 8, false],
+                ["triangle", 6, 7, 12, 15, 15, false],
+            ],
         ],
+        Notes: [24, 26, 28, 29, 31, 33, 35, 36, 38, 40, 0, 0, 0, 0],
         Exit: 6,
     };
 
     let snd_wind = {
-        Tracks: [
-            {
-                Instrument: [7, "lowpass", 8, 6, true, "sine", 9, 2, [[false, 3, 6, 4, 13]]],
-                Notes: [57],
-            },
-        ],
+        Instrument: [7, "lowpass", 8, 6, true, "sine", 9, 2, [[false, 3, 6, 4, 13]]],
+        Notes: [57],
         Exit: 13,
     };
 
@@ -2605,12 +2593,8 @@
     }
 
     let snd_neigh = {
-        Tracks: [
-            {
-                Instrument: [4, "lowpass", 9, 5, true, "sawtooth", 7, 9, [[false, 7, 3, 3, 7]]],
-                Notes: [57],
-            },
-        ],
+        Instrument: [4, "lowpass", 9, 5, true, "sawtooth", 7, 9, [[false, 7, 3, 3, 7]]],
+        Notes: [57],
         Exit: 9,
     };
 
@@ -3134,12 +3118,8 @@
     }
 
     let snd_rocket = {
-        Tracks: [
-            {
-                Instrument: [8, "lowpass", 9, 8, false, false, 8, 1, [[false, 8, 15, 15, 15]]],
-                Notes: [77],
-            },
-        ],
+        Instrument: [8, "lowpass", 9, 8, false, false, 8, 1, [[false, 8, 15, 15, 15]]],
+        Notes: [77],
         Exit: 99,
     };
 
@@ -4481,11 +4461,9 @@
         return noise_buffer;
     }
     function play_synth_random(audio, clip) {
-        for (let track of clip.Tracks) {
-            let note = element(track.Notes);
-            if (note) {
-                play_note(audio, track.Instrument, note, 0);
-            }
+        let note = element(clip.Notes);
+        if (note) {
+            play_note(audio, clip.Instrument, note, 0);
         }
     }
 
@@ -4753,25 +4731,40 @@
     }
 
     let snd_walk1 = {
-        Tracks: [
-            {
-                Instrument: [
-                    3,
-                    "lowpass",
-                    9,
-                    0,
-                    false,
-                    false,
-                    8,
-                    8,
-                    [
-                        ["sine", 8, 1, 1, 3, 8, false],
-                        [false, 8, 2, 2, 2],
-                    ],
-                ],
-                Notes: [48],
-            },
+        Instrument: [
+            3,
+            "lowpass",
+            9,
+            0,
+            false,
+            false,
+            8,
+            8,
+            [
+                ["sine", 8, 1, 1, 3, 8, false],
+                [false, 8, 2, 2, 2],
+            ],
         ],
+        Notes: [48],
+        Exit: 0.25,
+    };
+
+    let snd_walk2 = {
+        Instrument: [
+            3,
+            "lowpass",
+            8,
+            0,
+            false,
+            false,
+            8,
+            8,
+            [
+                ["sine", 8, 1, 1, 3, 8, false],
+                [false, 8, 1, 2, 3],
+            ],
+        ],
+        Notes: [48],
         Exit: 0.25,
     };
 
@@ -4800,7 +4793,14 @@
                 is_walking = true;
             }
             if (is_walking && collide.Collisions.length > 0) {
-                audio_source.Trigger = snd_walk1;
+                let other_entity = collide.Collisions[0].Other;
+                let other_layers = game.World.Collide[other_entity].Layers;
+                if (other_layers & 16 /* SurfaceGround */) {
+                    audio_source.Trigger = snd_walk1;
+                }
+                else {
+                    audio_source.Trigger = snd_walk2;
+                }
             }
             if (!rigid_body.IsAirborne) {
                 // The entity is on the ground or on an object.
