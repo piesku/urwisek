@@ -22,9 +22,6 @@ function update(game: Game, entity: Entity) {
     let trigger = game.World.Trigger[entity];
 
     for (let collision of collide.Collisions) {
-        let other_collide = game.World.Collide[collision.Other];
-        if (trigger.Mask & other_collide.Layers) {
-            dispatch(game, trigger.Action, [entity, collision.Other]);
-        }
+        dispatch(game, trigger.Action, [entity, collision.Other]);
     }
 }

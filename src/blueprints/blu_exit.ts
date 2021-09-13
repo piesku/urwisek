@@ -9,7 +9,7 @@ import {Game, Layer} from "../game.js";
 export function blueprint_exit(game: Game) {
     return [
         collide(false, Layer.Terrain, Layer.Player, [1, 100, 1]),
-        trigger(Layer.Player, Action.NextScene),
+        trigger(Action.NextScene),
         children([transform([0, 1, 0]), named("exit")]),
     ];
 }

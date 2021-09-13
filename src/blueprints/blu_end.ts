@@ -8,6 +8,6 @@ export function blueprint_end(game: Game) {
     return [
         named("exit"),
         collide(false, Layer.Terrain, Layer.Player, [1, 100, 1]),
-        trigger(Layer.Player, Action.EndGame),
+        trigger(Action.EndGame),
     ];
 }
