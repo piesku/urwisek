@@ -2289,11 +2289,10 @@
     /**
      * @module components/com_trigger
      */
-    function trigger(mask, action) {
+    function trigger(action) {
         return (game, entity) => {
             game.World.Signature[entity] |= 2097152 /* Trigger */;
             game.World.Trigger[entity] = {
-                Mask: mask,
                 Action: action,
             };
         };
@@ -2302,7 +2301,7 @@
     function blueprint_exit(game) {
         return [
             collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
-            trigger(1 /* Player */, 2 /* NextScene */),
+            trigger(2 /* NextScene */),
             children([transform([0, 1, 0]), named("exit")]),
         ];
     }
@@ -3202,7 +3201,7 @@
         return [
             named("exit"),
             collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
-            trigger(1 /* Player */, 3 /* EndGame */),
+            trigger(3 /* EndGame */),
         ];
     }
 
@@ -5756,10 +5755,7 @@
         let collide = game.World.Collide[entity];
         let trigger = game.World.Trigger[entity];
         for (let collision of collide.Collisions) {
-            let other_collide = game.World.Collide[collision.Other];
-            if (trigger.Mask & other_collide.Layers) {
-                dispatch(game, trigger.Action, [entity, collision.Other]);
-            }
+            dispatch(game, trigger.Action, [entity, collision.Other]);
         }
     }
 
