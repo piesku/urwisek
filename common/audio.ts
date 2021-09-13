@@ -1,8 +1,6 @@
 import {element} from "./random.js";
 
-export interface AudioSynthClip {
-    /** Audio tracks making up this clip. */
-    Tracks: Array<AudioTrack>;
+export interface AudioSynthClip extends AudioTrack {
     /** How soon after starting this clip can we play another one (in seconds)? */
     Exit: number;
     /** Beats per minute (default 120). */
@@ -179,20 +177,16 @@ export function play_synth_clip(audio: AudioContext, clip: AudioSynthClip) {
     let spb = 60 / (clip.BPM || 120);
     // Track timing is based on sixteenth notes.
     let interval = spb / 4;
-    for (let track of clip.Tracks) {
-        for (let i = 0; i < track.Notes.length; i++) {
-            if (track.Notes[i]) {
-                play_note(audio, track.Instrument, track.Notes[i], i * interval);
-            }
+    for (let i = 0; i < clip.Notes.length; i++) {
+        if (clip.Notes[i]) {
+            play_note(audio, clip.Instrument, clip.Notes[i], i * interval);
         }
     }
 }
 
 export function play_synth_random(audio: AudioContext, clip: AudioSynthClip) {
-    for (let track of clip.Tracks) {
-        let note = element(track.Notes);
-        if (note) {
-            play_note(audio, track.Instrument, note, 0);
-        }
+    let note = element(clip.Notes);
+    if (note) {
+        play_note(audio, clip.Instrument, note, 0);
     }
 }
