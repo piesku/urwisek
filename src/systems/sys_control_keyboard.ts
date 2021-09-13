@@ -109,7 +109,7 @@ function update(game: Game, entity: Entity) {
         let anim_name: Animate["Trigger"];
 
         if (game.InputState["ArrowLeft"] || game.InputState["ArrowRight"]) {
-            anim_name = "walk";
+            anim_name = "w";
         }
 
         let parent_entity = game.World.Transform[entity].Parent;
@@ -120,7 +120,7 @@ function update(game: Game, entity: Entity) {
             if (anchor_parent !== undefined) {
                 let rigid_body = game.World.RigidBody[anchor_parent];
                 if (rigid_body.IsAirborne) {
-                    anim_name = "jump";
+                    anim_name = "j";
                 }
             }
         }

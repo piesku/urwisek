@@ -11,7 +11,7 @@ export function blueprint_crib(game: Game) {
         children([
             transform(),
             animate({
-                idle: {
+                i: {
                     Keyframes: [
                         {
                             Timestamp: 0.0,

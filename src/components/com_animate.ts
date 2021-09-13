@@ -13,10 +13,10 @@ export interface Animate {
     /** The clip played currently. Defaults to Anim.Idle. */
     Current: AnimationState;
     /** The clip to play next. */
-    Trigger?: "idle" | "walk" | "jump";
+    Trigger?: "i" | "w" | "j";
 }
 
-export function animate(clips: {idle: AnimationClip; [k: string]: AnimationClip}) {
+export function animate(clips: {i: AnimationClip; [k: string]: AnimationClip}) {
     return (game: Game, entity: Entity) => {
         let States: Record<string, AnimationState> = {};
         for (let name in clips) {
@@ -37,7 +37,7 @@ export function animate(clips: {idle: AnimationClip; [k: string]: AnimationClip}
         game.World.Signature[entity] |= Has.Animate;
         game.World.Animate[entity] = {
             States,
-            Current: States["idle"],
+            Current: States["i"],
         };
     };
 }

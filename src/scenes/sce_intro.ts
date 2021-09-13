@@ -102,7 +102,7 @@ export function scene_intro(game: Game) {
                             task_timeout(6, () => {
                                 // The pups flee.
                                 for (let pup of pups) {
-                                    control_always([0, 0, 1], null, "jump")(game, pup);
+                                    control_always([0, 0, 1], null, "j")(game, pup);
                                     lifespan(7)(game, pup);
                                 }
                             }),

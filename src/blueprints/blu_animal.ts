@@ -20,7 +20,7 @@ export function blueprint_animal(game: Game) {
 
     if (r < 0.1) {
         return [
-            control_always([0, 0, 1], null, "walk"),
+            control_always([0, 0, 1], null, "w"),
             move(float(1, 1.2), 0),
             lifespan(200),
             children([
@@ -33,7 +33,7 @@ export function blueprint_animal(game: Game) {
 
     if (r < 0.5) {
         return [
-            control_always([0, 0, 1], null, "walk"),
+            control_always([0, 0, 1], null, "w"),
             move(float(2, 2.2), 0),
             lifespan(100),
             children([
@@ -45,7 +45,7 @@ export function blueprint_animal(game: Game) {
     }
 
     return [
-        control_always([0, 0, 1], null, "jump"),
+        control_always([0, 0, 1], null, "j"),
         move(float(3, 3.2), 0),
         lifespan(100),
         children([

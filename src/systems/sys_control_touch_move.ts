@@ -116,7 +116,7 @@ function update(game: Game, entity: Entity, dx: number, dy: number) {
         if (dx !== 0) {
             for (let ent of query_all(game.World, entity, Has.Animate)) {
                 let animate = game.World.Animate[ent];
-                animate.Trigger = "walk";
+                animate.Trigger = "w";
             }
         }
     }
