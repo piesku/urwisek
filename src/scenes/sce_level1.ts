@@ -12,7 +12,7 @@ export function scene_level1(game: Game) {
     game.World = new World();
     game.ViewportResized = true;
 
-    instantiate_player(game, [0, 0.774, 0]);
+    instantiate_player(game);
 
     map_forest(game);
 

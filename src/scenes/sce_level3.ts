@@ -17,7 +17,7 @@ export function scene_level3(game: Game) {
     game.World = new World();
     game.ViewportResized = true;
 
-    instantiate_player(game, [0, 2, 0]);
+    instantiate_player(game);
 
     map_city(game, [0.2, 0.2, 0.2, 1]);
 
