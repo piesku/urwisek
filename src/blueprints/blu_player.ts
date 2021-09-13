@@ -114,10 +114,6 @@ export function instantiate_player(game: Game) {
                     -0.428, 1.0,
                 ]
             ),
-            // children([
-            //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
-            //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-            // ]),
         ]),
     ]);
 
@@ -131,11 +127,7 @@ export function instantiate_player(game: Game) {
                 -0.285, 1.0,
             ]
         ),
-        children([
-            transform([0, 0.2, 0.1], undefined, [0.1, 0.1, 0.1]),
-            callback((game, entity) => (tail_bone1 = entity)),
-            // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-        ]),
+        children([transform([0, 0.2, 0.1]), callback((game, entity) => (tail_bone1 = entity))]),
     ]);
 
     instantiate(game, [
@@ -148,11 +140,7 @@ export function instantiate_player(game: Game) {
                 1.0,
             ]
         ),
-        children([
-            transform([0, 0.2, 0.1], undefined, [0.1, 0.1, 0.1]),
-            callback((game, entity) => (tail_bone2 = entity)),
-            // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-        ]),
+        children([transform([0, 0.2, 0.1]), callback((game, entity) => (tail_bone2 = entity))]),
     ]);
 
     instantiate(game, [
@@ -165,11 +153,7 @@ export function instantiate_player(game: Game) {
                 -2.009, 0.214, 1.0,
             ]
         ),
-        children([
-            transform([0, 0.2, 0.1], undefined, [0.1, 0.1, 0.1]),
-            callback((game, entity) => (tail_bone3 = entity)),
-            // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
-        ]),
+        children([transform([0, 0.2, 0.1]), callback((game, entity) => (tail_bone3 = entity))]),
     ]);
 
     for (let i = 0; i < game.PupsFound; i++) {
