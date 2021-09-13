@@ -90,11 +90,6 @@ export function map_city(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
     instantiate(game, [transform([87, 2.5, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
 
     instantiate(game, [
-        transform([14, 2, -2], [0.01, 0.76, 0.12, 0.64]),
-        children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
-    ]);
-
-    instantiate(game, [
         transform([39, 7, -2], [0.01, 0.76, 0.12, 0.64]),
         children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
     ]);
