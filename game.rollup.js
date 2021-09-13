@@ -2304,7 +2304,7 @@
     ];
     function blueprint_animal(game) {
         let r = float();
-        if (r < 0.1) {
+        if (r < 0.3) {
             return [
                 control_always([0, 0, 1], null, "w"),
                 move(float(1, 1.2), 0),
@@ -2313,18 +2313,6 @@
                     transform(undefined, undefined, [2, 2, 2]),
                     cull(32768 /* Render */ | 16 /* Children */),
                     ...blueprint_lisek(game, element(colors), 3),
-                ]),
-            ];
-        }
-        if (r < 0.5) {
-            return [
-                control_always([0, 0, 1], null, "w"),
-                move(float(2, 2.2), 0),
-                lifespan(100),
-                children([
-                    transform(undefined, undefined, [1, 1.5, 1]),
-                    cull(32768 /* Render */ | 16 /* Children */),
-                    ...blueprint_lisek(game, element(colors), 1.5),
                 ]),
             ];
         }
