@@ -10,8 +10,6 @@ main {
     position: absolute;
     width: 100vw;
     height: 100vh;
-    overflow: hidden;
-    word-break: break-word;
     user-select: none;
     touch-action: none;
 }
@@ -24,7 +22,6 @@ main {
 [onclick] {
     cursor: pointer;
     opacity: 0.5;
-    transition: opacity 0.2s;
 }
 
 [onclick]:hover {
