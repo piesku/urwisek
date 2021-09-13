@@ -41,26 +41,14 @@ export function map_city(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
 
     instantiate(game, [transform([8.58, 0.72, 0.59]), ...blueprint_bush(game)]);
 
-    instantiate(game, [transform([24.08, 0.38, -0.49]), ...blueprint_bush(game)]);
-
-    instantiate(game, [transform([13.37, 2.13, -1.2]), ...blueprint_bush(game)]);
-
     instantiate(game, [
         transform([-1.27, 0.19, -3.2], undefined, [0.5, 0.5, 0.5]),
         ...blueprint_bush(game),
     ]);
 
-    instantiate(game, [transform([-4.52, 0.69, 1.75]), ...blueprint_bush(game)]);
-
-    instantiate(game, [transform([2.69, 0.33, -2.79]), ...prop_slup(game)]);
-
-    instantiate(game, [transform([23.85, 0.11, -5.15]), ...prop_slup(game)]);
-
-    instantiate(game, [transform([31.05, 0.74, -1.14]), ...blueprint_bush(game)]);
+    instantiate(game, [transform([27.85, 0.11, -5.15]), ...prop_slup(game)]);
 
     instantiate(game, [transform([11.69, 0.5, -0.17]), ...blueprint_obstacle_house(game)]);
-
-    instantiate(game, [transform([11.58, 0.68, 2.02]), ...blueprint_bush(game)]);
 
     instantiate(game, [transform([15.39, 0.11, -2.79]), ...prop_slup(game)]);
 
@@ -76,14 +64,12 @@ export function map_city(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
 
     instantiate(game, [transform([14.31, 0.11, 3.18]), ...prop_slup(game)]);
 
-    instantiate(game, [transform([22.34, 0.38, -0.91]), ...blueprint_bush(game)]);
-
     instantiate(game, [
         transform([21.96, 1, -2.35], [-0.44, 0.55, 0.56, 0.43], [0.4, 0.4, 0.4]),
         ...prop_car2(game),
     ]);
 
-    instantiate(game, [transform([63.12, 0.24, 3.71]), ...prop_slup(game)]);
+    instantiate(game, [transform([76.12, 0.24, 3.71]), ...prop_slup(game)]);
 
     instantiate(game, [transform([28, 2, 0.5]), ...blueprint_box(game)]);
 
@@ -98,8 +84,6 @@ export function map_city(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
         transform([60.15, 0.56, -3.88], [0, -0.73, 0, 0.69]),
         ...blueprint_bush(game),
     ]);
-
-    instantiate(game, [transform([60.98, 0.21, 3.78]), ...blueprint_bush(game)]);
 
     instantiate(game, [transform([78.02, 0.24, -3.54]), ...prop_slup(game)]);
 
@@ -123,7 +107,7 @@ export function map_city(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
     ]);
 
     instantiate(game, [
-        transform([31, 8, -2], [0.01, 0.76, 0.12, 0.64]),
+        transform([39, 7, -2], [0.01, 0.76, 0.12, 0.64]),
         children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(Has.Shake | Has.Spawn)]),
     ]);
 
@@ -242,6 +226,8 @@ export function map_city(game: Game, ground_color: Vec4 = [82 / 255, 39 / 255, 5
         transform([57.6, 4.8, 0.7], undefined, [4, 4.2, 4]),
         ...blueprint_ground(game, ground_color),
     ]);
+
+    instantiate(game, [transform([52.4, 6.9, -2.4]), ...blueprint_fire(game)]);
 
     instantiate(game, [...blueprint_sun_light(game), transform()]);
 

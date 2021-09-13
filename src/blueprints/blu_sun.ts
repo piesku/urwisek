@@ -13,7 +13,7 @@ export function blueprint_sun_light(game: Game) {
 
 export function blueprint_sun_shadow(game: Game) {
     return [
-        mimic(find_first(game.World, "sun anchor"), 0.01),
+        mimic(find_first(game.World, "sa"), 0.01),
         children([
             transform([10, 10, -10], from_euler([0, 0, 0, 1], -35, 135, 0)),
             camera_depth_ortho(game.Targets.Sun, 8, 1, 100),

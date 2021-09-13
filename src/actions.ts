@@ -1,5 +1,4 @@
 import {instantiate} from "../common/game.js";
-import {Entity} from "../common/world.js";
 import {Control, control_player} from "./components/com_control_player.js";
 import {mimic} from "./components/com_mimic.js";
 import {find_first} from "./components/com_named.js";
@@ -33,9 +32,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         }
 
         case Action.NextScene: {
-            let [trigger_entity] = payload as [Entity, Entity];
-            game.World.Signature[trigger_entity] &= ~Has.Trigger;
-
             switch (game.CurrentScene) {
                 case scene_intro:
                 case scene_level2:
@@ -60,7 +56,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             }
 
             let pup_entity = find_first(game.World, "pup");
-            let pup_anchor = find_first(game.World, "pup anchor " + game.PupsFound);
+            let pup_anchor = find_first(game.World, "pa " + game.PupsFound);
 
             mimic(pup_anchor, 0.2)(game, pup_entity);
             let pup_lisek = game.World.Children[pup_entity].Children[0];
@@ -71,9 +67,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         }
 
         case Action.EndGame: {
-            let [trigger_entity] = payload as [Entity, Entity];
-            game.World.Signature[trigger_entity] &= ~Has.Trigger;
-
             for (let i = 0; i < game.World.Signature.length; i++) {
                 game.World.Signature[i] &= ~Has.ControlPlayer;
             }

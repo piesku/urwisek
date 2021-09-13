@@ -21,13 +21,13 @@ export interface AudioSource {
 /**
  * Add the AudioSource component.
  *
- * @param idle The name of the clip to play by default, in a loop.
+ * @param i The name of the clip to play by default, in a loop.
  */
-export function audio_source(idle?: AudioSynthClip) {
+export function audio_source(i?: AudioSynthClip) {
     return (game: Game, entity: Entity) => {
         game.World.Signature[entity] |= Has.AudioSource;
         game.World.AudioSource[entity] = {
-            Idle: idle,
+            Idle: i,
             Time: 0,
         };
     };

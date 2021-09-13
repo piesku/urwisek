@@ -18,7 +18,7 @@ const fly_keytime_1 = 0.6;
 
 export function blueprint_bird(game: Game) {
     return [
-        control_always([0, 0, 1], null, "walk"),
+        control_always([0, 0, 1], null, "w"),
         move(1, 0),
         lifespan(10),
         render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, [0.1, 0.2, 0.3, 1]),
@@ -31,7 +31,7 @@ export function blueprint_bird(game: Game) {
                     [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
                 ),
                 animate({
-                    idle: {
+                    i: {
                         Keyframes: [
                             {
                                 Timestamp: 0,
@@ -39,7 +39,7 @@ export function blueprint_bird(game: Game) {
                             },
                         ],
                     },
-                    walk: {
+                    w: {
                         Keyframes: [
                             {
                                 Timestamp: 0,
@@ -65,7 +65,7 @@ export function blueprint_bird(game: Game) {
                                 ]
                             ),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -73,7 +73,7 @@ export function blueprint_bird(game: Game) {
                                         },
                                     ],
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -100,7 +100,7 @@ export function blueprint_bird(game: Game) {
                                 ]
                             ),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -108,7 +108,7 @@ export function blueprint_bird(game: Game) {
                                         },
                                     ],
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,

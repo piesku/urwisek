@@ -36,7 +36,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
             children([
                 transform(),
                 // Only the player's lisek has the tail, and only it has timescale=1.
-                named(timescale === 1 ? "tail anchor" : ""),
+                named(timescale === 1 ? "ta" : ""),
                 bone(
                     BoneIndex.Root,
                     [
@@ -46,7 +46,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                 ),
                 cull(Has.Animate),
                 animate({
-                    idle: {
+                    i: {
                         Keyframes: [
                             {
                                 Timestamp: 0,
@@ -78,7 +78,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                         ],
                         Flags: AnimationFlag.Loop | AnimationFlag.EarlyExit,
                     },
-                    walk: {
+                    w: {
                         Keyframes: [
                             {
                                 Timestamp: 0,
@@ -88,7 +88,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                         ],
                         Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                     },
-                    jump: {
+                    j: {
                         Keyframes: [
                             {
                                 Timestamp: 0.0,
@@ -120,11 +120,11 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                     [
                         transform([0, 0.46, 0], [-0.4, 0, 0, 0.92]),
                         children([
-                            // An intermediate joint to allow two idle cycles for the head.
+                            // An intermediate joint to allow two i cycles for the head.
                             transform(),
                             cull(Has.Animate),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -151,7 +151,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                                     ],
                                     Flags: AnimationFlag.Loop | AnimationFlag.EarlyExit,
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -160,7 +160,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                                     ],
                                     Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                                 },
-                                jump: {
+                                j: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -181,7 +181,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                                 ),
                                 cull(Has.Animate),
                                 animate({
-                                    idle: {
+                                    i: {
                                         Keyframes: [
                                             {
                                                 Timestamp: 0.0,
@@ -195,7 +195,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                                             },
                                         ],
                                     },
-                                    walk: {
+                                    w: {
                                         Keyframes: [
                                             {
                                                 Timestamp: 0.0,
@@ -208,7 +208,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                                         ],
                                         Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                                     },
-                                    jump: {
+                                    j: {
                                         Keyframes: [
                                             {
                                                 Timestamp: 0.0,
@@ -248,7 +248,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                             ),
                             cull(Has.Animate),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -256,7 +256,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                                         },
                                     ],
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -269,7 +269,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                                     ],
                                     Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                                 },
-                                jump: {
+                                j: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0.0,
@@ -308,7 +308,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                             ),
                             cull(Has.Animate),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -316,7 +316,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                                         },
                                     ],
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -329,7 +329,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                                     ],
                                     Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                                 },
-                                jump: {
+                                j: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0.0,
@@ -368,7 +368,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                             ),
                             cull(Has.Animate),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -395,7 +395,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                                     ],
                                     Flags: AnimationFlag.Loop | AnimationFlag.EarlyExit,
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -408,7 +408,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                                     ],
                                     Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                                 },
-                                jump: {
+                                j: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0.0,
@@ -447,7 +447,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                             ),
                             cull(Has.Animate),
                             animate({
-                                idle: {
+                                i: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -474,7 +474,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                                     ],
                                     Flags: AnimationFlag.Loop | AnimationFlag.EarlyExit,
                                 },
-                                walk: {
+                                w: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0,
@@ -487,7 +487,7 @@ export function blueprint_lisek(game: Game, color: Vec4 = [1, 0.5, 0, 1], timesc
                                     ],
                                     Flags: AnimationFlag.EarlyExit | AnimationFlag.Alternate,
                                 },
-                                jump: {
+                                j: {
                                     Keyframes: [
                                         {
                                             Timestamp: 0.0,

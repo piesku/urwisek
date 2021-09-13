@@ -108,7 +108,7 @@ function update(game: Game, entity: Entity, delta: number) {
         animate.Current.Time = 0;
     }
 
-    // 5. The animation has completed. Loop it or switch to idle.
+    // 5. The animation has completed. Loop it or switch to i.
 
     if (animate.Current.Flags & AnimationFlag.Alternate) {
         // Reverse the keyframes of the clip and recalculate their timestamps.
@@ -118,6 +118,6 @@ function update(game: Game, entity: Entity, delta: number) {
     }
 
     if (!(animate.Current.Flags & AnimationFlag.Loop)) {
-        animate.Current = animate.States["idle"];
+        animate.Current = animate.States["i"];
     }
 }
