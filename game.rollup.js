@@ -2100,7 +2100,7 @@
             ESCAPE
         </div>
         <div>
-            Earth has become uninhabitable.<br>
+            Earth can no longer support life.<br>
             Humans are leaving.<br><br>
             <em onclick="$(${1 /* NewGame */})">Play Now</em>
         </div>
@@ -2620,16 +2620,6 @@
         ]);
     }
 
-    let snd_gust = {
-        Tracks: [
-            {
-                Instrument: [7, "lowpass", 10, 6, true, "sine", 8, 2, [[false, 3, 4, 2, 9]]],
-                Notes: [57],
-            },
-        ],
-        Exit: 23,
-    };
-
     let snd_neigh = {
         Tracks: [
             {
@@ -3119,7 +3109,7 @@
             mimic(find_first(game.World, "ca"), 0.05),
         ]);
         instantiate(game, [
-            children([audio_source(snd_gust)], [audio_source(snd_neigh)], [audio_source(snd_horn)]),
+            children([audio_source(snd_wind)], [audio_source(snd_neigh)], [audio_source(snd_horn)]),
         ]);
     }
 
@@ -4844,29 +4834,6 @@
         Exit: 0.25,
     };
 
-    let snd_walk2 = {
-        Tracks: [
-            {
-                Instrument: [
-                    3,
-                    "lowpass",
-                    8,
-                    0,
-                    false,
-                    false,
-                    8,
-                    8,
-                    [
-                        ["sine", 8, 1, 1, 3, 8, false],
-                        [false, 8, 1, 2, 3],
-                    ],
-                ],
-                Notes: [48],
-            },
-        ],
-        Exit: 0.25,
-    };
-
     const QUERY$e = 128 /* ControlPlayer */;
     function sys_control_keyboard(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
@@ -4892,14 +4859,7 @@
                 is_walking = true;
             }
             if (is_walking && collide.Collisions.length > 0) {
-                let other_entity = collide.Collisions[0].Other;
-                let other_layers = game.World.Collide[other_entity].Layers;
-                if (other_layers & 16 /* SurfaceGround */) {
-                    audio_source.Trigger = snd_walk1;
-                }
-                else {
-                    audio_source.Trigger = snd_walk2;
-                }
+                audio_source.Trigger = snd_walk1;
             }
             if (!rigid_body.IsAirborne) {
                 // The entity is on the ground or on an object.
