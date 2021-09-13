@@ -17,7 +17,7 @@ export function Title(game: Game) {
             ESCAPE
         </div>
         <div>
-            Earth has become uninhabitable.<br>
+            Earth can no longer support life.<br>
             Humans are leaving.<br><br>
             <em onclick="$(${Action.NewGame})">Play Now</em>
         </div>
