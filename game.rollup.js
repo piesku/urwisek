@@ -4867,29 +4867,6 @@
         Exit: 0.25,
     };
 
-    let snd_walk3 = {
-        Tracks: [
-            {
-                Instrument: [
-                    8,
-                    "bandpass",
-                    8,
-                    2,
-                    false,
-                    false,
-                    8,
-                    8,
-                    [
-                        ["square", 3, 1, 1, 2, 8, false],
-                        [false, 3, 2, 2, 3],
-                    ],
-                ],
-                Notes: [48],
-            },
-        ],
-        Exit: 0.25,
-    };
-
     const QUERY$e = 128 /* ControlPlayer */;
     function sys_control_keyboard(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
@@ -4920,11 +4897,8 @@
                 if (other_layers & 16 /* SurfaceGround */) {
                     audio_source.Trigger = snd_walk1;
                 }
-                else if (other_layers & 32 /* SurfaceWood */) {
+                else {
                     audio_source.Trigger = snd_walk2;
-                }
-                else if (other_layers & 64 /* SurfaceMetal */) {
-                    audio_source.Trigger = snd_walk3;
                 }
             }
             if (!rigid_body.IsAirborne) {
