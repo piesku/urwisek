@@ -1847,8 +1847,8 @@
             ]),
         ];
     }
-    function instantiate_player(game, translation, pups_found = game.PupsFound) {
-        let player_entity = instantiate(game, [...blueprint_player(), transform(translation)]);
+    function instantiate_player(game) {
+        let player_entity = instantiate(game, [...blueprint_player(), transform()]);
         let tail_root = 0;
         let tail_bone1 = 0;
         let tail_bone2 = 0;
@@ -1921,7 +1921,7 @@
                 // render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [2, 2, 2, 1]),
             ]),
         ]);
-        for (let i = 0; i < pups_found; i++) {
+        for (let i = 0; i < game.PupsFound; i++) {
             instantiate(game, [
                 transform(),
                 mimic(find_first(game.World, "pa " + i), 0.2 - 0.02 * i),
@@ -2538,7 +2538,7 @@
             children([audio_source(snd_wind)], [audio_source(snd_chirp1)], [audio_source(snd_horn)]),
         ]);
         let camera_anchor_intro = instantiate(game, [transform([0, 0.5, -3]), named("ca")]);
-        let player_entity = instantiate_player(game, [0, 1, 0]);
+        let player_entity = instantiate_player(game);
         game.World.Signature[player_entity] &= ~128 /* ControlPlayer */;
         map_forest(game);
         let starfield_entity = instantiate(game, [
@@ -3109,7 +3109,7 @@
     function scene_level2(game) {
         game.World = new World();
         game.ViewportResized = true;
-        instantiate_player(game, [0, 0.774, 0]);
+        instantiate_player(game);
         map_farm(game);
         instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
         // Camera.
@@ -3377,7 +3377,7 @@
     function scene_level3(game) {
         game.World = new World();
         game.ViewportResized = true;
-        instantiate_player(game, [0, 2, 0]);
+        instantiate_player(game);
         map_city(game, [0.2, 0.2, 0.2, 1]);
         instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
         // Camera.
@@ -5759,7 +5759,7 @@
     function scene_level1(game) {
         game.World = new World();
         game.ViewportResized = true;
-        instantiate_player(game, [0, 0.774, 0]);
+        instantiate_player(game);
         map_forest(game);
         instantiate(game, [
             ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
@@ -5815,7 +5815,7 @@
                 ...blueprint_tree(game),
             ]);
         }
-        instantiate_player(game, [-1, 1, 1], 3);
+        instantiate_player(game);
         instantiate(game, [...blueprint_box(game), transform([2.5, 6, 1])]);
         instantiate(game, [...blueprint_box(game), transform([2.4, 8, 1])]);
         instantiate(game, [
