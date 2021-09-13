@@ -7,7 +7,6 @@ import {query_up} from "../components/com_transform.js";
 import {Game, Layer} from "../game.js";
 import {snd_walk1} from "../sounds/snd_walk1.js";
 import {snd_walk2} from "../sounds/snd_walk2.js";
-import {snd_walk3} from "../sounds/snd_walk3.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.ControlPlayer;
@@ -45,10 +44,8 @@ function update(game: Game, entity: Entity) {
             let other_layers = game.World.Collide[other_entity].Layers;
             if (other_layers & Layer.SurfaceGround) {
                 audio_source.Trigger = snd_walk1;
-            } else if (other_layers & Layer.SurfaceWood) {
+            } else {
                 audio_source.Trigger = snd_walk2;
-            } else if (other_layers & Layer.SurfaceMetal) {
-                audio_source.Trigger = snd_walk3;
             }
         }
 
