@@ -19,6 +19,6 @@ export function scene_level1(game: Game) {
     instantiate(game, [
         ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
         transform([0, 10, 10]),
-        mimic(find_first(game.World, "camera anchor"), 0.05),
+        mimic(find_first(game.World, "ca"), 0.05),
     ]);
 }

@@ -98,6 +98,6 @@ export function scene_stage(game: Game) {
     instantiate(game, [
         ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
         transform([0, 0, 0], from_euler([0, 0, 0, 1], -30, 0, 0)),
-        mimic(find_first(game.World, "camera anchor"), 0.05),
+        mimic(find_first(game.World, "ca"), 0.05),
     ]);
 }

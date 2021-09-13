@@ -27,7 +27,7 @@ export function scene_level3(game: Game) {
     instantiate(game, [
         ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
         transform([0, 10, 10]),
-        mimic(find_first(game.World, "camera anchor"), 0.05),
+        mimic(find_first(game.World, "ca"), 0.05),
     ]);
 
     instantiate(game, [children([audio_source(snd_wind)], [audio_source(snd_horn)])]);

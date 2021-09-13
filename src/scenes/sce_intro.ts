@@ -35,7 +35,7 @@ export function scene_intro(game: Game) {
         children([audio_source(snd_wind)], [audio_source(snd_chirp1)], [audio_source(snd_horn)]),
     ]);
 
-    let camera_anchor_intro = instantiate(game, [transform([0, 0.5, -3]), named("camera anchor")]);
+    let camera_anchor_intro = instantiate(game, [transform([0, 0.5, -3]), named("ca")]);
 
     let player_entity = instantiate_player(game, [0, 1, 0]);
     game.World.Signature[player_entity] &= ~Has.ControlPlayer;
@@ -60,7 +60,7 @@ export function scene_intro(game: Game) {
     let camera_entity = instantiate(game, [
         ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
         transform([0, 25, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
-        mimic(find_first(game.World, "camera anchor"), 0.02),
+        mimic(find_first(game.World, "ca"), 0.02),
         disable(Has.Mimic),
     ]);
 
@@ -116,7 +116,7 @@ export function scene_intro(game: Game) {
                                 let mimic = game.World.Mimic[camera_entity];
                                 mimic.Target = find_first(
                                     game.World,
-                                    "camera anchor",
+                                    "ca",
                                     camera_anchor_intro + 1
                                 );
                                 mimic.Stiffness = 0.05;

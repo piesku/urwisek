@@ -60,7 +60,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             }
 
             let pup_entity = find_first(game.World, "pup");
-            let pup_anchor = find_first(game.World, "pup anchor " + game.PupsFound);
+            let pup_anchor = find_first(game.World, "pa " + game.PupsFound);
 
             mimic(pup_anchor, 0.2)(game, pup_entity);
             let pup_lisek = game.World.Children[pup_entity].Children[0];

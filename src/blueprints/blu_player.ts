@@ -31,7 +31,7 @@ function blueprint_player(game: Game) {
             //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
             // ],
             [
-                named("mesh anchor"),
+                named("ma"),
                 transform([0, -0.42, 0], [0, 0.71, 0, 0.71]),
                 control_player(Control.Rotate),
                 children([
@@ -42,24 +42,25 @@ function blueprint_player(game: Game) {
                 ]),
             ],
             [
-                named("pup anchor 0"),
+                named("pa 0"),
                 transform([0, -0.42, 0.2], [0, 0.71, 0, 0.71]),
                 control_player(Control.Rotate),
             ],
             [
-                named("pup anchor 1"),
+                named("pa 1"),
                 transform([-0.2, -0.42, 0.2], [0, 0.71, 0, 0.71]),
                 control_player(Control.Rotate),
             ],
             [
-                named("pup anchor 2"),
+                named("pa 2"),
                 transform([-0.4, -0.42, 0.2], [0, 0.71, 0, 0.71]),
                 control_player(Control.Rotate),
             ],
-            [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))],
-            [named("sun anchor"), transform()],
+            [named("ca"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))],
+            [named("sa"), transform()],
             [
-                named("pixie anchor"),
+                // "wrózka anchor"
+                named("wa"),
                 transform([4, 1, 0], [0, 0.71, 0, 0.71]),
                 // children([
                 //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
@@ -87,7 +88,7 @@ export function instantiate_player(game: Game, translation: Vec3, pups_found = g
 
     instantiate(game, [
         transform([-10, 0, 0.5]),
-        mimic(find_first(game.World, "mesh anchor"), 0.2),
+        mimic(find_first(game.World, "ma"), 0.2),
         children(
             // The mesh, animated by the player.
             [...blueprint_lisek(game), transform(), control_player(Control.Animate)],
@@ -175,7 +176,7 @@ export function instantiate_player(game: Game, translation: Vec3, pups_found = g
     for (let i = 0; i < pups_found; i++) {
         instantiate(game, [
             transform(),
-            mimic(find_first(game.World, "pup anchor " + i), 0.2 - 0.02 * i),
+            mimic(find_first(game.World, "pa " + i), 0.2 - 0.02 * i),
             children([
                 ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.7 + 0.1 * i),
                 transform(undefined, undefined, [0.3, 0.3, 0.3]),

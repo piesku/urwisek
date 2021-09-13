@@ -11,7 +11,8 @@ import {Game} from "../game.js";
 
 export function blueprint_pixie(game: Game) {
     return [
-        mimic(find_first(game.World, "pixie anchor"), 0.02),
+        // "wrózka anchor"
+        mimic(find_first(game.World, "wa"), 0.02),
         light(1.5),
         children([
             transform(),
