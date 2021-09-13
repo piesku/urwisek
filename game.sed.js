@@ -3234,9 +3234,9 @@ instantiate(game, [
 transform([-1.27, 0.19, -3.2], undefined, [0.5, 0.5, 0.5]),
 ...blueprint_bush(game),
 ]);
-instantiate(game, [transform([27.85, 0.11, -5.15]), ...prop_slup(game)]);
-instantiate(game, [transform([11.69, 0.5, -0.17]), ...blueprint_obstacle_house(game)]);
-instantiate(game, [transform([15.39, 0.11, -2.79]), ...prop_slup(game)]);
+instantiate(game, [transform([27, 0.11, -5]), ...prop_slup(game)]);
+instantiate(game, [transform([11, 0.5, 0]), ...blueprint_obstacle_house(game)]);
+instantiate(game, [transform([15, 0, -3]), ...prop_slup(game)]);
 instantiate(game, [
 transform([-3.95, 0.5, 1.41], [0, 0.62, 0, 0.78]),
 ...blueprint_obstacle_car(game),
@@ -3245,7 +3245,7 @@ instantiate(game, [
 transform([7.69, 1, -0.1], [-0.15, 0.68, 0.7, 0.14], [0.4, 0.4, 0.4]),
 ...blueprint_obstacle_car(game),
 ]);
-instantiate(game, [transform([14.31, 0.11, 3.18]), ...prop_slup(game)]);
+instantiate(game, [transform([15, 0, 3]), ...prop_slup(game)]);
 instantiate(game, [
 transform([21.96, 1, -2.35], [-0.44, 0.55, 0.56, 0.43], [0.4, 0.4, 0.4]),
 ...prop_car2(game),
@@ -3261,13 +3261,8 @@ instantiate(game, [
 transform([60.15, 0.56, -3.88], [0, -0.73, 0, 0.69]),
 ...blueprint_bush(game),
 ]);
-instantiate(game, [transform([78.02, 0.24, -3.54]), ...prop_slup(game)]);
 instantiate(game, [transform([87, 2.5, 0]), ...blueprint_exit(game)]);
 instantiate(game, [transform([87, 2.5, 0], [0, -0.71, 0, 0.71]), ...blueprint_pup(game)]);
-instantiate(game, [
-transform([-3, 2, -2], [0.01, 0.76, 0.12, 0.64]),
-children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
-]);
 instantiate(game, [
 transform([14, 2, -2], [0.01, 0.76, 0.12, 0.64]),
 children([transform(), shake(1), spawn(blueprint_bird, 0.5), cull(131072 /* Shake */ | 262144 /* Spawn */)]),
@@ -3297,8 +3292,8 @@ transform([float(Xmin, Xmax), 0, float(Zmin, Zmax)]),
 instantiate(game, [transform([-2.6, 0.9, 0.6]), ...blueprint_fire()]);
 instantiate(game, [transform([93, 2.5, 0]), ...blueprint_end(game)]);
 instantiate(game, [transform([95.97, 1.5, 0.44]), ...blueprint_launchpad(game)]);
-instantiate(game, [transform([9.24, 0.5, -9.03], [0, 0.17, 0, 0.98]), ...blueprint_blok(game)]);
-instantiate(game, [transform([4.54, 0.5, -7.32], [0, 0.17, 0, 0.98]), ...blueprint_blok(game)]);
+instantiate(game, [transform([9, 0.5, -9], [0, 0.17, 0, 0.98]), ...blueprint_blok(game)]);
+instantiate(game, [transform([4, 0.5, -7], [0, 0.17, 0, 0.98]), ...blueprint_blok(game)]);
 instantiate(game, [transform([53.2, 0.5, -2.6]), ...blueprint_blok(game)]);
 instantiate(game, [transform([82.26, -0.31, -6.49]), ...blueprint_blok(game)]);
 instantiate(game, [transform([77.26, -0.31, -6.49]), ...blueprint_blok(game)]);
@@ -3306,11 +3301,8 @@ instantiate(game, [transform([57.6, 0.5, 0.7]), ...blueprint_obstacle_house(game
 instantiate(game, [transform([48.2, 0.5, -2.6]), ...blueprint_blok(game)]);
 instantiate(game, [transform([38.2, 0.5, -2.6]), ...blueprint_blok(game)]);
 instantiate(game, [transform([33.2, 0.5, -2.6]), ...blueprint_blok(game)]);
-instantiate(game, [
-transform([41.2, 0.5, 2.9], undefined, [1, 1, 0.8]),
-...blueprint_blok(game),
-]);
-instantiate(game, [transform([23.2, 0.5, -9.1]), ...blueprint_blok(game)]);
+instantiate(game, [transform([41.2, 0.5, 3], undefined, [1, 1, 0.8]), ...blueprint_blok(game)]);
+instantiate(game, [transform([23, 0.5, -9]), ...blueprint_blok(game)]);
 instantiate(game, [
 transform([48.2, 2.7, 0], undefined, [4, 0.2, 1.2]),
 ...blueprint_ground(game, ground_color),
