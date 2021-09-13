@@ -1676,7 +1676,8 @@
 
     function blueprint_pixie(game) {
         return [
-            mimic(find_first(game.World, "pixie anchor"), 0.02),
+            // "wrózka anchor"
+            mimic(find_first(game.World, "wa"), 0.02),
             light(1.5),
             children([
                 transform(),
@@ -1814,7 +1815,7 @@
             //     render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
             // ],
             [
-                named("mesh anchor"),
+                named("ma"),
                 transform([0, -0.42, 0], [0, 0.71, 0, 0.71]),
                 control_player(2 /* Rotate */),
                 children([
@@ -1824,19 +1825,20 @@
                     //render_colored_shaded(game.MaterialColoredShaded, game.MeshCube, [1, 1, 1, 1]),
                 ]),
             ], [
-                named("pup anchor 0"),
+                named("pa 0"),
                 transform([0, -0.42, 0.2], [0, 0.71, 0, 0.71]),
                 control_player(2 /* Rotate */),
             ], [
-                named("pup anchor 1"),
+                named("pa 1"),
                 transform([-0.2, -0.42, 0.2], [0, 0.71, 0, 0.71]),
                 control_player(2 /* Rotate */),
             ], [
-                named("pup anchor 2"),
+                named("pa 2"),
                 transform([-0.4, -0.42, 0.2], [0, 0.71, 0, 0.71]),
                 control_player(2 /* Rotate */),
-            ], [named("camera anchor"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))], [named("sun anchor"), transform()], [
-                named("pixie anchor"),
+            ], [named("ca"), transform([0.5, 0.5, 0], from_euler([0, 0, 0, 1], -10, 0, 0))], [named("sa"), transform()], [
+                // "wrózka anchor"
+                named("wa"),
                 transform([4, 1, 0], [0, 0.71, 0, 0.71]),
                 // children([
                 //     transform(undefined, undefined, [0.1, 0.1, 0.1]),
@@ -1852,7 +1854,7 @@
         let tail_bone2 = 0;
         instantiate(game, [
             transform([-10, 0, 0.5]),
-            mimic(find_first(game.World, "mesh anchor"), 0.2),
+            mimic(find_first(game.World, "ma"), 0.2),
             children(
             // The mesh, animated by the player.
             [...blueprint_lisek(game), transform(), control_player(4 /* Animate */)], 
@@ -1922,7 +1924,7 @@
         for (let i = 0; i < pups_found; i++) {
             instantiate(game, [
                 transform(),
-                mimic(find_first(game.World, "pup anchor " + i), 0.2 - 0.02 * i),
+                mimic(find_first(game.World, "pa " + i), 0.2 - 0.02 * i),
                 children([
                     ...blueprint_lisek(game, [1, 0.5, 0, 1], 0.7 + 0.1 * i),
                     transform(undefined, undefined, [0.3, 0.3, 0.3]),
@@ -2190,7 +2192,7 @@
     }
     function blueprint_sun_shadow(game) {
         return [
-            mimic(find_first(game.World, "sun anchor"), 0.01),
+            mimic(find_first(game.World, "sa"), 0.01),
             children([
                 transform([10, 10, -10], from_euler([0, 0, 0, 1], -35, 135, 0)),
                 camera_depth_ortho(game.Targets.Sun, 8, 1, 100),
@@ -2556,7 +2558,7 @@
         instantiate(game, [
             children([audio_source(snd_wind)], [audio_source(snd_chirp1)], [audio_source(snd_horn)]),
         ]);
-        let camera_anchor_intro = instantiate(game, [transform([0, 0.5, -3]), named("camera anchor")]);
+        let camera_anchor_intro = instantiate(game, [transform([0, 0.5, -3]), named("ca")]);
         let player_entity = instantiate_player(game, [0, 1, 0]);
         game.World.Signature[player_entity] &= ~128 /* ControlPlayer */;
         map_forest(game);
@@ -2576,7 +2578,7 @@
         let camera_entity = instantiate(game, [
             ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
             transform([0, 25, 0], from_euler([0, 0, 0, 1], 10, 0, 0)),
-            mimic(find_first(game.World, "camera anchor"), 0.02),
+            mimic(find_first(game.World, "ca"), 0.02),
             disable(4096 /* Mimic */),
         ]);
         let pups = [
@@ -2621,7 +2623,7 @@
                             destroy_all(game.World, starfield_entity);
                             // Increase the camera's responsiveness.
                             let mimic = game.World.Mimic[camera_entity];
-                            mimic.Target = find_first(game.World, "camera anchor", camera_anchor_intro + 1);
+                            mimic.Target = find_first(game.World, "ca", camera_anchor_intro + 1);
                             mimic.Stiffness = 0.05;
                             // Spawn the pixie.
                             instantiate(game, [
@@ -3135,7 +3137,7 @@
         instantiate(game, [
             ...blueprint_camera(game, [255 / 255, 208 / 255, 0 / 255, 1]),
             transform([0, 10, 10]),
-            mimic(find_first(game.World, "camera anchor"), 0.05),
+            mimic(find_first(game.World, "ca"), 0.05),
         ]);
         instantiate(game, [
             children([audio_source(snd_gust)], [audio_source(snd_neigh)], [audio_source(snd_horn)]),
@@ -3409,7 +3411,7 @@
         instantiate(game, [
             ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
             transform([0, 10, 10]),
-            mimic(find_first(game.World, "camera anchor"), 0.05),
+            mimic(find_first(game.World, "ca"), 0.05),
         ]);
         instantiate(game, [children([audio_source(snd_wind)], [audio_source(snd_horn)])]);
     }
@@ -3450,7 +3452,7 @@
                         break;
                 }
                 let pup_entity = find_first(game.World, "pup");
-                let pup_anchor = find_first(game.World, "pup anchor " + game.PupsFound);
+                let pup_anchor = find_first(game.World, "pa " + game.PupsFound);
                 mimic(pup_anchor, 0.2)(game, pup_entity);
                 let pup_lisek = game.World.Children[pup_entity].Children[0];
                 control_player(4 /* Animate */)(game, pup_lisek);
@@ -5842,7 +5844,7 @@
         instantiate(game, [
             ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
             transform([0, 10, 10]),
-            mimic(find_first(game.World, "camera anchor"), 0.05),
+            mimic(find_first(game.World, "ca"), 0.05),
         ]);
     }
 
@@ -5925,7 +5927,7 @@
         instantiate(game, [
             ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
             transform([0, 0, 0], from_euler([0, 0, 0, 1], -30, 0, 0)),
-            mimic(find_first(game.World, "camera anchor"), 0.05),
+            mimic(find_first(game.World, "ca"), 0.05),
         ]);
     }
 
