@@ -3145,35 +3145,31 @@ children([audio_source(snd_gust)], [audio_source(snd_neigh)], [audio_source(snd_
 function prop_panelki(game) {
 return [
 children([
-transform([0, 0.1, 0], undefined, [4, 0.2, 4]),
-cull(32768 /* Render */),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.2, 0.2, 0.2, 1]),
-], [
-transform([-1.75, 1.1, 0], [0, 0, -0.71, 0.71], [1.8, 0.5, 4]),
-cull(32768 /* Render */),
-render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.2, 0.2, 0.2, 1]),
-], [
 transform([0, 2.1, 0], undefined, [4, 0.2, 4]),
 cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.2, 0.2, 0.2, 1]),
 ], [
-transform([1.75, 1.1, 0], [0, 0, -0.71, 0.71], [1.8, 0.5, 4]),
+transform([1.75, 1, 0], undefined, [0.5, 2, 4]),
 cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.2, 0.2, 0.2, 1]),
 ], [
-transform([0, 0.65, 1.75], [-0.5, 0.5, -0.5, 0.5], [0.9, 0.5, 3]),
+transform([-0.55, 0.55, -1.75], undefined, [1.9, 1.1, 0.5]),
 cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.2, 0.2, 0.2, 1]),
 ], [
-transform([0, 1.55, 1.75], [-0.5, 0.5, -0.5, 0.5], [0.9, 0.5, 0.8]),
+transform([0, 1.55, -1.75], undefined, [0.8, 0.9, 0.5]),
 cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.2, 0.2, 0.2, 1]),
 ], [
-transform([-0.55, 0.65, -1.75], [-0.5, 0.5, -0.5, 0.5], [0.9, 0.5, 1.9]),
+transform([-1.75, 1, 0], undefined, [0.5, 2, 4]),
 cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.2, 0.2, 0.2, 1]),
 ], [
-transform([0, 1.55, -1.75], [-0.5, 0.5, -0.5, 0.5], [0.9, 0.5, 0.8]),
+transform([0, 0.55, 1.75], undefined, [3, 1.1, 0.5]),
+cull(32768 /* Render */),
+render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.2, 0.2, 0.2, 1]),
+], [
+transform([0, 1.55, 1.75], undefined, [0.8, 0.9, 0.5]),
 cull(32768 /* Render */),
 render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.2, 0.2, 0.2, 1]),
 ]),
@@ -3326,7 +3322,7 @@ let Xmin = centerX - ~~(width / 2);
 let Xmax = centerX + ~~(width / 2);
 let Zmin = centerZ - ~~(depth / 2);
 let Zmax = centerZ + ~~(depth / 2);
-let number_of_trees = ~~(((width * depth) / 1) * 0.8);
+let number_of_trees = ~~(((width * depth) / 1) * 0.3);
 for (let i = 0; i < number_of_trees; i++) {
 instantiate(game, [
 transform([float(Xmin, Xmax), 0, float(Zmin, Zmax)]),
@@ -3352,7 +3348,7 @@ transform([41.2, 0.5, 2.9], undefined, [1, 1, 0.8]),
 ]);
 instantiate(game, [transform([23.2, 0.5, -9.1]), ...blueprint_blok(game)]);
 instantiate(game, [
-transform([48.2, 2.9, 0], undefined, [4, 0.2, 1.2]),
+transform([48.2, 2.7, 0], undefined, [4, 0.2, 1.2]),
 ...blueprint_ground(game, ground_color),
 ]);
 instantiate(game, [
@@ -3364,11 +3360,11 @@ transform([33.2, 5.1, 0], undefined, [4, 0.2, 1.2]),
 ...blueprint_ground(game, ground_color),
 ]);
 instantiate(game, [
-transform([38.2, 2.9, 0], undefined, [4, 0.2, 1.2]),
+transform([38.2, 2.7, 0], undefined, [4, 0.2, 1.2]),
 ...blueprint_ground(game, ground_color),
 ]);
 instantiate(game, [
-transform([36.3, 3.5, 0], undefined, [0.2, 1, 1.2]),
+transform([36.3, 3.4, 0], undefined, [0.2, 1.2, 1.2]),
 ...blueprint_ground(game, ground_color),
 ]);
 instantiate(game, [
