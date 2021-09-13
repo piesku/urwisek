@@ -4,9 +4,8 @@ import {Animate} from "../components/com_animate.js";
 import {query_all} from "../components/com_children.js";
 import {Control} from "../components/com_control_player.js";
 import {query_up} from "../components/com_transform.js";
-import {Game, Layer} from "../game.js";
+import {Game} from "../game.js";
 import {snd_walk1} from "../sounds/snd_walk1.js";
-import {snd_walk2} from "../sounds/snd_walk2.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.ControlPlayer;
@@ -40,13 +39,7 @@ function update(game: Game, entity: Entity) {
         }
 
         if (is_walking && collide.Collisions.length > 0) {
-            let other_entity = collide.Collisions[0].Other;
-            let other_layers = game.World.Collide[other_entity].Layers;
-            if (other_layers & Layer.SurfaceGround) {
-                audio_source.Trigger = snd_walk1;
-            } else {
-                audio_source.Trigger = snd_walk2;
-            }
+            audio_source.Trigger = snd_walk1;
         }
 
         if (!rigid_body.IsAirborne) {
