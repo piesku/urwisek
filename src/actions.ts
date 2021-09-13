@@ -1,5 +1,4 @@
 import {instantiate} from "../common/game.js";
-import {Entity} from "../common/world.js";
 import {Control, control_player} from "./components/com_control_player.js";
 import {mimic} from "./components/com_mimic.js";
 import {find_first} from "./components/com_named.js";
@@ -33,9 +32,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         }
 
         case Action.NextScene: {
-            let [trigger_entity] = payload as [Entity, Entity];
-            game.World.Signature[trigger_entity] &= ~Has.Trigger;
-
             switch (game.CurrentScene) {
                 case scene_intro:
                 case scene_level2:
@@ -71,9 +67,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         }
 
         case Action.EndGame: {
-            let [trigger_entity] = payload as [Entity, Entity];
-            game.World.Signature[trigger_entity] &= ~Has.Trigger;
-
             for (let i = 0; i < game.World.Signature.length; i++) {
                 game.World.Signature[i] &= ~Has.ControlPlayer;
             }

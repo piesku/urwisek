@@ -20,7 +20,6 @@ import {Shake} from "./components/com_shake.js";
 import {Spawn} from "./components/com_spawn.js";
 import {Task} from "./components/com_task.js";
 import {Transform} from "./components/com_transform.js";
-import {Trigger} from "./components/com_trigger.js";
 
 const enum Component {
     Animate,
@@ -44,7 +43,6 @@ const enum Component {
     Spawn,
     Task,
     Transform,
-    Trigger,
 }
 
 export const enum Has {
@@ -70,7 +68,6 @@ export const enum Has {
     Spawn = 1 << Component.Spawn,
     Task = 1 << Component.Task,
     Transform = 1 << Component.Transform,
-    Trigger = 1 << Component.Trigger,
 }
 
 export class World extends WorldImpl {
@@ -95,5 +92,4 @@ export class World extends WorldImpl {
     Spawn: Array<Spawn> = [];
     Task: Array<Task> = [];
     Transform: Array<Transform> = [];
-    Trigger: Array<Trigger> = [];
 }

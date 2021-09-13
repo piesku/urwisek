@@ -34,7 +34,6 @@ import {sys_resize} from "./systems/sys_resize.js";
 import {sys_shake} from "./systems/sys_shake.js";
 import {sys_spawn} from "./systems/sys_spawn.js";
 import {sys_transform} from "./systems/sys_transform.js";
-import {sys_trigger} from "./systems/sys_trigger.js";
 import {sys_ui} from "./systems/sys_ui.js";
 import {Title} from "./ui/App.js";
 import {World} from "./world.js";
@@ -78,7 +77,6 @@ export class Game extends Game3D {
         sys_collide(this, delta);
         sys_physics_resolve(this, delta);
         sys_transform(this, delta);
-        sys_trigger(this, delta);
     }
 
     override FrameUpdate(delta: number) {
