@@ -1949,15 +1949,6 @@ return arr[integer(0, arr.length - 1)];
 }
 
 /**
-* @module components/com_disable
-*/
-function disable(mask) {
-return (game, entity) => {
-game.World.Signature[entity] &= ~mask;
-};
-}
-
-/**
 * @module components/com_lifespan
 */
 function lifespan(remaining, action) {
@@ -1965,7 +1956,6 @@ return (game, entity) => {
 game.World.Signature[entity] |= 1024 /* Lifespan */;
 game.World.Lifespan[entity] = {
 Remaining: remaining,
-Action: action,
 };
 };
 }
@@ -2000,23 +1990,11 @@ render_colored_shadows(game.MaterialColoredShadows, game.MeshCylinder, [0, 0, 0,
 ];
 }
 
-let snd_rocket = {
-Tracks: [
-{
-Instrument: [8, "lowpass", 9, 8, false, false, 8, 1, [[false, 8, 15, 15, 15]]],
-Notes: [77],
-},
-],
-Exit: 99,
-};
-
 function blueprint_rocket(game) {
 return [
 control_always([0, 0, 1], null),
 move(float(1, 3), 0),
 lifespan(25),
-audio_source(snd_rocket),
-disable(2 /* AudioSource */),
 children(
 
 [
@@ -2031,6 +2009,15 @@ emit_particles(1, 0.01, 1),
 render_particles_colored([1, 0.5, 0, 1], 10, [0.56, 0.33, 0.24, 1], 2),
 ]),
 ];
+}
+
+/**
+* @module components/com_disable
+*/
+function disable(mask) {
+return (game, entity) => {
+game.World.Signature[entity] &= ~mask;
+};
 }
 
 /**
@@ -2318,7 +2305,7 @@ children([transform([0, 1, 0]), named("exit")]),
 ];
 }
 
-const colors$1 = [
+const colors = [
 [0.1, 0.1, 0.1, 1],
 [0.2, 0.2, 0.2, 1],
 ];
@@ -2332,7 +2319,7 @@ lifespan(200),
 children([
 transform(undefined, undefined, [2, 2, 2]),
 cull(32768 /* Render */ | 16 /* Children */),
-...blueprint_lisek(game, element(colors$1), 3),
+...blueprint_lisek(game, element(colors), 3),
 ]),
 ];
 }
@@ -2344,7 +2331,7 @@ lifespan(100),
 children([
 transform(undefined, undefined, [1, 1.5, 1]),
 cull(32768 /* Render */ | 16 /* Children */),
-...blueprint_lisek(game, element(colors$1), 1.5),
+...blueprint_lisek(game, element(colors), 1.5),
 ]),
 ];
 }
@@ -2355,23 +2342,18 @@ lifespan(100),
 children([
 transform(undefined, undefined, [0.5, 0.5, 1]),
 cull(32768 /* Render */ | 16 /* Children */),
-...blueprint_lisek(game, element(colors$1), 0.8),
+...blueprint_lisek(game, element(colors), 0.8),
 ]),
 ];
 }
 
 const fly_keytime_1 = 0.6;
-const colors = [
-[0.1, 0.1, 0.1, 1],
-[0.2, 0.2, 0.2, 1],
-[0.3, 0.3, 0.3, 1],
-];
 function blueprint_bird(game) {
 return [
 control_always([0, 0, 1], null, "walk"),
 move(1, 0),
 lifespan(10),
-render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, element(colors)),
+render_colored_skinned(game.MaterialColoredSkinned, game.MeshLeaf, [0.1, 0.2, 0.3, 1]),
 children([
 transform(),
 children([
@@ -3225,6 +3207,16 @@ collide(false, 2 /* Terrain */, 1 /* Player */, [1, 100, 1]),
 trigger(1 /* Player */, 3 /* EndGame */),
 ];
 }
+
+let snd_rocket = {
+Tracks: [
+{
+Instrument: [8, "lowpass", 9, 8, false, false, 8, 1, [[false, 8, 15, 15, 15]]],
+Notes: [77],
+},
+],
+Exit: 99,
+};
 
 function blueprint_launchpad(game) {
 return [
@@ -5176,9 +5168,6 @@ function update$8(game, entity, delta) {
 let lifespan = game.World.Lifespan[entity];
 lifespan.Remaining -= delta;
 if (lifespan.Remaining < 0) {
-if (lifespan.Action) {
-dispatch(game, lifespan.Action, entity);
-}
 destroy_all(game.World, entity);
 }
 }
