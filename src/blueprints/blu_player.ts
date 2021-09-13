@@ -1,5 +1,4 @@
 import {instantiate} from "../../common/game.js";
-import {Vec3} from "../../common/math.js";
 import {from_euler} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
 import {audio_source} from "../components/com_audio_source.js";
@@ -71,8 +70,8 @@ function blueprint_player(game: Game) {
     ];
 }
 
-export function instantiate_player(game: Game, translation: Vec3, pups_found = game.PupsFound) {
-    let player_entity = instantiate(game, [...blueprint_player(game), transform(translation)]);
+export function instantiate_player(game: Game) {
+    let player_entity = instantiate(game, [...blueprint_player(game), transform()]);
 
     const enum TailBoneIndex {
         Root = 0,
@@ -173,7 +172,7 @@ export function instantiate_player(game: Game, translation: Vec3, pups_found = g
         ]),
     ]);
 
-    for (let i = 0; i < pups_found; i++) {
+    for (let i = 0; i < game.PupsFound; i++) {
         instantiate(game, [
             transform(),
             mimic(find_first(game.World, "pa " + i), 0.2 - 0.02 * i),

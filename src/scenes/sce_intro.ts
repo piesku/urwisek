@@ -37,7 +37,7 @@ export function scene_intro(game: Game) {
 
     let camera_anchor_intro = instantiate(game, [transform([0, 0.5, -3]), named("ca")]);
 
-    let player_entity = instantiate_player(game, [0, 1, 0]);
+    let player_entity = instantiate_player(game);
     game.World.Signature[player_entity] &= ~Has.ControlPlayer;
 
     map_forest(game);
