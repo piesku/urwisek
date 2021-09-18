@@ -32,7 +32,7 @@ export function scene_intro(game: Game) {
     game.ViewportResized = true;
 
     instantiate(game, [
-        children([audio_source(snd_wind)], [audio_source(snd_chirp1)], [audio_source(snd_horn)]),
+        children([audio_source(snd_horn)], [audio_source(snd_chirp1)], [audio_source(snd_wind)]),
     ]);
 
     let camera_anchor_intro = instantiate(game, [transform([0, 0.5, -3]), named("ca")]);
