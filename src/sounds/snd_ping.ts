@@ -11,10 +11,10 @@ export let snd_ping: AudioSynthClip = {
         8,
         8,
         [
-            ["sine", 7, 3, 4, 10, 8, false],
-            ["triangle", 7, 3, 4, 11, 2, false],
+            ["sine", 6, 3, 4, 10, 8, false],
+            ["triangle", 6, 3, 4, 11, 10, false],
         ],
     ],
-    Notes: [66, 68, 70],
-    Exit: 5,
+    Notes: [78, 80, 82],
+    Exit: 99,
 };

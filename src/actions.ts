@@ -29,6 +29,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         // }
 
         case Action.NewGame: {
+            game.Audio.resume();
             game.CurrentView = Play;
             break;
         }
