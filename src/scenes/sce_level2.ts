@@ -10,7 +10,6 @@ import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
 import {snd_horn} from "../sounds/snd_horn.js";
 import {snd_neigh} from "../sounds/snd_neigh.js";
-import {snd_noise} from "../sounds/snd_noise.js";
 import {snd_wind} from "../sounds/snd_wind.js";
 import {World} from "../world.js";
 import {map_farm} from "./map_farm.js";
@@ -33,11 +32,6 @@ export function scene_level2(game: Game) {
     ]);
 
     instantiate(game, [
-        children(
-            [audio_source(snd_wind)],
-            [audio_source(snd_neigh)],
-            [audio_source(snd_horn)],
-            [audio_source(snd_noise)]
-        ),
+        children([audio_source(snd_wind)], [audio_source(snd_neigh)], [audio_source(snd_horn)]),
     ]);
 }
