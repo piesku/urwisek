@@ -356,24 +356,6 @@
         return entity;
     }
 
-    /**
-     * @module components/com_audio_source
-     */
-    /**
-     * Add the AudioSource component.
-     *
-     * @param i The name of the clip to play by default, in a loop.
-     */
-    function audio_source(i) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 2 /* AudioSource */;
-            game.World.AudioSource[entity] = {
-                Idle: i,
-                Time: 0,
-            };
-        };
-    }
-
     function control_player(flags) {
         return (game, entity) => {
             game.World.Signature[entity] |= 128 /* ControlPlayer */;
@@ -1711,6 +1693,24 @@
     }
 
     /**
+     * @module components/com_audio_source
+     */
+    /**
+     * Add the AudioSource component.
+     *
+     * @param i The name of the clip to play by default, in a loop.
+     */
+    function audio_source(i) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 2 /* AudioSource */;
+            game.World.AudioSource[entity] = {
+                Idle: i,
+                Time: 0,
+            };
+        };
+    }
+
+    /**
      * @module components/com_callback
      */
     function callback(fn) {
@@ -2254,6 +2254,7 @@
     function blueprint_pup(game) {
         return [
             named("pup"),
+            audio_source(),
             children([transform(undefined, undefined, [0.3, 0.3, 0.3]), ...blueprint_lisek(game)]),
         ];
     }
@@ -2508,7 +2509,7 @@
         game.World = new World();
         game.ViewportResized = true;
         instantiate(game, [
-            children([audio_source(snd_wind)], [audio_source(snd_chirp1)], [audio_source(snd_horn)]),
+            children([audio_source(snd_horn)], [audio_source(snd_chirp1)], [audio_source(snd_wind)]),
         ]);
         let camera_anchor_intro = instantiate(game, [transform([0, 0.5, -3]), named("ca")]);
         let player_entity = instantiate_player(game);
@@ -2592,6 +2593,12 @@
             }),
         ]);
     }
+
+    let snd_gust = {
+        Instrument: [7, "lowpass", 10, 6, true, "sine", 8, 2, [[false, 3, 4, 2, 9]]],
+        Notes: [57],
+        Exit: 23,
+    };
 
     let snd_neigh = {
         Instrument: [4, "lowpass", 9, 5, true, "sawtooth", 7, 9, [[false, 7, 3, 3, 7]]],
@@ -3047,9 +3054,15 @@
             mimic(find_first(game.World, "ca"), 0.05),
         ]);
         instantiate(game, [
-            children([audio_source(snd_wind)], [audio_source(snd_chirp1)], [audio_source(snd_horn)], [audio_source(snd_neigh)]),
+            children([audio_source(snd_horn)], [audio_source(snd_chirp1)], [audio_source(snd_gust)], [audio_source(snd_neigh)]),
         ]);
     }
+
+    let snd_alarm = {
+        Instrument: [5, "lowpass", 4, 0, true, "square", 13, 4, [["sine", 5, 4, 7, 11, 8, false]]],
+        Notes: [61, 63, 66, 68, 70],
+        Exit: 3.5,
+    };
 
     function prop_panelki(game) {
         return [
@@ -3299,7 +3312,7 @@
             mimic(find_first(game.World, "ca"), 0.05),
         ]);
         instantiate(game, [
-            children([audio_source(snd_wind)], [audio_source(snd_chirp1)], [audio_source(snd_horn)], [audio_source(snd_neigh)]),
+            children([audio_source(snd_horn)], [audio_source(snd_chirp1)], [audio_source(snd_wind)], [audio_source(snd_gust)], [audio_source(snd_alarm)]),
         ]);
     }
 
@@ -3314,12 +3327,12 @@
             8,
             8,
             [
-                ["sine", 7, 3, 4, 10, 8, false],
-                ["triangle", 7, 3, 4, 11, 2, false],
+                ["sine", 6, 3, 4, 10, 8, false],
+                ["triangle", 6, 3, 4, 11, 10, false],
             ],
         ],
-        Notes: [66, 68, 70],
-        Exit: 5,
+        Notes: [78, 80, 82],
+        Exit: 99,
     };
 
     function dispatch(game, action, payload) {
@@ -3330,6 +3343,7 @@
             //     break;
             // }
             case 1 /* NewGame */: {
+                game.Audio.resume();
                 game.CurrentView = Play;
                 break;
             }
@@ -3357,7 +3371,7 @@
                 }
                 let pup_entity = find_first(game.World, "pup");
                 let pup_anchor = find_first(game.World, "pa " + game.PupsFound);
-                audio_source(snd_ping)(game, pup_entity);
+                game.World.AudioSource[pup_entity].Trigger = snd_ping;
                 mimic(pup_anchor, 0.2)(game, pup_entity);
                 let pup_lisek = game.World.Children[pup_entity].Children[0];
                 control_player(4 /* Animate */)(game, pup_lisek);
