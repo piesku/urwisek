@@ -15,6 +15,6 @@ export let snd_horn: AudioSynthClip = {
             ["triangle", 6, 7, 12, 15, 15, false],
         ],
     ],
-    Notes: [24, 26, 28, 29, 31, 33, 35, 36, 38, 40, 0, 0, 0, 0],
-    Exit: 6,
+    Notes: [24, 26, 28, 29, 31, 33, 35, 36, 38, 40],
+    Exit: 7,
 };
