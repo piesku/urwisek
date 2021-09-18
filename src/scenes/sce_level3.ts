@@ -8,7 +8,9 @@ import {mimic} from "../components/com_mimic.js";
 import {find_first} from "../components/com_named.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
+import {snd_chirp1} from "../sounds/snd_chirp1.js";
 import {snd_horn} from "../sounds/snd_horn.js";
+import {snd_neigh} from "../sounds/snd_neigh.js";
 import {snd_wind} from "../sounds/snd_wind.js";
 import {World} from "../world.js";
 import {map_city} from "./map_city.js";
@@ -30,5 +32,12 @@ export function scene_level3(game: Game) {
         mimic(find_first(game.World, "ca"), 0.05),
     ]);
 
-    instantiate(game, [children([audio_source(snd_wind)], [audio_source(snd_horn)])]);
+    instantiate(game, [
+        children(
+            [audio_source(snd_wind)],
+            [audio_source(snd_chirp1)],
+            [audio_source(snd_horn)],
+            [audio_source(snd_neigh)]
+        ),
+    ]);
 }
