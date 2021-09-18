@@ -1,5 +1,4 @@
 import {instantiate} from "../common/game.js";
-import {audio_source} from "./components/com_audio_source.js";
 import {Control, control_player} from "./components/com_control_player.js";
 import {mimic} from "./components/com_mimic.js";
 import {find_first} from "./components/com_named.js";
@@ -61,7 +60,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             let pup_entity = find_first(game.World, "pup");
             let pup_anchor = find_first(game.World, "pa " + game.PupsFound);
 
-            audio_source(snd_ping)(game, pup_entity);
+            game.World.AudioSource[pup_entity].Trigger = snd_ping;
             mimic(pup_anchor, 0.2)(game, pup_entity);
             let pup_lisek = game.World.Children[pup_entity].Children[0];
             control_player(Control.Animate)(game, pup_lisek);
