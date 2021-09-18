@@ -31,7 +31,10 @@ game.terser.js: game.sed.js
 
 game.roadroller.js: game.terser.js
 	@echo "Roadrolling..."
-	@npx roadroller --type=js --dirty -O2 $< -o $@
+	@npx roadroller --type=js --dirty -O2 \
+		-Zab15 -Zdy0 -Zlr2090 -Zmc3 -Zmd184 -Zpr16 -S0,1,3,5,6,10,13,51,106,225,337,404 \
+		$< -o $@
+
 
 index.html: game.html game.roadroller.js
 	@node posthtml.cjs $< > $@
