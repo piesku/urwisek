@@ -356,6 +356,24 @@
         return entity;
     }
 
+    /**
+     * @module components/com_audio_source
+     */
+    /**
+     * Add the AudioSource component.
+     *
+     * @param i The name of the clip to play by default, in a loop.
+     */
+    function audio_source(i) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 2 /* AudioSource */;
+            game.World.AudioSource[entity] = {
+                Idle: i,
+                Time: 0,
+            };
+        };
+    }
+
     function control_player(flags) {
         return (game, entity) => {
             game.World.Signature[entity] |= 128 /* ControlPlayer */;
@@ -1693,24 +1711,6 @@
     }
 
     /**
-     * @module components/com_audio_source
-     */
-    /**
-     * Add the AudioSource component.
-     *
-     * @param i The name of the clip to play by default, in a loop.
-     */
-    function audio_source(i) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 2 /* AudioSource */;
-            game.World.AudioSource[entity] = {
-                Idle: i,
-                Time: 0,
-            };
-        };
-    }
-
-    /**
      * @module components/com_callback
      */
     function callback(fn) {
@@ -2038,17 +2038,18 @@
             "lowpass",
             8,
             0,
-            true,
-            "triangle",
-            4,
-            4,
+            false,
+            false,
+            8,
+            8,
             [
                 ["sine", 8, 8, 12, 14, 8, false],
                 ["triangle", 6, 7, 12, 15, 15, false],
+                [false, 4, 15, 15, 15],
             ],
         ],
-        Notes: [24, 26, 28, 29, 31, 33, 35, 36, 38, 40, 0, 0, 0, 0],
-        Exit: 6,
+        Notes: [24, 26, 28, 29, 31, 33, 35, 36, 38, 40],
+        Exit: 7,
     };
 
     let snd_wind = {
@@ -3046,7 +3047,7 @@
             mimic(find_first(game.World, "ca"), 0.05),
         ]);
         instantiate(game, [
-            children([audio_source(snd_wind)], [audio_source(snd_neigh)], [audio_source(snd_horn)]),
+            children([audio_source(snd_wind)], [audio_source(snd_chirp1)], [audio_source(snd_horn)], [audio_source(snd_neigh)]),
         ]);
     }
 
@@ -3118,7 +3119,7 @@
     }
 
     let snd_rocket = {
-        Instrument: [8, "lowpass", 9, 8, false, false, 8, 1, [[false, 8, 15, 15, 15]]],
+        Instrument: [8, "lowpass", 9, 8, false, false, 8, 8, [[false, 8, 15, 15, 15]]],
         Notes: [77],
         Exit: 99,
     };
@@ -3297,8 +3298,29 @@
             transform([0, 10, 10]),
             mimic(find_first(game.World, "ca"), 0.05),
         ]);
-        instantiate(game, [children([audio_source(snd_wind)], [audio_source(snd_horn)])]);
+        instantiate(game, [
+            children([audio_source(snd_wind)], [audio_source(snd_chirp1)], [audio_source(snd_horn)], [audio_source(snd_neigh)]),
+        ]);
     }
+
+    let snd_ping = {
+        Instrument: [
+            5,
+            "lowpass",
+            8,
+            0,
+            false,
+            false,
+            8,
+            8,
+            [
+                ["sine", 7, 3, 4, 10, 8, false],
+                ["triangle", 7, 3, 4, 11, 2, false],
+            ],
+        ],
+        Notes: [66, 68, 70],
+        Exit: 5,
+    };
 
     function dispatch(game, action, payload) {
         switch (action) {
@@ -3335,6 +3357,7 @@
                 }
                 let pup_entity = find_first(game.World, "pup");
                 let pup_anchor = find_first(game.World, "pa " + game.PupsFound);
+                audio_source(snd_ping)(game, pup_entity);
                 mimic(pup_anchor, 0.2)(game, pup_entity);
                 let pup_lisek = game.World.Children[pup_entity].Children[0];
                 control_player(4 /* Animate */)(game, pup_lisek);
