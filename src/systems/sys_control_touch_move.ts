@@ -2,7 +2,6 @@ import {Vec2} from "../../common/math.js";
 import {clamp} from "../../common/number.js";
 import {set} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
-import {query_all} from "../components/com_children.js";
 import {Control} from "../components/com_control_player.js";
 import {query_up} from "../components/com_transform.js";
 import {Game} from "../game.js";
@@ -55,6 +54,7 @@ function update(game: Game, entity: Entity, dx: number, dy: number) {
     if (control.Flags & Control.Move) {
         let move = game.World.Move[entity];
         if (Math.abs(dx) > MOVEMENT_DEAD_ZONE) {
+            control.IsWalking = true;
             move.Directions.push([clamp(-1, 1, dx), 0, 0]);
         }
 
@@ -108,15 +108,6 @@ function update(game: Game, entity: Entity, dx: number, dy: number) {
             for (let ent of query_up(game.World, entity, Has.ControlPlayer)) {
                 let control = game.World.ControlPlayer[ent];
                 control.IsGrabbingEntity = null;
-            }
-        }
-    }
-
-    if (control.Flags & Control.Animate) {
-        if (dx !== 0) {
-            for (let ent of query_all(game.World, entity, Has.Animate)) {
-                let animate = game.World.Animate[ent];
-                animate.Trigger = "w";
             }
         }
     }

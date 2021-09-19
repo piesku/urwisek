@@ -1,11 +1,8 @@
 import {set} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
-import {query_all} from "../components/com_children.js";
 import {Control} from "../components/com_control_player.js";
 import {query_up} from "../components/com_transform.js";
-import {Game, Layer} from "../game.js";
-import {snd_walk1} from "../sounds/snd_walk1.js";
-import {snd_walk2} from "../sounds/snd_walk2.js";
+import {Game} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.ControlPlayer;
@@ -37,24 +34,11 @@ function update(game: Game, entity: Entity) {
 
     if (control.Flags & Control.Move) {
         let move = game.World.Move[entity];
-        let collide = game.World.Collide[entity];
-        let audio_source = game.World.AudioSource[entity];
         let rigid_body = game.World.RigidBody[entity];
 
-        let is_walking = false;
         if (Math.abs(game.InputDelta["pad0_axis_1"]) > DEAD_ZONE) {
+            control.IsWalking = true;
             move.Directions.push([game.InputDelta["pad0_axis_1"], 0, 0]);
-            is_walking = true;
-        }
-
-        if (is_walking && collide.Collisions.length > 0) {
-            let other_entity = collide.Collisions[0].Other;
-            let other_layers = game.World.Collide[other_entity].Layers;
-            if (other_layers & Layer.SurfaceGround) {
-                audio_source.Trigger = snd_walk1;
-            } else {
-                audio_source.Trigger = snd_walk2;
-            }
         }
 
         if (!rigid_body.IsAirborne) {
@@ -106,15 +90,6 @@ function update(game: Game, entity: Entity) {
             for (let ent of query_up(game.World, entity, Has.ControlPlayer)) {
                 let control = game.World.ControlPlayer[ent];
                 control.IsGrabbingEntity = null;
-            }
-        }
-    }
-
-    if (control.Flags & Control.Animate) {
-        if (Math.abs(game.InputDelta["pad0_axis_1"]) > DEAD_ZONE) {
-            for (let ent of query_all(game.World, entity, Has.Animate)) {
-                let animate = game.World.Animate[ent];
-                animate.Trigger = "w";
             }
         }
     }

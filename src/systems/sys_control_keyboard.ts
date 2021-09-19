@@ -1,12 +1,8 @@
 import {set} from "../../common/quat.js";
 import {Entity} from "../../common/world.js";
-import {Animate} from "../components/com_animate.js";
-import {query_all} from "../components/com_children.js";
 import {Control} from "../components/com_control_player.js";
 import {query_up} from "../components/com_transform.js";
-import {Game, Layer} from "../game.js";
-import {snd_walk1} from "../sounds/snd_walk1.js";
-import {snd_walk2} from "../sounds/snd_walk2.js";
+import {Game} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.ControlPlayer;
@@ -24,29 +20,21 @@ function update(game: Game, entity: Entity) {
 
     if (control.Flags & Control.Move) {
         let move = game.World.Move[entity];
-        let collide = game.World.Collide[entity];
-        let audio_source = game.World.AudioSource[entity];
         let rigid_body = game.World.RigidBody[entity];
 
-        let is_walking = false;
+        // sys_control_keyboard runs first. Reset IsWalking; other control
+        // systems will set it to true is appropriate. sys_control_animate will
+        // then set the animation and play the walking sfx.
+        control.IsWalking = false;
 
         if (game.InputState["ArrowLeft"]) {
             move.Directions.push([-1, 0, 0]);
-            is_walking = true;
-        }
-        if (game.InputState["ArrowRight"]) {
-            move.Directions.push([1, 0, 0]);
-            is_walking = true;
+            control.IsWalking = true;
         }
 
-        if (is_walking && collide.Collisions.length > 0) {
-            let other_entity = collide.Collisions[0].Other;
-            let other_layers = game.World.Collide[other_entity].Layers;
-            if (other_layers & Layer.SurfaceGround) {
-                audio_source.Trigger = snd_walk1;
-            } else {
-                audio_source.Trigger = snd_walk2;
-            }
+        if (game.InputState["ArrowRight"]) {
+            move.Directions.push([1, 0, 0]);
+            control.IsWalking = true;
         }
 
         if (!rigid_body.IsAirborne) {
@@ -98,34 +86,6 @@ function update(game: Game, entity: Entity) {
             for (let ent of query_up(game.World, entity, Has.ControlPlayer)) {
                 let control = game.World.ControlPlayer[ent];
                 control.IsGrabbingEntity = null;
-            }
-        }
-    }
-
-    if (control.Flags & Control.Animate) {
-        let anim_name: Animate["Trigger"];
-
-        if (game.InputState["ArrowLeft"] || game.InputState["ArrowRight"]) {
-            anim_name = "w";
-        }
-
-        let parent_entity = game.World.Transform[entity].Parent;
-        if (parent_entity !== undefined) {
-            let parent_mimic = game.World.Mimic[parent_entity];
-            let anchor_entity = parent_mimic.Target;
-            let anchor_parent = game.World.Transform[anchor_entity].Parent;
-            if (anchor_parent !== undefined) {
-                let rigid_body = game.World.RigidBody[anchor_parent];
-                if (rigid_body.IsAirborne) {
-                    anim_name = "j";
-                }
-            }
-        }
-
-        if (anim_name) {
-            for (let ent of query_all(game.World, entity, Has.Animate)) {
-                let animate = game.World.Animate[ent];
-                animate.Trigger = anim_name;
             }
         }
     }
