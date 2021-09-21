@@ -1,4 +1,4 @@
-import {GL_CULL_FACE, GL_DEPTH_TEST} from "./webgl.js";
+import {GL_CULL_FACE, GL_CW, GL_DEPTH_TEST} from "./webgl.js";
 import {Entity, WorldImpl} from "./world.js";
 
 const update_span = document.getElementById("update");
@@ -6,9 +6,20 @@ const delta_span = document.getElementById("delta");
 const fps_span = document.getElementById("fps");
 const step = 1 / 60;
 
-export abstract class GameImpl {
+export const enum QualitySettings {
+    Low = 512,
+    Medium = 1024,
+    High = 2048,
+    Ultra = 4096,
+}
+
+export abstract class Game3D {
     Running = 0;
     Now = 0;
+    // Start at High to make sure the title screen runs smoothly; there's not
+    // much to render at that point but we need the rocket spawner to spawn
+    // frequently enough. tick() will scale it down dynamically if necessary.
+    Quality = QualitySettings.High;
 
     abstract World: WorldImpl;
 
@@ -18,58 +29,32 @@ export abstract class GameImpl {
 
     // State of input during this frame.
     // 1 = down, 0 = up, or any number for analog inputs.
-    InputState: Record<string, number> = {
-        MouseX: 0,
-        MouseY: 0,
-    };
+    InputState: Record<string, number> = {};
     // Changes of InputState that happened right before this frame.
     // 1 = pressed, -1 = released, 0 = no change.
-    InputDelta: Record<string, number> = {
-        MouseX: 0,
-        MouseY: 0,
-    };
-    // Pixels traveled while mouse/touch was down.
-    InputDistance: Record<string, number> = {
-        Mouse: 0,
-        Mouse0: 0,
-        Mouse1: 0,
-        Mouse2: 0,
-        Touch0: 0,
-        Touch1: 0,
-    };
+    InputDelta: Record<string, number> = {};
     // Map of touch ids to touch indices. In particular, Firefox assigns high
     // ints as ids. Chrome usually starts at 0, so id === index.
     InputTouches: Record<string, number> = {};
 
     Ui = document.querySelector("main")!;
 
+    Canvas3D = document.querySelector("canvas")!;
+    Gl = this.Canvas3D.getContext("webgl2", {antialias: false})!;
+
+    Audio = new AudioContext();
+
     constructor() {
         document.addEventListener("visibilitychange", () =>
             document.hidden ? this.Stop() : this.Start()
         );
 
-        this.Ui.addEventListener("contextmenu", (evt) => evt.preventDefault());
-
-        this.Ui.addEventListener("mousedown", (evt) => {
-            this.InputState[`Mouse${evt.button}`] = 1;
-            this.InputDelta[`Mouse${evt.button}`] = 1;
-        });
-        this.Ui.addEventListener("mouseup", (evt) => {
-            this.InputState[`Mouse${evt.button}`] = 0;
-            this.InputDelta[`Mouse${evt.button}`] = -1;
-        });
-        this.Ui.addEventListener("mousemove", (evt) => {
-            this.InputState["MouseX"] = evt.clientX;
-            this.InputState["MouseY"] = evt.clientY;
-            this.InputDelta["MouseX"] = evt.movementX;
-            this.InputDelta["MouseY"] = evt.movementY;
-        });
-        this.Ui.addEventListener("wheel", (evt) => {
-            evt.preventDefault();
-            this.InputDelta["WheelY"] = evt.deltaY;
-        });
-
         this.Ui.addEventListener("touchstart", (evt) => {
+            if (evt.target === this.Ui) {
+                // Prevent browsers from interpreting touch gestures as navigation input.
+                evt.preventDefault();
+            }
+
             if (evt.touches.length === 1) {
                 // It's a new gesture.
                 this.InputTouches = {};
@@ -85,25 +70,27 @@ export abstract class GameImpl {
                 this.InputState[`Touch${index}X`] = touch.clientX;
                 this.InputState[`Touch${index}Y`] = touch.clientY;
                 this.InputDelta[`Touch${index}`] = 1;
-                this.InputDelta[`Touch${index}X`] = 0;
-                this.InputDelta[`Touch${index}Y`] = 0;
             }
         });
         this.Ui.addEventListener("touchmove", (evt) => {
-            // Prevent browsers from interpreting touch gestures as navigation input.
-            evt.preventDefault();
+            if (evt.target === this.Ui) {
+                // Prevent browsers from interpreting touch gestures as navigation input.
+                evt.preventDefault();
+            }
+
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 let touch = evt.changedTouches[i];
                 let index = this.InputTouches[touch.identifier];
-                this.InputDelta[`Touch${index}X`] =
-                    touch.clientX - this.InputState[`Touch${index}X`];
-                this.InputDelta[`Touch${index}Y`] =
-                    touch.clientY - this.InputState[`Touch${index}Y`];
                 this.InputState[`Touch${index}X`] = touch.clientX;
                 this.InputState[`Touch${index}Y`] = touch.clientY;
             }
         });
         this.Ui.addEventListener("touchend", (evt) => {
+            if (evt.target === this.Ui) {
+                // Prevent browsers from interpreting touch gestures as navigation input.
+                evt.preventDefault();
+            }
+
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 let touch = evt.changedTouches[i];
                 let index = this.InputTouches[touch.identifier];
@@ -130,11 +117,18 @@ export abstract class GameImpl {
             this.InputState[evt.code] = 0;
             this.InputDelta[evt.code] = -1;
         });
+
+        this.Gl.enable(GL_DEPTH_TEST);
+        this.Gl.enable(GL_CULL_FACE);
+        this.Gl.frontFace(GL_CW);
     }
 
     Start() {
         let accumulator = 0;
         let last = performance.now();
+
+        let delta_cma = 0;
+        let frame_count = 0;
 
         let tick = (now: number) => {
             let delta = (now - last) / 1000;
@@ -152,6 +146,16 @@ export abstract class GameImpl {
 
             last = now;
             this.Running = requestAnimationFrame(tick);
+
+            if (frame_count++ > 100) {
+                // Compute the cumulative moving average of deltas.
+                delta_cma += (delta - delta_cma) / frame_count;
+                if (delta_cma > 0.018) {
+                    delta_cma = 0;
+                    frame_count = 0;
+                    this.Quality = Math.max(QualitySettings.Low, this.Quality / 2);
+                }
+            }
         };
 
         this.Stop();
@@ -165,52 +169,12 @@ export abstract class GameImpl {
 
     FrameSetup(delta: number) {
         this.Now = performance.now();
-
-        let mouse_distance =
-            Math.abs(this.InputDelta["MouseX"]) + Math.abs(this.InputDelta["MouseY"]);
-        this.InputDistance["Mouse"] += mouse_distance;
-
-        if (this.InputState["Mouse0"] === 1) {
-            this.InputDistance["Mouse0"] += mouse_distance;
-        }
-        if (this.InputState["Mouse1"] === 1) {
-            this.InputDistance["Mouse1"] += mouse_distance;
-        }
-        if (this.InputState["Mouse2"] === 1) {
-            this.InputDistance["Mouse2"] += mouse_distance;
-        }
-
-        if (this.InputState["Touch0"] === 1) {
-            this.InputDistance["Touch0"] +=
-                Math.abs(this.InputDelta["Touch0X"]) + Math.abs(this.InputDelta["Touch0Y"]);
-        }
-        if (this.InputState["Touch1"] === 1) {
-            this.InputDistance["Touch1"] +=
-                Math.abs(this.InputDelta["Touch1X"]) + Math.abs(this.InputDelta["Touch1Y"]);
-        }
     }
 
     FixedUpdate(step: number) {}
     FrameUpdate(delta: number) {}
 
     InputReset() {
-        if (this.InputDelta["Mouse0"] === -1) {
-            this.InputDistance["Mouse0"] = 0;
-        }
-        if (this.InputDelta["Mouse1"] === -1) {
-            this.InputDistance["Mouse1"] = 0;
-        }
-        if (this.InputDelta["Mouse2"] === -1) {
-            this.InputDistance["Mouse2"] = 0;
-        }
-
-        if (this.InputDelta["Touch0"] === -1) {
-            this.InputDistance["Touch0"] = 0;
-        }
-        if (this.InputDelta["Touch1"] === -1) {
-            this.InputDistance["Touch1"] = 0;
-        }
-
         for (let name in this.InputDelta) {
             this.InputDelta[name] = 0;
         }
@@ -232,41 +196,10 @@ export abstract class GameImpl {
     }
 }
 
-export abstract class Game2D extends GameImpl {
-    Canvas2D = document.querySelector("canvas")!;
-    Context2D = this.Canvas2D.getContext("2d")!;
-    Audio = new AudioContext();
+type Mixin<G extends Game3D> = (game: G, entity: Entity) => void;
+export type Blueprint<G extends Game3D> = Array<Mixin<G>>;
 
-    constructor() {
-        super();
-
-        this.Canvas2D.width = this.ViewportWidth;
-        this.Canvas2D.height = this.ViewportHeight;
-        this.Context2D = this.Canvas2D.getContext("2d")!;
-    }
-}
-
-export abstract class Game3D extends GameImpl {
-    Canvas2D = document.querySelector("#billboard")! as HTMLCanvasElement;
-    Context2D = this.Canvas2D.getContext("2d")!;
-
-    Canvas3D = document.querySelector("#scene")! as HTMLCanvasElement;
-    Gl = this.Canvas3D.getContext("webgl2", {antialias: false})!;
-
-    Audio = new AudioContext();
-
-    constructor() {
-        super();
-
-        this.Gl.enable(GL_DEPTH_TEST);
-        this.Gl.enable(GL_CULL_FACE);
-    }
-}
-
-type Mixin<G extends GameImpl> = (game: G, entity: Entity) => void;
-export type Blueprint<G extends GameImpl> = Array<Mixin<G>>;
-
-export function instantiate<G extends GameImpl>(game: G, blueprint: Blueprint<G>) {
+export function instantiate<G extends Game3D>(game: G, blueprint: Blueprint<G>) {
     let entity = game.World.CreateEntity();
     for (let mixin of blueprint) {
         mixin(game, entity);

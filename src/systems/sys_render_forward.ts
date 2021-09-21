@@ -3,11 +3,13 @@
  */
 
 import {resize_depth_target} from "../../common/framebuffer.js";
+import {QualitySettings} from "../../common/game.js";
 import {multiply} from "../../common/mat4.js";
 import {Material} from "../../common/material.js";
 import {
     GL_ARRAY_BUFFER,
     GL_COLOR_BUFFER_BIT,
+    GL_CULL_FACE,
     GL_DEPTH_BUFFER_BIT,
     GL_FLOAT,
     GL_FRAMEBUFFER,
@@ -22,9 +24,10 @@ import {
     FogLayout,
     ForwardShadingLayout,
     InstancedLayout,
-    PaletteShadedLayout,
     ParticlesColoredLayout,
     ShadowMappingLayout,
+    SingleColorLayout,
+    SkinningLayout,
 } from "../../materials/layout.js";
 import {
     CameraDepth,
@@ -37,14 +40,12 @@ import {query_all} from "../components/com_children.js";
 import {EmitParticles} from "../components/com_emit_particles.js";
 import {
     DATA_PER_PARTICLE,
-    RenderColoredShaded,
     RenderColoredShadows,
     RenderColoredSkinned,
     RenderColoredUnlit,
     RenderInstanced,
     RenderKind,
     RenderParticlesColored,
-    RenderVertices,
 } from "../components/com_render.js";
 import {Transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
@@ -86,7 +87,7 @@ function render_framebuffer(game: Game, camera: CameraFramebuffer) {
     game.Gl.viewport(0, 0, camera.Target.Width, camera.Target.Height);
     game.Gl.clearColor(...camera.ClearColor);
     game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    render(game, camera, camera.Target.RenderTexture);
+    render(game, camera);
 }
 
 function render_depth(game: Game, camera: CameraDepth) {
@@ -97,10 +98,9 @@ function render_depth(game: Game, camera: CameraDepth) {
     render(game, camera);
 }
 
-function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
+function render(game: Game, eye: CameraEye) {
     // Keep track of the current material to minimize switching.
     let current_material = null;
-    let current_front_face = null;
 
     for (let i = 0; i < game.World.Signature.length; i++) {
         if ((game.World.Signature[i] & QUERY) === QUERY) {
@@ -112,12 +112,6 @@ function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
                 switch (render.Kind) {
                     case RenderKind.ColoredUnlit:
                         use_colored_unlit(game, render.Material, eye);
-                        break;
-                    case RenderKind.ColoredShaded:
-                        use_colored_shaded(game, render.Material, eye);
-                        break;
-                    case RenderKind.Vertices:
-                        use_vertices(game, render.Material, eye);
                         break;
                     case RenderKind.ColoredShadows:
                         use_colored_shadows(game, render.Material, eye);
@@ -134,20 +128,9 @@ function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
                 }
             }
 
-            if (render.FrontFace !== current_front_face) {
-                current_front_face = render.FrontFace;
-                game.Gl.frontFace(render.FrontFace);
-            }
-
             switch (render.Kind) {
                 case RenderKind.ColoredUnlit:
                     draw_colored_unlit(game, transform, render);
-                    break;
-                case RenderKind.ColoredShaded:
-                    draw_colored_shaded(game, transform, render);
-                    break;
-                case RenderKind.Vertices:
-                    draw_vertices(game, transform, render);
                     break;
                 case RenderKind.ColoredShadows:
                     draw_colored_shadows(game, transform, render);
@@ -171,6 +154,7 @@ function render(game: Game, eye: CameraEye, current_target?: WebGLTexture) {
 }
 
 function use_colored_unlit(game: Game, material: Material<ColoredUnlitLayout>, eye: CameraEye) {
+    game.Gl.enable(GL_CULL_FACE);
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 }
@@ -183,45 +167,6 @@ function draw_colored_unlit(game: Game, transform: Transform, render: RenderColo
     game.Gl.bindVertexArray(null);
 }
 
-function use_colored_shaded(
-    game: Game,
-    material: Material<ColoredShadedLayout & ForwardShadingLayout & FogLayout>,
-    eye: CameraEye
-) {
-    game.Gl.useProgram(material.Program);
-    game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-    game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
-    game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-    game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
-    game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
-}
-
-function draw_colored_shaded(game: Game, transform: Transform, render: RenderColoredShaded) {
-    game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-    game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
-    game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-    game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-    game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
-    game.Gl.bindVertexArray(render.Vao);
-    game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
-    game.Gl.bindVertexArray(null);
-}
-
-function use_vertices(game: Game, material: Material<ColoredUnlitLayout>, eye: CameraEye) {
-    game.Gl.useProgram(material.Program);
-    game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-}
-
-function draw_vertices(game: Game, transform: Transform, render: RenderVertices) {
-    game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-    game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
-    game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.VertexBuffer);
-    game.Gl.enableVertexAttribArray(render.Material.Locations.VertexPosition);
-    game.Gl.vertexAttribPointer(render.Material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-    game.Gl.drawArrays(render.Material.Mode, 0, render.IndexCount);
-}
-
 function use_colored_shadows(
     game: Game,
     material: Material<
@@ -229,13 +174,12 @@ function use_colored_shadows(
     >,
     eye: CameraEye
 ) {
+    game.Gl.enable(GL_CULL_FACE);
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-    game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
     game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 
     if (eye.Kind === CameraKind.Depth) {
         game.Gl.activeTexture(GL_TEXTURE0);
@@ -259,8 +203,6 @@ function draw_colored_shadows(game: Game, transform: Transform, render: RenderCo
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
     game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
     game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-    game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-    game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
     game.Gl.bindVertexArray(render.Vao);
     game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
     game.Gl.bindVertexArray(null);
@@ -268,16 +210,15 @@ function draw_colored_shadows(game: Game, transform: Transform, render: RenderCo
 
 function use_colored_skinned(
     game: Game,
-    material: Material<ColoredShadedLayout & ForwardShadingLayout & FogLayout>,
+    material: Material<SkinningLayout & ForwardShadingLayout & FogLayout>,
     eye: CameraEye
 ) {
+    game.Gl.enable(GL_CULL_FACE);
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
-    game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
     game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
 
 const bones = new Float32Array(16 * 6);
@@ -287,11 +228,7 @@ function draw_colored_skinned(
     transform: Transform,
     render: RenderColoredSkinned
 ) {
-    game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-    game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
     game.Gl.uniform4fv(render.Material.Locations.DiffuseColor, render.DiffuseColor);
-    game.Gl.uniform4fv(render.Material.Locations.SpecularColor, render.SpecularColor);
-    game.Gl.uniform1f(render.Material.Locations.Shininess, render.Shininess);
 
     let bone_entities: Array<Entity> = [];
     if (game.World.Signature[entity] & Has.Children) {
@@ -299,10 +236,10 @@ function draw_colored_skinned(
             bone_entities.push(bone_entity);
         }
     } else {
-        // Find the 5 tail bones. They're top-level for mimic() to work, so we
+        // Find the 4 tail bones. They're top-level for mimic() to work, so we
         // need to find them in the world rather than the tail's children.
         let start_here = entity;
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 4; i++) {
             let bone_entity = first_entity(game.World, Has.Bone | Has.Transform, start_here);
             if (bone_entity) {
                 bone_entities.push(bone_entity);
@@ -325,11 +262,14 @@ function draw_colored_skinned(
 
 function use_particles_colored(
     game: Game,
-    material: Material<ParticlesColoredLayout>,
+    material: Material<ParticlesColoredLayout & FogLayout>,
     eye: CameraEye
 ) {
+    game.Gl.enable(GL_CULL_FACE);
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+    game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
+    game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
 }
 
 function draw_particles_colored(
@@ -375,26 +315,28 @@ function draw_particles_colored(
 
 function use_instanced(
     game: Game,
-    material: Material<PaletteShadedLayout & InstancedLayout & FogLayout>,
+    material: Material<SingleColorLayout & InstancedLayout & FogLayout>,
     eye: CameraEye
 ) {
+    game.Gl.disable(GL_CULL_FACE);
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.FogColor, eye.ClearColor);
-    game.Gl.uniform1f(material.Locations.FogDistance, eye.Projection.Far);
 }
 
 function draw_instanced(game: Game, transform: Transform, render: RenderInstanced) {
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-    game.Gl.uniform3fv(render.Material.Locations.Palette, render.Palette);
     game.Gl.bindVertexArray(render.Vao);
+
+    let quality_factor = game.Quality / QualitySettings.Ultra;
+    let instance_count = Math.floor(render.InstanceCount * quality_factor);
     game.Gl.drawElementsInstanced(
         render.Material.Mode,
         render.Mesh.IndexCount,
         GL_UNSIGNED_SHORT,
         0,
-        render.InstanceCount
+        instance_count
     );
     game.Gl.bindVertexArray(null);
 }

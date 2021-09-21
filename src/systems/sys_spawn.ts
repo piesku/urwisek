@@ -2,7 +2,7 @@
  * @module systems/sys_spawn
  */
 
-import {instantiate} from "../../common/game.js";
+import {instantiate, QualitySettings} from "../../common/game.js";
 import {get_rotation, get_translation} from "../../common/mat4.js";
 import {Quat, Vec3} from "../../common/math.js";
 import {Entity} from "../../common/world.js";
@@ -22,9 +22,11 @@ export function sys_spawn(game: Game, delta: number) {
 
 function update(game: Game, entity: Entity, delta: number) {
     let spawn = game.World.Spawn[entity];
+    // Spawn more frequently on ultra quality settings.
+    let quality_factor = QualitySettings.High / game.Quality;
 
     spawn.SinceLast += delta;
-    if (spawn.SinceLast > spawn.Interval) {
+    if (spawn.SinceLast > spawn.Interval * quality_factor) {
         spawn.SinceLast = 0;
 
         let entity_transform = game.World.Transform[entity];

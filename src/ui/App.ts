@@ -1,58 +1,47 @@
-import {html} from "../../common/html.js";
 import {Action} from "../actions.js";
 import {Game} from "../game.js";
-import {scene_intro} from "../scenes/sce_intro.js";
-import {Settings} from "./Settings.js";
 
 export function App(game: Game) {
-    if (game.CurrentScene === scene_intro) {
-        return game.CurrentView(game);
-    }
-
-    return "";
+    return game.CurrentView(game);
 }
 
 export function Title(game: Game) {
-    return html`
+    return `
         <div
             style="
-                margin: 60vh 2vw 0;
-                font-size: 12vw;
+                margin: 40vh -1vw 0;
+                font-size: 16vw;
                 font-weight: 600;
-                line-height: .9;
             "
         >
-            LEFT BEHIND
+            ESCAPE
         </div>
-        <nav
-            style="
-                margin: 2vh 3vw;
-                font-size: 1rem;
-                font-style: italic;
-                line-height: 2;
-            "
-        >
-            <div onclick="$(${Action.NewGame})">New Game</div>
-            <div>${Settings(game)}</div>
-        </nav>
+        <div>
+            Earth can no longer support life.<br>
+            Humans are leaving.<br><br>
+            <em onclick="$(${Action.NewGame})">Play Now</em>
+        </div>
     `;
 }
 
-export function Intro(game: Game) {
-    return html`
+export function Play(game: Game) {
+    return "";
+}
+
+export function End(game: Game) {
+    return `
         <div
             style="
-                animation: 8s ease-out 1s forwards intro;
+                margin: 20vh -1vw 0;
+                font-size: 12vw;
+                font-weight: 600;
             "
         >
-            <div
-                style="
-                    margin: 60vh 2vw 0;
-                    font-size: 4vw;
-                "
-            >
-                Mankind has found a new home in the stars.<br />Life on Earth continues.
-            </div>
+            THE END
+        </div>
+        <div>
+            Not all of us will make it.<br>
+            Stop climate change now.<br>
         </div>
     `;
 }

@@ -4,7 +4,6 @@
 
 import {Quat, Vec3} from "../../common/math.js";
 import {Entity} from "../../common/world.js";
-import {Action} from "../actions.js";
 import {Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -14,10 +13,10 @@ export interface Animate {
     /** The clip played currently. Defaults to Anim.Idle. */
     Current: AnimationState;
     /** The clip to play next. */
-    Trigger?: "idle" | "walk" | "jump";
+    Trigger?: "i" | "w" | "j";
 }
 
-export function animate(clips: {idle: AnimationClip; [k: string]: AnimationClip}) {
+export function animate(clips: {i: AnimationClip; [k: string]: AnimationClip}) {
     return (game: Game, entity: Entity) => {
         let States: Record<string, AnimationState> = {};
         for (let name in clips) {
@@ -38,7 +37,7 @@ export function animate(clips: {idle: AnimationClip; [k: string]: AnimationClip}
         game.World.Signature[entity] |= Has.Animate;
         game.World.Animate[entity] = {
             States,
-            Current: States["idle"],
+            Current: States["i"],
         };
     };
 }
@@ -46,11 +45,9 @@ export function animate(clips: {idle: AnimationClip; [k: string]: AnimationClip}
 export interface AnimationKeyframe {
     readonly Translation?: Vec3;
     readonly Rotation?: Quat;
-    readonly Scale?: Vec3;
     Timestamp: number;
     /** Easing function used to transition to this keyframe. */
     readonly Ease?: (t: number) => number;
-    ActionOnEnd?: Action;
 }
 
 export const enum AnimationFlag {

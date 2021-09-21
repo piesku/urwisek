@@ -1,20 +1,22 @@
 import {instantiate} from "../../common/game.js";
 import {from_euler} from "../../common/quat.js";
-import {float, integer} from "../../common/random.js";
+import {float} from "../../common/random.js";
+import {blueprint_bird} from "../blueprints/blu_bird.js";
 import {blueprint_box} from "../blueprints/blu_box.js";
 import {blueprint_bush} from "../blueprints/blu_bush.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {blueprint_ground} from "../blueprints/blu_ground.js";
 import {instantiate_player} from "../blueprints/blu_player.js";
 import {blueprint_sun_light, blueprint_sun_shadow} from "../blueprints/blu_sun.js";
 import {blueprint_tree} from "../blueprints/blu_tree.js";
 import {children} from "../components/com_children.js";
-import {collide} from "../components/com_collide.js";
 import {mimic} from "../components/com_mimic.js";
 import {find_first} from "../components/com_named.js";
-import {render_colored_shadows, render_instanced} from "../components/com_render.js";
-import {RigidKind, rigid_body} from "../components/com_rigid_body.js";
+import {render_colored_shadows} from "../components/com_render.js";
+import {shake} from "../components/com_shake.js";
+import {spawn} from "../components/com_spawn.js";
 import {transform} from "../components/com_transform.js";
-import {Game, Layer} from "../game.js";
+import {Game} from "../game.js";
 import {prop_car2} from "../props/prop_car2.js";
 import {prop_house} from "../props/prop_house.js";
 import {prop_slup} from "../props/prop_slup.js";
@@ -26,50 +28,11 @@ export function scene_stage(game: Game) {
 
     // Ground.
     let ground_size = 16;
-    let ground_height = 50;
+    let ground_height = 5;
     instantiate(game, [
         transform([0, -ground_height / 2, 0], undefined, [ground_size, ground_height, ground_size]),
-        collide(false, Layer.Terrain, Layer.None),
-        rigid_body(RigidKind.Static),
-        render_colored_shadows(game.MaterialColoredShadows, game.MeshCube, [0.5, 0.5, 0.5, 1]),
+        ...blueprint_ground(game, [0, 0, 0, 1]),
     ]);
-
-    let trees = 8;
-    for (let i = 0; i < trees; i++) {
-        let z = float(-8, -0.5);
-        instantiate(game, [
-            transform([float(-ground_size / 2, ground_size / 2), 0, z]),
-            ...blueprint_tree(game),
-        ]);
-    }
-
-    let zdzblos = 80;
-    let zdz_scale = 0.5;
-    let zdz_offsets = [];
-    let zdz_rotations = [];
-    for (let i = 0; i < zdzblos; i++) {
-        zdz_offsets.push(
-            float(-ground_size / 2 / zdz_scale, ground_size / 2 / zdz_scale),
-            0.2,
-            float(-ground_size / 4 / zdz_scale, ground_size / 4 / zdz_scale),
-            integer(0, 2)
-        );
-        zdz_rotations.push(...from_euler([0, 0, 0, 1], 0, 0, 0));
-    }
-
-    instantiate(game, [
-        transform([0, 0, 0], undefined, [zdz_scale, zdz_scale, zdz_scale]),
-        render_instanced(
-            game.MeshGrass,
-            Float32Array.from(zdz_offsets),
-            Float32Array.from(zdz_rotations),
-            [1, 0.54, 0, 1, 0.84, 0]
-        ),
-    ]);
-
-    instantiate_player(game, [-1, 1, 1]);
-    instantiate(game, [...blueprint_box(game), transform([2.5, 5, 1])]);
-    instantiate(game, [...blueprint_box(game), transform([2.4, 8, 1])]);
 
     let slups = 2;
     for (let i = 0; i < slups; i++) {
@@ -81,6 +44,24 @@ export function scene_stage(game: Game) {
             ...prop_slup(game),
         ]);
     }
+
+    let trees = 8;
+    for (let i = 0; i < trees; i++) {
+        let z = float(-8, -0.5);
+        instantiate(game, [
+            transform([float(-ground_size / 2, ground_size / 2), 0, z]),
+            ...blueprint_tree(game),
+        ]);
+    }
+
+    instantiate_player(game);
+    instantiate(game, [...blueprint_box(game), transform([2.5, 6, 1])]);
+    instantiate(game, [...blueprint_box(game), transform([2.4, 8, 1])]);
+
+    instantiate(game, [
+        transform([-4, 2, -1], from_euler([0, 0, 0, 1], -10, 100, 10)),
+        children([transform(), shake(1), spawn(blueprint_bird, 0.5)]),
+    ]);
 
     instantiate(game, [
         transform([-4, 0, -1], from_euler([0, 0, 0, 1], 0, -35 + 180, 0), [0.6, 0.6, 0.6]),
@@ -117,6 +98,6 @@ export function scene_stage(game: Game) {
     instantiate(game, [
         ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
         transform([0, 0, 0], from_euler([0, 0, 0, 1], -30, 0, 0)),
-        mimic(find_first(game.World, "camera anchor"), 0.05),
+        mimic(find_first(game.World, "ca"), 0.05),
     ]);
 }

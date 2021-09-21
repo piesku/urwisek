@@ -5,11 +5,9 @@ import {Bone} from "./components/com_bone.js";
 import {Camera} from "./components/com_camera.js";
 import {Children} from "./components/com_children.js";
 import {Collide} from "./components/com_collide.js";
-import {ControlAi} from "./components/com_control_ai.js";
 import {ControlAlways} from "./components/com_control_always.js";
 import {ControlPlayer} from "./components/com_control_player.js";
 import {Cull} from "./components/com_cull.js";
-import {Draw} from "./components/com_draw.js";
 import {EmitParticles} from "./components/com_emit_particles.js";
 import {Lifespan} from "./components/com_lifespan.js";
 import {Light} from "./components/com_light.js";
@@ -21,23 +19,18 @@ import {RigidBody} from "./components/com_rigid_body.js";
 import {Shake} from "./components/com_shake.js";
 import {Spawn} from "./components/com_spawn.js";
 import {Task} from "./components/com_task.js";
-import {Toggle} from "./components/com_toggle.js";
 import {Transform} from "./components/com_transform.js";
-import {Trigger} from "./components/com_trigger.js";
 
 const enum Component {
     Animate,
-    AudioListener,
     AudioSource,
     Bone,
     Camera,
     Children,
     Collide,
     ControlAlways,
-    ControlAi,
     ControlPlayer,
     Cull,
-    Draw,
     EmitParticles,
     Lifespan,
     Light,
@@ -49,25 +42,20 @@ const enum Component {
     Shake,
     Spawn,
     Task,
-    Toggle,
     Transform,
-    Trigger,
 }
 
 export const enum Has {
     None = 0,
     Animate = 1 << Component.Animate,
-    AudioListener = 1 << Component.AudioListener,
     AudioSource = 1 << Component.AudioSource,
     Bone = 1 << Component.Bone,
     Camera = 1 << Component.Camera,
     Children = 1 << Component.Children,
     Collide = 1 << Component.Collide,
     ControlAlways = 1 << Component.ControlAlways,
-    ControlAi = 1 << Component.ControlAi,
     ControlPlayer = 1 << Component.ControlPlayer,
     Cull = 1 << Component.Cull,
-    Draw = 1 << Component.Draw,
     EmitParticles = 1 << Component.EmitParticles,
     Lifespan = 1 << Component.Lifespan,
     Light = 1 << Component.Light,
@@ -79,9 +67,7 @@ export const enum Has {
     Shake = 1 << Component.Shake,
     Spawn = 1 << Component.Spawn,
     Task = 1 << Component.Task,
-    Toggle = 1 << Component.Toggle,
     Transform = 1 << Component.Transform,
-    Trigger = 1 << Component.Trigger,
 }
 
 export class World extends WorldImpl {
@@ -92,10 +78,8 @@ export class World extends WorldImpl {
     Children: Array<Children> = [];
     Collide: Array<Collide> = [];
     ControlAlways: Array<ControlAlways> = [];
-    ControlAi: Array<ControlAi> = [];
     ControlPlayer: Array<ControlPlayer> = [];
     Cull: Array<Cull> = [];
-    Draw: Array<Draw> = [];
     EmitParticles: Array<EmitParticles> = [];
     Lifespan: Array<Lifespan> = [];
     Light: Array<Light> = [];
@@ -107,7 +91,5 @@ export class World extends WorldImpl {
     Shake: Array<Shake> = [];
     Spawn: Array<Spawn> = [];
     Task: Array<Task> = [];
-    Toggle: Array<Toggle> = [];
     Transform: Array<Transform> = [];
-    Trigger: Array<Trigger> = [];
 }

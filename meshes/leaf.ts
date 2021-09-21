@@ -24,43 +24,49 @@ export function mesh_leaf(gl: WebGLRenderingContext): Mesh {
 
     return {
         VertexBuffer: vertex_buf,
-        VertexArray: vertex_arr,
         NormalBuffer: normal_buf,
-        NormalArray: normal_arr,
         TexCoordBuffer: texcoord_buf,
-        TexCoordArray: texcoord_arr,
         WeightsBuffer: weights_buf,
-        WeightsArray: weights_arr,
         IndexBuffer: index_buf,
-        IndexArray: index_arr,
         IndexCount: index_arr.length,
     };
 }
 
 // prettier-ignore
 let vertex_arr = Float32Array.from([
-    -0.120, 0.016, 0.120,
-    0.040, 0.000, 0.040,
-    -0.050, 0.000, -0.050,
-    0.130, 0.022, -0.130
+    -0.17, 0.02, 0.00,
+    0.00, 0.00, 0.06,
+    -0.00, 0.00, -0.07,
+    0.18, 0.02, -0.00
 ]);
 
 // prettier-ignore
 let normal_arr = Float32Array.from([
-    0.066, 0.996, -0.066,
-    -0.010, 1.000, 0.010,
-    -0.010, 1.000, 0.010,
-    -0.084, 0.993, 0.084
+    0.09, 1.00, 0.00,
+    -0.01, 1.00, 0.00,
+    -0.01, 1.00, 0.00,
+    -0.12, 0.99, 0.00
 ]);
 
 // prettier-ignore
 let texcoord_arr = Float32Array.from([]);
 
 // prettier-ignore
-let weights_arr = Float32Array.from([]);
+let weights_arr = Float32Array.from([
+    2.00, 1.00, 0.00, 0.00,
+    0.00, 1.00, 0.00, 0.00,
+    0.00, 1.00, 0.00, 0.00,
+    1.00, 1.00, 0.00, 0.00
+]);
 
 // prettier-ignore
 let index_arr = Uint16Array.from([
     2, 3, 1,
     0, 2, 1
 ]);
+
+/*
+1.00, 0.00, 0.00, 0.00, 0.00, 1.00, 0.00, 0.00, 0.00, 0.00, 1.00, 0.00, 0.00, 0.00, 0.00, 1.00
+0.12, 0.99, 0.00, 0.00, -0.99, 0.12, -0.00, 0.00, -0.00, -0.00, 1.00, 0.00, -0.00, -0.00, -0.00, 1.00
+0.12, -0.99, -0.00, 0.00, 0.99, 0.12, -0.00, 0.00, 0.00, -0.00, 1.00, 0.00, 0.00, -0.00, -0.00, 1.00
+*/

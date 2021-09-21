@@ -6,3 +6,4 @@ toplevel
 unsafe
 unsafe_math
 hoist_funs
+booleans_as_integers

@@ -1,30 +1,45 @@
 import {instantiate} from "../../common/game.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {blueprint_pixie} from "../blueprints/blu_pixie.js";
+import {instantiate_player} from "../blueprints/blu_player.js";
+import {audio_source} from "../components/com_audio_source.js";
 import {children} from "../components/com_children.js";
 import {mimic} from "../components/com_mimic.js";
 import {find_first} from "../components/com_named.js";
-import {shake} from "../components/com_shake.js";
-import {toggle} from "../components/com_toggle.js";
 import {transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
-import {Has, World} from "../world.js";
-import {map_forest} from "./map_forest.js";
+import {snd_alarm} from "../sounds/snd_alarm.js";
+import {snd_chirp1} from "../sounds/snd_chirp1.js";
+import {snd_gust} from "../sounds/snd_gust.js";
+import {snd_horn} from "../sounds/snd_horn.js";
+import {snd_wind} from "../sounds/snd_wind.js";
+import {World} from "../world.js";
+import {map_city} from "./map_city.js";
 
 export function scene_level3(game: Game) {
     game.World = new World();
     game.ViewportResized = true;
 
-    map_forest(game);
+    instantiate_player(game);
+
+    map_city(game, [0.2, 0.2, 0.2, 1]);
+
+    instantiate(game, [...blueprint_pixie(game), transform([-20, 5, 0])]);
 
     // Camera.
     instantiate(game, [
+        ...blueprint_camera(game, [145 / 255, 85 / 255, 61 / 255, 1]),
         transform([0, 10, 10]),
-        mimic(find_first(game.World, "camera anchor"), 0.05),
-        children([
-            transform(),
-            ...blueprint_camera(game, [0.4, 0.6, 0.4, 1]),
-            shake(0.03),
-            toggle(Has.Shake, 10, 0.3, true),
-        ]),
+        mimic(find_first(game.World, "ca"), 0.05),
+    ]);
+
+    instantiate(game, [
+        children(
+            [audio_source(snd_horn)],
+            [audio_source(snd_chirp1)],
+            [audio_source(snd_wind)],
+            [audio_source(snd_gust)],
+            [audio_source(snd_alarm)]
+        ),
     ]);
 }

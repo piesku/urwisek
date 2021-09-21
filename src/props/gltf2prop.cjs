@@ -22,7 +22,7 @@ let blueprint_name = process.argv[2]
     .replace(/-+$/, "");
 
 let vec = (arr) =>
-    arr ? "[" + arr.map((v) => parseFloat(v.toFixed(3))).join(", ") + "]" : "undefined";
+    arr ? "[" + arr.map((v) => parseFloat(v.toFixed(2))).join(", ") + "]" : "undefined";
 
 let create_child = (mesh, translation, rotation, scale, color) => {
     return `
@@ -40,7 +40,7 @@ let create_child = (mesh, translation, rotation, scale, color) => {
 let gltf = JSON.parse(json);
 let nodes = gltf.nodes;
 let colors = gltf.materials.map((mat) =>
-    (mat.pbrMetallicRoughness.baseColorFactor || [0, 0, 0, 1]).map((col) =>
+    (mat.pbrMetallicRoughness.baseColorFactor || [1, 1, 1, 1]).map((col) =>
         parseFloat(col.toFixed(3))
     )
 );

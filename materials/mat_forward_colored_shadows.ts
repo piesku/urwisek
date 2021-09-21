@@ -35,14 +35,10 @@ let fragment = `#version 300 es\n
 
     uniform vec3 eye;
     uniform vec4 diffuse_color;
-    uniform vec4 specular_color;
-    uniform float shininess;
     uniform vec4 light_positions[MAX_LIGHTS];
-    uniform vec4 light_details[MAX_LIGHTS];
     uniform mat4 shadow_space;
     uniform sampler2DShadow shadow_map;
     uniform vec4 fog_color;
-    uniform float fog_distance;
 
     in vec4 vert_position;
     in vec3 vert_normal;
@@ -66,22 +62,17 @@ let fragment = `#version 300 es\n
     void main() {
         vec3 world_normal = normalize(vert_normal);
 
-        vec3 view_dir = eye - vert_position.xyz;
-        vec3 view_normal = normalize(view_dir);
-
         // Ambient light.
         vec3 light_acc = diffuse_color.rgb * 0.1;
 
         for (int i = 0; i < MAX_LIGHTS; i++) {
-            if (light_positions[i].w == 0.0) {
+            float light_intensity = light_positions[i].w;
+            if (light_intensity == 0.0) {
                 break;
             }
 
-            vec3 light_color = light_details[i].rgb;
-            float light_intensity = light_details[i].a;
-
             vec3 light_normal;
-            if (light_positions[i].w == 1.0) {
+            if (light_intensity < 1.0) {
                 // Directional light.
                 light_normal = light_positions[i].xyz;
             } else {
@@ -94,31 +85,16 @@ let fragment = `#version 300 es\n
 
             float diffuse_factor = dot(world_normal, light_normal);
             if (diffuse_factor > 0.0) {
-                // Diffuse color.
-                light_acc += diffuse_color.rgb * diffuse_factor * light_color * light_intensity;
-
-                if (shininess > 0.0) {
-                    // Phong reflection model.
-                    // vec3 r = reflect(-light_normal, world_normal);
-                    // float specular_angle = max(dot(r, view_normal), 0.0);
-                    // float specular_factor = pow(specular_angle, shininess);
-
-                    // Blinn-Phong reflection model.
-                    vec3 h = normalize(light_normal + view_normal);
-                    float specular_angle = max(dot(h, world_normal), 0.0);
-                    float specular_factor = pow(specular_angle, shininess);
-
-                    // Specular color.
-                    light_acc += specular_color.rgb * specular_factor * light_color * light_intensity;
-                }
+                // Diffuse color. Light is always white.
+                light_acc += diffuse_color.rgb * diffuse_factor * light_intensity;
             }
         }
 
         vec3 shaded_rgb = light_acc * shadow_factor(vert_position, 0.5);
         frag_color= vec4(shaded_rgb, 1.0);
 
-        float eye_distance = length(view_dir);
-        float fog_amount = clamp(0.0, 1.0, eye_distance / fog_distance);
+        float eye_distance = length(eye - vert_position.xyz);
+        float fog_amount = clamp(0.0, 1.0, eye_distance / 15.0);
         frag_color = mix(frag_color, fog_color, smoothstep(0.0, 1.0, fog_amount));
     }
 `;
@@ -136,18 +112,14 @@ export function mat_forward_colored_shadows(
             Self: gl.getUniformLocation(program, "self")!,
 
             DiffuseColor: gl.getUniformLocation(program, "diffuse_color")!,
-            SpecularColor: gl.getUniformLocation(program, "specular_color")!,
-            Shininess: gl.getUniformLocation(program, "shininess")!,
 
             Eye: gl.getUniformLocation(program, "eye")!,
             LightPositions: gl.getUniformLocation(program, "light_positions")!,
-            LightDetails: gl.getUniformLocation(program, "light_details")!,
 
             ShadowSpace: gl.getUniformLocation(program, "shadow_space")!,
             ShadowMap: gl.getUniformLocation(program, "shadow_map")!,
 
             FogColor: gl.getUniformLocation(program, "fog_color")!,
-            FogDistance: gl.getUniformLocation(program, "fog_distance")!,
 
             VertexPosition: gl.getAttribLocation(program, "attr_position")!,
             VertexNormal: gl.getAttribLocation(program, "attr_normal")!,

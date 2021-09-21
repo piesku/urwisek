@@ -5,6 +5,7 @@ import {Has} from "../world.js";
 export interface ControlPlayer {
     Flags: number;
     IsFacingRight: boolean;
+    IsWalking: boolean;
     IsGrabbingEntity: Entity | null;
 }
 
@@ -22,6 +23,7 @@ export function control_player(flags: number) {
         game.World.ControlPlayer[entity] = {
             Flags: flags,
             IsFacingRight: true,
+            IsWalking: false,
             IsGrabbingEntity: null,
         };
     };

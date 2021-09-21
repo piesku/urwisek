@@ -24,41 +24,36 @@ export function mesh_quad(gl: WebGLRenderingContext): Mesh {
 
     return {
         VertexBuffer: vertex_buf,
-        VertexArray: vertex_arr,
         NormalBuffer: normal_buf,
-        NormalArray: normal_arr,
         TexCoordBuffer: texcoord_buf,
-        TexCoordArray: texcoord_arr,
         WeightsBuffer: weights_buf,
-        WeightsArray: weights_arr,
         IndexBuffer: index_buf,
-        IndexArray: index_arr,
         IndexCount: index_arr.length,
     };
 }
 
 // prettier-ignore
 let vertex_arr = Float32Array.from([
-    -1.000, -1.000, -0.000,
-    1.000, -1.000, -0.000,
-    -1.000, 1.000, 0.000,
-    1.000, 1.000, 0.000
+    -1.00, -1.00, -0.00,
+    1.00, -1.00, -0.00,
+    -1.00, 1.00, 0.00,
+    1.00, 1.00, 0.00
 ]);
 
 // prettier-ignore
 let normal_arr = Float32Array.from([
-    0.000, -0.000, 1.000,
-    0.000, -0.000, 1.000,
-    0.000, -0.000, 1.000,
-    0.000, -0.000, 1.000
+    0.00, -0.00, 1.00,
+    0.00, -0.00, 1.00,
+    0.00, -0.00, 1.00,
+    0.00, -0.00, 1.00
 ]);
 
 // prettier-ignore
 let texcoord_arr = Float32Array.from([
-    0.000, 1.000,
-    1.000, 1.000,
-    0.000, 0.000,
-    1.000, 0.000
+    0.00, 1.00,
+    1.00, 1.00,
+    0.00, 0.00,
+    1.00, 0.00
 ]);
 
 // prettier-ignore

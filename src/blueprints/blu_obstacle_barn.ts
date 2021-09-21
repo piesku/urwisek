@@ -11,7 +11,7 @@ export function blueprint_obstacle_barn(game: Game) {
             [transform(), ...prop_barn(game)],
             [
                 transform([0, 1, 0], undefined, [3, 2, 3]),
-                collide(false, Layer.Terrain, Layer.None),
+                collide(false, Layer.Terrain | Layer.SurfaceWood, Layer.None),
                 rigid_body(RigidKind.Static),
             ]
         ),

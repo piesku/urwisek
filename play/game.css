@@ -11,28 +11,19 @@ main {
     width: 100vw;
     height: 100vh;
     user-select: none;
-    overflow: hidden;
-    word-break: break-word;
+    touch-action: none;
 }
 
-nav div {
-    opacity: 0.5;
-    transition: opacity 0.2s;
-}
-
-nav div:hover {
-    opacity: 1;
+main {
+    width: 94vw;
+    padding: 2vh 3vw;
 }
 
 [onclick] {
     cursor: pointer;
+    opacity: 0.5;
 }
 
-@keyframes intro {
-    from {
-        transform: translateY(0);
-    }
-    to {
-        transform: translateY(-100vh);
-    }
+[onclick]:hover {
+    opacity: 1;
 }

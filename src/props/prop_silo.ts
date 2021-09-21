@@ -15,17 +15,7 @@ export function prop_silo(game: Game) {
                 render_colored_shadows(
                     game.MaterialColoredShadows,
                     game.MeshCylinder,
-                    [0.406, 0, 0, 1]
-                ),
-            ],
-
-            [
-                transform([0, 0.001, 0], undefined, [2.6, 0.2, 2.6]),
-                cull(Has.Render),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCylinder,
-                    [0.8, 0.8, 0.8, 1]
+                    [0.41, 0, 0, 1]
                 ),
             ],
 
@@ -50,27 +40,7 @@ export function prop_silo(game: Game) {
             ],
 
             [
-                transform([0, 1.5, 0], undefined, [2.6, 0.2, 2.6]),
-                cull(Has.Render),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCylinder,
-                    [0.8, 0.8, 0.8, 1]
-                ),
-            ],
-
-            [
-                transform([0, 4.5, 0], undefined, [2.6, 0.2, 2.6]),
-                cull(Has.Render),
-                render_colored_shadows(
-                    game.MaterialColoredShadows,
-                    game.MeshCylinder,
-                    [0.8, 0.8, 0.8, 1]
-                ),
-            ],
-
-            [
-                transform([0.527, 3, 1.595], undefined, [0.4, 6, 0.4]),
+                transform([0.53, 3, 1.6], undefined, [0.4, 6, 0.4]),
                 cull(Has.Render),
                 render_colored_shadows(
                     game.MaterialColoredShadows,

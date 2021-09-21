@@ -12,7 +12,6 @@ import {Has} from "../world.js";
 export const enum RigidKind {
     Static,
     Dynamic,
-    Kinematic,
 }
 
 export interface RigidBody {
@@ -21,7 +20,6 @@ export interface RigidBody {
     Acceleration: Vec3;
     VelocityIntegrated: Vec3;
     VelocityResolved: Vec3;
-    LastPosition: Vec3;
     IsAirborne: boolean;
 }
 
@@ -34,7 +32,6 @@ export function rigid_body(kind: RigidKind, bounciness = 0.5) {
             Acceleration: [0, 0, 0],
             VelocityIntegrated: [0, 0, 0],
             VelocityResolved: [0, 0, 0],
-            LastPosition: [0, 0, 0],
             IsAirborne: false,
         };
     };

@@ -9,7 +9,6 @@ import {Has} from "../world.js";
 
 export interface Lifespan {
     Remaining: number;
-    Action?: Action;
 }
 
 export function lifespan(remaining: number, action?: Action) {
@@ -17,7 +16,6 @@ export function lifespan(remaining: number, action?: Action) {
         game.World.Signature[entity] |= Has.Lifespan;
         game.World.Lifespan[entity] = {
             Remaining: remaining,
-            Action: action,
         };
     };
 }

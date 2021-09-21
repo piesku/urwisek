@@ -124,6 +124,34 @@ export interface CameraDepth extends CameraEye {
     Projection: Projection;
 }
 
+export function camera_depth_perspective(
+    target: DepthTarget,
+    fovy: number,
+    near: number,
+    far: number,
+    clear_color: Vec4 = [0, 0, 0, 1]
+) {
+    return (game: Game, entity: Entity) => {
+        game.World.Signature[entity] |= Has.Camera;
+        game.World.Camera[entity] = {
+            Kind: CameraKind.Depth,
+            Target: target,
+            Projection: {
+                Kind: ProjectionKind.Perspective,
+                FovY: fovy,
+                Near: near,
+                Far: far,
+                Projection: create(),
+                Inverse: create(),
+            },
+            View: create(),
+            Pv: create(),
+            Position: [0, 0, 0],
+            ClearColor: clear_color,
+        };
+    };
+}
+
 export function camera_depth_ortho(
     target: DepthTarget,
     radius: number,

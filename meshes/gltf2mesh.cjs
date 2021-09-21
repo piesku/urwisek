@@ -8,6 +8,7 @@ if (process.argv.length !== 3) {
     process.exit(1);
 }
 
+const DEC = 2;
 process.stdin.resume();
 let json = readFileSync(process.stdin.fd, "utf8");
 process.stdin.pause();
@@ -145,30 +146,25 @@ export function mesh_${process.argv[2]}(gl: WebGLRenderingContext): Mesh {
 
     return {
         VertexBuffer: vertex_buf,
-        VertexArray: vertex_arr,
         NormalBuffer: normal_buf,
-        NormalArray: normal_arr,
         TexCoordBuffer: texcoord_buf,
-        TexCoordArray: texcoord_arr,
         WeightsBuffer: weights_buf,
-        WeightsArray: weights_arr,
         IndexBuffer: index_buf,
-        IndexArray: index_arr,
         IndexCount: index_arr.length,
     };
 }
 
 // prettier-ignore
-let vertex_arr = Float32Array.from([${break_every(3, position_data, 3)}]);
+let vertex_arr = Float32Array.from([${break_every(3, position_data, DEC)}]);
 
 // prettier-ignore
-let normal_arr = Float32Array.from([${break_every(3, normal_data, 3)}]);
+let normal_arr = Float32Array.from([${break_every(3, normal_data, DEC)}]);
 
 // prettier-ignore
-let texcoord_arr = Float32Array.from([${break_every(2, texcoord_data, 3)}]);
+let texcoord_arr = Float32Array.from([${break_every(2, texcoord_data, DEC)}]);
 
 // prettier-ignore
-let weights_arr = Float32Array.from([${break_every(4, weighted_joints, 3)}]);
+let weights_arr = Float32Array.from([${break_every(4, weighted_joints, DEC)}]);
 
 // prettier-ignore
 let index_arr = Uint16Array.from([${break_every(
@@ -200,7 +196,7 @@ if (gltf.skins) {
     console.log("\n/*");
     for (let j = 0; j < bind_poses_accessor.count; j++) {
         let mat = bind_poses_data.subarray(j * 16, j * 16 + 16);
-        console.log(Array.from(mat, (x) => x.toFixed(3)).join(", "));
+        console.log(Array.from(mat, (x) => x.toFixed(DEC)).join(", "));
     }
     console.log("*/");
 }
