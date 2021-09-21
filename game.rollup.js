@@ -4806,6 +4806,25 @@
         Exit: 0.25,
     };
 
+    let snd_walk3 = {
+        Instrument: [
+            8,
+            "bandpass",
+            8,
+            2,
+            false,
+            false,
+            8,
+            8,
+            [
+                ["square", 3, 1, 1, 2, 8, false],
+                [false, 3, 2, 2, 3],
+            ],
+        ],
+        Notes: [48],
+        Exit: 0.25,
+    };
+
     const QUERY$g = 128 /* ControlPlayer */;
     function sys_control_animate(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
@@ -4825,8 +4844,11 @@
                 if (other_layers & 16 /* SurfaceGround */) {
                     audio_source.Trigger = snd_walk1;
                 }
-                else {
+                else if (other_layers & 32 /* SurfaceWood */) {
                     audio_source.Trigger = snd_walk2;
+                }
+                else if (other_layers & 64 /* SurfaceMetal */) {
+                    audio_source.Trigger = snd_walk3;
                 }
             }
         }
